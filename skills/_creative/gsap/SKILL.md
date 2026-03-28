@@ -1,24 +1,24 @@
 # GSAP — Animation Engine
 
-## Quand utiliser GSAP
+## When to use GSAP
 
-| Critere               | CSS Transitions | Framer Motion | GSAP              |
+| Criteria              | CSS Transitions | Framer Motion | GSAP              |
 | --------------------- | --------------- | ------------- | ----------------- |
-| Hover / simple toggle | Oui             | Oui           | Overkill          |
-| Timeline sequencee    | Non             | Limite        | **Oui**           |
-| Scroll-driven         | scroll-timeline | Limite        | **ScrollTrigger** |
-| Stagger complexe      | Non             | Basique       | **Distribution**  |
-| Perf mobile (60fps)   | Bon             | Moyen         | **Excellent**     |
-| Text splitting        | Non             | Non           | **SplitText**     |
-| SVG morph / draw      | Non             | Non           | **MorphSVG**      |
+| Hover / simple toggle | Yes             | Yes           | Overkill          |
+| Sequenced timeline    | No              | Limited       | **Yes**           |
+| Scroll-driven         | scroll-timeline | Limited       | **ScrollTrigger** |
+| Complex stagger       | No              | Basic         | **Distribution**  |
+| Mobile perf (60fps)   | Good            | Average       | **Excellent**     |
+| Text splitting        | No              | No            | **SplitText**     |
+| SVG morph / draw      | No              | No            | **MorphSVG**      |
 | Bundle size concern   | 0kb             | ~30kb         | ~25kb + plugins   |
 
-**Regle** : si l'animation a besoin de timeline, scroll-link, ou stagger distribue, GSAP. Sinon CSS d'abord.
+**Rule**: if the animation needs timeline, scroll-link, or distributed stagger, use GSAP. Otherwise CSS first.
 
 ## Setup
 
 ```js
-// Toujours enregistrer les plugins au top level
+// Always register plugins at the top level
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
@@ -26,7 +26,7 @@ import { SplitText } from "gsap/SplitText";
 gsap.registerPlugin(ScrollTrigger, SplitText);
 ```
 
-React : utiliser `useGSAP()` du package `@gsap/react` au lieu de `useEffect` + cleanup manuel.
+React: use `useGSAP()` from the `@gsap/react` package instead of `useEffect` + manual cleanup.
 
 ```jsx
 import { useGSAP } from "@gsap/react";
@@ -38,7 +38,7 @@ useGSAP(() => {
 
 ## Core Patterns
 
-### defaults{} pour eviter la repetition
+### defaults{} to avoid repetition
 
 ```js
 const tl = gsap.timeline({
@@ -49,13 +49,13 @@ tl.to(".a", { y: -20 })
   .to(".c", { y: -20 }, "<0.1");
 ```
 
-### fromTo pour controle total
+### fromTo for full control
 
 ```js
 gsap.fromTo(".card", { y: 40, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.15 });
 ```
 
-### Stagger avec distribution
+### Stagger with distribution
 
 ```js
 gsap.to(".grid-item", {
@@ -63,15 +63,15 @@ gsap.to(".grid-item", {
   stagger: {
     each: 0.05,
     from: "center",   // "start" | "end" | "center" | "edges" | "random" | index
-    grid: "auto",      // detecte la grille automatiquement
-    axis: "x",         // "x" | "y" | null (les deux)
+    grid: "auto",      // auto-detects the grid
+    axis: "x",         // "x" | "y" | null (both)
   },
 });
 ```
 
 ## ScrollTrigger Patterns
 
-### Pin + Scrub basique
+### Basic Pin + Scrub
 
 ```js
 gsap.to(".panel", {
@@ -86,7 +86,7 @@ gsap.to(".panel", {
 });
 ```
 
-### Batch pour reveal en masse
+### Batch for mass reveal
 
 ```js
 ScrollTrigger.batch(".card", {
@@ -95,7 +95,7 @@ ScrollTrigger.batch(".card", {
 });
 ```
 
-### Scroll horizontal avec containerAnimation
+### Horizontal scroll with containerAnimation
 
 ```js
 const scrollTween = gsap.to(".panels", {
@@ -104,12 +104,12 @@ const scrollTween = gsap.to(".panels", {
   scrollTrigger: { trigger: ".wrapper", pin: true, scrub: 1 },
 });
 
-// Animer des elements A L'INTERIEUR du scroll horizontal
+// Animate elements INSIDE the horizontal scroll
 gsap.to(".panel-content", {
   scale: 1.2,
   scrollTrigger: {
     trigger: ".panel-content",
-    containerAnimation: scrollTween, // relie au scroll horizontal
+    containerAnimation: scrollTween, // linked to horizontal scroll
     start: "left center",
     end: "right center",
     scrub: true,
@@ -117,67 +117,67 @@ gsap.to(".panel-content", {
 });
 ```
 
-## DO NOT — Erreurs critiques
+## DO NOT — Critical mistakes
 
-### 1. Ease sur containerAnimation
+### 1. Ease on containerAnimation
 
 ```js
-// BAD — le ease casse le mapping scroll
+// BAD — ease breaks the scroll mapping
 scrollTrigger: { containerAnimation: scrollTween, scrub: 1, ease: "power2.out" }
 
-// GOOD — toujours ease: "none" sur le tween parent
+// GOOD — always ease: "none" on the parent tween
 const scrollTween = gsap.to(".panels", { x: ..., ease: "none", scrollTrigger: { scrub: 1 } });
 ```
 
-### 2. ScrollTrigger sur un child tween dans un timeline
+### 2. ScrollTrigger on a child tween in a timeline
 
 ```js
-// BAD — ScrollTrigger ignore les tweens enfants d'un timeline avec son propre ScrollTrigger
+// BAD — ScrollTrigger ignores child tweens of a timeline that has its own ScrollTrigger
 const tl = gsap.timeline({ scrollTrigger: { trigger: ".section" } });
 tl.to(".box", { x: 100, scrollTrigger: { trigger: ".box" } }); // IGNORE
 
-// GOOD — un seul ScrollTrigger par timeline OU des tweens independants
+// GOOD — one ScrollTrigger per timeline OR standalone tweens
 gsap.to(".box", { x: 100, scrollTrigger: { trigger: ".box" } }); // tween standalone
 ```
 
-### 3. setState dans onUpdate
+### 3. setState in onUpdate
 
 ```js
-// BAD — setState 60x/sec = re-render hell
+// BAD — setState 60x/s = re-render hell
 scrollTrigger: { onUpdate: (self) => setProgress(self.progress) }
 
-// GOOD — muter une ref ou un DOM element directement
+// GOOD — mutate a ref or DOM element directly
 const progressRef = useRef(0);
 scrollTrigger: { onUpdate: (self) => { progressRef.current = self.progress; } }
-// Ou mieux : gsap.quickSetter pour muter le DOM sans React
+// Or better: gsap.quickSetter to mutate the DOM without React
 ```
 
-### 4. immediateRender sur from() dans un timeline
+### 4. immediateRender on from() in a timeline
 
 ```js
-// BAD — from() a immediateRender: true par defaut, casse le sequencing
+// BAD — from() has immediateRender: true by default, breaks sequencing
 tl.to(".box", { x: 100 });
-tl.from(".box", { y: 50 }); // saute visuellement au debut
+tl.from(".box", { y: 50 }); // visually jumps to the start
 
-// GOOD — desactiver immediateRender quand from() suit un autre tween
+// GOOD — disable immediateRender when from() follows another tween
 tl.to(".box", { x: 100 });
 tl.from(".box", { y: 50, immediateRender: false });
 ```
 
-### 5. Animer des proprietes non-transform
+### 5. Animating non-transform properties
 
 ```js
-// BAD — width/height/top/left declenchent layout reflow
+// BAD — width/height/top/left trigger layout reflow
 gsap.to(".box", { width: 200, height: 200 });
 
-// GOOD — utiliser transforms (GPU-accelerated, composited)
+// GOOD — use transforms (GPU-accelerated, composited)
 gsap.to(".box", { scaleX: 1.5, scaleY: 1.5 });
-// Si taille reelle requise : utiliser Flip plugin pour transition layout
+// If actual size needed: use Flip plugin for layout transition
 ```
 
 ## Refs
 
-- `references/core.md` — API complete gsap.to/from/fromTo/set, options
+- `references/core.md` — Complete gsap.to/from/fromTo/set API, options
 - `references/timeline.md` — Timeline, position parameter, nesting
-- `references/scrolltrigger.md` — ScrollTrigger complet
+- `references/scrolltrigger.md` — Full ScrollTrigger reference
 - `references/plugins.md` — SplitText, Flip, MorphSVG, DrawSVG, MotionPath, Observer

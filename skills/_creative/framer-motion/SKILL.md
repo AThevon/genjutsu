@@ -1,20 +1,20 @@
 # Framer Motion — Sub-skill
 
-> Package: `motion` (v11+, anciennement `framer-motion`). Import: `import { motion, AnimatePresence } from "motion/react"`
+> Package: `motion` (v11+, formerly `framer-motion`). Import: `import { motion, AnimatePresence } from "motion/react"`
 
-## Quand utiliser Framer Motion vs alternatives
+## When to use Framer Motion vs alternatives
 
-| Critere | Framer Motion | GSAP | CSS natif |
+| Criteria | Framer Motion | GSAP | Native CSS |
 |---------|--------------|------|-----------|
-| Layout animations | Excellent (layoutId) | Manuel | Impossible |
-| Exit animations | AnimatePresence | Timeline reverse | Limité (display) |
-| Gestures (drag, hover) | Natif, déclaratif | Draggable plugin | Basique |
-| Scroll-driven | useScroll + useTransform | ScrollTrigger (plus puissant) | scroll-timeline |
-| Orchestration complexe | Variants + propagation | Timeline (plus flexible) | @keyframes |
+| Layout animations | Excellent (layoutId) | Manual | Impossible |
+| Exit animations | AnimatePresence | Timeline reverse | Limited (display) |
+| Gestures (drag, hover) | Native, declarative | Draggable plugin | Basic |
+| Scroll-driven | useScroll + useTransform | ScrollTrigger (more powerful) | scroll-timeline |
+| Complex orchestration | Variants + propagation | Timeline (more flexible) | @keyframes |
 | Bundle size | ~50kb tree-shaken | ~30kb core | 0kb |
-| React integration | Natif, composant-first | Refs + useGSAP | className toggle |
+| React integration | Native, component-first | Refs + useGSAP | className toggle |
 
-**Regle** : Framer Motion pour les interactions UI React (modals, toasts, reorder, shared layout). GSAP pour les timelines complexes, scroll-driven cinematiques, morphing SVG.
+**Rule**: Framer Motion for React UI interactions (modals, toasts, reorder, shared layout). GSAP for complex timelines, cinematic scroll-driven, SVG morphing.
 
 ## AnimatePresence — Exit animations
 
@@ -22,7 +22,7 @@
 <AnimatePresence mode="wait">
   {isVisible && (
     <motion.div
-      key="unique-key"        // OBLIGATOIRE — identifie le composant
+      key="unique-key"        // REQUIRED — identifies the component
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -31,28 +31,28 @@
 </AnimatePresence>
 ```
 
-- `mode="wait"` — attend la fin de l'exit avant le enter (page transitions)
-- `mode="sync"` — exit et enter simultanés
-- `mode="popLayout"` — retire du flow immédiatement (bon pour les listes)
-- `onExitComplete` — callback quand toutes les exit animations sont terminées
+- `mode="wait"` — waits for exit to finish before enter (page transitions)
+- `mode="sync"` — exit and enter simultaneously
+- `mode="popLayout"` — removes from flow immediately (good for lists)
+- `onExitComplete` — callback when all exit animations are finished
 
 ## Layout animations
 
 ```tsx
-// Shared layout — l'element "glisse" entre deux positions
+// Shared layout — the element "slides" between two positions
 <motion.div layoutId="highlight" className={activeTab === id ? "active" : ""} />
 
-// Layout auto — anime position/taille quand le layout change
+// Auto layout — animates position/size when layout changes
 <motion.div layout>
-  {isExpanded && <motion.p layout>Contenu additionnel</motion.p>}
+  {isExpanded && <motion.p layout>Additional content</motion.p>}
 </motion.div>
 
-// layout="position" — anime seulement la position (pas la taille)
-// layout="size" — anime seulement la taille
-// layout="preserve-aspect" — preserve le ratio pendant la transition
+// layout="position" — animates position only (not size)
+// layout="size" — animates size only
+// layout="preserve-aspect" — preserves the ratio during the transition
 ```
 
-## Variants — Propagation et orchestration
+## Variants — Propagation and orchestration
 
 ```tsx
 const container = {
@@ -79,7 +79,7 @@ const item = {
 </motion.ul>
 ```
 
-Les variants **propagent automatiquement** aux enfants motion — pas besoin de `initial`/`animate` sur les enfants.
+Variants **automatically propagate** to motion children — no need for `initial`/`animate` on children.
 
 ## Gestures
 
@@ -91,15 +91,15 @@ Les variants **propagent automatiquement** aux enfants motion — pas besoin de 
   // Drag
   drag               // true = x+y, "x" = horizontal only, "y" = vertical only
   dragConstraints={{ left: -100, right: 100, top: -50, bottom: 50 }}
-  dragElastic={0.2}  // 0 = rigid, 1 = libre (default 0.35)
-  dragSnapToOrigin   // retourne a la position initiale
+  dragElastic={0.2}  // 0 = rigid, 1 = free (default 0.35)
+  dragSnapToOrigin   // returns to initial position
   onDragEnd={(e, info) => {
     if (info.offset.x > 100) handleSwipe("right");
   }}
 />
 ```
 
-## Motion values — Reactive sans re-render
+## Motion values — Reactive without re-render
 
 ```tsx
 const x = useMotionValue(0);
@@ -121,61 +121,61 @@ const { scrollYProgress } = useScroll({
 });
 ```
 
-**Motion values ne declenchent PAS de re-render React** — ils mettent a jour le DOM directement via `style`.
+**Motion values do NOT trigger React re-renders** — they update the DOM directly via `style`.
 
 ## Do Not
 
-### Ne pas setState dans les callbacks sans guard
+### Do not setState in callbacks without a guard
 
 ```tsx
-// BAD — re-render infini si animate depend de state
+// BAD — infinite re-render if animate depends on state
 onUpdate={(latest) => setPosition(latest.x)}
 
-// GOOD — guard ou useMotionValueEvent
+// GOOD — guard or useMotionValueEvent
 const x = useMotionValue(0);
 useMotionValueEvent(x, "change", (latest) => {
   if (latest > threshold) onThresholdReached();
 });
 ```
 
-### Ne pas faire de layout animation sans key stable
+### Do not use layout animation without a stable key
 
 ```tsx
-// BAD — key change a chaque render, casse le layout tracking
+// BAD — key changes every render, breaks layout tracking
 <motion.div layout key={Math.random()} />
 
-// GOOD — key stable derivee des donnees
+// GOOD — stable key derived from data
 <motion.div layout key={item.id} />
 ```
 
-### Ne pas oublier le key unique sur AnimatePresence
+### Do not forget the unique key on AnimatePresence
 
 ```tsx
-// BAD — pas de key, exit animation ne se declenche pas
+// BAD — no key, exit animation does not trigger
 <AnimatePresence>
   {isOpen && <motion.div exit={{ opacity: 0 }} />}
 </AnimatePresence>
 
-// GOOD — key unique pour chaque enfant conditionnel
+// GOOD — unique key for each conditional child
 <AnimatePresence>
   {isOpen && <motion.div key="modal" exit={{ opacity: 0 }} />}
 </AnimatePresence>
 ```
 
-### Ne pas wrapper un composant deja anime avec motion.div
+### Do not wrap an already animated component with motion.div
 
 ```tsx
-// BAD — double animation, conflits de transform
+// BAD — double animation, transform conflicts
 <motion.div animate={{ x: 100 }}>
   <motion.div animate={{ x: -50 }}>Content</motion.div>
 </motion.div>
 
-// GOOD — un seul niveau d'animation par axe de transform
+// GOOD — single animation level per transform axis
 <motion.div animate={{ x: 100 }}>
   <motion.div animate={{ opacity: 0.5 }}>Content</motion.div>
 </motion.div>
 
-// GOOD — utiliser variants pour coordonner parent/enfant
+// GOOD — use variants to coordinate parent/child
 <motion.div variants={parent} animate="active">
   <motion.div variants={child} />
 </motion.div>

@@ -1,6 +1,6 @@
 ---
 name: design-excellence
-description: "Pipeline design d'exception — brainstorm direction artistique, design system, implémentation, audit. Pour construire un univers visuel complet."
+description: "Exceptional design pipeline — art direction brainstorm, design system, implementation, audit. Build a complete visual universe."
 allowed-tools: Bash, Read, Edit, Write, Grep, Glob, WebSearch, Agent
 ---
 
@@ -60,7 +60,7 @@ From the brainstorm answers, produce two theses:
 
 A single sentence that captures the entire visual identity.
 
-> Example: "Interface dark neo-brutalist avec typo monospace bold, accents fluo chartreuse, espaces genereux, composants aux bords bruts avec ombres decalees."
+> Example: "Dark neo-brutalist interface with bold monospace type, fluorescent chartreuse accents, generous whitespace, raw-edged components with offset shadows."
 
 Must cover: color direction, typography spirit, spacing philosophy, component style.
 
@@ -68,7 +68,7 @@ Must cover: color direction, typography spirit, spacing philosophy, component st
 
 A single sentence that captures the motion and interaction language.
 
-> Example: "Transitions rapides et seches (100-200ms), hover avec scale subtil (1.02), scroll-triggered reveals avec stagger, pas de bounce ni d'elastic — tout en ease-out sharp."
+> Example: "Fast and dry transitions (100-200ms), hover with subtle scale (1.02), scroll-triggered reveals with stagger, no bounce or elastic — all sharp ease-out."
 
 Must cover: timing range, hover behavior, scroll behavior, forbidden patterns.
 

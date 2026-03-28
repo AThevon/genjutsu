@@ -8,23 +8,23 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 ```
 
-## Syntaxe de base
+## Basic syntax
 
-### Sur un tween
+### On a tween
 
 ```js
 gsap.to(".box", {
   x: 200,
   scrollTrigger: {
-    trigger: ".box",    // element declencheur
-    start: "top center", // quand le TOP du trigger atteint le CENTER du viewport
+    trigger: ".box",    // trigger element
+    start: "top center", // when the TOP of the trigger reaches the CENTER of the viewport
     end: "bottom center",
     toggleActions: "play none none none",
   },
 });
 ```
 
-### Sur un timeline
+### On a timeline
 
 ```js
 const tl = gsap.timeline({
@@ -39,7 +39,7 @@ const tl = gsap.timeline({
 tl.to(".a", { x: 200 }).to(".b", { y: -100 }, "<");
 ```
 
-### Standalone (sans tween)
+### Standalone (without tween)
 
 ```js
 ScrollTrigger.create({
@@ -52,96 +52,96 @@ ScrollTrigger.create({
 });
 ```
 
-## Proprietes
+## Properties
 
 ### trigger
 
-Element ou selecteur qui definit la zone de declenchement.
+Element or selector that defines the trigger zone.
 
 ```js
-trigger: ".my-section"   // selecteur CSS
-trigger: elementRef       // element DOM
+trigger: ".my-section"   // CSS selector
+trigger: elementRef       // DOM element
 ```
 
 ### start / end
 
 Format : `"triggerPoint viewportPoint"`.
 
-Valeurs possibles pour chaque point : `top`, `center`, `bottom`, pourcentage (`80%`), pixels (`200px`), ou fonction.
+Possible values for each point: `top`, `center`, `bottom`, percentage (`80%`), pixels (`200px`), or function.
 
 ```js
-start: "top center"        // top du trigger = center du viewport
-start: "top 80%"           // top du trigger = 80% du viewport (depuis le haut)
-start: "top top+=100"      // top du trigger = top du viewport + 100px
-end: "bottom top"          // bottom du trigger = top du viewport
-end: "+=500"               // 500px apres le start
-end: () => "+=" + el.offsetHeight // dynamique
+start: "top center"        // top of trigger = center of viewport
+start: "top 80%"           // top of trigger = 80% of viewport (from top)
+start: "top top+=100"      // top of trigger = top of viewport + 100px
+end: "bottom top"          // bottom of trigger = top of viewport
+end: "+=500"               // 500px after start
+end: () => "+=" + el.offsetHeight // dynamic
 ```
 
 ### scrub
 
-Lie la progression de l'animation au scroll.
+Links animation progress to scroll.
 
 ```js
-scrub: true    // instantane (suit le scroll exactement)
-scrub: 0.5     // smooth avec 0.5s de "rattrapage"
-scrub: 1       // smooth avec 1s de rattrapage (recommande)
-scrub: 3       // tres smooth, effet fluide
+scrub: true    // instant (follows scroll exactly)
+scrub: 0.5     // smooth with 0.5s catch-up
+scrub: 1       // smooth with 1s catch-up (recommended)
+scrub: 3       // very smooth, fluid effect
 ```
 
 ### pin
 
-Epingle l'element pendant la duree du ScrollTrigger.
+Pins the element for the duration of the ScrollTrigger.
 
 ```js
-pin: true               // epingle le trigger
-pin: ".other-element"   // epingle un autre element
-pinSpacing: true         // defaut: ajoute du padding pour compenser
-pinSpacing: false        // pas de padding (pour overlay effects)
-pinReparent: true        // reparente le pin (fix z-index issues, prudence)
+pin: true               // pins the trigger
+pin: ".other-element"   // pins another element
+pinSpacing: true         // default: adds padding to compensate
+pinSpacing: false        // no padding (for overlay effects)
+pinReparent: true        // reparents the pin (fixes z-index issues, use with caution)
 ```
 
 ### snap
 
-Accroche la progression a des points precis apres le scroll.
+Snaps progress to specific points after scrolling.
 
 ```js
-snap: 0.25                // accroche tous les 25%
-snap: [0, 0.25, 0.5, 1]  // accroche aux points specifiques
-snap: "labels"            // accroche aux labels du timeline
+snap: 0.25                // snaps every 25%
+snap: [0, 0.25, 0.5, 1]  // snaps to specific points
+snap: "labels"            // snaps to timeline labels
 
-// Config avancee
+// Advanced config
 snap: {
   snapTo: "labels",
   duration: { min: 0.2, max: 0.8 },
   delay: 0.1,
   ease: "power1.inOut",
-  directional: true,     // snap dans la direction du scroll
+  directional: true,     // snap in the scroll direction
 }
 ```
 
 ### toggleActions
 
-Definit le comportement aux 4 moments : `onEnter`, `onLeave`, `onEnterBack`, `onLeaveBack`.
+Defines behavior at 4 moments: `onEnter`, `onLeave`, `onEnterBack`, `onLeaveBack`.
 
-Actions possibles : `play`, `pause`, `resume`, `reset`, `restart`, `complete`, `reverse`, `none`.
+Possible actions: `play`, `pause`, `resume`, `reset`, `restart`, `complete`, `reverse`, `none`.
 
 ```js
-toggleActions: "play none none none"     // defaut
-toggleActions: "play pause resume reverse" // classique
-toggleActions: "restart none none reset"   // reset a chaque entree
+toggleActions: "play none none none"     // default
+toggleActions: "play pause resume reverse" // classic
+toggleActions: "restart none none reset"   // reset on each entry
 ```
 
 ### toggleClass
 
 ```js
-toggleClass: "active"                           // toggle sur le trigger
-toggleClass: { targets: ".box", className: "active" } // toggle sur d'autres elements
+toggleClass: "active"                           // toggle on the trigger
+toggleClass: { targets: ".box", className: "active" } // toggle on other elements
 ```
 
 ### markers
 
-Debug visuel. **A retirer en production.**
+Visual debug. **Remove in production.**
 
 ```js
 markers: true
@@ -155,32 +155,32 @@ ScrollTrigger.create({
   trigger: ".section",
   start: "top center",
   end: "bottom center",
-  onEnter:     (self) => {},  // scroll down, entre dans la zone
-  onLeave:     (self) => {},  // scroll down, sort de la zone
-  onEnterBack: (self) => {},  // scroll up, re-entre dans la zone
-  onLeaveBack: (self) => {},  // scroll up, sort par le haut
-  onUpdate:    (self) => {    // chaque frame pendant scrub
+  onEnter:     (self) => {},  // scroll down, enters the zone
+  onLeave:     (self) => {},  // scroll down, exits the zone
+  onEnterBack: (self) => {},  // scroll up, re-enters the zone
+  onLeaveBack: (self) => {},  // scroll up, exits from the top
+  onUpdate:    (self) => {    // every frame during scrub
     self.progress;    // 0-1
-    self.direction;   // 1 (down) ou -1 (up)
-    self.isActive;    // dans la zone ?
-    self.getVelocity(); // vitesse du scroll
+    self.direction;   // 1 (down) or -1 (up)
+    self.isActive;    // in the zone?
+    self.getVelocity(); // scroll velocity
   },
-  onToggle:    (self) => {},  // quand isActive change
-  onRefresh:   (self) => {},  // quand les positions sont recalculees
-  onScrubComplete: () => {},  // quand le scrub finit de rattraper
+  onToggle:    (self) => {},  // when isActive changes
+  onRefresh:   (self) => {},  // when positions are recalculated
+  onScrubComplete: () => {},  // when scrub finishes catching up
 });
 ```
 
 ## containerAnimation
 
-Permet de creer des ScrollTriggers pour des elements a l'interieur d'un scroll horizontal.
+Allows creating ScrollTriggers for elements inside a horizontal scroll.
 
 ```js
-// 1. Creer le scroll horizontal
+// 1. Create the horizontal scroll
 const panels = gsap.utils.toArray(".panel");
 const scrollTween = gsap.to(panels, {
   xPercent: -100 * (panels.length - 1),
-  ease: "none", // OBLIGATOIRE: ease none sur le tween parent
+  ease: "none", // REQUIRED: ease none on the parent tween
   scrollTrigger: {
     trigger: ".panels-container",
     pin: true,
@@ -189,15 +189,15 @@ const scrollTween = gsap.to(panels, {
   },
 });
 
-// 2. Animer des elements individuels dans le scroll horizontal
+// 2. Animate individual elements within the horizontal scroll
 panels.forEach((panel) => {
   gsap.from(panel.querySelector(".content"), {
     opacity: 0,
     y: 50,
     scrollTrigger: {
       trigger: panel,
-      containerAnimation: scrollTween, // LIE au scroll horizontal
-      start: "left center",            // axes horizontaux !
+      containerAnimation: scrollTween, // LINKED to horizontal scroll
+      start: "left center",            // horizontal axes!
       end: "center center",
       scrub: true,
     },
@@ -205,15 +205,15 @@ panels.forEach((panel) => {
 });
 ```
 
-**Pieges containerAnimation** :
-- Le tween parent DOIT avoir `ease: "none"`
-- Les start/end utilisent des axes horizontaux (`left`, `right`, `center`)
-- Ne PAS mettre de `pin` sur les ScrollTriggers enfants
-- Ne PAS utiliser `snap` sur les enfants
+**containerAnimation pitfalls**:
+- The parent tween MUST have `ease: "none"`
+- start/end use horizontal axes (`left`, `right`, `center`)
+- Do NOT put `pin` on child ScrollTriggers
+- Do NOT use `snap` on children
 
 ## ScrollTrigger.batch()
 
-Anime les elements par lots quand ils entrent dans le viewport. Ideal pour les grilles.
+Animates elements in batches when they enter the viewport. Ideal for grids.
 
 ```js
 ScrollTrigger.batch(".card", {
@@ -232,16 +232,16 @@ ScrollTrigger.batch(".card", {
     gsap.to(elements, { opacity: 1, y: 0, stagger: 0.1 });
   },
   start: "top 85%",
-  // interval: 0.1, // temps de groupement (defaut: 0.1s)
+  // interval: 0.1, // batching time (default: 0.1s)
 });
 
-// Setup initial
+// Initial setup
 gsap.set(".card", { opacity: 0, y: 30 });
 ```
 
 ## matchMedia
 
-Animations responsives avec cleanup automatique.
+Responsive animations with automatic cleanup.
 
 ```js
 ScrollTrigger.matchMedia({
@@ -251,7 +251,7 @@ ScrollTrigger.matchMedia({
       x: 500,
       scrollTrigger: { trigger: ".section", scrub: true },
     });
-    // Tout ce qui est cree ici est automatiquement kill quand le media ne matche plus
+    // Everything created here is automatically killed when the media no longer matches
   },
 
   // Mobile
@@ -262,7 +262,7 @@ ScrollTrigger.matchMedia({
     });
   },
 
-  // Toutes tailles
+  // All sizes
   all: function () {
     gsap.to(".always", { opacity: 1 });
   },
@@ -271,35 +271,35 @@ ScrollTrigger.matchMedia({
 
 ## Refresh
 
-ScrollTrigger recalcule les positions sur resize. Parfois il faut forcer manuellement :
+ScrollTrigger recalculates positions on resize. Sometimes you need to force it manually:
 
 ```js
-// Apres chargement d'images, changement de contenu dynamique, etc.
+// After loading images, dynamic content changes, etc.
 ScrollTrigger.refresh();
 
-// Attendre que les fonts/images soient chargees
-ScrollTrigger.refresh(true); // safe mode : attend le prochain tick
+// Wait for fonts/images to load
+ScrollTrigger.refresh(true); // safe mode: waits for the next tick
 
-// Recalculer un seul ScrollTrigger
+// Recalculate a single ScrollTrigger
 myTrigger.refresh();
 
-// Sort order : controle l'ordre de refresh
-ScrollTrigger.sort(); // trie par position de start (recommande apres ajout dynamique)
+// Sort order: controls refresh order
+ScrollTrigger.sort(); // sorts by start position (recommended after dynamic additions)
 ```
 
-## Methodes statiques utiles
+## Useful static methods
 
 ```js
-ScrollTrigger.getAll()                // tous les ScrollTriggers actifs
-ScrollTrigger.getById("myId")         // par id
-ScrollTrigger.killAll()               // detruit tout
-ScrollTrigger.saveStyles(".box")      // sauvegarde les styles avant matchMedia
+ScrollTrigger.getAll()                // all active ScrollTriggers
+ScrollTrigger.getById("myId")         // by id
+ScrollTrigger.killAll()               // destroys all
+ScrollTrigger.saveStyles(".box")      // saves styles before matchMedia
 ScrollTrigger.scrollerProxy(el, {})   // custom scroller (Locomotive, Lenis)
-ScrollTrigger.normalizeScroll(true)   // normalise le scroll touch (anti-overscroll)
+ScrollTrigger.normalizeScroll(true)   // normalizes touch scroll (anti-overscroll)
 ScrollTrigger.config({ limitCallbacks: true }) // optimize perf
 ```
 
-## Integration smooth scroll (Lenis)
+## Smooth scroll integration (Lenis)
 
 ```js
 import Lenis from "lenis";
@@ -319,6 +319,6 @@ useGSAP(() => {
     start: "top center",
     onEnter: () => { /* ... */ },
   });
-  // useGSAP kill automatiquement tous les ScrollTriggers crees dans le scope
+  // useGSAP automatically kills all ScrollTriggers created within the scope
 }, { scope: containerRef });
 ```

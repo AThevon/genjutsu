@@ -1,8 +1,8 @@
 # GSAP Plugins
 
-## SplitText (Free depuis v3.12)
+## SplitText (Free since v3.12)
 
-Decoupe le texte en `chars`, `words`, `lines` pour animations granulaires.
+Splits text into `chars`, `words`, `lines` for granular animations.
 
 ### Usage
 
@@ -12,13 +12,13 @@ gsap.registerPlugin(SplitText);
 
 const split = SplitText.create(".headline", {
   type: "chars, words, lines",
-  mask: "lines",       // masque les lignes (clip overflow pour reveal)
+  mask: "lines",       // masks lines (clip overflow for reveal)
   linesClass: "line",
   charsClass: "char",
   wordsClass: "word",
 });
 
-// Animer les chars
+// Animate chars
 gsap.from(split.chars, {
   y: 50,
   opacity: 0,
@@ -30,7 +30,7 @@ gsap.from(split.chars, {
 
 ### autoSplit + onSplit (v3.13+)
 
-Re-split automatique au resize (lignes qui changent).
+Automatic re-split on resize (when lines change).
 
 ```js
 SplitText.create(".text", {
@@ -44,33 +44,33 @@ SplitText.create(".text", {
       stagger: 0.04,
       duration: 0.7,
     });
-    // Retourner le tween permet a autoSplit de le kill/recreer
+    // Returning the tween allows autoSplit to kill/recreate it
   },
 });
 ```
 
 ### Revert
 
-Toujours revert apres animation pour nettoyer le DOM.
+Always revert after animation to clean up the DOM.
 
 ```js
-// BAD — les spans restent dans le DOM indefiniment
+// BAD — spans remain in the DOM indefinitely
 const split = SplitText.create(".text", { type: "chars" });
 gsap.from(split.chars, { opacity: 0 });
 
-// GOOD — revert quand l'animation est finie
+// GOOD — revert when the animation is finished
 const split = SplitText.create(".text", { type: "chars" });
 gsap.from(split.chars, {
   opacity: 0,
   stagger: 0.02,
   onComplete: () => split.revert(),
 });
-// OU utiliser autoSplit + onSplit qui gere le cycle automatiquement
+// OR use autoSplit + onSplit which handles the cycle automatically
 ```
 
 ## Flip
 
-Anime des changements de layout (position, taille) avec une transition fluide. Technique FLIP : First, Last, Invert, Play.
+Animates layout changes (position, size) with a smooth transition. FLIP technique: First, Last, Invert, Play.
 
 ### Usage
 
@@ -78,19 +78,19 @@ Anime des changements de layout (position, taille) avec une transition fluide. T
 import { Flip } from "gsap/Flip";
 gsap.registerPlugin(Flip);
 
-// 1. Capturer l'etat actuel
+// 1. Capture the current state
 const state = Flip.getState(".items");
 
-// 2. Modifier le DOM / layout
+// 2. Modify the DOM / layout
 container.appendChild(movedElement);
-// ou toggle une classe, reorder, etc.
+// or toggle a class, reorder, etc.
 
-// 3. Animer depuis l'ancien etat vers le nouveau
+// 3. Animate from the old state to the new one
 Flip.from(state, {
   duration: 0.8,
   ease: "power2.inOut",
   stagger: 0.05,
-  absolute: true,      // utilise position absolute pendant l'animation
+  absolute: true,      // uses position absolute during the animation
   onEnter: (elements) => gsap.fromTo(elements, { opacity: 0, scale: 0 }, { opacity: 1, scale: 1 }),
   onLeave: (elements) => gsap.to(elements, { opacity: 0, scale: 0 }),
 });
@@ -98,24 +98,24 @@ Flip.from(state, {
 
 ### Flip.fit()
 
-Fait correspondre la taille/position d'un element a un autre.
+Matches the size/position of one element to another.
 
 ```js
-// Fait matcher .box a la position/taille de .target
+// Makes .box match the position/size of .target
 Flip.fit(".box", ".target", {
-  scale: true,     // utilise scale au lieu de width/height
+  scale: true,     // uses scale instead of width/height
   duration: 0.5,
 });
 ```
 
-### Piege Flip
+### Flip pitfall
 
 ```js
-// BAD — getState APRES le changement de DOM = pas de reference
+// BAD — getState AFTER the DOM change = no reference
 container.appendChild(element);
-const state = Flip.getState(".items"); // TROP TARD
+const state = Flip.getState(".items"); // TOO LATE
 
-// GOOD — getState AVANT le changement
+// GOOD — getState BEFORE the change
 const state = Flip.getState(".items");
 container.appendChild(element);
 Flip.from(state, { duration: 0.6 });
@@ -123,7 +123,7 @@ Flip.from(state, { duration: 0.6 });
 
 ## MorphSVG (Club)
 
-Morphe un path SVG vers un autre.
+Morphs one SVG path into another.
 
 ### Usage
 
@@ -132,12 +132,12 @@ import { MorphSVGPlugin } from "gsap/MorphSVGPlugin";
 gsap.registerPlugin(MorphSVGPlugin);
 
 gsap.to("#circle", {
-  morphSVG: "#star",     // target shape (selecteur ou path data)
+  morphSVG: "#star",     // target shape (selector or path data)
   duration: 1.5,
   ease: "power2.inOut",
 });
 
-// Avec path data string
+// With path data string
 gsap.to("#shape", {
   morphSVG: "M10,10 C20,20 40,20 50,10",
   duration: 1,
@@ -146,35 +146,35 @@ gsap.to("#shape", {
 
 ### findShapeIndex
 
-Outil interactif pour trouver le meilleur point de depart du morph.
+Interactive tool to find the best starting point for the morph.
 
 ```js
-// En dev uniquement — ouvre un outil interactif
+// Dev only — opens an interactive tool
 MorphSVGPlugin.findShapeIndex("#circle", "#star");
 ```
 
-### Convertir des primitives en path
+### Convert primitives to path
 
 ```js
-// Convertit rect, circle, ellipse, polygon, polyline, line en <path>
+// Converts rect, circle, ellipse, polygon, polyline, line to <path>
 MorphSVGPlugin.convertToPath("circle, rect, ellipse");
 ```
 
-### Piege MorphSVG
+### MorphSVG pitfall
 
 ```js
-// BAD — morph entre shapes avec nombre tres different de points = resultat chaotique
+// BAD — morph between shapes with very different point counts = chaotic result
 gsap.to("#simple-circle", { morphSVG: "#complex-illustration" });
 
-// GOOD — utiliser des shapes avec complexite similaire, ou shapeIndex pour optimiser
+// GOOD — use shapes with similar complexity, or shapeIndex to optimize
 gsap.to("#simple-circle", {
-  morphSVG: { shape: "#complex-shape", shapeIndex: 2 }, // tester avec findShapeIndex
+  morphSVG: { shape: "#complex-shape", shapeIndex: 2 }, // test with findShapeIndex
 });
 ```
 
 ## DrawSVG (Club)
 
-Anime le stroke d'un SVG (effet "dessin").
+Animates an SVG stroke (drawing effect).
 
 ### Usage
 
@@ -182,19 +182,19 @@ Anime le stroke d'un SVG (effet "dessin").
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 gsap.registerPlugin(DrawSVGPlugin);
 
-// Dessine le stroke de 0% a 100%
+// Draws the stroke from 0% to 100%
 gsap.from(".path", { drawSVG: 0, duration: 2, ease: "power2.inOut" });
 
-// Anime une portion du stroke
+// Animate a portion of the stroke
 gsap.fromTo(".path",
   { drawSVG: "0% 0%" },
   { drawSVG: "0% 100%", duration: 2 }
 );
 
-// Portion qui se deplace
+// Moving portion
 gsap.to(".path", { drawSVG: "50% 60%", duration: 1 });
 
-// Timeline pour effet "snake"
+// Timeline for "snake" effect
 const tl = gsap.timeline({ repeat: -1 });
 tl.fromTo(".path",
   { drawSVG: "0% 0%" },
@@ -204,20 +204,20 @@ tl.fromTo(".path",
 );
 ```
 
-### Piege DrawSVG
+### DrawSVG pitfall
 
 ```js
-// BAD — l'element n'a pas de stroke defini en CSS/SVG
-gsap.from(".path", { drawSVG: 0 }); // rien ne se passe
+// BAD — the element has no stroke defined in CSS/SVG
+gsap.from(".path", { drawSVG: 0 }); // nothing happens
 
-// GOOD — toujours definir un stroke visible
+// GOOD — always define a visible stroke
 // CSS: .path { stroke: #fff; stroke-width: 2; fill: none; }
 gsap.from(".path", { drawSVG: 0, duration: 2 });
 ```
 
 ## MotionPath (Free)
 
-Anime un element le long d'un path SVG.
+Animates an element along an SVG path.
 
 ### Usage
 
@@ -227,20 +227,20 @@ gsap.registerPlugin(MotionPathPlugin);
 
 gsap.to(".rocket", {
   motionPath: {
-    path: "#flight-path",    // path SVG a suivre
-    align: "#flight-path",   // aligne l'element sur le path
-    alignOrigin: [0.5, 0.5], // centre de l'element
-    autoRotate: true,         // tourne dans la direction du mouvement
-    autoRotate: 90,           // offset de rotation en degres
-    start: 0,                 // position de depart (0-1)
-    end: 1,                   // position de fin (0-1)
+    path: "#flight-path",    // SVG path to follow
+    align: "#flight-path",   // aligns the element on the path
+    alignOrigin: [0.5, 0.5], // center of the element
+    autoRotate: true,         // rotates in the direction of movement
+    autoRotate: 90,           // rotation offset in degrees
+    start: 0,                 // start position (0-1)
+    end: 1,                   // end position (0-1)
   },
   duration: 3,
   ease: "power1.inOut",
 });
 ```
 
-### Path avec coordonnees
+### Path with coordinates
 
 ```js
 gsap.to(".ball", {
@@ -250,22 +250,22 @@ gsap.to(".ball", {
       { x: 200, y: -100 },
       { x: 300, y: 0 },
     ],
-    curviness: 1.5,   // 0 = lineaire, 2 = tres courbe
+    curviness: 1.5,   // 0 = linear, 2 = very curved
     autoRotate: true,
   },
   duration: 2,
 });
 ```
 
-### Piege MotionPath
+### MotionPath pitfall
 
 ```js
-// BAD — autoRotate sans alignOrigin = l'element pivote autour de son coin
+// BAD — autoRotate without alignOrigin = the element rotates around its corner
 gsap.to(".el", {
   motionPath: { path: "#path", autoRotate: true },
 });
 
-// GOOD — toujours definir align + alignOrigin avec autoRotate
+// GOOD — always define align + alignOrigin with autoRotate
 gsap.to(".el", {
   motionPath: {
     path: "#path",
@@ -278,7 +278,7 @@ gsap.to(".el", {
 
 ## Observer (Free)
 
-Detecte les gestes utilisateur (scroll, touch, pointer) sans ScrollTrigger. Ideal pour des interactions custom (swipe, drag-to-reveal).
+Detects user gestures (scroll, touch, pointer) without ScrollTrigger. Ideal for custom interactions (swipe, drag-to-reveal).
 
 ### Usage
 
@@ -287,21 +287,21 @@ import { Observer } from "gsap/Observer";
 gsap.registerPlugin(Observer);
 
 Observer.create({
-  type: "wheel, touch, pointer",  // types d'events a ecouter
-  target: window,                  // element cible
-  onUp: () => goToSection(-1),     // scroll/swipe vers le haut
-  onDown: () => goToSection(1),    // scroll/swipe vers le bas
-  tolerance: 50,                   // pixels minimum avant declenchement
-  preventDefault: true,            // empeche le scroll natif
-  wheelSpeed: -1,                  // inverse la direction de la wheel
+  type: "wheel, touch, pointer",  // event types to listen to
+  target: window,                  // target element
+  onUp: () => goToSection(-1),     // scroll/swipe up
+  onDown: () => goToSection(1),    // scroll/swipe down
+  tolerance: 50,                   // minimum pixels before triggering
+  preventDefault: true,            // prevents native scroll
+  wheelSpeed: -1,                  // inverts wheel direction
   onPress: (self) => {},           // pointer down
   onRelease: (self) => {},         // pointer up
-  onDrag: (self) => {},            // pendant le drag
+  onDrag: (self) => {},            // during drag
   onChange: (self) => {
-    self.deltaX;    // deplacement X
-    self.deltaY;    // deplacement Y
-    self.velocityX; // vitesse X
-    self.velocityY; // vitesse Y
+    self.deltaX;    // X displacement
+    self.deltaY;    // Y displacement
+    self.velocityX; // X velocity
+    self.velocityY; // Y velocity
   },
 });
 ```
@@ -336,14 +336,14 @@ Observer.create({
 });
 ```
 
-### Piege Observer
+### Observer pitfall
 
 ```js
-// BAD — pas de debounce/lock = animations qui s'empilent
+// BAD — no debounce/lock = animations stacking up
 Observer.create({
-  onDown: () => gsap.to(".box", { y: "+=100" }), // chaque scroll ajoute 100px
+  onDown: () => gsap.to(".box", { y: "+=100" }), // each scroll adds 100px
 
-// GOOD — verrouiller pendant l'animation
+// GOOD — lock during animation
 let animating = false;
 Observer.create({
   onDown: () => {
@@ -362,7 +362,7 @@ Observer.create({
 | Observer       | Free    | Gesture detection                  |
 | MotionPath     | Free    | Path following                     |
 | Flip           | Free    | Layout transitions                 |
-| SplitText      | Free    | Text splitting (free depuis v3.12) |
+| SplitText      | Free    | Text splitting (free since v3.12)  |
 | MorphSVG       | Club    | SVG shape morphing                 |
 | DrawSVG        | Club    | SVG stroke animation               |
 | CustomEase     | Free    | Custom easing curves               |
