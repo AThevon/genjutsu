@@ -116,4 +116,4 @@ Built by studying the best creative coding resources available:
 
 ## License
 
-Private repository. Not published.
+[MIT](LICENSE)
