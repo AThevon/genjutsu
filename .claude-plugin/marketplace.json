@@ -1,0 +1,13 @@
+{
+  "name": "creative",
+  "owner": {
+    "name": "AThevon"
+  },
+  "plugins": [
+    {
+      "name": "creative-skills",
+      "source": "./",
+      "description": "Creative coding skills — animations, 3D, design systems, motion principles"
+    }
+  ]
+}
