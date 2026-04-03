@@ -64,14 +64,17 @@ Internal modules loaded dynamically by the orchestrators. Not invocable directly
 
 **Prerequisites:** Plan Pro, Max, Team or Enterprise with "Code execution" enabled.
 
-**Option A - Download from GitHub Releases (recommended):**
+Each release provides two ways to download:
+
+- **Individual ZIPs** - one per skill (`creative-excellence.zip`, `gsap.zip`, `motion-principles.zip`...), ready to upload directly
+- **`creative-excellence-all.zip`** - a single archive containing everything. You need to **extract it first**, then upload each sub-folder as a separate ZIP (claude.ai accepts one skill per upload)
+
+**Option A - From GitHub Releases (recommended):**
 
 1. Go to the [Releases](https://github.com/AThevon/creative-excellence/releases) page
-2. Download the individual skill ZIPs (e.g. `creative-excellence.zip`, `motion-principles.zip`, `gsap.zip`...)
+2. Download the individual ZIPs (or the all-in-one and extract it)
 3. On claude.ai, go to **Customize > Skills > Upload ZIP**
-4. Upload each ZIP individually and enable the toggle
-
-> `creative-excellence-all.zip` is a convenience archive containing all skills in one download. Extract it first, then upload each sub-folder as a separate skill - claude.ai requires one ZIP per skill.
+4. Upload each skill ZIP and enable the toggle
 
 **Option B - Build from source:**
 
@@ -82,7 +85,7 @@ cd creative-excellence
 # ZIPs are in dist/
 ```
 
-> **Important:** The orchestrators (`creative-excellence`, `design-excellence`) load sub-skills dynamically. Upload all the sub-skill ZIPs too (motion-principles, gsap, framer-motion, css-native, threejs-r3f, canvas-generative, design-audit, ui-ux-pro-max) for full functionality.
+> **Important:** The orchestrators (`creative-excellence`, `design-excellence`) load sub-skills dynamically. You must upload all sub-skill ZIPs too for full functionality: `motion-principles`, `gsap`, `framer-motion`, `css-native`, `threejs-r3f`, `canvas-generative`, `design-audit`, `ui-ux-pro-max`.
 
 ### Claude Code (CLI)
 
