@@ -1,3 +1,8 @@
+---
+name: design-audit
+description: "Design audit checklist - motion gaps, accessibility, color consistency, responsive, performance."
+---
+
 # Design Audit
 
 > The final checkpoint. Loaded by `/design-excellence` at the end of the pipeline.

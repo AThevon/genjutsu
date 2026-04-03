@@ -1,3 +1,8 @@
+---
+name: canvas-generative
+description: "Algorithmic and generative art with Canvas 2D - particles, flow fields, noise, fractals, L-systems."
+---
+
 # Canvas Generative
 
 > Algorithmic and generative art with Canvas 2D.

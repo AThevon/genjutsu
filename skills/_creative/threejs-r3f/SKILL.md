@@ -1,3 +1,8 @@
+---
+name: threejs-r3f
+description: "Three.js and React Three Fiber sub-skill - 3D scenes, shaders, postprocessing."
+---
+
 # Three.js & React Three Fiber
 
 > 3D on the web. Three.js is the engine, R3F is the React renderer.

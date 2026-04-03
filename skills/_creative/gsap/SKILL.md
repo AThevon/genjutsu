@@ -1,3 +1,8 @@
+---
+name: gsap
+description: "GSAP animation engine sub-skill - core, timeline, ScrollTrigger, plugins."
+---
+
 # GSAP — Animation Engine
 
 ## When to use GSAP

@@ -1,3 +1,8 @@
+---
+name: css-native
+description: "Zero-dependency animations and visual techniques - scroll-driven, View Transitions, @starting-style, modern CSS."
+---
+
 # CSS Native — Zero-Dependency Animations & Visual Techniques
 
 ## When to Use CSS Native vs Library

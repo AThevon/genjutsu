@@ -1,3 +1,8 @@
+---
+name: framer-motion
+description: "Framer Motion / Motion sub-skill - AnimatePresence, layout animations, gestures, motion values."
+---
+
 # Framer Motion — Sub-skill
 
 > Package: `motion` (v11+, formerly `framer-motion`). Import: `import { motion, AnimatePresence } from "motion/react"`

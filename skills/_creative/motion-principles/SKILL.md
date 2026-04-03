@@ -1,3 +1,8 @@
+---
+name: motion-principles
+description: "Motion design foundation - timing, easing, enter/exit patterns, accessibility, performance."
+---
+
 # Motion Principles
 
 > The foundation. Loaded by every creative skill invocation.
