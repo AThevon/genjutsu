@@ -38,13 +38,31 @@ A button hover (1000x/day) = 100ms opacity. An onboarding reveal (1x ever) = 600
 > **Exit is always more subtle than enter.**
 > Enter: 300ms ease-out, full choreography. Exit: 200ms ease-in, opacity only.
 
+### Native easing equivalents (cross-platform)
+
+| Web (CSS / JS) | SwiftUI | Compose |
+|---|---|---|
+| `cubic-bezier(0.2, 0, 0, 1)` | `.spring(response: 0.4, dampingFraction: 0.85)` or `.snappy` | `spring(stiffness = Spring.StiffnessMedium, dampingRatio = 0.85f)` |
+| `ease-out` | `.easeOut(duration: 0.3)` | `tween(durationMillis = 300, easing = LinearOutSlowInEasing)` |
+| `ease-in` | `.easeIn(duration: 0.2)` | `tween(durationMillis = 200, easing = FastOutLinearInEasing)` |
+| spring (bouncy) | `.bouncy` (iOS 17+) | `spring(stiffness = Spring.StiffnessLow, dampingRatio = Spring.DampingRatioMediumBouncy)` |
+| spring (smooth) | `.smooth` (iOS 17+) | `spring(stiffness = Spring.StiffnessMedium, dampingRatio = Spring.DampingRatioNoBouncy)` |
+
 ---
 
 ## Accessibility (Non-Negotiable)
 
-### prefers-reduced-motion -- MANDATORY
+### Reduced motion - MANDATORY
 
-Every animated component must respect this. No exceptions.
+Every animated component must respect the user's reduced-motion preference. No exceptions, regardless of platform.
+
+| Platform | API |
+|---|---|
+| Web CSS | `@media (prefers-reduced-motion: reduce)` |
+| Web JS | `window.matchMedia('(prefers-reduced-motion: reduce)')` |
+| SwiftUI | `@Environment(\.accessibilityReduceMotion) var reduceMotion` |
+| UIKit | `UIAccessibility.isReduceMotionEnabled` (+ `reduceMotionStatusDidChangeNotification`) |
+| Compose | Custom helper using `Settings.Global.ANIMATOR_DURATION_SCALE` (deep-dive in `mobile-principles/references/accessibility-mobile.md`) |
 
 **CSS:**
 ```css
@@ -58,26 +76,38 @@ Every animated component must respect this. No exceptions.
 }
 ```
 
-**JS (hook pattern):**
-```js
-function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(() =>
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const handler = (e) => setReduced(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
-  return reduced;
+**SwiftUI:**
+```swift
+struct AnimatedView: View {
+    @Environment(\.accessibilityReduceMotion) var reduceMotion
+    @State var visible = false
+
+    var body: some View {
+        Text("Hello")
+            .opacity(visible ? 1 : 0)
+            .animation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.85), value: visible)
+    }
 }
 ```
 
-**GSAP:**
-```js
-const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-gsap.defaults({ duration: reduced ? 0 : 0.5 });
+**Compose:**
+```kotlin
+@Composable
+fun rememberReduceMotion(): Boolean {
+    val context = LocalContext.current
+    return remember {
+        Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
+    }
+}
+
+@Composable
+fun AnimatedComponent(visible: Boolean) {
+    val reduce = rememberReduceMotion()
+    val alpha by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = if (reduce) snap() else spring(stiffness = Spring.StiffnessMedium)
+    )
+}
 ```
 
 ### Other a11y requirements
@@ -103,6 +133,27 @@ Triggers layout recalculation every frame = jank.
 .drawer.open { transform: translateY(0); }
 ```
 
+**SwiftUI equivalent (BAD vs GOOD):**
+```swift
+// BAD - animates frame (causes layout pass)
+.frame(height: open ? 400 : 0)
+.animation(.easeInOut, value: open)
+
+// GOOD - animates transform via offset
+.offset(y: open ? 0 : 400)
+.animation(.spring(), value: open)
+```
+
+**Compose equivalent (BAD vs GOOD):**
+```kotlin
+// BAD - animates size (full layout pass)
+val height by animateDpAsState(if (open) 400.dp else 0.dp)
+
+// GOOD - animates Y offset via graphicsLayer
+val translation by animateFloatAsState(if (open) 0f else 400f)
+Box(modifier = Modifier.graphicsLayer { translationY = translation })
+```
+
 ### 2. Never scale to 0
 
 `scale(0)` causes elements to vanish in a black hole. Always keep a minimum.
@@ -113,6 +164,29 @@ Triggers layout recalculation every frame = jank.
 
 /* GOOD */
 .modal-exit { transform: scale(0.95); opacity: 0; }
+```
+
+**SwiftUI equivalent:**
+```swift
+// BAD
+.scaleEffect(visible ? 1.0 : 0.0)
+
+// GOOD
+.scaleEffect(visible ? 1.0 : 0.95)
+.opacity(visible ? 1.0 : 0.0)
+```
+
+**Compose equivalent:**
+```kotlin
+// BAD
+Modifier.graphicsLayer { scaleX = if (visible) 1f else 0f; scaleY = if (visible) 1f else 0f }
+
+// GOOD
+Modifier.graphicsLayer {
+    scaleX = if (visible) 1f else 0.95f
+    scaleY = if (visible) 1f else 0.95f
+    alpha = if (visible) 1f else 0f
+}
 ```
 
 ### 3. Never ease-in on an entry
@@ -140,6 +214,24 @@ gsap.to(modal, { opacity: 1, y: 0, duration: 0.8 });
 gsap.to(modal, { opacity: 1, y: 0, duration: 0.25, ease: "power2.out" });
 ```
 
+**SwiftUI:**
+```swift
+// BAD
+.animation(.easeInOut(duration: 0.8), value: state)
+
+// GOOD
+.animation(.spring(response: 0.25, dampingFraction: 0.85), value: state)
+```
+
+**Compose:**
+```kotlin
+// BAD
+animateContentSize(animationSpec = tween(800))
+
+// GOOD
+animateContentSize(animationSpec = spring(stiffness = Spring.StiffnessMediumLow))
+```
+
 ### 5. Never skip prefers-reduced-motion
 
 This is an accessibility requirement, not a nice-to-have.
@@ -154,6 +246,8 @@ if (!prefersReduced) {
   gsap.from('.hero-title', { opacity: 0, y: 40, duration: 0.6 });
 }
 ```
+
+> See the cross-platform Reduced Motion section above for SwiftUI / Compose equivalents.
 
 ---
 
@@ -174,6 +268,17 @@ if (!prefersReduced) {
 | Easing deep-dive, spring configs | `references/easing-guide.md` |
 | Copy-paste enter/exit patterns | `references/enter-exit-recipes.md` |
 | Designer-weighted style choice | `references/designers.md` |
+| Mobile UX context | `../mobile-principles/SKILL.md` |
+| Desktop UX context | `../desktop-principles/SKILL.md` |
 | GSAP specifics | `../gsap/SKILL.md` |
 | Framer Motion specifics | `../framer-motion/SKILL.md` |
 | CSS-only animations | `../css-native/SKILL.md` |
+| Three.js / R3F | `../threejs-r3f/SKILL.md` |
+| Canvas / generative | `../canvas-generative/SKILL.md` |
+| Compose Android animations | `../compose-motion/SKILL.md` |
+| Compose Multiplatform | `../compose-multiplatform/SKILL.md` |
+| SwiftUI iOS/macOS animations | `../swiftui-motion/SKILL.md` |
+| Compose advanced graphics | `../compose-graphics/SKILL.md` |
+| SwiftUI advanced graphics | `../swiftui-graphics/SKILL.md` |
+| Visual / motion / a11y audit | `../design-audit/SKILL.md` |
+| UI/UX intelligence (50 styles, 21 palettes) | `../ui-ux-pro-max/SKILL.md` |
