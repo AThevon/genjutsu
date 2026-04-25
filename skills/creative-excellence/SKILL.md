@@ -18,8 +18,8 @@ You are a creative coding expert. You take any creative request and make it exce
 4. **Never install a dependency without asking.** Propose, explain why, wait for the green light.
 5. **Match complexity to scope.** A hover effect doesn't justify a GSAP + ScrollTrigger pipeline.
 6. **Always prioritize performance.** 60fps or nothing.
-7. **React with no detected animation lib** → prefer native CSS or propose framer-motion.
-8. **GSAP detected in the project** → use it. The user made that choice deliberately.
+7. **Stack with no detected animation library** -> prefer the stack's native APIs before proposing a dependency.
+8. **Animation library detected** (GSAP, Framer Motion, Lottie, Rive, etc.) -> respect the dev's choice. Do not propose a replacement.
 
 ---
 
@@ -30,15 +30,34 @@ You are a creative coding expert. You take any creative request and make it exce
 Before anything else, scan the project:
 
 ```bash
-# package.json → dependencies
+# 1. Web (existing)
 cat package.json 2>/dev/null | grep -E '"(gsap|framer-motion|three|@react-three/fiber|@react-three/drei|animejs|popmotion|lenis|locomotive-scroll)"'
-
-# Framework
 cat package.json 2>/dev/null | grep -E '"(react|react-dom|vue|svelte|next|nuxt|astro|solid-js|qwik)"'
-
-# CSS approach
 cat package.json 2>/dev/null | grep -E '"(tailwindcss|styled-components|@emotion|sass|less|vanilla-extract|panda)"'
-ls tailwind.config.* postcss.config.* 2>/dev/null
+
+# 2. Android / Compose
+ls build.gradle.kts build.gradle settings.gradle.kts settings.gradle 2>/dev/null
+grep -rE 'androidx\.compose|implementation\("androidx\.compose' build.gradle* settings.gradle* 2>/dev/null
+
+# 3. Compose Multiplatform / KMP
+grep -rE 'org\.jetbrains\.compose|kotlin\("multiplatform"\)|id\("org\.jetbrains\.kotlin\.multiplatform"\)' build.gradle* settings.gradle* 2>/dev/null
+
+# 4. Apple / SwiftUI
+ls *.xcodeproj *.xcworkspace Package.swift 2>/dev/null
+grep -lE 'import SwiftUI|@main.*App' --include="*.swift" -r . 2>/dev/null | head -1
+
+# 5. Apple platform sub-detection (iOS vs macOS)
+grep -E '\.iOS\(|\.macOS\(' Package.swift 2>/dev/null
+grep -E 'SDKROOT = (iphoneos|macosx)' *.xcodeproj/project.pbxproj 2>/dev/null
+
+# 6. Mobile web indicators
+grep -rE 'viewport.*width=device-width|@media.*pointer:\s*coarse|@media.*max-width' --include='*.html' --include='*.css' --include='*.scss' . 2>/dev/null | head -3
+ls public/manifest.json public/sw.js 2>/dev/null
+
+# 7. Legacy bridge indicators (mention in DISCOVER, do not auto-load)
+ls -- *.xib *.storyboard 2>/dev/null
+find . -path '*/res/layout/*.xml' 2>/dev/null | head -1
+grep -rE 'setContentView\(R\.layout' --include='*.kt' --include='*.java' . 2>/dev/null | head -1
 ```
 
 Map the results:
@@ -46,6 +65,12 @@ Map the results:
 - **Framework**: React, Vue, Svelte, Next.js, Nuxt, Astro, vanilla
 - **CSS**: Tailwind, styled-components, CSS modules, vanilla CSS
 - **If nothing detected**: from scratch, everything is available
+- **Native Android**: Compose detected via gradle dependencies.
+- **Native Apple**: SwiftUI detected via Package.swift / xcodeproj + swift files. Distinguish iOS vs macOS via Package.swift platforms or pbxproj SDKROOT.
+- **Compose Multiplatform**: kotlin-multiplatform plugin + jetbrains.compose plugin.
+- **Mobile context**: viewport, manifest, mobile-only media queries OR native iOS/Android.
+- **Desktop context**: macOS target OR no mobile indicators on web.
+- **Legacy mixed**: presence of `.xib`, `.storyboard`, layout XML, `setContentView(R.layout.*)`. Mention only, no auto-load.
 
 ### 2. DISCOVER — Understand the intent (when needed)
 
@@ -76,6 +101,14 @@ When the user says "something modern" or "I'll know it when I see it":
 
 **When to stop asking:** When you can write a thesis that the user would agree with. If you'd be guessing the thesis, keep asking.
 
+**If legacy mixed detected** (XIB / storyboard / layout XML / setContentView(R.layout.\*)):
+
+Ask exactly one question:
+
+> "Je vois que ton projet a [du XML / des XIB / des Activities classiques] en plus du moderne. Pour cette tâche, je reste sur du pur [Compose/SwiftUI], ou tu veux que je m'intègre dans un écran legacy ?"
+
+If the user picks legacy integration: write the bridge (`AndroidView` for Compose, `UIViewControllerRepresentable` for SwiftUI) to expose the modern code inside the legacy screen. Never generate new legacy code (no XML, no XIB, no setContentView).
+
 ### 3. SCOPE — Evaluate the request
 
 | Scope | Description | Sub-skills | Variants |
@@ -93,6 +126,10 @@ Formulate a sentence that captures the interaction intent. Examples:
 - "This dropdown will use 150ms CSS micro-transitions with slide+fade for a snappy and modern feel"
 - "This hero will combine GSAP parallax on scroll with staggered text reveals for a cinematic impact"
 - "This gallery will use Framer Motion layout animations with shared element transitions for fluid navigation"
+- "This Compose hero will use a SharedTransitionLayout with a spring(stiffness=Spring.StiffnessMedium, dampingRatio=0.85) for a fluid card-to-detail transition."
+- "This SwiftUI tab transition will use matchedGeometryEffect with a .smooth spring (response: 0.5, dampingFraction: 0.85) for a tactile, spatial feel."
+- "This macOS dashboard will use 100ms opacity hover states (no scale on hover, desktop subtlety) and a Cmd+1-9 keyboard shortcut to navigate panels."
+- "This Android header will use an AGSL shader bound to scrollOffset for a dynamic liquid-glass effect (Android 13+, with a static fallback below)."
 
 **Present the thesis and WAIT for validation before coding.**
 
@@ -117,29 +154,43 @@ fi
 ```
 
 **Always load:**
-- `$SKILL_BASE/motion-principles/SKILL.md` - the core principles
+- `$SKILL_BASE/motion-principles/SKILL.md` - the foundation
 
-**Load based on the detected stack:**
+**Context layers** (load when applicable):
+
+| Detected | Load |
+|---|---|
+| Mobile context (web mobile OR native iOS / Android) | `$SKILL_BASE/mobile-principles/SKILL.md` |
+| Desktop context (macOS OR web desktop with no mobile indicators) | `$SKILL_BASE/desktop-principles/SKILL.md` |
+| Audit explicitly requested OR scope=full | `$SKILL_BASE/design-audit/SKILL.md` |
+| Advanced UI/UX questions | `$SKILL_BASE/ui-ux-pro-max/SKILL.md` |
+
+**Stack-specific** (load by SCAN):
 
 | Detected stack | Sub-skill to load |
-|----------------|-------------------|
+|---|---|
 | gsap | `$SKILL_BASE/gsap/SKILL.md` |
 | framer-motion | `$SKILL_BASE/framer-motion/SKILL.md` |
 | Pure CSS / Tailwind / no lib | `$SKILL_BASE/css-native/SKILL.md` |
 | three / @react-three | `$SKILL_BASE/threejs-r3f/SKILL.md` |
 | Canvas / generative | `$SKILL_BASE/canvas-generative/SKILL.md` |
+| Android Compose | `$SKILL_BASE/compose-motion/SKILL.md` (always) + `$SKILL_BASE/compose-graphics/SKILL.md` (if scope=full or thesis is advanced - see below) |
+| Compose Multiplatform | `$SKILL_BASE/compose-motion/SKILL.md` + `$SKILL_BASE/compose-multiplatform/SKILL.md` (always); `$SKILL_BASE/swiftui-motion/SKILL.md` if iOS target detected and SwiftUI interop demanded; `$SKILL_BASE/compose-graphics/SKILL.md` if advanced |
+| SwiftUI iOS or macOS | `$SKILL_BASE/swiftui-motion/SKILL.md` (always) + `$SKILL_BASE/swiftui-graphics/SKILL.md` (if scope=full or thesis is advanced) |
 
-**Load based on the need:**
+**"Advanced thesis" trigger** for `compose-graphics` / `swiftui-graphics`:
 
-| Need | Sub-skill |
-|------|-----------|
-| Visual audit requested | `$SKILL_BASE/design-audit/SKILL.md` |
-| Advanced UI/UX questions | `$SKILL_BASE/ui-ux-pro-max/SKILL.md` |
+The thesis is "advanced" (and triggers loading the graphics sub-skill) if it contains any of these terms:
+- `shader`, `Metal`, `AGSL`, `RuntimeShader`, `MSL`
+- `liquid-glass`, `glassEffect`, `morphing transition`
+- `M3 Expressive`, `MotionScheme`, `expressive motion`
+- `colorEffect`, `distortionEffect`, `layerEffect`
+- `Canvas` (with generative / particle / flow field context)
+- `holographic`, `CRT`, `displacement`, `ripple`
 
-If additional details are needed, read the `references/` files of the relevant sub-skill:
-```
-$SKILL_BASE/<name>/references/<file>.md
-```
+Otherwise stick to the base motion sub-skill.
+
+**Note:** Phase 1 of the v2.0 rollout adds `mobile-principles` and `desktop-principles`, but the stack-specific Compose/SwiftUI sub-skills land in Phases 2-4. Until then, on a Compose or SwiftUI project, load only the foundation + context layers + design-audit, and proceed using your general knowledge plus the universal motion-principles.
 
 ### 6. IMPLEMENT — Code while respecting the loaded principles
 
@@ -161,23 +212,39 @@ Wait for the user to pick before implementing. Always respect the validated thes
 
 ### 7. AUDIT — Verification before delivery
 
-Before delivering, systematically check:
+Before delivering, run the checks matching the detected stack.
 
-**Motion & Performance:**
-- [ ] `prefers-reduced-motion` handled — animations disabled/reduced for users who request it
-- [ ] Exit animations present — elements don't disappear abruptly
-- [ ] No layout property animations (`width`, `height`, `top`, `left`) — use `transform` and `opacity`
-- [ ] No forced reflow, `will-change` used sparingly
-- [ ] 60fps on complex animations
+**All stacks:**
+- [ ] Reduced motion respected (CSS `prefers-reduced-motion`, SwiftUI `accessibilityReduceMotion`, or Compose helper using `Settings.Global.ANIMATOR_DURATION_SCALE` / `AccessibilityManager.areTransitionsEnabled`).
+- [ ] Exit animations present (no abrupt vanishings).
+- [ ] No layout-property animations (animate transform / opacity / graphicsLayer instead).
+- [ ] Focus visible on interactive elements.
+- [ ] Interactive elements have all relevant states (default, hover/press, focus, active, disabled).
+- [ ] Colors and spacing consistent with detected design tokens.
 
-**Accessibility:**
-- [ ] Focus visible on all interactive elements
-- [ ] No clickable divs without proper role/button
-- [ ] `aria-hidden` on purely decorative animations
+**Web:**
+- [ ] No forced reflow, `will-change` used sparingly.
+- [ ] 60fps target verified via Chrome DevTools Performance panel.
+- [ ] No clickable divs without role/button.
+- [ ] `aria-hidden` on purely decorative animations.
 
-**Consistency:**
-- [ ] Interactive elements have all relevant states (default, hover, focus, active, disabled)
-- [ ] Colors and spacing consistent with existing design tokens (if any)
+**Compose:**
+- [ ] Recomposition counts verified (Layout Inspector / `Modifier.recomposeHighlighter`).
+- [ ] No animations on `width`/`height` (use `Modifier.graphicsLayer { translationX/Y, scaleX/Y }`).
+- [ ] `Modifier.semantics` set on custom interactive components.
+- [ ] Frame timing OK on a mid-range device (Pixel 4a baseline) via Macrobenchmark.
+
+**SwiftUI:**
+- [ ] No `body` recomputed on irrelevant state changes (use `@StateObject`, `@ObservableObject` correctly).
+- [ ] Hitches Instrument shows no dropped frames during animation.
+- [ ] `.accessibilityLabel` / `.accessibilityHint` on all interactive views.
+- [ ] Tested with Reduce Motion ON and Dynamic Type at 200%.
+
+**macOS-specific (in addition to SwiftUI):**
+- [ ] Hover states present on every interactive element.
+- [ ] Keyboard shortcuts (`Cmd+N`, `Cmd+W`, `Cmd+F`, etc.) bound to primary actions.
+- [ ] Multi-window state shared coherently if applicable.
+- [ ] Focus rings visible on keyboard navigation (no `outline: none` without alternative).
 
 ---
 
