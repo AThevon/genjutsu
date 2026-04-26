@@ -29,12 +29,12 @@ fi
 rm -rf "$DIST"
 mkdir -p "$DIST"
 
-echo "=== creative-excellence - Packaging pour claude.ai ==="
+echo "=== genjutsu - Packaging pour claude.ai ==="
 echo ""
 
 # --- Individual ZIPs per skill ---
 
-# Orchestrators (skills/<name>/ -> <name>.zip, skip _creative/)
+# Orchestrators (skills/<name>/ -> <name>.zip, skip _jutsu/)
 for dir in "$SKILLS_DIR"/*/; do
   name=$(basename "$dir")
   [[ "$name" == _* ]] && continue
@@ -43,8 +43,8 @@ for dir in "$SKILLS_DIR"/*/; do
   echo "  + ${name}.zip"
 done
 
-# Sub-skills (_creative/<name>/ -> <name>.zip)
-for dir in "$SKILLS_DIR"/_creative/*/; do
+# Sub-skills (_jutsu/<name>/ -> <name>.zip)
+for dir in "$SKILLS_DIR"/_jutsu/*/; do
   name=$(basename "$dir")
   zip_path="$(pwd)/${DIST}/${name}.zip"
   make_zip "$dir" "$zip_path"
@@ -52,7 +52,7 @@ for dir in "$SKILLS_DIR"/_creative/*/; do
 done
 
 # --- Global ZIP (convenience) ---
-GLOBAL_ZIP="creative-excellence-all.zip"
+GLOBAL_ZIP="genjutsu-all.zip"
 make_zip "$SKILLS_DIR" "$(pwd)/${DIST}/${GLOBAL_ZIP}"
 echo "  + $GLOBAL_ZIP (global)"
 
@@ -62,5 +62,5 @@ echo ""
 ls -lh "$DIST"/*.zip | awk '{print "  " $NF " (" $5 ")"}'
 echo ""
 echo "Upload les ZIPs sur claude.ai : Customize > Skills > Upload ZIP"
-echo "Les orchestrateurs (creative-excellence, design-excellence) ont besoin"
-echo "des sous-skills pour fonctionner - uploadez-les aussi."
+echo "Les orchestrateurs (cast, paint) ont besoin des sous-skills pour"
+echo "fonctionner - uploadez-les aussi."

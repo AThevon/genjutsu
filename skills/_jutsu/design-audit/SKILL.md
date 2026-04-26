@@ -5,7 +5,7 @@ description: "Design audit checklist - motion gaps, accessibility, color consist
 
 # Design Audit
 
-> The final checkpoint. Loaded by `/design-excellence` at the end of the pipeline.
+> The final checkpoint. Loaded by `/genjutsu:paint` at the end of the pipeline.
 > Scans the codebase for motion gaps, a11y violations, perf issues, and inconsistencies.
 
 ---

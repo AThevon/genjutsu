@@ -1,6 +1,6 @@
 {
-  "name": "creative-excellence",
-  "description": "Creative coding excellence for Claude Code and claude.ai - Web, Android (Compose), Apple (SwiftUI iOS + macOS). Animations, motion principles, design systems, shaders, anti-AI-slop.",
-  "version": "2.0.0",
+  "name": "genjutsu",
+  "description": "Genjutsu - the art of illusion for Claude Code and claude.ai. Cast motion and paint visual signatures into Web, Android (Compose), and Apple (SwiftUI) interfaces. Anti-AI-slop creative coding.",
+  "version": "3.0.0",
   "author": { "name": "AThevon" }
 }

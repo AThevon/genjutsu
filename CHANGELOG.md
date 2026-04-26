@@ -2,6 +2,76 @@
 
 All notable changes to this plugin are documented here. Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## v3.0.0 - 2026-04-26
+
+**BREAKING CHANGE - Rebrand**: `creative-excellence` is now `genjutsu`. The two orchestrators have new names that match the new theme.
+
+### Renamed
+
+- Plugin: `creative-excellence` -> `genjutsu`
+- Orchestrator (creative coding): `creative-excellence` -> `cast` (The Illusionist)
+- Orchestrator (design pipeline): `design-excellence` -> `paint` (The Master Painter)
+- Internal sub-skills directory: `_creative/` -> `_jutsu/`
+- GitHub repository: `AThevon/creative-excellence` -> `AThevon/genjutsu`
+
+### Migration guide
+
+**For users on Claude Code:**
+
+```bash
+# 1. Uninstall the old plugin
+/plugin uninstall creative-excellence
+
+# 2. Remove the old marketplace
+/plugin marketplace remove creative-excellence
+
+# 3. Add the new marketplace
+/plugin marketplace add git@github.com:AThevon/genjutsu.git
+
+# 4. Install
+/plugin install genjutsu
+```
+
+Old invocations -> new invocations:
+
+| Old | New |
+|---|---|
+| `/creative-excellence:creative-excellence` | `/genjutsu:cast` |
+| `/creative-excellence:design-excellence` | `/genjutsu:paint` |
+
+**For users on claude.ai:**
+
+1. Remove the old `creative-excellence` and `design-excellence` skills from your skills list.
+2. Re-download the latest release ZIPs (now named `cast.zip`, `paint.zip`, plus the renamed `genjutsu-all.zip`).
+3. Re-upload everything.
+
+**For users with the dotfiles submodule pattern:**
+
+```bash
+cd ~/.dotfiles
+
+# Deinit the old submodule
+git submodule deinit -f claude/plugins/creative-excellence
+git rm -rf claude/plugins/creative-excellence
+rm -rf .git/modules/claude/plugins/creative-excellence
+
+# Re-add with the new URL
+git submodule add git@github.com:AThevon/genjutsu.git claude/plugins/genjutsu
+
+# Update install.sh and settings.json (replace creative-excellence with genjutsu)
+# Then run install
+./install.sh
+```
+
+### Added
+
+- Voice rules in both `cast/SKILL.md` and `paint/SKILL.md`: light ninja flair during execution, plain factual reports at the end (no mystic prose in summaries).
+
+### Notes
+
+- Zero functional change. All sub-skills (`motion-principles`, `gsap`, `compose-motion`, `swiftui-graphics`, etc.) work identically. Only naming and voice changed.
+- The old GitHub URL `github.com/AThevon/creative-excellence` automatically redirects to the new one.
+
 ## v2.0.0 - 2026-04-25
 
 Major release: cross-platform expansion. The plugin now covers Web, Android (Jetpack Compose / Compose Multiplatform), and Apple (SwiftUI iOS + macOS) in addition to the existing web stacks.

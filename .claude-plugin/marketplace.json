@@ -1,13 +1,13 @@
 {
-  "name": "creative-excellence",
+  "name": "genjutsu",
   "owner": {
     "name": "AThevon"
   },
   "plugins": [
     {
-      "name": "creative-excellence",
+      "name": "genjutsu",
       "source": "./",
-      "description": "Creative coding excellence - Web, Android (Compose), Apple (SwiftUI). Animations, motion, design systems, shaders. Anti-AI-slop."
+      "description": "The art of illusion: cast motion and paint visual signatures into Web, Android (Compose), Apple (SwiftUI). Anti-AI-slop creative coding."
     }
   ]
 }

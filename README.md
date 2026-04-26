@@ -1,14 +1,16 @@
-# creative-excellence
+# genjutsu
 
-> Two skills. Web, Android, Apple. Zero AI slop.
+> The art of illusion. Cast motion. Paint signatures. Zero AI slop.
 
-Creative coding skills for [Claude Code](https://claude.ai/code) and [claude.ai](https://claude.ai) - transforms any interface from functional to exceptional through motion design, interaction patterns, and visual systems. Now covers Web (React, Vue, Svelte, vanilla CSS, Three.js, Canvas), Android (Jetpack Compose, Compose Multiplatform), and Apple (SwiftUI iOS + macOS).
+Creative coding skills for [Claude Code](https://claude.ai/code) and [claude.ai](https://claude.ai) - transforms any interface from functional to exceptional through motion design, interaction patterns, and visual systems. Covers Web (React, Vue, Svelte, vanilla CSS, Three.js, Canvas), Android (Jetpack Compose, Compose Multiplatform), and Apple (SwiftUI iOS + macOS).
+
+> **v3.0 - rebrand**: this plugin used to be called `creative-excellence`. The skills `/creative-excellence:creative-excellence` and `/creative-excellence:design-excellence` are now `/genjutsu:cast` and `/genjutsu:paint`. See [CHANGELOG.md](./CHANGELOG.md) for the migration steps if you had v2.x installed.
 
 ---
 
 ## Skills
 
-### `/creative-excellence` - The Craftsman
+### `/genjutsu:cast` - The Illusionist
 
 Takes any creative request and makes it exceptional. Adapts to your stack and scope.
 
@@ -19,7 +21,7 @@ Takes any creative request and makes it exceptional. Adapts to your stack and sc
 - Scales from a single hover effect to a full scroll-driven page or a Compose `SharedTransitionLayout` flow
 - Runs a quick audit on exit: reduced-motion, exit animations, recomposition, hitches, layout performance
 
-### `/design-excellence` - The Architect
+### `/genjutsu:paint` - The Master Painter
 
 Builds a complete visual universe from scratch. Brainstorm first, implement second.
 
@@ -34,14 +36,14 @@ Builds a complete visual universe from scratch. Brainstorm first, implement seco
 
 | Situation | Skill |
 |---|---|
-| "Add a scroll animation to this section" | `/creative-excellence` |
-| "Make this dropdown feel snappy" | `/creative-excellence` |
-| "Add a snappy spring to this Compose button" | `/creative-excellence` |
-| "Polish the matchedGeometryEffect on this SwiftUI screen" | `/creative-excellence` |
-| "Redesign the entire landing page" | `/design-excellence` |
-| "Build me a portfolio from scratch" | `/design-excellence` |
-| "Build a SwiftUI iOS app design system from scratch" | `/design-excellence` |
-| "Bootstrap a Compose Multiplatform design system" | `/design-excellence` |
+| "Add a scroll animation to this section" | `/genjutsu:cast` |
+| "Make this dropdown feel snappy" | `/genjutsu:cast` |
+| "Add a snappy spring to this Compose button" | `/genjutsu:cast` |
+| "Polish the matchedGeometryEffect on this SwiftUI screen" | `/genjutsu:cast` |
+| "Redesign the entire landing page" | `/genjutsu:paint` |
+| "Build me a portfolio from scratch" | `/genjutsu:paint` |
+| "Build a SwiftUI iOS app design system from scratch" | `/genjutsu:paint` |
+| "Bootstrap a Compose Multiplatform design system" | `/genjutsu:paint` |
 
 ---
 
@@ -99,12 +101,12 @@ Internal modules loaded dynamically by the orchestrators. Not invocable directly
 
 Each release provides two ways to download:
 
-- **Individual ZIPs** - one per skill (`creative-excellence.zip`, `gsap.zip`, `compose-motion.zip`, `swiftui-graphics.zip`...), ready to upload directly
-- **`creative-excellence-all.zip`** - a single archive containing everything. You need to **extract it first**, then upload each sub-folder as a separate ZIP (claude.ai accepts one skill per upload)
+- **Individual ZIPs** - one per skill (`cast.zip`, `paint.zip`, `gsap.zip`, `compose-motion.zip`, `swiftui-graphics.zip`...), ready to upload directly
+- **`genjutsu-all.zip`** - a single archive containing everything. You need to **extract it first**, then upload each sub-folder as a separate ZIP (claude.ai accepts one skill per upload)
 
 **Option A - From GitHub Releases (recommended):**
 
-1. Go to the [Releases](https://github.com/AThevon/creative-excellence/releases) page
+1. Go to the [Releases](https://github.com/AThevon/genjutsu/releases) page
 2. Download the individual ZIPs (or the all-in-one and extract it)
 3. On claude.ai, go to **Customize > Skills > Upload ZIP**
 4. Upload each skill ZIP and enable the toggle
@@ -112,15 +114,15 @@ Each release provides two ways to download:
 **Option B - Build from source:**
 
 ```bash
-git clone https://github.com/AThevon/creative-excellence.git
-cd creative-excellence
+git clone https://github.com/AThevon/genjutsu.git
+cd genjutsu
 ./package-for-claude-ai.sh
 # ZIPs are in dist/ (18 total: 15 sub-skills + 2 orchestrators + 1 all-in-one)
 ```
 
 ### Install matrix by stack
 
-On claude.ai you upload one ZIP per skill. Pick what matches your stack. The two orchestrators (`creative-excellence`, `design-excellence`) plus `motion-principles`, `design-audit`, `ui-ux-pro-max` are baseline for everyone.
+On claude.ai you upload one ZIP per skill. Pick what matches your stack. The two orchestrators (`cast`, `paint`) plus `motion-principles`, `design-audit`, `ui-ux-pro-max` are baseline for everyone.
 
 | Your stack | ZIPs to upload (in addition to baseline) |
 |---|---|
@@ -130,12 +132,12 @@ On claude.ai you upload one ZIP per skill. Pick what matches your stack. The two
 | macOS SwiftUI only | desktop-principles, swiftui-motion, swiftui-graphics |
 | Multi-target Apple (iOS + macOS) | mobile-principles, desktop-principles, swiftui-motion, swiftui-graphics |
 | Compose Multiplatform | mobile-principles, compose-motion, compose-graphics, compose-multiplatform, swiftui-motion (if iOS target) |
-| All stacks | use `creative-excellence-all.zip` (extract it first, then upload each sub-folder) |
+| All stacks | use `genjutsu-all.zip` (extract it first, then upload each sub-folder) |
 
 Baseline (always upload these):
 
-- creative-excellence (orchestrator)
-- design-excellence (orchestrator)
+- cast (orchestrator)
+- paint (orchestrator)
 - motion-principles (foundation)
 - design-audit (audit checks)
 - ui-ux-pro-max (UI intelligence)
@@ -144,17 +146,17 @@ Baseline (always upload these):
 
 ```bash
 # Add the plugin marketplace
-/plugin marketplace add git@github.com:AThevon/creative-excellence.git
+/plugin marketplace add git@github.com:AThevon/genjutsu.git
 
 # Install
-/plugin install creative-excellence
+/plugin install genjutsu
 ```
 
 Or as a git submodule in your dotfiles:
 
 ```bash
-git submodule add git@github.com:AThevon/creative-excellence.git claude/plugins/creative-excellence
-ln -sf ~/.dotfiles/claude/plugins/creative-excellence ~/.claude/plugins/creative-excellence
+git submodule add git@github.com:AThevon/genjutsu.git claude/plugins/genjutsu
+ln -sf ~/.dotfiles/claude/plugins/genjutsu ~/.claude/plugins/genjutsu
 ```
 
 ---
@@ -162,35 +164,44 @@ ln -sf ~/.dotfiles/claude/plugins/creative-excellence ~/.claude/plugins/creative
 ## Architecture
 
 ```
-creative-excellence/
+genjutsu/
 ├── .claude-plugin/
 │   ├── plugin.json
 │   └── marketplace.json
 ├── skills/
-│   ├── creative-excellence/SKILL.md          <- orchestrator (Craftsman)
-│   ├── design-excellence/SKILL.md            <- orchestrator (Architect)
-│   └── _creative/                            <- internal sub-skills (never invoked directly)
-│       ├── motion-principles/                <- foundation, always loaded
-│       ├── mobile-principles/                <- shared (touch contexts)
-│       ├── desktop-principles/               <- shared (pointer/keyboard contexts)
-│       ├── design-audit/                     <- shared (audit pipeline)
-│       ├── ui-ux-pro-max/                    <- shared (design intel)
-│       ├── gsap/                             <- web stack
-│       ├── framer-motion/                    <- web stack
-│       ├── css-native/                       <- web stack
-│       ├── threejs-r3f/                      <- web stack
-│       ├── canvas-generative/                <- web stack
-│       ├── compose-motion/                   <- Android
-│       ├── compose-graphics/                 <- Android (M3 Expressive, AGSL, Canvas)
-│       ├── compose-multiplatform/            <- KMP/CMP
-│       ├── swiftui-motion/                   <- Apple
-│       └── swiftui-graphics/                 <- Apple (Metal, Liquid Glass, Canvas)
+│   ├── cast/SKILL.md                       <- orchestrator (Illusionist)
+│   ├── paint/SKILL.md                      <- orchestrator (Master Painter)
+│   └── _jutsu/                             <- internal sub-skills (never invoked directly)
+│       ├── motion-principles/              <- foundation, always loaded
+│       ├── mobile-principles/              <- shared (touch contexts)
+│       ├── desktop-principles/             <- shared (pointer/keyboard contexts)
+│       ├── design-audit/                   <- shared (audit pipeline)
+│       ├── ui-ux-pro-max/                  <- shared (design intel)
+│       ├── gsap/                           <- web stack
+│       ├── framer-motion/                  <- web stack
+│       ├── css-native/                     <- web stack
+│       ├── threejs-r3f/                    <- web stack
+│       ├── canvas-generative/              <- web stack
+│       ├── compose-motion/                 <- Android
+│       ├── compose-graphics/               <- Android (M3 Expressive, AGSL, Canvas)
+│       ├── compose-multiplatform/          <- KMP/CMP
+│       ├── swiftui-motion/                 <- Apple
+│       └── swiftui-graphics/               <- Apple (Metal, Liquid Glass, Canvas)
 ├── package-for-claude-ai.sh
 ├── CHANGELOG.md
 └── README.md
 ```
 
-Orchestrators detect the environment at runtime (Claude Code plugin directory or claude.ai `/mnt/skills/user/`) and pick what to load based on the SCAN phase. Sub-skills in `_creative/` are loaded by orchestrator according to detected stack and selected scope - `mobile-principles` and `desktop-principles` are auto-loaded when context matches (touch target vs pointer/keyboard target). The underscore prefix keeps sub-skills internal so they never get invoked directly.
+Orchestrators detect the environment at runtime (Claude Code plugin directory or claude.ai `/mnt/skills/user/`) and pick what to load based on the SCAN phase. Sub-skills in `_jutsu/` are loaded by orchestrator according to detected stack and selected scope - `mobile-principles` and `desktop-principles` are auto-loaded when context matches (touch target vs pointer/keyboard target). The underscore prefix keeps sub-skills internal so they never get invoked directly.
+
+---
+
+## Voice
+
+The skills speak in two registers:
+
+- **During execution**: light ninja flair, short, signature ("Casting parallax on hero scroll.", "Brushing the color palette.")
+- **In reports / final summaries / audits**: plain, factual, dev-readable. No mystic prose, no metaphors. Just what changed, files touched, next step.
 
 ---
 

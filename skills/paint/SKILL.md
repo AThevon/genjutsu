@@ -1,19 +1,36 @@
 ---
-name: design-excellence
-description: "Exceptional design pipeline — art direction brainstorm, design system, implementation, audit. Build a complete visual universe."
+name: paint
+description: "Paint a complete visual universe with genjutsu - art direction brainstorm, design system, implementation, audit. Anti-AI-slop design pipeline. Adapts to Web, Android (Compose), Apple (SwiftUI)."
 allowed-tools: Bash, Read, Edit, Write, Grep, Glob, WebSearch, Agent
 ---
 
-# Design Excellence — The Architect
+# Paint - The Master Painter
 
-> Build a complete visual universe. Brainstorm first, design system second, implement third, audit last.
-> This is NOT a quick beautifier — it's a full design pipeline.
+> Paint a complete visual universe. Brainstorm first, design system second, implement third, audit last.
+> This is NOT a quick beautifier - it's a full design pipeline.
 
 ---
 
-## /design-excellence vs /creative-excellence
+## Voice
 
-| | `/creative-excellence` | `/design-excellence` |
+This skill speaks in two registers:
+
+**During execution** - light ninja flair, signature, immersive. Short.
+- "Brushing the color palette..."
+- "Painting the hero with the unalloyed gold."
+- "Setting the spacing tokens."
+
+**In reports / final summaries / audit results** - plain, factual, dev-readable. Drop the flair entirely.
+- "Done. Design system generated. Files: MASTER.md, tokens.css, theme.config.ts. 3 pages painted."
+- No mystic prose, no metaphors. Just what changed, files touched, next step.
+
+The flair lives at the intro and during work narration. The moment a result lands or a question gets asked, it's gone.
+
+---
+
+## /paint vs /cast
+
+| | `/genjutsu:cast` | `/genjutsu:paint` |
 |---|---|---|
 | **Philosophy** | "Make this thing beautiful/wow" | "Build a visual universe from scratch" |
 | **Entry point** | Adapts to existing code | Mandatory brainstorm, wipes design if existing |
@@ -22,7 +39,7 @@ allowed-tools: Bash, Read, Edit, Write, Grep, Glob, WebSearch, Agent
 | **Audit** | Quick check before delivery | Full design-audit at the end |
 | **Scope** | One component/page/effect | Entire project visual identity |
 
-`/design-excellence` calls the same sub-skills as `/creative-excellence` for implementation.
+`/genjutsu:paint` calls the same sub-skills as `/genjutsu:cast` for implementation.
 
 ---
 
@@ -52,8 +69,8 @@ if [ -d "/mnt/skills/user/motion-principles" ]; then
   SKILL_BASE="/mnt/skills/user"
 else
   # Claude Code plugin
-  PLUGIN_ROOT=$(find ~/.claude/plugins -path "*/creative-excellence/skills" -type d | head -1 | sed 's|/skills$||')
-  SKILL_BASE="$PLUGIN_ROOT/skills/_creative"
+  PLUGIN_ROOT=$(find ~/.claude/plugins -path "*/genjutsu/skills" -type d | head -1 | sed 's|/skills$||')
+  SKILL_BASE="$PLUGIN_ROOT/skills/_jutsu"
 fi
 ```
 
@@ -200,7 +217,7 @@ A single sentence that captures the motion and interaction language. **Must expl
 
 ### Phase 3 — DESIGN SYSTEM
 
-Load `_creative/ui-ux-pro-max` sub-skill:
+Load `_jutsu/ui-ux-pro-max` sub-skill:
 
 ```bash
 cat "$SKILL_BASE/ui-ux-pro-max/SKILL.md"
@@ -297,7 +314,7 @@ Implementation rules:
 
 ### Phase 5 — AUDIT (never skip)
 
-Load `_creative/design-audit` sub-skill:
+Load `_jutsu/design-audit` sub-skill:
 
 ```bash
 cat "$SKILL_BASE/design-audit/SKILL.md"
@@ -353,7 +370,7 @@ When invoked on a project that already has design/styling:
 3. In Phase 4, **replace** existing design tokens/styles with the new design system
 4. Preserve functionality and layout structure — only replace the visual layer
 
-This is intentional: `/design-excellence` rebuilds the visual universe. To enhance what exists, use `/creative-excellence` instead.
+This is intentional: `/genjutsu:paint` rebuilds the visual universe. To enhance what exists, use `/genjutsu:cast` instead.
 
 ---
 
