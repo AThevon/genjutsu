@@ -1,6 +1,10 @@
-# genjutsu
+<p align="center">
+  <img src="./assets/logo.png" alt="genjutsu logo" width="160" />
+</p>
 
-> The art of illusion. Cast motion. Paint signatures. Zero AI slop.
+<h1 align="center">genjutsu</h1>
+
+<p align="center"><em>The art of illusion. Cast motion. Paint signatures. Zero AI slop.</em></p>
 
 Creative coding skills for [Claude Code](https://claude.ai/code) and [claude.ai](https://claude.ai) - transforms any interface from functional to exceptional through motion design, interaction patterns, and visual systems. Covers Web (React, Vue, Svelte, vanilla CSS, Three.js, Canvas), Android (Jetpack Compose, Compose Multiplatform), and Apple (SwiftUI iOS + macOS).
 
