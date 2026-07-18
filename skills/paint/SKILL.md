@@ -69,7 +69,7 @@ if [ -d "/mnt/skills/user/motion-principles" ]; then
   SKILL_BASE="/mnt/skills/user"
 else
   # Claude Code plugin
-  PLUGIN_ROOT=$(find ~/.claude/plugins -path "*/genjutsu/skills" -type d | head -1 | sed 's|/skills$||')
+  PLUGIN_ROOT=$(find ~/.claude/plugins \( -path "*/genjutsu/skills" -o -path "*/genjutsu/*/skills" \) -type d | head -1 | sed 's|/skills$||')
   SKILL_BASE="$PLUGIN_ROOT/skills/_jutsu"
 fi
 ```
