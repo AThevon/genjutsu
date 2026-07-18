@@ -2,6 +2,12 @@
 
 All notable changes to this plugin are documented here. Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## v3.0.1 - 2026-07-18
+
+### Fixed
+
+- Sub-skill resolution in `cast` and `paint` now works when genjutsu is installed via the marketplace. The `PLUGIN_ROOT` lookup is version-tolerant and matches the versioned cache layout (`~/.claude/plugins/cache/genjutsu/genjutsu/<version>/skills/`) in addition to git-clone installs. Previously the versioned path never matched, so all 15 `_jutsu` sub-skills failed to load on marketplace installs. Thanks to @SatishRockzz (#2).
+
 ## v3.0.0 - 2026-04-26
 
 **BREAKING CHANGE - Rebrand**: `creative-excellence` is now `genjutsu`. The two orchestrators have new names that match the new theme.
