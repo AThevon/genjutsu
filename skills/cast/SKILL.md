@@ -93,7 +93,7 @@ Map the results:
 
 **Skip this step if** the request is specific and self-contained ("add a hover scale on this button", "animate this list entry"). Go straight to SCOPE.
 
-**Use this step when** the request is vague, open-ended, or could go in multiple directions ("make this page feel more alive", "I want something cool for the hero", "refais-moi le design de cette section").
+**Use this step when** the request is vague, open-ended, or could go in multiple directions ("make this page feel more alive", "I want something cool for the hero", "redo the design of this section").
 
 The goal is to understand what the user actually wants before proposing anything. One question at a time, never bundle.
 
@@ -122,7 +122,7 @@ When the user says "something modern" or "I'll know it when I see it":
 
 Ask exactly one question:
 
-> "Je vois que ton projet a [du XML / des XIB / des Activities classiques] en plus du moderne. Pour cette tâche, je reste sur du pur [Compose/SwiftUI], ou tu veux que je m'intègre dans un écran legacy ?"
+> "I see your project mixes [XML layouts / XIBs / classic Activities] with modern UI. For this task, should I stay on pure [Compose/SwiftUI], or integrate into a legacy screen?"
 
 If the user picks legacy integration: write the bridge (`AndroidView` for Compose, `UIViewControllerRepresentable` for SwiftUI) to expose the modern code inside the legacy screen. Never generate new legacy code (no XML, no XIB, no setContentView).
 
@@ -159,14 +159,18 @@ Detect the environment and resolve the sub-skills base path:
 ```bash
 # Environment detection:
 # - claude.ai: skills are uploaded individually to /mnt/skills/user/<name>/
-# - Claude Code: skills live under the plugin directory
+# - Claude Code: ${CLAUDE_PLUGIN_ROOT} resolves to THIS plugin version's
+#   install directory. Claude Code substitutes it anywhere in skill content.
 if [ -d "/mnt/skills/user/motion-principles" ]; then
   # claude.ai - each sub-skill is its own uploaded skill
   SKILL_BASE="/mnt/skills/user"
 else
   # Claude Code plugin
-  PLUGIN_ROOT=$(find ~/.claude/plugins \( -path "*/genjutsu/skills" -o -path "*/genjutsu/*/skills" \) -type d | head -1 | sed 's|/skills$||')
-  SKILL_BASE="$PLUGIN_ROOT/skills/_jutsu"
+  SKILL_BASE="${CLAUDE_PLUGIN_ROOT}/skills/_jutsu"
+  # Fallback if the placeholder was not substituted: newest installed version
+  if [ ! -d "$SKILL_BASE" ]; then
+    SKILL_BASE=$(find ~/.claude/plugins/cache -type d -path '*/genjutsu/*/skills/_jutsu' 2>/dev/null | sort -V | tail -1)
+  fi
 fi
 ```
 
@@ -206,8 +210,6 @@ The thesis is "advanced" (and triggers loading the graphics sub-skill) if it con
 - `holographic`, `CRT`, `displacement`, `ripple`
 
 Otherwise stick to the base motion sub-skill.
-
-**Note:** Phase 1 of the v2.0 rollout adds `mobile-principles` and `desktop-principles`, but the stack-specific Compose/SwiftUI sub-skills land in Phases 2-4. Until then, on a Compose or SwiftUI project, load only the foundation + context layers + design-audit, and proceed using your general knowledge plus the universal motion-principles.
 
 ### 6. IMPLEMENT — Code while respecting the loaded principles
 
