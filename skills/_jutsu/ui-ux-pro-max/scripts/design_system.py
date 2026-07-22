@@ -18,7 +18,7 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
-from core import search, DATA_DIR
+from core import search, DATA_DIR, safe_path_component
 
 
 # ============ CONFIGURATION ============
@@ -503,9 +503,10 @@ def persist_design_system(design_system: dict, page: str = None, output_dir: str
     """
     base_dir = Path(output_dir) if output_dir else Path.cwd()
     
-    # Use project name for project-specific folder
+    # Use project name for project-specific folder (sanitized to a single
+    # safe path segment to prevent traversal outside base_dir).
     project_name = design_system.get("project_name", "default")
-    project_slug = project_name.lower().replace(' ', '-')
+    project_slug = safe_path_component(project_name)
     
     design_system_dir = base_dir / "design-system" / project_slug
     pages_dir = design_system_dir / "pages"
@@ -526,7 +527,7 @@ def persist_design_system(design_system: dict, page: str = None, output_dir: str
     
     # If page is specified, create page override file with intelligent content
     if page:
-        page_file = pages_dir / f"{page.lower().replace(' ', '-')}.md"
+        page_file = pages_dir / f"{safe_path_component(page, 'page')}.md"
         page_content = format_page_override_md(design_system, page, page_query)
         with open(page_file, 'w', encoding='utf-8') as f:
             f.write(page_content)

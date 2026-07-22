@@ -17,7 +17,7 @@ Persistence (Master + Overrides pattern):
 import argparse
 import sys
 import io
-from core import CSV_CONFIG, AVAILABLE_STACKS, MAX_RESULTS, search, search_stack
+from core import CSV_CONFIG, AVAILABLE_STACKS, MAX_RESULTS, search, search_stack, safe_path_component
 from design_system import generate_design_system, persist_design_system
 
 # Force UTF-8 for stdout/stderr to handle emojis on Windows (cp1252 default)
@@ -85,12 +85,14 @@ if __name__ == "__main__":
         
         # Print persistence confirmation
         if args.persist:
-            project_slug = args.project_name.lower().replace(' ', '-') if args.project_name else "default"
+            # Mirror the sanitized slug design_system.py actually writes to,
+            # so the confirmation path matches the real filesystem location.
+            project_slug = safe_path_component(args.project_name or args.query.upper())
             print("\n" + "=" * 60)
             print(f"✅ Design system persisted to design-system/{project_slug}/")
             print(f"   📄 design-system/{project_slug}/MASTER.md (Global Source of Truth)")
             if args.page:
-                page_filename = args.page.lower().replace(' ', '-')
+                page_filename = safe_path_component(args.page, 'page')
                 print(f"   📄 design-system/{project_slug}/pages/{page_filename}.md (Page Overrides)")
             print("")
             print(f"📖 Usage: When building a page, check design-system/{project_slug}/pages/[page].md first.")
