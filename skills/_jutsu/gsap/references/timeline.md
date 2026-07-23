@@ -4,9 +4,9 @@
 
 ```js
 const tl = gsap.timeline({
-  defaults: { duration: 0.8, ease: "power2.out" }, // applique a tous les enfants
+  defaults: { duration: 0.8, ease: "power2.out" }, // applies to all children
   paused: false,
-  repeat: -1,           // -1 = infini
+  repeat: -1,           // -1 = infinite
   yoyo: true,
   repeatDelay: 0.5,
   onComplete: () => console.log("done"),
@@ -15,43 +15,43 @@ const tl = gsap.timeline({
 
 ## Position Parameter
 
-Le parametre de position controle OU un tween est insere dans le timeline. C'est le 3eme argument de `.to()`, `.from()`, `.fromTo()`, `.add()`.
+The position parameter controls WHERE a tween is inserted in the timeline. It's the 3rd argument of `.to()`, `.from()`, `.fromTo()`, `.add()`.
 
-### Valeurs absolues
-
-```js
-tl.to(".a", { x: 100 }, 0);     // a exactement 0s (debut du timeline)
-tl.to(".b", { x: 100 }, 1);     // a exactement 1s
-tl.to(".c", { x: 100 }, 2.5);   // a exactement 2.5s
-```
-
-### Relatif a la fin du timeline
+### Absolute values
 
 ```js
-tl.to(".a", { x: 100 });              // s'ajoute a la fin
-tl.to(".b", { x: 100 }, "+=0.5");     // 0.5s APRES la fin
-tl.to(".c", { x: 100 }, "-=0.3");     // 0.3s AVANT la fin (overlap)
+tl.to(".a", { x: 100 }, 0);     // at exactly 0s (start of the timeline)
+tl.to(".b", { x: 100 }, 1);     // at exactly 1s
+tl.to(".c", { x: 100 }, 2.5);   // at exactly 2.5s
 ```
 
-### Relatif au tween precedent
+### Relative to the end of the timeline
+
+```js
+tl.to(".a", { x: 100 });              // appends to the end
+tl.to(".b", { x: 100 }, "+=0.5");     // 0.5s AFTER the end
+tl.to(".c", { x: 100 }, "-=0.3");     // 0.3s BEFORE the end (overlap)
+```
+
+### Relative to the previous tween
 
 ```js
 tl.to(".a", { x: 100 });
-tl.to(".b", { x: 100 }, "<");         // meme debut que le precedent
-tl.to(".c", { x: 100 }, "<0.2");      // 0.2s apres le DEBUT du precedent
-tl.to(".d", { x: 100 }, ">");         // a la FIN du precedent
-tl.to(".e", { x: 100 }, ">-0.1");     // 0.1s AVANT la fin du precedent
+tl.to(".b", { x: 100 }, "<");         // same start as the previous
+tl.to(".c", { x: 100 }, "<0.2");      // 0.2s after the START of the previous
+tl.to(".d", { x: 100 }, ">");         // at the END of the previous
+tl.to(".e", { x: 100 }, ">-0.1");     // 0.1s BEFORE the end of the previous
 ```
 
-### Avec labels
+### With labels
 
 ```js
 tl.addLabel("intro", 1);
-tl.to(".a", { x: 100 }, "intro");       // au label
-tl.to(".b", { x: 100 }, "intro+=0.3");  // 0.3s apres le label
+tl.to(".a", { x: 100 }, "intro");       // at the label
+tl.to(".b", { x: 100 }, "intro+=0.3");  // 0.3s after the label
 ```
 
-## Cheatsheet position
+## Position cheatsheet
 
 ```
 tl ─────────────────────────────────────>
@@ -59,36 +59,36 @@ tl ─────────────────────────�
               |  C  |       |  D  |
                          |  E  |
 
-A: tl.to(a, {}, 0)          // absolue
-B: tl.to(b, {})             // sequentiel (fin de A)
-C: tl.to(c, {}, "<")        // debut de B
-D: tl.to(d, {}, "+=0.5")    // 0.5s apres fin de C
-E: tl.to(e, {}, ">-0.2")    // 0.2s avant fin de D
+A: tl.to(a, {}, 0)          // absolute
+B: tl.to(b, {})             // sequential (end of A)
+C: tl.to(c, {}, "<")        // start of B
+D: tl.to(d, {}, "+=0.5")    // 0.5s after end of C
+E: tl.to(e, {}, ">-0.2")    // 0.2s before end of D
 ```
 
 ## Labels
 
 ```js
-tl.addLabel("reveal", "+=0.5");      // ajoute un label a la position courante + 0.5s
-tl.to(".box", { x: 200 }, "reveal"); // utilise le label comme position
+tl.addLabel("reveal", "+=0.5");      // adds a label at the current position + 0.5s
+tl.to(".box", { x: 200 }, "reveal"); // uses the label as position
 
-tl.play("reveal");                   // joue depuis le label
-tl.seek("reveal");                   // saute au label sans jouer
+tl.play("reveal");                   // plays from the label
+tl.seek("reveal");                   // jumps to the label without playing
 ```
 
-## Methode .add()
+## .add() method
 
-Ajoute des tweens, callbacks, ou labels.
+Adds tweens, callbacks, or labels.
 
 ```js
-tl.add(gsap.to(".a", { x: 100 }), 1);           // tween a 1s
+tl.add(gsap.to(".a", { x: 100 }), 1);           // tween at 1s
 tl.add(() => console.log("checkpoint"), "+=0.5"); // callback
-tl.add("myLabel");                                 // raccourci label
+tl.add("myLabel");                                 // label shorthand
 ```
 
-## Nesting (timelines imbriques)
+## Nesting (nested timelines)
 
-Les timelines peuvent contenir d'autres timelines. Chaque sous-timeline agit comme un seul "bloc" dans le parent.
+Timelines can contain other timelines. Each sub-timeline acts as a single "block" in the parent.
 
 ```js
 function heroAnimation() {
@@ -105,18 +105,18 @@ function cardsAnimation() {
   return tl;
 }
 
-// Timeline maitre
+// Master timeline
 const master = gsap.timeline();
 master
   .add(heroAnimation())
-  .add(cardsAnimation(), "-=0.3"); // overlap de 0.3s
+  .add(cardsAnimation(), "-=0.3"); // 0.3s overlap
 ```
 
-**Avantage** : chaque section est encapsulee, testable, et repositionnable.
+**Advantage**: each section is encapsulated, testable, and repositionable.
 
-## defaults sur Timeline
+## defaults on Timeline
 
-Les defaults se propagent aux enfants directs mais PAS aux timelines imbriques.
+Defaults propagate to direct children but NOT to nested timelines.
 
 ```js
 const tl = gsap.timeline({
@@ -126,12 +126,12 @@ const tl = gsap.timeline({
 tl.to(".a", { x: 100 });           // duration: 1, ease: power3.out
 tl.to(".b", { x: 100, duration: 2 }); // duration: 2 (override), ease: power3.out
 
-// Timeline enfant : ses propres defaults s'appliquent
+// Child timeline: its own defaults apply
 const child = gsap.timeline({ defaults: { duration: 0.5 } });
-tl.add(child); // les defaults du parent NE s'appliquent PAS aux tweens de child
+tl.add(child); // the parent's defaults do NOT apply to child's tweens
 ```
 
-## Controle du Timeline
+## Controlling the Timeline
 
 ```js
 tl.play();
@@ -142,46 +142,46 @@ tl.restart();
 tl.kill();
 
 // Navigation
-tl.seek(2);              // saute a 2s
-tl.seek("myLabel");      // saute au label
-tl.progress(0.5);        // saute a 50%
-tl.time(1.5);            // saute a 1.5s
+tl.seek(2);              // jumps to 2s
+tl.seek("myLabel");      // jumps to the label
+tl.progress(0.5);        // jumps to 50%
+tl.time(1.5);            // jumps to 1.5s
 
-// Vitesse
-tl.timeScale(2);         // 2x plus rapide
-tl.timeScale(0.5);       // 2x plus lent
+// Speed
+tl.timeScale(2);         // 2x faster
+tl.timeScale(0.5);       // 2x slower
 
-// Etat
-tl.isActive();           // en cours de lecture ?
-tl.totalDuration();      // duree totale incluant repeats
-tl.paused();             // en pause ?
+// State
+tl.isActive();           // currently playing?
+tl.totalDuration();      // total duration including repeats
+tl.paused();             // paused?
 
 // Modification
-tl.clear();              // vide le timeline (garde l'instance)
-tl.invalidate();         // reset les valeurs de depart
-tl.totalProgress(0);     // remet au debut
+tl.clear();              // clears the timeline (keeps the instance)
+tl.invalidate();         // resets the starting values
+tl.totalProgress(0);     // resets to the start
 ```
 
-## Patterns courants
+## Common patterns
 
-### Timeline responsive avec matchMedia
+### Responsive timeline with matchMedia
 
 ```js
 ScrollTrigger.matchMedia({
   "(min-width: 768px)": function () {
-    // animations desktop
+    // desktop animations
     gsap.timeline({ scrollTrigger: { trigger: ".section" } })
       .to(".box", { x: 500 });
   },
   "(max-width: 767px)": function () {
-    // animations mobile (plus simple)
+    // mobile animations (simpler)
     gsap.to(".box", { y: 100, scrollTrigger: ".section" });
   },
 });
-// Cleanup automatique quand le media query ne matche plus
+// Automatic cleanup when the media query no longer matches
 ```
 
-### Timeline avec ScrollTrigger
+### Timeline with ScrollTrigger
 
 ```js
 const tl = gsap.timeline({
@@ -190,7 +190,7 @@ const tl = gsap.timeline({
     start: "top center",
     end: "bottom center",
     scrub: 1,
-    // NE PAS mettre de ScrollTrigger sur les enfants du timeline
+    // DO NOT put ScrollTrigger on the timeline's children
   },
 });
 
@@ -199,7 +199,7 @@ tl.to(".a", { x: 200 })
   .to(".c", { scale: 2 }, "+=0.3");
 ```
 
-### Kill proprement en React
+### Clean kill in React
 
 ```jsx
 import { useGSAP } from "@gsap/react";
@@ -210,7 +210,7 @@ function Component() {
   useGSAP(() => {
     const tl = gsap.timeline();
     tl.to(".box", { x: 200 });
-    // cleanup automatique par useGSAP
+    // automatic cleanup by useGSAP
   }, { scope: container });
 
   return <div ref={container}>...</div>;
