@@ -92,6 +92,27 @@ _STACK_COLS = {
 AVAILABLE_STACKS = list(STACK_CONFIG.keys())
 
 
+# ============ PATH SAFETY ============
+def safe_path_component(name, fallback="default"):
+    """Collapse a user-supplied value into a single safe path segment.
+
+    Prevents path traversal (`../`), absolute-path escape (`/etc/...`) and
+    backslash tricks when the value is used to build a filesystem path. Keeps
+    the existing slug behaviour (lowercase, spaces -> dashes) for normal input.
+    """
+    if name is None:
+        return fallback
+    s = str(name).strip().lower().replace(' ', '-')
+    # Normalise Windows separators, then keep only the last segment so any
+    # leading directory (absolute or relative) is dropped.
+    s = s.replace('\\', '/').split('/')[-1]
+    # Drop leading dots to avoid hidden folders and residual traversal tokens.
+    s = s.lstrip('.')
+    if s in ('', '.', '..'):
+        return fallback
+    return s
+
+
 # ============ BM25 IMPLEMENTATION ============
 class BM25:
     """BM25 ranking algorithm for text search"""

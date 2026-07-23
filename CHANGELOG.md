@@ -2,6 +2,21 @@
 
 All notable changes to this plugin are documented here. Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## v3.0.2 - 2026-07-23
+
+### Security
+
+- `ui-ux-pro-max`: the `--persist` flow no longer lets `--project-name` or `--page` escape the output directory. Both values were turned into filesystem paths with only lowercase + space-to-dash, so a `../` or an absolute value could write outside `design-system/` (an arbitrary-write primitive when the script is agent-driven). They now pass through a shared `safe_path_component()` that collapses each value to a single safe path segment. Thanks to @reevesc88 (#4).
+
+### Fixed
+
+- `cast` and `paint` now resolve `_jutsu` sub-skills from the installed plugin version via `${CLAUDE_PLUGIN_ROOT}`, instead of a `find | head -1` that could pick the marketplace clone (a stale version after `/plugin marketplace update`). A guarded, cache-restricted fallback covers the case where the placeholder is not substituted. Thanks to @malle-van-moa (#3).
+- Removed a stale v2.0 rollout note in `cast` and `paint` that told the agent to skip the Compose/SwiftUI sub-skills; those shipped in v3.0.1 and the note contradicted the LOAD table above it. (#3)
+
+### Changed
+
+- Translated the remaining French user-facing strings in `cast` and `paint` (the legacy-bridge question and one DISCOVER example) to English. (#3)
+
 ## v3.0.1 - 2026-07-18
 
 ### Fixed
