@@ -1,6 +1,6 @@
 {
   "name": "genjutsu",
   "description": "Genjutsu - the art of illusion for Claude Code and claude.ai. Cast motion and paint visual signatures into Web, Android (Compose), and Apple (SwiftUI) interfaces. Anti-AI-slop creative coding.",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "author": { "name": "AThevon" }
 }

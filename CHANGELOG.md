@@ -2,6 +2,16 @@
 
 All notable changes to this plugin are documented here. Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## v3.0.3 - 2026-07-23
+
+### Fixed
+
+- `paint`: the brainstorm question shown when the user tries to skip brainstorming was still in French and got emitted verbatim to the user. It is now English, matching the rest of the skill (same class of leak as #3, one occurrence had been missed).
+
+### Changed
+
+- Translated the `gsap` reference docs (`_jutsu/gsap/references/core.md` and `timeline.md`) from French to English, so the sub-skill is fully English like the rest of the plugin. Translation only, no API or code changes (the remaining French flagged in #3).
+
 ## v3.0.2 - 2026-07-23
 
 ### Security

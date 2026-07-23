@@ -168,7 +168,7 @@ When the user says "modern" or "clean" or "I don't know, just make it nice":
 
 Do NOT capitulate. Instead:
 
-> "On a couvert [domaines couverts]. Il me manque [domaines manquants] — ça va directement impacter [conséquence concrète]. Je pose encore une question ou tu préfères que je fasse des hypothèses et tu corriges après ?"
+> "We've covered [covered areas]. I'm still missing [missing areas], which will directly impact [concrete consequence]. Want me to ask one more question, or would you rather I make assumptions and you correct them afterward?"
 
 This gives them an informed choice. If they choose assumptions, name each assumption explicitly in the thesis.
 

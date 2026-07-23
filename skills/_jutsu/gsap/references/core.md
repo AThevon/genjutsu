@@ -4,13 +4,13 @@
 
 ### gsap.to(targets, vars)
 
-Anime les proprietes VERS les valeurs specifiees.
+Animates properties TO the specified values.
 
 ```js
 gsap.to(".box", {
   x: 200,           // translateX
   y: -50,           // translateY
-  rotation: 360,    // rotate en degres
+  rotation: 360,    // rotate in degrees
   scale: 1.5,
   opacity: 0.5,
   duration: 1,
@@ -19,77 +19,77 @@ gsap.to(".box", {
 });
 ```
 
-`targets` : selecteur CSS string, element, Array d'elements, NodeList, ou objet JS.
+`targets`: CSS selector string, element, Array of elements, NodeList, or JS object.
 
 ### gsap.from(targets, vars)
 
-Anime DEPUIS les valeurs specifiees vers l'etat actuel.
+Animates FROM the specified values to the current state.
 
 ```js
 gsap.from(".box", { y: 100, opacity: 0, duration: 0.8 });
 ```
 
-**Attention** : `immediateRender` est `true` par defaut sur `from()`. L'element saute aux valeurs `from` immediatement. Mettre `immediateRender: false` si necessaire.
+**Warning**: `immediateRender` is `true` by default on `from()`. The element jumps to the `from` values immediately. Set `immediateRender: false` if needed.
 
 ### gsap.fromTo(targets, fromVars, toVars)
 
-Controle total sur le depart ET l'arrivee.
+Full control over both the start AND the end.
 
 ```js
 gsap.fromTo(".box",
   { x: -100, opacity: 0 },          // from
-  { x: 0, opacity: 1, duration: 1 } // to (options ici)
+  { x: 0, opacity: 1, duration: 1 } // to (options here)
 );
 ```
 
 ### gsap.set(targets, vars)
 
-Applique des valeurs immediatement (duration: 0). Equivalent a `gsap.to(target, { ...vars, duration: 0 })`.
+Applies values immediately (duration: 0). Equivalent to `gsap.to(target, { ...vars, duration: 0 })`.
 
 ```js
 gsap.set(".box", { x: 0, y: 0, opacity: 1, clearProps: "all" });
 ```
 
-`clearProps: "all"` supprime tous les inline styles appliques par GSAP.
+`clearProps: "all"` removes all inline styles applied by GSAP.
 
-## Options de Tween
+## Tween Options
 
-| Option            | Type              | Defaut    | Description                                                 |
+| Option            | Type              | Default   | Description                                                 |
 | ----------------- | ----------------- | --------- | ----------------------------------------------------------- |
-| `duration`        | number            | `0.5`     | Duree en secondes                                           |
-| `ease`            | string            | `"power1.out"` | Courbe d'animation                                     |
-| `delay`           | number            | `0`       | Delai avant demarrage                                       |
-| `repeat`          | number            | `0`       | Nombre de repetitions (`-1` = infini)                       |
-| `yoyo`            | boolean           | `false`   | Alterne la direction a chaque repeat                        |
-| `repeatDelay`     | number            | `0`       | Delai entre chaque repeat                                   |
-| `stagger`         | number/object     | `0`       | Delai entre chaque target                                   |
-| `overwrite`       | boolean/string    | `false`   | `true` kill les tweens en conflit, `"auto"` les proprietes  |
-| `immediateRender` | boolean           | auto      | `true` sur from/fromTo, `false` sur to                      |
-| `paused`          | boolean           | `false`   | Cree le tween en pause                                      |
-| `reversed`        | boolean           | `false`   | Joue en reverse                                             |
-| `onStart`         | function          | null      | Callback au demarrage                                       |
-| `onUpdate`        | function          | null      | Callback a chaque frame                                     |
-| `onComplete`      | function          | null      | Callback a la fin                                           |
-| `onRepeat`        | function          | null      | Callback a chaque repeat                                    |
-| `onReverseComplete` | function        | null      | Callback quand reverse atteint le debut                     |
-| `callbackScope`   | object            | tween     | Scope `this` des callbacks                                  |
+| `duration`        | number            | `0.5`     | Duration in seconds                                         |
+| `ease`            | string            | `"power1.out"` | Animation curve                                        |
+| `delay`           | number            | `0`       | Delay before start                                          |
+| `repeat`          | number            | `0`       | Number of repetitions (`-1` = infinite)                     |
+| `yoyo`            | boolean           | `false`   | Alternates direction on each repeat                         |
+| `repeatDelay`     | number            | `0`       | Delay between each repeat                                    |
+| `stagger`         | number/object     | `0`       | Delay between each target                                    |
+| `overwrite`       | boolean/string    | `false`   | `true` kills conflicting tweens, `"auto"` conflicting props |
+| `immediateRender` | boolean           | auto      | `true` on from/fromTo, `false` on to                        |
+| `paused`          | boolean           | `false`   | Creates the tween paused                                    |
+| `reversed`        | boolean           | `false`   | Plays in reverse                                            |
+| `onStart`         | function          | null      | Callback on start                                           |
+| `onUpdate`        | function          | null      | Callback on each frame                                      |
+| `onComplete`      | function          | null      | Callback on complete                                        |
+| `onRepeat`        | function          | null      | Callback on each repeat                                     |
+| `onReverseComplete` | function        | null      | Callback when reverse reaches the start                     |
+| `callbackScope`   | object            | tween     | `this` scope of the callbacks                               |
 
 ## Easing
 
-Format : `"type.direction"` — ex: `"power2.out"`, `"elastic.inOut"`, `"back.in"`.
+Format: `"type.direction"`, e.g. `"power2.out"`, `"elastic.inOut"`, `"back.in"`.
 
-Types courants :
-- `none` (lineaire), `power1`-`power4`, `back`, `elastic`, `bounce`, `circ`, `expo`, `sine`
-- `steps(n)` — animation par paliers
-- `"slow(0.7, 0.7, false)"` — slow-mo effect
-- Custom : `CustomEase.create("myEase", "M0,0 C0.5,0 0.5,1 1,1")`
+Common types:
+- `none` (linear), `power1`-`power4`, `back`, `elastic`, `bounce`, `circ`, `expo`, `sine`
+- `steps(n)` -> stepped animation
+- `"slow(0.7, 0.7, false)"` -> slow-mo effect
+- Custom: `CustomEase.create("myEase", "M0,0 C0.5,0 0.5,1 1,1")`
 
 ## Stagger
 
 ### Simple
 
 ```js
-gsap.to(".item", { y: -20, stagger: 0.1 }); // 0.1s entre chaque element
+gsap.to(".item", { y: -20, stagger: 0.1 }); // 0.1s between each element
 ```
 
 ### Object config
@@ -98,26 +98,26 @@ gsap.to(".item", { y: -20, stagger: 0.1 }); // 0.1s entre chaque element
 gsap.to(".item", {
   y: -20,
   stagger: {
-    each: 0.1,           // temps entre chaque element
-    // OU amount: 0.8,   // temps TOTAL pour le stagger (divise par N elements)
+    each: 0.1,           // time between each element
+    // OR amount: 0.8,   // TOTAL time for the stagger (divided by N elements)
     from: "center",       // "start" | "end" | "center" | "edges" | "random" | number (index)
-    grid: "auto",         // active la distribution 2D, detecte la grille
-    axis: "y",            // "x" | "y" | null (distance 2D)
-    ease: "power2.in",   // ease de la distribution du stagger
+    grid: "auto",         // enables 2D distribution, detects the grid
+    axis: "y",            // "x" | "y" | null (2D distance)
+    ease: "power2.in",   // ease of the stagger distribution
   },
 });
 ```
 
-## Proprietes CSS animables
+## Animatable CSS Properties
 
-### Transforms (GPU — privilegier)
+### Transforms (GPU -> prefer these)
 
 | GSAP shorthand | CSS equivalent         |
 | --------------- | ---------------------- |
 | `x`             | `translateX`           |
 | `y`             | `translateY`           |
 | `z`             | `translateZ`           |
-| `rotation`      | `rotate` (en degres)   |
+| `rotation`      | `rotate` (in degrees)  |
 | `rotationX/Y`   | `rotateX/Y`           |
 | `scale`         | `scale`                |
 | `scaleX/Y`      | `scaleX/Y`            |
@@ -126,17 +126,17 @@ gsap.to(".item", {
 | `yPercent`      | `translateY(%)`        |
 | `transformOrigin` | `transform-origin`   |
 
-### Autres proprietes
+### Other properties
 
 - `opacity`, `borderRadius`, `backgroundColor`, `color`, `boxShadow`
-- CSS variables : `gsap.to(el, { "--my-var": 100 })`
-- SVG : `attr: { cx: 200, r: 50 }` pour les attributs SVG
+- CSS variables: `gsap.to(el, { "--my-var": 100 })`
+- SVG: `attr: { cx: 200, r: 50 }` for SVG attributes
 
-## Utilitaires
+## Utilities
 
 ### gsap.defaults(vars)
 
-Applique des defauts a TOUS les tweens crees apres cet appel.
+Applies defaults to ALL tweens created after this call.
 
 ```js
 gsap.defaults({ duration: 0.8, ease: "power2.out" });
@@ -144,7 +144,7 @@ gsap.defaults({ duration: 0.8, ease: "power2.out" });
 
 ### gsap.registerPlugin(...plugins)
 
-Enregistre les plugins. A appeler une seule fois, au top level.
+Registers plugins. Call once, at the top level.
 
 ```js
 import { ScrollTrigger, SplitText, Flip } from "gsap/all";
@@ -153,7 +153,7 @@ gsap.registerPlugin(ScrollTrigger, SplitText, Flip);
 
 ### gsap.quickTo(target, prop, vars)
 
-Cree une fonction reutilisable pour animer une propriete (ideal pour mouse-follow).
+Creates a reusable function to animate a property (ideal for mouse-follow).
 
 ```js
 const xTo = gsap.quickTo(".cursor", "x", { duration: 0.3, ease: "power3" });
@@ -167,7 +167,7 @@ window.addEventListener("mousemove", (e) => {
 
 ### gsap.quickSetter(target, prop, unit)
 
-Comme quickTo mais instantane (pas d'interpolation). Ultra performant pour onUpdate.
+Like quickTo but instant (no interpolation). Ultra performant for onUpdate.
 
 ```js
 const setX = gsap.quickSetter(".el", "x", "px");
@@ -177,30 +177,30 @@ const setX = gsap.quickSetter(".el", "x", "px");
 
 ```js
 gsap.utils.toArray(".items")        // NodeList -> Array
-gsap.utils.clamp(0, 100, value)     // clampe la valeur
+gsap.utils.clamp(0, 100, value)     // clamps the value
 gsap.utils.mapRange(0, 1, 0, 100, 0.5) // map 0.5 -> 50
-gsap.utils.wrap([1, 2, 3], 5)       // cycle: retourne 3
-gsap.utils.interpolate(0, 100, 0.5) // retourne 50
-gsap.utils.random(1, 10, 1)         // random entre 1-10, step 1
-gsap.utils.shuffle(array)           // melange le tableau
-gsap.utils.distribute({ amount: 1, from: "center" }) // fonction de distribution
+gsap.utils.wrap([1, 2, 3], 5)       // cycle: returns 3
+gsap.utils.interpolate(0, 100, 0.5) // returns 50
+gsap.utils.random(1, 10, 1)         // random between 1-10, step 1
+gsap.utils.shuffle(array)           // shuffles the array
+gsap.utils.distribute({ amount: 1, from: "center" }) // distribution function
 ```
 
 ### gsap.context()
 
-Scope pour cleanup facile (crucial en React/Vue). Remplace par `useGSAP()` en React.
+Scope for easy cleanup (crucial in React/Vue). Replace with `useGSAP()` in React.
 
 ```js
 const ctx = gsap.context(() => {
   gsap.to(".box", { x: 200 });
   ScrollTrigger.create({ ... });
-}, containerRef); // scope selecteurs au container
+}, containerRef); // scope selectors to the container
 
 // Cleanup
-ctx.revert(); // tue tout : tweens, ScrollTriggers, etc.
+ctx.revert(); // kills everything: tweens, ScrollTriggers, etc.
 ```
 
-## Controle d'un Tween
+## Controlling a Tween
 
 ```js
 const tween = gsap.to(".box", { x: 200, paused: true });
@@ -211,8 +211,8 @@ tween.reverse();
 tween.restart();
 tween.kill();
 
-tween.progress(0.5);    // saute a 50%
-tween.timeScale(2);     // 2x plus rapide
+tween.progress(0.5);    // jumps to 50%
+tween.timeScale(2);     // 2x faster
 tween.duration();        // getter
 tween.duration(2);       // setter
 ```
