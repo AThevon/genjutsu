@@ -51,16 +51,48 @@ for dir in "$SKILLS_DIR"/_jutsu/*/; do
   echo "  + ${name}.zip"
 done
 
-# --- Global ZIP (convenience) ---
-GLOBAL_ZIP="genjutsu-all.zip"
-make_zip "$SKILLS_DIR" "$(pwd)/${DIST}/${GLOBAL_ZIP}"
-echo "  + $GLOBAL_ZIP (global)"
+# --- Single-upload bundle (recommended) ---
+# One self-contained "genjutsu" skill: a thin router SKILL.md + cast/ + paint/
+# + all _jutsu/ sub-skills. Uploaded once, it resolves sub-skills from its own
+# bundled _jutsu/ (the orchestrators' path detection prefers the bundle).
+BUNDLE_SRC="${DIST}/.bundle"
+rm -rf "$BUNDLE_SRC"
+mkdir -p "$BUNDLE_SRC"
+cp "packaging/genjutsu-router.md" "$BUNDLE_SRC/SKILL.md"
+cp -R "$SKILLS_DIR/cast" "$BUNDLE_SRC/cast"
+cp -R "$SKILLS_DIR/paint" "$BUNDLE_SRC/paint"
+cp -R "$SKILLS_DIR/_jutsu" "$BUNDLE_SRC/_jutsu"
+
+# claude.ai rejects a skill ZIP that contains more than one SKILL.md. Keep only
+# the router as SKILL.md: rename every bundled orchestrator/sub-skill SKILL.md
+# to GUIDE.md, then repoint every in-bundle "SKILL.md" reference to "GUIDE.md"
+# so the router's cat and the orchestrators' load_skill still resolve.
+python3 - "$BUNDLE_SRC" <<'PY'
+import os, sys
+root = os.path.abspath(sys.argv[1])
+# 1) rename inner SKILL.md -> GUIDE.md (leave the root router SKILL.md alone)
+for dp, _, fs in os.walk(root):
+    if "SKILL.md" in fs and os.path.abspath(dp) != root:
+        os.rename(os.path.join(dp, "SKILL.md"), os.path.join(dp, "GUIDE.md"))
+# 2) repoint references inside every markdown file
+for dp, _, fs in os.walk(root):
+    for fn in fs:
+        if fn.endswith(".md"):
+            p = os.path.join(dp, fn)
+            with open(p, encoding="utf-8") as fh:
+                s = fh.read()
+            with open(p, "w", encoding="utf-8") as fh:
+                fh.write(s.replace("SKILL.md", "GUIDE.md"))
+PY
+
+make_zip "$BUNDLE_SRC" "$(pwd)/${DIST}/genjutsu.zip"
+rm -rf "$BUNDLE_SRC"
+echo "  + genjutsu.zip (single-upload bundle: 1 router SKILL.md + cast/paint/_jutsu as GUIDE.md)"
 
 echo ""
 echo "=== Résumé ==="
 echo ""
 ls -lh "$DIST"/*.zip | awk '{print "  " $NF " (" $5 ")"}'
 echo ""
-echo "Upload les ZIPs sur claude.ai : Customize > Skills > Upload ZIP"
-echo "Les orchestrateurs (cast, paint) ont besoin des sous-skills pour"
-echo "fonctionner - uploadez-les aussi."
+echo "claude.ai: upload genjutsu.zip once (Customize > Skills), or the individual"
+echo "skill ZIPs a la carte (cast + paint + the sub-skills you need)."
