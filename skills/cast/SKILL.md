@@ -161,21 +161,37 @@ Detect the environment and resolve the sub-skills base path:
 # - claude.ai: skills are uploaded individually to /mnt/skills/user/<name>/
 # - Claude Code: ${CLAUDE_PLUGIN_ROOT} resolves to THIS plugin version's
 #   install directory. Claude Code substitutes it anywhere in skill content.
-if [ -d "/mnt/skills/user/motion-principles" ]; then
-  # claude.ai - each sub-skill is its own uploaded skill
+if [ -d "/mnt/skills/user" ]; then
+  # claude.ai - each sub-skill is its own uploaded skill (detect the mount, not
+  # one specific sub-skill, so a partial upload still resolves the base).
   SKILL_BASE="/mnt/skills/user"
 else
   # Claude Code plugin
   SKILL_BASE="${CLAUDE_PLUGIN_ROOT}/skills/_jutsu"
-  # Fallback if the placeholder was not substituted: newest installed version
+  # Fallback if the placeholder was not substituted: newest installed version.
+  # Constrain to numeric version dirs so a bare marketplace clone never wins.
   if [ ! -d "$SKILL_BASE" ]; then
-    SKILL_BASE=$(find ~/.claude/plugins/cache -type d -path '*/genjutsu/*/skills/_jutsu' 2>/dev/null | sort -V | tail -1)
+    SKILL_BASE=$(find ~/.claude/plugins/cache -type d -path '*/genjutsu/[0-9]*/skills/_jutsu' 2>/dev/null | sort -V | tail -1)
   fi
 fi
+
+# Abort clearly instead of cat-ing bogus paths if resolution failed.
+if [ -z "$SKILL_BASE" ] || [ ! -d "$SKILL_BASE" ]; then
+  echo "genjutsu: could not resolve the sub-skills directory. On claude.ai upload the genjutsu skill ZIP(s); on Claude Code reinstall the plugin." >&2
+fi
+
+# Load a sub-skill, warning (not failing) if its ZIP was not uploaded / is missing.
+load_skill() {
+  if [ -f "$SKILL_BASE/$1/SKILL.md" ]; then
+    cat "$SKILL_BASE/$1/SKILL.md"
+  else
+    echo "genjutsu: sub-skill '$1' not found - upload its ZIP (claude.ai) or reinstall the plugin; continuing without it." >&2
+  fi
+}
 ```
 
-**Always load:**
-- `$SKILL_BASE/motion-principles/SKILL.md` - the foundation
+**Always load** (load every sub-skill below via `load_skill <name>`, defined above - it warns instead of failing silently if a ZIP is missing):
+- `load_skill motion-principles` - the foundation
 
 **Context layers** (load when applicable):
 
