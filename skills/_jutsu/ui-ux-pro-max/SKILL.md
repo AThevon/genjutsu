@@ -1,11 +1,11 @@
 ---
 name: ui-ux-pro-max
-description: "UI/UX design-system intelligence - 67 styles, 96 palettes, 57 font pairings, 25 charts, 99 UX guidelines across 13 stacks (searchable dataset + CLI). Internal genjutsu module: loaded by /genjutsu:cast and /genjutsu:paint, not invoked directly."
+description: "UI/UX design-system intelligence - 84 styles, 192 palettes, 74 font pairings, 25 charts, 99 UX guidelines across 22 stacks (searchable dataset + CLI). Internal genjutsu module: loaded by /genjutsu:cast and /genjutsu:paint, not invoked directly."
 ---
 
 # UI/UX Pro Max - Design Intelligence
 
-Comprehensive design guide for web and mobile applications. Contains 67 styles, 96 color palettes, 57 font pairings, 99 UX guidelines, and 25 chart types across 13 technology stacks. Searchable database with priority-based recommendations.
+Comprehensive design guide for web and mobile applications. Contains 84 styles, 192 color palettes, 74 font pairings, 99 UX guidelines, and 25 chart types across 22 technology stacks. Searchable database with priority-based recommendations.
 
 ## When to Apply
 
@@ -104,6 +104,8 @@ When user requests UI/UX work (design, build, create, implement, review, fix, im
 **First, enter this skill's directory** so the `scripts/` and `data/` paths below resolve (the working directory persists across the subsequent commands):
 
 ```bash
+# Reads run from the skill dir; --persist writes to the project root.
+PROJECT_ROOT="$PWD"
 # Use the base path the orchestrator already resolved, else locate this skill.
 UIUX_DIR="${SKILL_BASE:+$SKILL_BASE/ui-ux-pro-max}"
 [ -d "$UIUX_DIR" ] || UIUX_DIR="$(find "$HOME/.claude/plugins" /mnt/skills -type d -name ui-ux-pro-max 2>/dev/null | sort -V | tail -1)"
@@ -139,28 +141,30 @@ python3 scripts/search.py "beauty spa wellness service" --design-system -p "Sere
 
 ### Step 2b: Persist Design System (Master + Overrides Pattern)
 
-To save the design system for **hierarchical retrieval across sessions**, add `--persist`:
+To save the design system for **hierarchical retrieval across sessions**, add `--persist` (point `--output-dir` at the project root so files land there, not in the skill dir):
 
 ```bash
-python3 scripts/search.py "<query>" --design-system --persist -p "Project Name"
+python3 scripts/search.py "<query>" --design-system --persist -p "Project Name" --output-dir "$PROJECT_ROOT"
 ```
 
 This creates:
-- `design-system/MASTER.md` — Global Source of Truth with all design rules
-- `design-system/pages/` — Folder for page-specific overrides
+- `design-system/<project-slug>/MASTER.md` — Global Source of Truth with all design rules
+- `design-system/<project-slug>/pages/` — Folder for page-specific overrides
+
+`--persist` skips writing if `MASTER.md` already exists; add `--force` to overwrite.
 
 **With page-specific override:**
 ```bash
-python3 scripts/search.py "<query>" --design-system --persist -p "Project Name" --page "dashboard"
+python3 scripts/search.py "<query>" --design-system --persist -p "Project Name" --page "dashboard" --output-dir "$PROJECT_ROOT"
 ```
 
 This also creates:
-- `design-system/pages/dashboard.md` — Page-specific deviations from Master
+- `design-system/<project-slug>/pages/dashboard.md` — Page-specific deviations from Master
 
 **How hierarchical retrieval works:**
-1. When building a specific page (e.g., "Checkout"), first check `design-system/pages/checkout.md`
+1. When building a specific page (e.g., "Checkout"), first check `design-system/<project-slug>/pages/checkout.md`
 2. If the page file exists, its rules **override** the Master file
-3. If not, use `design-system/MASTER.md` exclusively
+3. If not, use `design-system/<project-slug>/MASTER.md` exclusively
 
 **Context-aware retrieval prompt:**
 ```
@@ -197,7 +201,7 @@ Get implementation-specific best practices. If user doesn't specify a stack, **d
 python3 scripts/search.py "<keyword>" --stack html-tailwind
 ```
 
-Available stacks: `html-tailwind`, `react`, `nextjs`, `astro`, `vue`, `nuxtjs`, `nuxt-ui`, `svelte`, `swiftui`, `react-native`, `flutter`, `shadcn`, `jetpack-compose`
+Available stacks: `html-tailwind`, `react`, `nextjs`, `astro`, `vue`, `nuxtjs`, `nuxt-ui`, `svelte`, `swiftui`, `react-native`, `flutter`, `shadcn`, `jetpack-compose`, `threejs`, `angular`, `laravel`, `javafx`, `wpf`, `winui`, `avalonia`, `uno`, `uwp`
 
 ---
 
@@ -210,13 +214,15 @@ Available stacks: `html-tailwind`, `react`, `nextjs`, `astro`, `vue`, `nuxtjs`, 
 | `product` | Product type recommendations | SaaS, e-commerce, portfolio, healthcare, beauty, service |
 | `style` | UI styles, colors, effects | glassmorphism, minimalism, dark mode, brutalism |
 | `typography` | Font pairings, Google Fonts | elegant, playful, professional, modern |
-| `color` | Color palettes by product type | saas, ecommerce, healthcare, beauty, fintech, service |
+| `color` | Color palettes (full token sets) | saas, ecommerce, healthcare, beauty, fintech, service |
 | `landing` | Page structure, CTA strategies | hero, hero-centric, testimonial, pricing, social-proof |
 | `chart` | Chart types, library recommendations | trend, comparison, timeline, funnel, pie |
 | `ux` | Best practices, anti-patterns | animation, accessibility, z-index, loading |
+| `icons` | Icon set + import guidance | outline, solid, brand, navigation |
 | `react` | React/Next.js performance | waterfall, bundle, suspense, memo, rerender, cache |
-| `web` | Web interface guidelines | aria, focus, keyboard, semantic, virtualize |
-| `prompt` | AI prompts, CSS keywords | (style name) |
+| `web` | App/web interface guidelines | aria, focus, keyboard, semantic, virtualize |
+| `gsap` | Motion snippets (feeds the `--motion` dial) | reveal, parallax, stagger, scroll |
+| `google-fonts` | Google Fonts lookup | serif, mono, display, variable |
 
 ### Available Stacks
 
@@ -235,12 +241,21 @@ Available stacks: `html-tailwind`, `react`, `nextjs`, `astro`, `vue`, `nuxtjs`, 
 | `flutter` | Widgets, State, Layout, Theming |
 | `shadcn` | shadcn/ui components, theming, forms, patterns |
 | `jetpack-compose` | Composables, Modifiers, State Hoisting, Recomposition |
+| `threejs` | Three.js scenes, materials, R3F patterns |
+| `angular` | Components, signals, RxJS, standalone APIs |
+| `laravel` | Blade, Livewire, Tailwind, form patterns |
+| `javafx` | Scene graph, FXML, CSS, controls |
+| `wpf` | XAML, MVVM, bindings, styles |
+| `winui` | WinUI 3, XAML, Fluent, bindings |
+| `avalonia` | Cross-platform XAML, MVVM, styling |
+| `uno` | Uno Platform, WinUI XAML cross-target |
+| `uwp` | UWP XAML, Fluent, adaptive UI |
 
 ---
 
 ## Example Workflow
 
-**User request:** "Làm landing page cho dịch vụ chăm sóc da chuyên nghiệp"
+**User request:** "Build a landing page for a professional skincare service"
 
 ### Step 1: Analyze Requirements
 - Product type: Beauty/Spa service

@@ -68,7 +68,7 @@ Internal modules loaded dynamically by the orchestrators. Not invocable directly
 | mobile-principles | Touch targets, no-hover doctrine, thumb zones, safe areas, gestures, mobile perf budgets | SKILL + 2 references |
 | desktop-principles | Hover-mandatory, pointer precision, keyboard shortcuts, multi-window, focus management | SKILL + 2 references |
 | design-audit | Multi-stack greps (web/Compose/SwiftUI), bundle size, Layout Inspector, Instruments Hitches | SKILL |
-| ui-ux-pro-max | Design system intelligence (67 styles, 96 palettes, 57 font pairings, 25 charts, 13 stacks) | SKILL + data + scripts |
+| ui-ux-pro-max | Design system intelligence (84 styles, 192 palettes, 74 font pairings, 25 charts, 22 stacks) | SKILL + data + scripts |
 
 ### Web stack
 
