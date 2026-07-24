@@ -1,7 +1,7 @@
 ---
 name: paint
 description: "Paint a complete visual universe with genjutsu - art direction brainstorm, design system, implementation, audit. Anti-AI-slop design pipeline. Adapts to Web, Android (Compose), Apple (SwiftUI)."
-allowed-tools: Bash, Read, Edit, Write, Grep, Glob, WebSearch, Agent
+allowed-tools: Bash, Read, Edit, Write, Grep, Glob, WebSearch
 ---
 
 # Paint - The Master Painter
@@ -60,6 +60,7 @@ The flair lives at the intro and during work narration. The moment a result land
 
 ## Sub-skills Path Detection
 
+<!-- genjutsu:shared:skill-base:start -->
 ```bash
 # Environment detection:
 # - claude.ai: skills are uploaded individually to /mnt/skills/user/<name>/
@@ -93,6 +94,7 @@ load_skill() {
   fi
 }
 ```
+<!-- genjutsu:shared:skill-base:end -->
 
 All sub-skills are loaded via `load_skill <name>` (defined above), which cat's `$SKILL_BASE/<name>/SKILL.md` and warns instead of failing if a sub-skill was not uploaded.
 
@@ -108,6 +110,7 @@ This is the foundation. Rush it and everything downstream is wrong. The goal: un
 
 Before asking the user about tech stack, scan the project to detect what's already there:
 
+<!-- genjutsu:shared:scan:start -->
 ```bash
 # 1. Web (existing)
 cat package.json 2>/dev/null | grep -E '"(gsap|framer-motion|three|@react-three/fiber|@react-three/drei|animejs|popmotion|lenis|locomotive-scroll)"'
@@ -150,6 +153,7 @@ Map the results:
 - **Mobile context**: viewport, manifest, mobile-only media queries OR native iOS/Android.
 - **Desktop context**: macOS target OR no mobile indicators on web.
 - **Legacy mixed**: presence of `.xib`, `.storyboard`, layout XML, `setContentView(R.layout.*)`. Mention only, no auto-load.
+<!-- genjutsu:shared:scan:end -->
 
 **If legacy mixed detected** (XIB / storyboard / layout XML / setContentView(R.layout.\*)):
 
@@ -284,9 +288,10 @@ If MCPs are not available, skip gracefully — the design system + code implemen
 
 Load sub-skills based on tech stack and interaction thesis.
 
-**Always load:**
-- `$SKILL_BASE/motion-principles/SKILL.md` - the foundation
+**Always load** (load every sub-skill below via `load_skill <name>`, defined above - it warns instead of failing silently if a ZIP is missing):
+- `load_skill motion-principles` - the foundation
 
+<!-- genjutsu:shared:load:start -->
 **Context layers** (load when applicable):
 
 | Detected | Load |
@@ -320,6 +325,7 @@ The thesis is "advanced" (and triggers loading the graphics sub-skill) if it con
 - `holographic`, `CRT`, `displacement`, `ripple`
 
 Otherwise stick to the base motion sub-skill.
+<!-- genjutsu:shared:load:end -->
 
 Implementation rules:
 - Work **page by page** or **component by component** — never try to do everything at once.

@@ -46,6 +46,7 @@ The flair lives at the intro and during work narration. The moment a result land
 
 Before anything else, scan the project:
 
+<!-- genjutsu:shared:scan:start -->
 ```bash
 # 1. Web (existing)
 cat package.json 2>/dev/null | grep -E '"(gsap|framer-motion|three|@react-three/fiber|@react-three/drei|animejs|popmotion|lenis|locomotive-scroll)"'
@@ -88,6 +89,7 @@ Map the results:
 - **Mobile context**: viewport, manifest, mobile-only media queries OR native iOS/Android.
 - **Desktop context**: macOS target OR no mobile indicators on web.
 - **Legacy mixed**: presence of `.xib`, `.storyboard`, layout XML, `setContentView(R.layout.*)`. Mention only, no auto-load.
+<!-- genjutsu:shared:scan:end -->
 
 ### 2. DISCOVER — Understand the intent (when needed)
 
@@ -156,6 +158,7 @@ If rejected, don't start over — ask what feels wrong about it and adjust.
 
 Detect the environment and resolve the sub-skills base path:
 
+<!-- genjutsu:shared:skill-base:start -->
 ```bash
 # Environment detection:
 # - claude.ai: skills are uploaded individually to /mnt/skills/user/<name>/
@@ -189,10 +192,12 @@ load_skill() {
   fi
 }
 ```
+<!-- genjutsu:shared:skill-base:end -->
 
 **Always load** (load every sub-skill below via `load_skill <name>`, defined above - it warns instead of failing silently if a ZIP is missing):
 - `load_skill motion-principles` - the foundation
 
+<!-- genjutsu:shared:load:start -->
 **Context layers** (load when applicable):
 
 | Detected | Load |
@@ -226,6 +231,7 @@ The thesis is "advanced" (and triggers loading the graphics sub-skill) if it con
 - `holographic`, `CRT`, `displacement`, `ripple`
 
 Otherwise stick to the base motion sub-skill.
+<!-- genjutsu:shared:load:end -->
 
 ### 6. IMPLEMENT — Code while respecting the loaded principles
 
@@ -258,10 +264,13 @@ Before delivering, run the checks matching the detected stack.
 - [ ] Colors and spacing consistent with detected design tokens.
 
 **Web:**
+- [ ] Conditional renders with AnimatePresence (or framework equivalent).
+- [ ] Contrast ratio >= 4.5:1 for all text.
 - [ ] No forced reflow, `will-change` used sparingly.
 - [ ] 60fps target verified via Chrome DevTools Performance panel.
 - [ ] No clickable divs without role/button.
 - [ ] `aria-hidden` on purely decorative animations.
+- [ ] Responsive on 4 breakpoints: 375px (mobile) / 768px (tablet) / 1024px (small desktop) / 1440px (large desktop).
 
 **Compose:**
 - [ ] Recomposition counts verified (Layout Inspector / `Modifier.recomposeHighlighter`).
