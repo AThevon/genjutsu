@@ -1,11 +1,11 @@
 ---
 name: ui-ux-pro-max
-description: "UI/UX design intelligence. 50 styles, 21 palettes, 50 font pairings, 20 charts, 9 stacks (React, Next.js, Vue, Svelte, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui). Actions: plan, build, create, design, implement, review, fix, improve, optimize, enhance, refactor, check UI/UX code. Projects: website, landing page, dashboard, admin panel, e-commerce, SaaS, portfolio, blog, mobile app, .html, .tsx, .vue, .svelte. Elements: button, modal, navbar, sidebar, card, table, form, chart. Styles: glassmorphism, claymorphism, minimalism, brutalism, neumorphism, bento grid, dark mode, responsive, skeuomorphism, flat design. Topics: color palette, accessibility, animation, layout, typography, font pairing, spacing, hover, shadow, gradient. Integrations: shadcn/ui MCP for component search and examples."
+description: "UI/UX design-system intelligence - 84 styles, 192 palettes, 74 font pairings, 25 charts, 99 UX guidelines across 22 stacks (searchable dataset + CLI). Internal genjutsu module: loaded by /genjutsu:cast and /genjutsu:paint, not invoked directly."
 ---
 
 # UI/UX Pro Max - Design Intelligence
 
-Comprehensive design guide for web and mobile applications. Contains 50+ styles, 97 color palettes, 57 font pairings, 99 UX guidelines, and 25 chart types across 9 technology stacks. Searchable database with priority-based recommendations.
+Comprehensive design guide for web and mobile applications. Contains 84 styles, 192 color palettes, 74 font pairings, 99 UX guidelines, and 25 chart types across 22 technology stacks. Searchable database with priority-based recommendations.
 
 ## When to Apply
 
@@ -93,34 +93,24 @@ Search specific domains using the CLI tool below.
 
 ## Prerequisites
 
-Check if Python is installed:
-
-```bash
-python3 --version || python --version
-```
-
-If Python is not installed, install it based on user's OS:
-
-**macOS:**
-```bash
-brew install python3
-```
-
-**Ubuntu/Debian:**
-```bash
-sudo apt update && sudo apt install python3
-```
-
-**Windows:**
-```powershell
-winget install Python.Python.3.12
-```
+Requires `python3` (available by default in the Claude Code shell and in claude.ai's code-execution sandbox). This skill does not install anything.
 
 ---
 
 ## How to Use This Skill
 
 When user requests UI/UX work (design, build, create, implement, review, fix, improve), follow this workflow:
+
+**First, enter this skill's directory** so the `scripts/` and `data/` paths below resolve (the working directory persists across the subsequent commands):
+
+```bash
+# Reads run from the skill dir; --persist writes to the project root.
+PROJECT_ROOT="$PWD"
+# Use the base path the orchestrator already resolved, else locate this skill.
+UIUX_DIR="${SKILL_BASE:+$SKILL_BASE/ui-ux-pro-max}"
+[ -d "$UIUX_DIR" ] || UIUX_DIR="$(find "$HOME/.claude/plugins" /mnt/skills -type d -name ui-ux-pro-max 2>/dev/null | sort -V | tail -1)"
+cd "$UIUX_DIR"
+```
 
 ### Step 1: Analyze User Requirements
 
@@ -151,28 +141,30 @@ python3 scripts/search.py "beauty spa wellness service" --design-system -p "Sere
 
 ### Step 2b: Persist Design System (Master + Overrides Pattern)
 
-To save the design system for **hierarchical retrieval across sessions**, add `--persist`:
+To save the design system for **hierarchical retrieval across sessions**, add `--persist` (point `--output-dir` at the project root so files land there, not in the skill dir):
 
 ```bash
-python3 scripts/search.py "<query>" --design-system --persist -p "Project Name"
+python3 scripts/search.py "<query>" --design-system --persist -p "Project Name" --output-dir "$PROJECT_ROOT"
 ```
 
 This creates:
-- `design-system/MASTER.md` — Global Source of Truth with all design rules
-- `design-system/pages/` — Folder for page-specific overrides
+- `design-system/<project-slug>/MASTER.md` — Global Source of Truth with all design rules
+- `design-system/<project-slug>/pages/` — Folder for page-specific overrides
+
+`--persist` skips writing if `MASTER.md` already exists; add `--force` to overwrite.
 
 **With page-specific override:**
 ```bash
-python3 scripts/search.py "<query>" --design-system --persist -p "Project Name" --page "dashboard"
+python3 scripts/search.py "<query>" --design-system --persist -p "Project Name" --page "dashboard" --output-dir "$PROJECT_ROOT"
 ```
 
 This also creates:
-- `design-system/pages/dashboard.md` — Page-specific deviations from Master
+- `design-system/<project-slug>/pages/dashboard.md` — Page-specific deviations from Master
 
 **How hierarchical retrieval works:**
-1. When building a specific page (e.g., "Checkout"), first check `design-system/pages/checkout.md`
+1. When building a specific page (e.g., "Checkout"), first check `design-system/<project-slug>/pages/checkout.md`
 2. If the page file exists, its rules **override** the Master file
-3. If not, use `design-system/MASTER.md` exclusively
+3. If not, use `design-system/<project-slug>/MASTER.md` exclusively
 
 **Context-aware retrieval prompt:**
 ```
@@ -209,7 +201,7 @@ Get implementation-specific best practices. If user doesn't specify a stack, **d
 python3 scripts/search.py "<keyword>" --stack html-tailwind
 ```
 
-Available stacks: `html-tailwind`, `react`, `nextjs`, `vue`, `svelte`, `swiftui`, `react-native`, `flutter`, `shadcn`, `jetpack-compose`
+Available stacks: `html-tailwind`, `react`, `nextjs`, `astro`, `vue`, `nuxtjs`, `nuxt-ui`, `svelte`, `swiftui`, `react-native`, `flutter`, `shadcn`, `jetpack-compose`, `threejs`, `angular`, `laravel`, `javafx`, `wpf`, `winui`, `avalonia`, `uno`, `uwp`
 
 ---
 
@@ -222,13 +214,15 @@ Available stacks: `html-tailwind`, `react`, `nextjs`, `vue`, `svelte`, `swiftui`
 | `product` | Product type recommendations | SaaS, e-commerce, portfolio, healthcare, beauty, service |
 | `style` | UI styles, colors, effects | glassmorphism, minimalism, dark mode, brutalism |
 | `typography` | Font pairings, Google Fonts | elegant, playful, professional, modern |
-| `color` | Color palettes by product type | saas, ecommerce, healthcare, beauty, fintech, service |
+| `color` | Color palettes (full token sets) | saas, ecommerce, healthcare, beauty, fintech, service |
 | `landing` | Page structure, CTA strategies | hero, hero-centric, testimonial, pricing, social-proof |
 | `chart` | Chart types, library recommendations | trend, comparison, timeline, funnel, pie |
 | `ux` | Best practices, anti-patterns | animation, accessibility, z-index, loading |
+| `icons` | Icon set + import guidance | outline, solid, brand, navigation |
 | `react` | React/Next.js performance | waterfall, bundle, suspense, memo, rerender, cache |
-| `web` | Web interface guidelines | aria, focus, keyboard, semantic, virtualize |
-| `prompt` | AI prompts, CSS keywords | (style name) |
+| `web` | App/web interface guidelines | aria, focus, keyboard, semantic, virtualize |
+| `gsap` | Motion snippets (feeds the `--motion` dial) | reveal, parallax, stagger, scroll |
+| `google-fonts` | Google Fonts lookup | serif, mono, display, variable |
 
 ### Available Stacks
 
@@ -237,19 +231,31 @@ Available stacks: `html-tailwind`, `react`, `nextjs`, `vue`, `svelte`, `swiftui`
 | `html-tailwind` | Tailwind utilities, responsive, a11y (DEFAULT) |
 | `react` | State, hooks, performance, patterns |
 | `nextjs` | SSR, routing, images, API routes |
+| `astro` | Islands architecture, partial hydration, content-driven |
 | `vue` | Composition API, Pinia, Vue Router |
+| `nuxtjs` | Nuxt 3, composables, SSR/SSG, auto-imports |
+| `nuxt-ui` | Nuxt UI components, theming, forms |
 | `svelte` | Runes, stores, SvelteKit |
 | `swiftui` | Views, State, Navigation, Animation |
 | `react-native` | Components, Navigation, Lists |
 | `flutter` | Widgets, State, Layout, Theming |
 | `shadcn` | shadcn/ui components, theming, forms, patterns |
 | `jetpack-compose` | Composables, Modifiers, State Hoisting, Recomposition |
+| `threejs` | Three.js scenes, materials, R3F patterns |
+| `angular` | Components, signals, RxJS, standalone APIs |
+| `laravel` | Blade, Livewire, Tailwind, form patterns |
+| `javafx` | Scene graph, FXML, CSS, controls |
+| `wpf` | XAML, MVVM, bindings, styles |
+| `winui` | WinUI 3, XAML, Fluent, bindings |
+| `avalonia` | Cross-platform XAML, MVVM, styling |
+| `uno` | Uno Platform, WinUI XAML cross-target |
+| `uwp` | UWP XAML, Fluent, adaptive UI |
 
 ---
 
 ## Example Workflow
 
-**User request:** "Làm landing page cho dịch vụ chăm sóc da chuyên nghiệp"
+**User request:** "Build a landing page for a professional skincare service"
 
 ### Step 1: Analyze Requirements
 - Product type: Beauty/Spa service

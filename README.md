@@ -68,7 +68,7 @@ Internal modules loaded dynamically by the orchestrators. Not invocable directly
 | mobile-principles | Touch targets, no-hover doctrine, thumb zones, safe areas, gestures, mobile perf budgets | SKILL + 2 references |
 | desktop-principles | Hover-mandatory, pointer precision, keyboard shortcuts, multi-window, focus management | SKILL + 2 references |
 | design-audit | Multi-stack greps (web/Compose/SwiftUI), bundle size, Layout Inspector, Instruments Hitches | SKILL |
-| ui-ux-pro-max | Design system intelligence (50 styles, 21 palettes, 50 font pairings, 9 stacks) | SKILL + data + scripts |
+| ui-ux-pro-max | Design system intelligence (84 styles, 192 palettes, 74 font pairings, 25 charts, 22 stacks) | SKILL + data + scripts |
 
 ### Web stack
 
@@ -212,6 +212,10 @@ The skills speak in two registers:
 ## Credits
 
 Built by studying the best creative coding resources available.
+
+### Design intelligence
+
+- [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) (MIT) - the `ui-ux-pro-max` sub-skill vendors this project's design dataset (styles, palettes, font pairings, UX guidelines, chart and stack guidance) and its Python search engine. See [skills/_jutsu/ui-ux-pro-max/UPSTREAM.md](./skills/_jutsu/ui-ux-pro-max/UPSTREAM.md) for the vendoring notes and divergences.
 
 ### Web foundation
 
