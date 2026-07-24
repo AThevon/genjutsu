@@ -309,3 +309,11 @@ Shape morphing: transition between `circle()`, `ellipse()`, `polygon()`, `inset(
 | `@starting-style` without `transition-behavior` | Always pair with `allow-discrete` for display/overlay | Without it, `display: none` transitions are skipped entirely |
 | Anchor positioning without `position-try-fallbacks` | Always define fallback positions | Element clips out of viewport if primary position has no space |
 | `animation-fill-mode: forwards` on scroll-driven | Use `both` for scroll-driven animations | `forwards` can lock the element in its final state even when scrolling back |
+
+---
+
+## Deep dive
+
+| Need | Reference |
+|---|---|
+| Browser-support tables, fallback patterns and progressive-enhancement strategies for scroll-driven animations, View Transitions, `@starting-style`, anchor positioning and container queries (plus accessibility and performance notes) | `references/modern-css.md` |
