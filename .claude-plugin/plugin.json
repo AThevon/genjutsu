@@ -2,5 +2,24 @@
   "name": "genjutsu",
   "description": "Genjutsu - the art of illusion for Claude Code and claude.ai. Cast motion and paint visual signatures into Web, Android (Compose), and Apple (SwiftUI) interfaces. Anti-AI-slop creative coding.",
   "version": "3.0.3",
-  "author": { "name": "AThevon" }
+  "author": { "name": "AThevon" },
+  "homepage": "https://github.com/AThevon/genjutsu",
+  "repository": "https://github.com/AThevon/genjutsu",
+  "license": "MIT",
+  "keywords": [
+    "creative-coding",
+    "motion",
+    "animation",
+    "design",
+    "ui",
+    "ux",
+    "gsap",
+    "framer-motion",
+    "threejs",
+    "swiftui",
+    "jetpack-compose",
+    "anti-ai-slop",
+    "claude-code",
+    "skills"
+  ]
 }
