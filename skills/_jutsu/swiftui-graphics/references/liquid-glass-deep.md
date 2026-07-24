@@ -15,16 +15,19 @@ iOS 26 ships a system glassmorphism layer with adaptive depth, refraction, and m
 
 | API | Purpose |
 |---|---|
-| `.glassEffect()` | Default glass (regular thickness) |
-| `.glassEffect(.regular)` / `.thick` / `.thin` | Variants (clarity vs blur strength) |
+| `.glassEffect()` | Default glass (`.regular`) |
+| `.glassEffect(.regular)` / `.clear` | Depth variants (frosted vs high-transparency) |
+| `.glassEffect(.identity)` | No-op variant, to conditionally disable the effect |
 | `.glassEffectID(_, in:)` | Pair a glass surface with a namespace for morphing |
 | `GlassEffectContainer` | Group glass surfaces that should morph as one |
 | `.glassBackgroundEffect(displayMode:)` | Older watchOS alias; iOS prefers `.glassEffect()` |
 
-Variant guidance:
-- `.thin`: subtle, content stays visible. Use for lightweight chrome.
-- `.regular`: balanced, default. Use for cards, tab bars.
-- `.thick`: heavy blur, stronger separation. Use for modals, focused surfaces.
+Variant guidance (iOS 26 `Glass` exposes only these):
+- `.clear`: high transparency, content stays visible. Use for lightweight chrome over rich/media backgrounds.
+- `.regular`: balanced, frosted, default. Use for cards, tab bars, modals, focused surfaces.
+- `.identity`: no visual effect - use to disable glass conditionally.
+
+Refine either variant with `.tint(_:)` and `.interactive()`, e.g. `.glassEffect(.regular.tint(.blue).interactive())`.
 
 ---
 
@@ -58,7 +61,7 @@ struct ExpandingCard: View {
                 }
                 .padding()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .glassEffect(.thick)
+                .glassEffect(.regular)
                 .glassEffectID("hero", in: glassNS)
                 .onTapGesture {
                     withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
@@ -133,18 +136,18 @@ struct GlassModalStack: View {
                     Button("Deeper") { second = true }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .glassEffect(.thin)
+                .glassEffect(.clear)
                 .sheet(isPresented: $second) {
                     Text("Layer 2")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .glassEffect(.thick) // heavier blur as we go deeper
+                        .glassEffect(.regular) // heavier frost as we go deeper
                 }
             }
     }
 }
 ```
 
-> Rule of thumb: each modal layer goes one tier thicker. `.thin` -> `.regular` -> `.thick`.
+> Rule of thumb: use `.clear` for light chrome and `.regular` for focused/heavier surfaces. iOS 26 `Glass` has only these two depth variants (plus `.identity` to disable) - there is no `.thin`/`.thick` (those are `Material`, not `Glass`).
 
 ---
 
@@ -152,9 +155,8 @@ struct GlassModalStack: View {
 
 | iOS 26 API | Pre-iOS 26 fallback |
 |---|---|
-| `.glassEffect(.thin)` | `.background(.ultraThinMaterial)` |
+| `.glassEffect(.clear)` | `.background(.ultraThinMaterial)` |
 | `.glassEffect(.regular)` | `.background(.regularMaterial)` |
-| `.glassEffect(.thick)` | `.background(.thickMaterial)` |
 | `.glassEffectID(_, in:)` | `matchedGeometryEffect(id:in:)` on a material-backed view |
 | `GlassEffectContainer` | Manual `ZStack` + shared namespace |
 

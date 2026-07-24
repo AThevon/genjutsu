@@ -244,28 +244,29 @@ gsap.set(".card", { opacity: 0, y: 30 });
 Responsive animations with automatic cleanup.
 
 ```js
-ScrollTrigger.matchMedia({
-  // Desktop
-  "(min-width: 960px)": function () {
-    gsap.to(".box", {
-      x: 500,
-      scrollTrigger: { trigger: ".section", scrub: true },
-    });
-    // Everything created here is automatically killed when the media no longer matches
-  },
+// gsap.matchMedia() (GSAP 3.11+). ScrollTrigger.matchMedia() is deprecated.
+const mm = gsap.matchMedia();
 
-  // Mobile
-  "(max-width: 959px)": function () {
-    gsap.to(".box", {
-      y: 200,
-      scrollTrigger: { trigger: ".section", scrub: true },
-    });
-  },
+// Desktop
+mm.add("(min-width: 960px)", () => {
+  gsap.to(".box", {
+    x: 500,
+    scrollTrigger: { trigger: ".section", scrub: true },
+  });
+  // Everything created inside is auto-reverted when the query stops matching
+});
 
-  // All sizes
-  all: function () {
-    gsap.to(".always", { opacity: 1 });
-  },
+// Mobile
+mm.add("(max-width: 959px)", () => {
+  gsap.to(".box", {
+    y: 200,
+    scrollTrigger: { trigger: ".section", scrub: true },
+  });
+});
+
+// All sizes
+mm.add("all", () => {
+  gsap.to(".always", { opacity: 1 });
 });
 ```
 

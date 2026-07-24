@@ -18,7 +18,7 @@ description: "SwiftUI animation foundations - withAnimation, transitions, matche
 | Single value over time | `withAnimation { } + @State` or `.animation(_, value:)` |
 | Multiple coordinated states | `PhaseAnimator(phases)` (iOS 17+) |
 | Time-based keyframes | `KeyframeAnimator(initialValue:repeating:content:)` (iOS 17+) |
-| Custom property animations | `@Animatable` macro (iOS 17+) or `Animatable` protocol |
+| Custom property animations | `@Animatable` macro (iOS 26+) or `Animatable` protocol (iOS 13+) |
 | Shared element transitions | `matchedGeometryEffect(id:in:)` |
 | Gesture-driven | `DragGesture` / `MagnifyGesture` + `.offset` / `.scaleEffect` |
 | Loop forever | `.animation(.linear.repeatForever(autoreverses: true), value: ...)` or `.phaseAnimator` |
@@ -33,7 +33,7 @@ SwiftUI ships 4 named springs (iOS 17+). Use them. Tune `response` / `dampingFra
 
 | Preset (iOS 17+) | Equivalent | Mood |
 |---|---|---|
-| `.snappy` | `.spring(response: 0.3, dampingFraction: 0.85)` | UI snappy |
+| `.snappy` | `.spring(response: 0.5, dampingFraction: 0.85)` | UI snappy |
 | `.bouncy` | `.spring(response: 0.5, dampingFraction: 0.7)` | playful |
 | `.smooth` | `.spring(response: 0.5, dampingFraction: 1.0)` | calm, no bounce |
 | `.interactiveSpring()` | `.spring(response: 0.15, dampingFraction: 0.86)` | gesture follow |
@@ -207,7 +207,7 @@ Four keyframe types: `LinearKeyframe` (constant velocity between points), `Sprin
 
 ## Animatable / @Animatable
 
-For custom drawing that needs interpolation. The `@Animatable` macro (iOS 17+) auto-synthesizes `animatableData` for any `Equatable` properties; the older `Animatable` protocol still works.
+For custom drawing that needs interpolation. The `@Animatable` macro (iOS 26+, WWDC25) auto-synthesizes `animatableData` for any `Equatable` properties; the older `Animatable` protocol (iOS 13+) still works pre-26.
 
 ```swift
 struct ProgressRing: Shape {

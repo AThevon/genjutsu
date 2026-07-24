@@ -7,7 +7,7 @@ description: "Jetpack Compose animation foundations - animate*AsState, AnimatedV
 
 > Jetpack Compose animation core. Loaded for Android Compose and Compose Multiplatform projects.
 > Concise rules here. Deep-dive in `references/`.
-> Baseline: Compose 1.7+ (April 2026 stable). Modern stable APIs only - no `swipeable`, no `animateContentSize` hacks where `AnimatedContent` is correct.
+> Baseline: current stable Jetpack Compose (1.7+). Modern stable APIs only - no `swipeable`, no `animateContentSize` hacks where `AnimatedContent` is correct.
 
 ---
 
@@ -331,7 +331,7 @@ val alpha by animateFloatAsState(
 )
 ```
 
-`ANIMATOR_DURATION_SCALE` covers the developer-options "Animations off" toggle. For the user-facing accessibility setting on Android 14+ ("Remove animations" in Settings -> Accessibility), use `AccessibilityManager.areTransitionsEnabled()` (API 34+). Deep-dive in `../mobile-principles/references/accessibility-mobile.md`.
+`ANIMATOR_DURATION_SCALE` reads the animator duration scale directly. The cleaner call is `ValueAnimator.areAnimatorsEnabled()` (API 26+), which returns `false` when that scale is 0 - set by the developer-options "Animation off" toggle, Battery Saver, and the user-facing "Remove animations" (Settings -> Accessibility) toggle alike. Deep-dive in `../mobile-principles/references/accessibility-mobile.md`.
 
 ---
 

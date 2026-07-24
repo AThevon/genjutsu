@@ -192,14 +192,14 @@ function navigate(updateFn) {
   .tooltip {
     position: fixed;
     position-anchor: --trigger;
-    inset-area: top center;
+    position-area: top center;
     margin-bottom: 0.5rem;
 
     position-try-fallbacks: --bottom;
   }
 
   @position-try --bottom {
-    inset-area: bottom center;
+    position-area: bottom center;
     margin-top: 0.5rem;
   }
 }
@@ -375,7 +375,7 @@ Full native modal with enter/exit animation, zero JavaScript.
 [popover="hint"] {
   position: fixed;
   position-anchor: --trigger;
-  inset-area: top center;
+  position-area: top center;
   margin-bottom: 0.5rem;
 
   /* Animation */
@@ -393,15 +393,15 @@ Full native modal with enter/exit animation, zero JavaScript.
 }
 
 @position-try --bottom {
-  inset-area: bottom center;
+  position-area: bottom center;
   margin-top: 0.5rem;
 }
 @position-try --left {
-  inset-area: left center;
+  position-area: left center;
   margin-right: 0.5rem;
 }
 @position-try --right {
-  inset-area: right center;
+  position-area: right center;
   margin-left: 0.5rem;
 }
 

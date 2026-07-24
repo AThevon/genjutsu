@@ -32,7 +32,7 @@ Reading rules:
 
 | Preset | response | dampingFraction | Equivalent in iOS 17+ duration/bounce API |
 |---|---|---|---|
-| `.snappy` | 0.3 | 0.85 | `.spring(duration: 0.3, bounce: 0.15)` |
+| `.snappy` | 0.5 | 0.85 | `.spring(duration: 0.5, bounce: 0.15)` |
 | `.bouncy` | 0.5 | 0.7 | `.spring(duration: 0.5, bounce: 0.3)` |
 | `.smooth` | 0.5 | 1.0 | `.spring(duration: 0.5, bounce: 0)` |
 | `.interactiveSpring()` | 0.15 | 0.86 | gesture-follow, very stiff |

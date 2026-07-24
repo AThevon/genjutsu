@@ -174,7 +174,7 @@ CSS-native positioning of tooltips, popovers, and floating UI relative to a trig
 .tooltip {
   position: fixed;
   position-anchor: --my-trigger;
-  inset-area: top center;
+  position-area: top center;
   margin-bottom: 0.5rem;
 
   /* Fallback if no space on top */
@@ -182,7 +182,7 @@ CSS-native positioning of tooltips, popovers, and floating UI relative to a trig
 }
 
 @position-try --bottom {
-  inset-area: bottom center;
+  position-area: bottom center;
   margin-top: 0.5rem;
 }
 ```
