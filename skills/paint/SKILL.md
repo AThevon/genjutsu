@@ -325,7 +325,7 @@ cat "$SKILL_BASE/design-audit/SKILL.md"
 Run the full audit checklist matching the detected stack.
 
 **All stacks:**
-- [ ] Reduced motion respected (CSS `prefers-reduced-motion`, SwiftUI `accessibilityReduceMotion`, or Compose helper using `Settings.Global.ANIMATOR_DURATION_SCALE` / `AccessibilityManager.areTransitionsEnabled`).
+- [ ] Reduced motion respected (CSS `prefers-reduced-motion`, SwiftUI `accessibilityReduceMotion`, or Compose helper using `ValueAnimator.areAnimatorsEnabled()` / `Settings.Global.ANIMATOR_DURATION_SCALE`).
 - [ ] Exit animations present (no abrupt vanishings).
 - [ ] No layout-property animations (animate transform / opacity / graphicsLayer instead).
 - [ ] Focus visible on interactive elements.

@@ -1,6 +1,6 @@
 # CMP Platform Quirks
 
-Catalog of platform-specific behaviors and surprising differences across Android / iOS / Desktop / Web targets in CMP. Updated for CMP 1.7 (April 2026 baseline).
+Catalog of platform-specific behaviors and surprising differences across Android / iOS / Desktop / Web targets in CMP. Updated for CMP 1.7+.
 The point is not to be exhaustive but to flag the cases where "write once, run everywhere" leaks - so you can plan for them rather than discover them in QA.
 
 ---

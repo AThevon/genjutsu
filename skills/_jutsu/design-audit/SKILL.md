@@ -70,7 +70,7 @@ grep -rn 'prefers-reduced-motion' --include='*.css' --include='*.scss' --include
 grep -rn 'accessibilityReduceMotion\|isReduceMotionEnabled\|reduceMotionStatusDidChangeNotification' --include='*.swift' . 2>/dev/null
 
 # Compose
-grep -rn 'LocalAccessibilityManager\|isReduceTransitions\|TRANSITION_ANIMATION_SCALE\|ANIMATOR_DURATION_SCALE\|areTransitionsEnabled' --include='*.kt' . 2>/dev/null
+grep -rn 'LocalAccessibilityManager\|isReduceTransitions\|TRANSITION_ANIMATION_SCALE\|ANIMATOR_DURATION_SCALE\|areAnimatorsEnabled' --include='*.kt' . 2>/dev/null
 ```
 
 **Zero results across all 3 in an animated project = critical violation.** At least one handler must exist somewhere. Cross-reference `motion-principles/SKILL.md` for canonical implementations per stack.

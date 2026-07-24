@@ -121,7 +121,7 @@ container.appendChild(element);
 Flip.from(state, { duration: 0.6 });
 ```
 
-## MorphSVG (Club)
+## MorphSVG
 
 Morphs one SVG path into another.
 
@@ -172,7 +172,7 @@ gsap.to("#simple-circle", {
 });
 ```
 
-## DrawSVG (Club)
+## DrawSVG
 
 Animates an SVG stroke (drawing effect).
 
@@ -354,16 +354,18 @@ Observer.create({
 });
 ```
 
-## Recap : Free vs Club
+## Recap : plugins
 
-| Plugin         | Licence | Usage principal                    |
-| -------------- | ------- | ---------------------------------- |
-| ScrollTrigger  | Free    | Scroll-driven animations           |
-| Observer       | Free    | Gesture detection                  |
-| MotionPath     | Free    | Path following                     |
-| Flip           | Free    | Layout transitions                 |
-| SplitText      | Free    | Text splitting (free since v3.12)  |
-| MorphSVG       | Club    | SVG shape morphing                 |
-| DrawSVG        | Club    | SVG stroke animation               |
-| CustomEase     | Free    | Custom easing curves               |
-| ScrollSmoother | Club    | Smooth scrolling wrapper           |
+Since GSAP 3.13 (2025, post-Webflow acquisition) the entire library - including every former Club/bonus plugin (MorphSVG, DrawSVG, ScrollSmoother, SplitText, MotionPathHelper...) - is 100% free for all uses. There is no more Club paywall.
+
+| Plugin         | Usage principal                    |
+| -------------- | ---------------------------------- |
+| ScrollTrigger  | Scroll-driven animations           |
+| Observer       | Gesture detection                  |
+| MotionPath     | Path following                     |
+| Flip           | Layout transitions                 |
+| SplitText      | Text splitting                     |
+| MorphSVG       | SVG shape morphing                 |
+| DrawSVG        | SVG stroke animation               |
+| CustomEase     | Custom easing curves               |
+| ScrollSmoother | Smooth scrolling wrapper           |

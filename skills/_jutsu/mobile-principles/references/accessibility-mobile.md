@@ -120,18 +120,17 @@ if UIAccessibility.isAssistiveTouchRunning {
 // also: isSwitchControlRunning, isVoiceOverRunning
 ```
 
-**Android - reduce motion (the nuance).** Two different signals. The parent SKILL.md uses `Settings.Global.ANIMATOR_DURATION_SCALE` for cross-version safety, but that is the developer-options toggle, not the user-facing accessibility setting. Since Android 14 (API 34), the proper signal is `AccessibilityManager.areTransitionsEnabled()`, wired to Settings -> Accessibility -> Remove animations.
+**Android - reduce motion (the nuance).** The reliable system-wide signal is `ValueAnimator.areAnimatorsEnabled()` (API 26+): it returns `false` when the animator duration scale is 0, which the developer-options "Animation off" toggle, Battery Saver, and the user-facing Settings -> Accessibility -> Remove animations toggle all set. `Settings.Global.ANIMATOR_DURATION_SCALE == 0f` reads the same value directly (use it as the pre-API-26 fallback).
 
 ```kotlin
 @Composable
 fun rememberReduceMotion(): Boolean {
   val context = LocalContext.current
   return remember {
-    val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-      !am.areTransitionsEnabled() // API 34+: user-facing toggle
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      !ValueAnimator.areAnimatorsEnabled() // API 26+: reflects animator duration scale == 0
     } else {
-      Settings.Global.getFloat( // fallback: developer-options
+      Settings.Global.getFloat( // fallback for API < 26
         context.contentResolver,
         Settings.Global.ANIMATOR_DURATION_SCALE,
         1f,

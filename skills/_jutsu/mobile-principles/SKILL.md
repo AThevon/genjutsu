@@ -176,7 +176,7 @@ val reduceMotion = rememberReduceMotion()
 val spec = if (reduceMotion) snap() else tween<Float>(durationMillis = 300)
 ```
 
-> Note: `ANIMATOR_DURATION_SCALE` only reflects the developer-options "Animations off" toggle, not the user-facing accessibility setting. For the latter ("Remove animations" in Settings -> Accessibility on Android 14+), use `AccessibilityManager.areTransitionsEnabled()` (API 34+). Deep dive in `references/accessibility-mobile.md`.
+> Note: prefer `ValueAnimator.areAnimatorsEnabled()` (API 26+) - it returns `false` when the animator duration scale is 0, which the developer-options "Animation off" toggle, Battery Saver, and the user-facing "Remove animations" (Settings -> Accessibility) toggle all set. Deep dive in `references/accessibility-mobile.md`.
 
 ---
 

@@ -259,7 +259,7 @@ The animation primer lives in `../compose-motion/SKILL.md`. Cross-platform delta
 
 ---
 
-## CMP version notes (April 2026 baseline)
+## CMP version notes
 
 - Compose Multiplatform 1.7 stable: `SharedTransitionLayout` cross-platform, improved iOS keyboard handling, lifecycle observability via `LocalLifecycleOwner` on iOS.
 - Kotlin 2.0+ required (K2 compiler).

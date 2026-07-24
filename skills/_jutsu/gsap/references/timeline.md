@@ -167,18 +167,18 @@ tl.totalProgress(0);     // resets to the start
 ### Responsive timeline with matchMedia
 
 ```js
-ScrollTrigger.matchMedia({
-  "(min-width: 768px)": function () {
-    // desktop animations
-    gsap.timeline({ scrollTrigger: { trigger: ".section" } })
-      .to(".box", { x: 500 });
-  },
-  "(max-width: 767px)": function () {
-    // mobile animations (simpler)
-    gsap.to(".box", { y: 100, scrollTrigger: ".section" });
-  },
+// gsap.matchMedia() (GSAP 3.11+). ScrollTrigger.matchMedia() is deprecated.
+const mm = gsap.matchMedia();
+mm.add("(min-width: 768px)", () => {
+  // desktop animations
+  gsap.timeline({ scrollTrigger: { trigger: ".section" } })
+    .to(".box", { x: 500 });
 });
-// Automatic cleanup when the media query no longer matches
+mm.add("(max-width: 767px)", () => {
+  // mobile animations (simpler)
+  gsap.to(".box", { y: 100, scrollTrigger: ".section" });
+});
+// Automatic revert when the media query no longer matches
 ```
 
 ### Timeline with ScrollTrigger
