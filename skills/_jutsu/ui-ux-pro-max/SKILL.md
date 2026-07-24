@@ -1,11 +1,11 @@
 ---
 name: ui-ux-pro-max
-description: "UI/UX design intelligence. 50 styles, 21 palettes, 50 font pairings, 20 charts, 9 stacks (React, Next.js, Vue, Svelte, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui). Actions: plan, build, create, design, implement, review, fix, improve, optimize, enhance, refactor, check UI/UX code. Projects: website, landing page, dashboard, admin panel, e-commerce, SaaS, portfolio, blog, mobile app, .html, .tsx, .vue, .svelte. Elements: button, modal, navbar, sidebar, card, table, form, chart. Styles: glassmorphism, claymorphism, minimalism, brutalism, neumorphism, bento grid, dark mode, responsive, skeuomorphism, flat design. Topics: color palette, accessibility, animation, layout, typography, font pairing, spacing, hover, shadow, gradient. Integrations: shadcn/ui MCP for component search and examples."
+description: "UI/UX design-system intelligence - 67 styles, 96 palettes, 57 font pairings, 25 charts, 99 UX guidelines across 13 stacks (searchable dataset + CLI). Internal genjutsu module: loaded by /genjutsu:cast and /genjutsu:paint, not invoked directly."
 ---
 
 # UI/UX Pro Max - Design Intelligence
 
-Comprehensive design guide for web and mobile applications. Contains 50+ styles, 97 color palettes, 57 font pairings, 99 UX guidelines, and 25 chart types across 9 technology stacks. Searchable database with priority-based recommendations.
+Comprehensive design guide for web and mobile applications. Contains 67 styles, 96 color palettes, 57 font pairings, 99 UX guidelines, and 25 chart types across 13 technology stacks. Searchable database with priority-based recommendations.
 
 ## When to Apply
 
@@ -93,34 +93,22 @@ Search specific domains using the CLI tool below.
 
 ## Prerequisites
 
-Check if Python is installed:
-
-```bash
-python3 --version || python --version
-```
-
-If Python is not installed, install it based on user's OS:
-
-**macOS:**
-```bash
-brew install python3
-```
-
-**Ubuntu/Debian:**
-```bash
-sudo apt update && sudo apt install python3
-```
-
-**Windows:**
-```powershell
-winget install Python.Python.3.12
-```
+Requires `python3` (available by default in the Claude Code shell and in claude.ai's code-execution sandbox). This skill does not install anything.
 
 ---
 
 ## How to Use This Skill
 
 When user requests UI/UX work (design, build, create, implement, review, fix, improve), follow this workflow:
+
+**First, enter this skill's directory** so the `scripts/` and `data/` paths below resolve (the working directory persists across the subsequent commands):
+
+```bash
+# Use the base path the orchestrator already resolved, else locate this skill.
+UIUX_DIR="${SKILL_BASE:+$SKILL_BASE/ui-ux-pro-max}"
+[ -d "$UIUX_DIR" ] || UIUX_DIR="$(find "$HOME/.claude/plugins" /mnt/skills -type d -name ui-ux-pro-max 2>/dev/null | sort -V | tail -1)"
+cd "$UIUX_DIR"
+```
 
 ### Step 1: Analyze User Requirements
 
@@ -209,7 +197,7 @@ Get implementation-specific best practices. If user doesn't specify a stack, **d
 python3 scripts/search.py "<keyword>" --stack html-tailwind
 ```
 
-Available stacks: `html-tailwind`, `react`, `nextjs`, `vue`, `svelte`, `swiftui`, `react-native`, `flutter`, `shadcn`, `jetpack-compose`
+Available stacks: `html-tailwind`, `react`, `nextjs`, `astro`, `vue`, `nuxtjs`, `nuxt-ui`, `svelte`, `swiftui`, `react-native`, `flutter`, `shadcn`, `jetpack-compose`
 
 ---
 
@@ -237,7 +225,10 @@ Available stacks: `html-tailwind`, `react`, `nextjs`, `vue`, `svelte`, `swiftui`
 | `html-tailwind` | Tailwind utilities, responsive, a11y (DEFAULT) |
 | `react` | State, hooks, performance, patterns |
 | `nextjs` | SSR, routing, images, API routes |
+| `astro` | Islands architecture, partial hydration, content-driven |
 | `vue` | Composition API, Pinia, Vue Router |
+| `nuxtjs` | Nuxt 3, composables, SSR/SSG, auto-imports |
+| `nuxt-ui` | Nuxt UI components, theming, forms |
 | `svelte` | Runes, stores, SvelteKit |
 | `swiftui` | Views, State, Navigation, Animation |
 | `react-native` | Components, Navigation, Lists |

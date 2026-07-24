@@ -281,4 +281,4 @@ if (!prefersReduced) {
 | Compose advanced graphics | `../compose-graphics/SKILL.md` |
 | SwiftUI advanced graphics | `../swiftui-graphics/SKILL.md` |
 | Visual / motion / a11y audit | `../design-audit/SKILL.md` |
-| UI/UX intelligence (50 styles, 21 palettes) | `../ui-ux-pro-max/SKILL.md` |
+| UI/UX intelligence (67 styles, 96 palettes) | `../ui-ux-pro-max/SKILL.md` |
