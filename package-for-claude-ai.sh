@@ -51,16 +51,25 @@ for dir in "$SKILLS_DIR"/_jutsu/*/; do
   echo "  + ${name}.zip"
 done
 
-# --- Global ZIP (convenience) ---
-GLOBAL_ZIP="genjutsu-all.zip"
-make_zip "$SKILLS_DIR" "$(pwd)/${DIST}/${GLOBAL_ZIP}"
-echo "  + $GLOBAL_ZIP (global)"
+# --- Single-upload bundle (recommended) ---
+# One self-contained "genjutsu" skill: a thin router SKILL.md + cast/ + paint/
+# + all _jutsu/ sub-skills. Uploaded once, it resolves sub-skills from its own
+# bundled _jutsu/ (the orchestrators' path detection prefers the bundle).
+BUNDLE_SRC="${DIST}/.bundle"
+rm -rf "$BUNDLE_SRC"
+mkdir -p "$BUNDLE_SRC"
+cp "packaging/genjutsu-router.md" "$BUNDLE_SRC/SKILL.md"
+cp -R "$SKILLS_DIR/cast" "$BUNDLE_SRC/cast"
+cp -R "$SKILLS_DIR/paint" "$BUNDLE_SRC/paint"
+cp -R "$SKILLS_DIR/_jutsu" "$BUNDLE_SRC/_jutsu"
+make_zip "$BUNDLE_SRC" "$(pwd)/${DIST}/genjutsu.zip"
+rm -rf "$BUNDLE_SRC"
+echo "  + genjutsu.zip (single-upload bundle: router + cast + paint + _jutsu)"
 
 echo ""
 echo "=== Résumé ==="
 echo ""
 ls -lh "$DIST"/*.zip | awk '{print "  " $NF " (" $5 ")"}'
 echo ""
-echo "Upload les ZIPs sur claude.ai : Customize > Skills > Upload ZIP"
-echo "Les orchestrateurs (cast, paint) ont besoin des sous-skills pour"
-echo "fonctionner - uploadez-les aussi."
+echo "claude.ai: upload genjutsu.zip once (Customize > Skills), or the individual"
+echo "skill ZIPs a la carte (cast + paint + the sub-skills you need)."
