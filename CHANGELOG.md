@@ -2,6 +2,30 @@
 
 All notable changes to this plugin are documented here. Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## v3.1.0 - 2026-07-24
+
+Correctness + reach release: the design dataset is refreshed, the technical guidance is more accurate across every stack, and claude.ai now installs in a single upload.
+
+### Added
+
+- **Single-upload claude.ai bundle.** `package-for-claude-ai.sh` now produces `genjutsu.zip` - one self-contained skill (a router `SKILL.md` + `cast` + `paint` + every sub-skill) that installs in **one** upload instead of ~18. It resolves its sub-skills from its own bundled `_jutsu/`; the à-la-carte individual ZIPs still work unchanged. New install section + `docs/claude-ai-testing.md`. (#13)
+
+### Changed
+
+- **`ui-ux-pro-max` synced to upstream v2.11.0** ([nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill), MIT). Data roughly doubled: 84 styles, 192 palettes, 74 font pairings, 161 UI-reasoning rows, 192 products, plus new `google-fonts` (1923) and `motion` datasets and 22 stacks. The engine gains the design dials (`--variance` / `--motion` / `--density`), `--force`, and a test suite. Now properly attributed (README credits + `UPSTREAM.md`). (#8)
+- Item counts stated across the skill and README corrected to match the shipped data. (#8)
+
+### Fixed
+
+- **API accuracy across the sub-skills** (#7): Liquid Glass used non-existent `.glassEffect(.thin/.thick)` (iOS 26 `Glass` exposes only `.regular` / `.clear` / `.identity`); the Android reduce-motion signal `AccessibilityManager.areTransitionsEnabled()` does not exist (now `ValueAnimator.areAnimatorsEnabled()`); the `@Animatable` macro is iOS 26+, not 17+; CSS `inset-area` renamed to `position-area`; GSAP `ScrollTrigger.matchMedia()` deprecated (now `gsap.matchMedia()`) and all former Club plugins are free since 3.13; `.snappy` spring duration corrected.
+- **claude.ai sub-skill resolution hardened** (#9): detect the mount robustly, warn instead of failing on a missing sub-skill, and stop the cache fallback from picking a stale clone.
+- **`/cast`'s audit checklist drift** with `/paint` (missing web checks) fixed, plus a CI guard so the shared cast/paint blocks can no longer diverge silently. (#11)
+
+### Security / hygiene
+
+- Removed the agent-run `sudo` / `brew` / `winget` install commands from `ui-ux-pro-max` (supply-chain trust). (#8)
+- Pinned CI actions to commit SHAs and added `homepage` / `repository` / `license` / `keywords` to `plugin.json`. (#10)
+
 ## v3.0.3 - 2026-07-23
 
 ### Fixed
