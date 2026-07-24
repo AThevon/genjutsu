@@ -103,30 +103,19 @@ Internal modules loaded dynamically by the orchestrators. Not invocable directly
 
 **Prerequisites:** Plan Pro, Max, Team or Enterprise with "Code execution" enabled.
 
-Each release provides two ways to download:
+**Option A - single bundle (recommended):**
 
-- **Individual ZIPs** - one per skill (`cast.zip`, `paint.zip`, `gsap.zip`, `compose-motion.zip`, `swiftui-graphics.zip`...), ready to upload directly
-- **`genjutsu-all.zip`** - a single archive containing everything. You need to **extract it first**, then upload each sub-folder as a separate ZIP (claude.ai accepts one skill per upload)
+One upload, everything included (router + `cast` + `paint` + all sub-skills).
 
-**Option A - From GitHub Releases (recommended):**
+1. Go to the [Releases](https://github.com/AThevon/genjutsu/releases) page and download **`genjutsu.zip`**.
+2. On claude.ai, go to **Customize > Skills > Upload skill** and upload `genjutsu.zip`.
+3. Enable the toggle. Done - one skill, both `cast` and `paint` pipelines, all sub-skills bundled.
 
-1. Go to the [Releases](https://github.com/AThevon/genjutsu/releases) page
-2. Download the individual ZIPs (or the all-in-one and extract it)
-3. On claude.ai, go to **Customize > Skills > Upload ZIP**
-4. Upload each skill ZIP and enable the toggle
+> Want to confirm it mounted correctly? Follow the 2-minute smoke test in [docs/claude-ai-testing.md](./docs/claude-ai-testing.md).
 
-**Option B - Build from source:**
+**Option B - a la carte (individual skills):**
 
-```bash
-git clone https://github.com/AThevon/genjutsu.git
-cd genjutsu
-./package-for-claude-ai.sh
-# ZIPs are in dist/ (18 total: 15 sub-skills + 2 orchestrators + 1 all-in-one)
-```
-
-### Install matrix by stack
-
-On claude.ai you upload one ZIP per skill. Pick what matches your stack. The two orchestrators (`cast`, `paint`) plus `motion-principles`, `design-audit`, `ui-ux-pro-max` are baseline for everyone.
+Prefer separate skills, or only part of the stack? Upload the individual ZIPs (one per skill). Baseline for everyone: `cast`, `paint`, `motion-principles`, `design-audit`, `ui-ux-pro-max`. Then add per stack:
 
 | Your stack | ZIPs to upload (in addition to baseline) |
 |---|---|
@@ -136,15 +125,15 @@ On claude.ai you upload one ZIP per skill. Pick what matches your stack. The two
 | macOS SwiftUI only | desktop-principles, swiftui-motion, swiftui-graphics |
 | Multi-target Apple (iOS + macOS) | mobile-principles, desktop-principles, swiftui-motion, swiftui-graphics |
 | Compose Multiplatform | mobile-principles, compose-motion, compose-graphics, compose-multiplatform, swiftui-motion (if iOS target) |
-| All stacks | use `genjutsu-all.zip` (extract it first, then upload each sub-folder) |
 
-Baseline (always upload these):
+**Build from source:**
 
-- cast (orchestrator)
-- paint (orchestrator)
-- motion-principles (foundation)
-- design-audit (audit checks)
-- ui-ux-pro-max (UI intelligence)
+```bash
+git clone https://github.com/AThevon/genjutsu.git
+cd genjutsu
+./package-for-claude-ai.sh
+# dist/ has genjutsu.zip (the bundle) + 17 individual skill ZIPs
+```
 
 ### Claude Code (CLI)
 

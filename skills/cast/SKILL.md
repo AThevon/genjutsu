@@ -164,7 +164,13 @@ Detect the environment and resolve the sub-skills base path:
 # - claude.ai: skills are uploaded individually to /mnt/skills/user/<name>/
 # - Claude Code: ${CLAUDE_PLUGIN_ROOT} resolves to THIS plugin version's
 #   install directory. Claude Code substitutes it anywhere in skill content.
-if [ -d "/mnt/skills/user" ]; then
+# Single-bundle upload (genjutsu.zip) first: sub-skills live under this skill's
+# own dir, e.g. /mnt/skills/user/genjutsu/_jutsu/<name>/.
+BUNDLE_JUTSU="$(find /mnt/skills/user -maxdepth 2 -type d -name _jutsu 2>/dev/null | head -1)"
+if [ -n "$BUNDLE_JUTSU" ]; then
+  # claude.ai - single self-contained genjutsu bundle
+  SKILL_BASE="$BUNDLE_JUTSU"
+elif [ -d "/mnt/skills/user" ]; then
   # claude.ai - each sub-skill is its own uploaded skill (detect the mount, not
   # one specific sub-skill, so a partial upload still resolves the base).
   SKILL_BASE="/mnt/skills/user"
