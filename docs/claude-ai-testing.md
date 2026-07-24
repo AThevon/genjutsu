@@ -25,7 +25,7 @@ Expect:
 - a `_jutsu` directory found (e.g. `/mnt/skills/user/genjutsu/_jutsu`),
 - `SKILL.md  cast  paint  _jutsu` inside `genjutsu/`.
 
-If the `find` prints nothing, the bundle's files did not mount (the #26254 regression). Fall back to the a-la-carte upload for now and report it.
+If the `find` prints nothing, the bundle's files did not mount (the #26254 regression). Fall back to uploading the individual skill ZIPs for now and report it.
 
 ## 3. Functional test - cast (enhance existing UI)
 > "Add a subtle scroll-reveal animation to a hero section in plain HTML/CSS."

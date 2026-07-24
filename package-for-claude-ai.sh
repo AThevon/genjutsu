@@ -95,4 +95,4 @@ echo ""
 ls -lh "$DIST"/*.zip | awk '{print "  " $NF " (" $5 ")"}'
 echo ""
 echo "claude.ai: upload genjutsu.zip once (Customize > Skills), or the individual"
-echo "skill ZIPs a la carte (cast + paint + the sub-skills you need)."
+echo "skill ZIPs (cast + paint + the sub-skills you need)."
