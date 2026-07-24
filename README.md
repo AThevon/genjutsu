@@ -113,6 +113,8 @@ One upload, everything included (router + `cast` + `paint` + all sub-skills).
 
 > Want to confirm it mounted correctly? Follow the 2-minute smoke test in [docs/claude-ai-testing.md](./docs/claude-ai-testing.md).
 
+**How it shows up.** The bundle installs as a **single skill named `genjutsu`**. In a normal chat it appears as one entry - invoke `/genjutsu` (or just describe your task) and it routes to the `cast` or `paint` pipeline internally. Surfaces that expose skills as individual commands (e.g. a code workspace) show `/cast` and `/paint` directly. Either way the pipelines need **code execution** enabled to load their sub-skills. Prefer `/cast` and `/paint` as separate entries everywhere? Use Option B.
+
 **Option B - a la carte (individual skills):**
 
 Prefer separate skills, or only part of the stack? Upload the individual ZIPs (one per skill). Baseline for everyone: `cast`, `paint`, `motion-principles`, `design-audit`, `ui-ux-pro-max`. Then add per stack:
