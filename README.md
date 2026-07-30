@@ -6,7 +6,11 @@
 
 <p align="center"><em>The art of illusion. Cast motion. Paint signatures. Zero AI slop.</em></p>
 
+<p align="center"><a href="https://genjutsu.athevon.dev"><strong>genjutsu.athevon.dev</strong></a></p>
+
 Creative coding skills for [Claude Code](https://claude.ai/code) and [claude.ai](https://claude.ai) - transforms any interface from functional to exceptional through motion design, interaction patterns, and visual systems. Covers Web (React, Vue, Svelte, vanilla CSS, Three.js, Canvas), Android (Jetpack Compose, Compose Multiplatform), and Apple (SwiftUI iOS + macOS).
+
+[The site](https://genjutsu.athevon.dev) walks through it in five chapters - what it is, the skills, the stacks, why it exists, how to install. Drawn live in code, sumi ink on canvas, no images.
 
 > **v3.0 - rebrand**: this plugin used to be called `creative-excellence`. The skills `/creative-excellence:creative-excellence` and `/creative-excellence:design-excellence` are now `/genjutsu:cast` and `/genjutsu:paint`. See [CHANGELOG.md](./CHANGELOG.md) for the migration steps if you had v2.x installed.
 
