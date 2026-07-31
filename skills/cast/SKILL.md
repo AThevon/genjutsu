@@ -65,14 +65,40 @@ So before the first gate of that kind, ask how they want to see it. Then never a
 | Scope is medium or full, Compose / SwiftUI | B - live preview, A as second choice |
 | A full visual identity or design system is on the table | A - artifact |
 | No dev server, or the repo must not be written to | A - artifact |
+| Host is Cowork and there is no project checkout to write into | A - artifact, B is unavailable |
 
 **The choice sticks for the whole session.** At every later gate, announce the mode in one line ("Variants in artifact.") and go. Do not reopen the menu. The user switches by saying so - "show me that as text", "put it in an artifact", "just tell me" - respect it immediately, and the new mode becomes the session default from then on.
 
-**Producing an artifact** - resolve the environment, degrade, never fail:
+**Which host is this?** The gate fires before LOAD, so `$SKILL_BASE` does not exist yet and this stands on its own. Detect once, cheaply, then map:
 
-1. **claude.ai** renders artifacts natively. Just produce one.
-2. **Claude Code** - use the `Artifact` tool if it is available.
-3. **Neither** - write a self-contained HTML file to a temp path and give the user the path to open.
+```bash
+if [ -d /mnt/skills/user ]; then
+  GENJUTSU_HOST=claude-ai
+elif [ -d /mnt/.claude/skills ] \
+  || [ -n "$(find /sessions -maxdepth 6 -type d -path '*/.claude/skills' 2>/dev/null | head -1)" ]; then
+  GENJUTSU_HOST=cowork
+elif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] || [ -d "$HOME/.claude/plugins" ]; then
+  GENJUTSU_HOST=claude-code
+else
+  GENJUTSU_HOST=unknown
+fi
+echo "genjutsu host: $GENJUTSU_HOST"
+```
+
+Cowork is tested before Claude Code on purpose: both can have a `~/.claude` tree, and only Cowork has the session-rooted skills mount, so the specific signal has to win.
+
+**Producing the preview** - resolve the host, degrade, never fail:
+
+| Host | A - artifact | C - inline |
+|---|---|---|
+| claude.ai | Rendered natively. Just produce one. | Written out in the conversation. |
+| Cowork | The host's persistent artifact. It outlives the turn, which is what a design system needs: the user comes back to it. | The host's inline widget, rendered in place. Right default for a short task. |
+| Claude Code | The `Artifact` tool, when it is available. | Written out in the conversation. |
+| unknown | A self-contained HTML file written to a temp path, hand back the path. | Written out in the conversation. |
+
+Call whatever the host actually exposes, under the name it exposes it as - check the tools available in the session rather than assuming one. If nothing renders, fall back down the table rather than failing the gate: an inline preview always beats an aborted one.
+
+**B - live preview needs a project to write into.** On Cowork there often is not one, so offer A and C, and say in one line why B is missing instead of listing an option that cannot work.
 
 **What goes in it.** A preview that restates the sentence in a nicer font is worthless. Carry what a sentence cannot:
 
@@ -214,12 +240,50 @@ Detect the environment and resolve the sub-skills base path:
 
 <!-- genjutsu:shared:skill-base:start -->
 ```bash
-# Environment detection:
+# Environment detection, most specific first:
 # - claude.ai: skills are uploaded individually to /mnt/skills/user/<name>/
 # - Claude Code: ${CLAUDE_PLUGIN_ROOT} resolves to THIS plugin version's
 #   install directory. Claude Code substitutes it anywhere in skill content.
+# - Cowork and skills-directory installs: no fixed path exists. The tree is
+#   mounted under a session root that changes every run, e.g.
+#   /sessions/<id>/mnt/.claude/skills/genjutsu/_jutsu. Probed last, so the two
+#   environments above keep resolving exactly as they did before.
 # Single-bundle upload (genjutsu.zip) first: sub-skills live under this skill's
 # own dir, e.g. /mnt/skills/user/genjutsu/_jutsu/<name>/.
+
+# Probe for a mounted _jutsu when no fixed path applies. Bounded on purpose:
+# every root is either shallow or depth-capped, so this never walks the disk.
+genjutsu_probe_jutsu() {
+  probe_hit=""
+  # Walk up from the working directory first: cheapest, and correct whenever
+  # the session root is an ancestor of wherever the pipeline is running. Hard
+  # bounded, and the case guard catches "." and "": an empty or relative PWD
+  # would otherwise never reach "/" and the loop would spin forever.
+  probe_dir="${PWD:-$(pwd)}"
+  probe_n=0
+  while [ "$probe_n" -lt 24 ]; do
+    probe_n=$((probe_n + 1))
+    probe_hit="$(find "$probe_dir/.claude/skills" -maxdepth 2 -type d -name _jutsu 2>/dev/null | head -1)"
+    [ -n "$probe_hit" ] && { printf '%s\n' "$probe_hit"; return 0; }
+    case "$probe_dir" in /|.|"") break ;; esac
+    probe_dir="$(dirname "$probe_dir")"
+  done
+  # Then the fixed roots. A skills directory holds _jutsu two levels down, so
+  # that is all they get: no reason to traverse a populated one any deeper.
+  for probe_root in "$HOME/.claude/skills" /mnt/.claude/skills; do
+    [ -d "$probe_root" ] || continue
+    probe_hit="$(find "$probe_root" -maxdepth 2 -type d -name _jutsu 2>/dev/null | head -1)"
+    [ -n "$probe_hit" ] && { printf '%s\n' "$probe_hit"; return 0; }
+  done
+  # A session root is the one layout that needs more, for the session id and
+  # its mnt/ wrapper. Still capped, and skipped entirely when absent.
+  if [ -d /sessions ]; then
+    probe_hit="$(find /sessions -maxdepth 8 -type d -path '*/.claude/skills/*/_jutsu' 2>/dev/null | head -1)"
+    [ -n "$probe_hit" ] && { printf '%s\n' "$probe_hit"; return 0; }
+  fi
+  return 1
+}
+
 BUNDLE_JUTSU="$(find /mnt/skills/user -maxdepth 2 -type d -name _jutsu 2>/dev/null | head -1)"
 if [ -n "$BUNDLE_JUTSU" ]; then
   # claude.ai - single self-contained genjutsu bundle
@@ -236,20 +300,38 @@ else
   if [ ! -d "$SKILL_BASE" ]; then
     SKILL_BASE=$(find ~/.claude/plugins/cache -type d -path '*/genjutsu/[0-9]*/skills/_jutsu' 2>/dev/null | sort -V | tail -1)
   fi
+  # Cowork / skills-directory install: session-rooted mount, nothing fixed to
+  # match, so probe for it only once the two fixed layouts have both missed.
+  if [ -z "$SKILL_BASE" ] || [ ! -d "$SKILL_BASE" ]; then
+    SKILL_BASE="$(genjutsu_probe_jutsu)"
+  fi
 fi
 
-# Abort clearly instead of cat-ing bogus paths if resolution failed.
+# Abort clearly instead of cat-ing bogus paths if resolution failed. Name every
+# root that was tried, so a new host layout can be reported instead of guessed.
 if [ -z "$SKILL_BASE" ] || [ ! -d "$SKILL_BASE" ]; then
-  echo "genjutsu: could not resolve the sub-skills directory. On claude.ai upload the genjutsu skill ZIP(s); on Claude Code reinstall the plugin." >&2
+  echo "genjutsu: could not resolve the sub-skills directory." >&2
+  echo "  claude.ai   - upload the genjutsu skill ZIP(s) via Customize > Skills." >&2
+  echo "  Claude Code - reinstall the plugin, then run /reload-plugins." >&2
+  echo "  Cowork      - expected a _jutsu directory under a */.claude/skills/<name>/ mount." >&2
+  echo "  Tried: /mnt/skills/user, \$CLAUDE_PLUGIN_ROOT, ~/.claude/plugins/cache," >&2
+  echo "         \$PWD ancestors, ~/.claude/skills, /mnt/.claude/skills, /sessions." >&2
 fi
 
 # Load a sub-skill, warning (not failing) if its ZIP was not uploaded / is missing.
+# The entry filename depends on the artifact, not on the host: a plugin install
+# ships SKILL.md, while the claude.ai bundle renames every inner one to GUIDE.md
+# at packaging time. Either can end up mounted under a Cowork session root, so
+# try both. The name is assembled from parts on purpose - spelled out in full it
+# would be rewritten by the same packaging step, defeating the fallback.
 load_skill() {
-  if [ -f "$SKILL_BASE/$1/SKILL.md" ]; then
-    cat "$SKILL_BASE/$1/SKILL.md"
-  else
-    echo "genjutsu: sub-skill '$1' not found - upload its ZIP (claude.ai) or reinstall the plugin; continuing without it." >&2
-  fi
+  for jutsu_doc in SKILL GUIDE; do
+    if [ -f "$SKILL_BASE/$1/$jutsu_doc.md" ]; then
+      cat "$SKILL_BASE/$1/$jutsu_doc.md"
+      return 0
+    fi
+  done
+  echo "genjutsu: sub-skill '$1' not found - upload its ZIP (claude.ai) or reinstall the plugin; continuing without it." >&2
 }
 ```
 <!-- genjutsu:shared:skill-base:end -->

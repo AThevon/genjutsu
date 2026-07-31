@@ -17,10 +17,10 @@
 <p align="center">
   <a href="https://github.com/AThevon/genjutsu/releases/latest"><img src="https://img.shields.io/github/v/release/AThevon/genjutsu?style=flat-square&color=b11523&label=release" alt="Latest release" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-b11523?style=flat-square" alt="MIT license" /></a>
-  <img src="https://img.shields.io/badge/works%20with-Claude%20Code%20%2B%20claude.ai-b11523?style=flat-square" alt="Works with Claude Code and claude.ai" />
+  <img src="https://img.shields.io/badge/works%20with-Claude%20Code%20%2B%20claude.ai%20%2B%20Cowork-b11523?style=flat-square" alt="Works with Claude Code, claude.ai and Cowork" />
 </p>
 
-Creative coding skills for [Claude Code](https://claude.ai/code) and [claude.ai](https://claude.ai) - transforms any interface from functional to exceptional through motion design, interaction patterns, and visual systems. Covers Web (React, Vue, Svelte, vanilla CSS, Three.js, Canvas), Android (Jetpack Compose, Compose Multiplatform), and Apple (SwiftUI iOS + macOS).
+Creative coding skills for [Claude Code](https://claude.ai/code), [claude.ai](https://claude.ai) and [Cowork](https://claude.com/plugins-for/cowork) - transforms any interface from functional to exceptional through motion design, interaction patterns, and visual systems. Covers Web (React, Vue, Svelte, vanilla CSS, Three.js, Canvas), Android (Jetpack Compose, Compose Multiplatform), and Apple (SwiftUI iOS + macOS).
 
 > **v3.0 - rebrand**: this plugin used to be called `creative-excellence`. The skills `/creative-excellence:creative-excellence` and `/creative-excellence:design-excellence` are now `/genjutsu:cast` and `/genjutsu:paint`. See [CHANGELOG.md](./CHANGELOG.md) for the migration steps if you had v2.x installed.
 
@@ -204,6 +204,19 @@ ln -sf ~/.dotfiles/claude/plugins/genjutsu ~/.claude/plugins/genjutsu
 
 ---
 
+### Cowork
+
+Install it from the plugin panel, the same way as any other plugin, then invoke `/genjutsu:cast` or `/genjutsu:paint`.
+
+```text
+/plugin marketplace add AThevon/genjutsu
+/plugin install genjutsu
+```
+
+Cowork mounts skills under a per-session root rather than a fixed path, so sub-skill resolution probes for it - see [Cowork compatibility](#cowork-compatibility) for the resolution order, what the preview gate maps to on this surface, and why `paint` shortens itself for one-component requests here.
+
+---
+
 ## Architecture
 
 ```
@@ -235,7 +248,37 @@ genjutsu/
 └── README.md
 ```
 
-Orchestrators detect the environment at runtime (Claude Code plugin directory or claude.ai `/mnt/skills/user/`) and pick what to load based on the SCAN phase. Sub-skills in `_jutsu/` are loaded by orchestrator according to detected stack and selected scope - `mobile-principles` and `desktop-principles` are auto-loaded when context matches (touch target vs pointer/keyboard target). The underscore prefix keeps sub-skills internal so they never get invoked directly.
+Orchestrators detect the environment at runtime (Claude Code plugin directory, claude.ai `/mnt/skills/user/`, or a session-rooted Cowork mount - see [Cowork compatibility](#cowork-compatibility)) and pick what to load based on the SCAN phase. Sub-skills in `_jutsu/` are loaded by orchestrator according to detected stack and selected scope - `mobile-principles` and `desktop-principles` are auto-loaded when context matches (touch target vs pointer/keyboard target). The underscore prefix keeps sub-skills internal so they never get invoked directly.
+
+---
+
+## Cowork compatibility
+
+genjutsu runs on three surfaces, and they mount the skill tree in three different places. Claude Code and claude.ai both have a fixed path. Cowork does not: it mounts under a per-session root that changes every run, for example `/sessions/<session-id>/mnt/.claude/skills/genjutsu/_jutsu`.
+
+**Path detection.** The `genjutsu:shared:skill-base` block resolves `$SKILL_BASE` in this order, and stops at the first hit:
+
+| Order | Host | How it resolves |
+|---|---|---|
+| 1 | claude.ai, single bundle | `_jutsu` found directly under `/mnt/skills/user` |
+| 2 | claude.ai, individual skills | the `/mnt/skills/user` mount itself |
+| 3 | Claude Code | `${CLAUDE_PLUGIN_ROOT}/skills/_jutsu`, then the newest numbered version under `~/.claude/plugins/cache` |
+| 4 | Cowork, skills-directory installs | probed: `$PWD` and its ancestors, then `~/.claude/skills`, `/mnt/.claude/skills`, `/sessions`, matching `*/.claude/skills/*/_jutsu` |
+
+Step 4 is new and runs **last**, so steps 1 to 3 behave exactly as they did before. Every probe is depth-capped, so none of them can walk the filesystem. When all four miss, the failure is now explicit: the error names each root that was tried instead of letting a `cat` fail silently.
+
+**Preview mapping.** The preview gate offers artifact, live preview or inline. What each one means depends on the host:
+
+| Host | A - artifact | B - live preview | C - inline |
+|---|---|---|---|
+| claude.ai | native artifact | throwaway route in your project | conversation text |
+| Cowork | the host's persistent artifact | usually unavailable, no project checkout | the host's inline widget |
+| Claude Code | the `Artifact` tool | throwaway route, or a `@Preview` / `#Preview` scratch file | conversation text |
+| unknown | self-contained HTML at a temp path | not offered | conversation text |
+
+The gate detects the host itself, before `LOAD` runs. Cowork is tested before Claude Code because both can have a `~/.claude` tree and only Cowork has the session-rooted mount, so the more specific signal has to win.
+
+**Pipeline weight.** `cast` is the default entry point on every surface. `paint` is a five-phase pipeline and is disproportionate for the short requests that dominate on Cowork ("animate this word", "polish this hover"), so it now recognises **light scope** - one isolated component, no visual identity at stake, nothing downstream depending on it - and shortens to a single brainstorm question with no `MASTER.md` written. The gates stay; only their number goes down.
 
 ---
 

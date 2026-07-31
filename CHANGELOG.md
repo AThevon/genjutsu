@@ -2,6 +2,32 @@
 
 All notable changes to this plugin are documented here. Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## Unreleased
+
+Cowork compatibility: the pipelines now find themselves on a third surface, and stop being too heavy for it.
+
+### Fixed
+
+- **Sub-skill resolution on Cowork.** `cast` and `paint` resolved `$SKILL_BASE` from two fixed layouts only: `/mnt/skills/user` (claude.ai) and `${CLAUDE_PLUGIN_ROOT}` / `~/.claude/plugins/cache` (Claude Code). Cowork mounts the tree under a per-session root instead, for example `/sessions/<session-id>/mnt/.claude/skills/genjutsu/_jutsu`, so the `find` returned nothing, `$SKILL_BASE` stayed empty and every `load_skill` call failed. The pipeline ran without a single one of its fifteen sub-skills. A fourth branch now probes for `*/.claude/skills/*/_jutsu`: `$PWD` and its ancestors first, then `~/.claude/skills`, `/mnt/.claude/skills` and `/sessions`. Every probe is depth-capped, so none of them can walk the filesystem.
+- The same fix landed in the claude.ai bundle router, which hardcoded `find /mnt/skills/user -path '*/cast/SKILL.md'` for both pipelines.
+- Resolution failure is now explicit. The error message names each root that was tried and what to do per host, instead of leaving a silent `cat` of an empty path.
+
+### Added
+
+- **Preview gate host mapping.** The gate offered "artifact / live preview / inline" as if every surface implemented them the same way. It now detects the host before `LOAD` runs and maps each option: on Cowork, artifact means the host's persistent artifact and inline means its inline widget, while live preview is usually unavailable because there is no project checkout to write into. Cowork is tested before Claude Code, since both can have a `~/.claude` tree and only Cowork has the session-rooted mount.
+- **Light scope in `paint`.** The five-phase pipeline is disproportionate for the short requests that dominate on Cowork. When the target is one isolated component, no visual identity is at stake, and nothing downstream depends on the result being systematised, `paint` now shortens to a single brainstorm question, the interaction thesis alone, and no `MASTER.md`. It announces the shortened path in one line so it can be overruled. The gates themselves stay: only their number goes down.
+
+### Changed
+
+- `cast` is now the documented default entry point. The bundle router used to spend a question on ambiguous intent; it now runs `cast` and says so in one line, since a `paint` that turns out to be a single component has its own shortened path.
+- Iron rules 1 and 4 in `paint` name the light-scope exception rather than reading as absolutes that the shortened path would contradict.
+- Cowork is named as a supported surface in the README: the badge, the opening line, its own install section, and a `Cowork compatibility` section documenting the resolution order and the preview mapping.
+- Both ancestor walks are hard-bounded and guard against a `.` or empty `$PWD`, which would otherwise never reach `/` and spin the shell. The fixed skills roots are capped at depth 2, where `_jutsu` actually sits; only a session root gets more.
+
+### Notes
+
+- No change to claude.ai or Claude Code resolution. The new branch runs only after both existing ones miss, and the `genjutsu:shared:skill-base` and `genjutsu:shared:preview` regions stay byte-identical between the two orchestrators, enforced by the CI drift check.
+
 ## v3.2.0 - 2026-07-31
 
 Presentation release: the validation gates now show their work instead of describing it.
