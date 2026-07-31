@@ -2,7 +2,7 @@
 
 All notable changes to this plugin are documented here. Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
-## Unreleased
+## v3.3.0 - 2026-07-31
 
 Cowork compatibility: the pipelines now find themselves on a third surface, and stop being too heavy for it.
 
