@@ -3,6 +3,10 @@
   "owner": {
     "name": "AThevon"
   },
+  "metadata": {
+    "description": "Genjutsu - the art of illusion. Creative-coding skills that cast motion and paint visual signatures into Web, Android (Compose) and Apple (SwiftUI) interfaces.",
+    "version": "3.2.0"
+  },
   "plugins": [
     {
       "name": "genjutsu",
