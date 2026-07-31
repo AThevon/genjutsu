@@ -7,15 +7,17 @@
 <p align="center"><em>The art of illusion. Cast motion. Paint signatures.</em></p>
 
 <p align="center">
-  <a href="https://genjutsu.athevon.dev"><strong>genjutsu.athevon.dev</strong></a>
+  <a href="https://genjutsu.athevon.dev"><strong>Website</strong></a>
   &nbsp;·&nbsp;
   <a href="https://genjutsu.athevon.dev/docs"><strong>Documentation</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://genjutsu.athevon.dev/docs/install"><strong>Install</strong></a>
 </p>
 
 <p align="center">
   <a href="https://github.com/AThevon/genjutsu/releases/latest"><img src="https://img.shields.io/github/v/release/AThevon/genjutsu?style=flat-square&color=b11523&label=release" alt="Latest release" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-b11523?style=flat-square" alt="MIT license" /></a>
-  <a href="https://genjutsu.athevon.dev/docs"><img src="https://img.shields.io/badge/docs-genjutsu.athevon.dev-b11523?style=flat-square" alt="Documentation" /></a>
+  <img src="https://img.shields.io/badge/works%20with-Claude%20Code%20%2B%20claude.ai-b11523?style=flat-square" alt="Works with Claude Code and claude.ai" />
 </p>
 
 Creative coding skills for [Claude Code](https://claude.ai/code) and [claude.ai](https://claude.ai) - transforms any interface from functional to exceptional through motion design, interaction patterns, and visual systems. Covers Web (React, Vue, Svelte, vanilla CSS, Three.js, Canvas), Android (Jetpack Compose, Compose Multiplatform), and Apple (SwiftUI iOS + macOS).
