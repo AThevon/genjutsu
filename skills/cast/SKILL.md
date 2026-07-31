@@ -1,7 +1,7 @@
 ---
 name: cast
 description: "Cast genjutsu on a UI - creative coding for motion, micro-interactions, and wow-factor. Scans the stack, proposes an interaction thesis, loads the right sub-skills, implements the illusion. Adapts to Web, Android (Compose), Apple (SwiftUI)."
-allowed-tools: Bash, Read, Edit, Write, Grep, Glob, WebSearch
+allowed-tools: Bash, Read, Edit, Write, Grep, Glob, WebSearch, Artifact
 ---
 
 # Cast - The Illusionist
@@ -37,6 +37,60 @@ The flair lives at the intro and during work narration. The moment a result land
 6. **Always prioritize performance.** 60fps or nothing.
 7. **Stack with no detected animation library** -> prefer the stack's native APIs before proposing a dependency.
 8. **Animation library detected** (GSAP, Framer Motion, Lottie, Rive, etc.) -> respect the dev's choice. Do not propose a replacement.
+9. **Show, don't just describe.** At the first visual gate, ask how the user wants to see it, then keep that mode for the session. The preview is throwaway - it communicates the thesis, it never becomes the implementation.
+
+---
+
+<!-- genjutsu:shared:preview:start -->
+## Showing Your Work - The Preview Gate
+
+Some gates in this pipeline exist so the user can *look* at something before approving it: an interaction thesis, a set of variants, a visual identity, a design system. Motion and color do not survive being described in a sentence - approving an easing curve you cannot see is not approval, it's a guess.
+
+So before the first gate of that kind, ask how they want to see it. Then never ask again.
+
+**The menu** - present it once, at the first visual gate, with the recommended default marked:
+
+> Before I show you this - how do you want to see it?
+>
+> **A. Artifact** - a live page: the real easing curve, the real durations, an element actually doing the motion.
+> **B. Live preview** - a throwaway route in your project, real stack, real tokens. Native: a `@Preview` / `#Preview` scratch file.
+> **C. Inline** - written out here in the conversation.
+
+**Recommended default** - state it in the menu, never apply it silently:
+
+| Situation | Default |
+|---|---|
+| Scope is light (a hover, one transition) | C - inline |
+| Scope is medium or full, web stack | A - artifact |
+| Scope is medium or full, Compose / SwiftUI | B - live preview, A as second choice |
+| A full visual identity or design system is on the table | A - artifact |
+| No dev server, or the repo must not be written to | A - artifact |
+
+**The choice sticks for the whole session.** At every later gate, announce the mode in one line ("Variants in artifact.") and go. Do not reopen the menu. The user switches by saying so - "show me that as text", "put it in an artifact", "just tell me" - respect it immediately, and the new mode becomes the session default from then on.
+
+**Producing an artifact** - resolve the environment, degrade, never fail:
+
+1. **claude.ai** renders artifacts natively. Just produce one.
+2. **Claude Code** - use the `Artifact` tool if it is available.
+3. **Neither** - write a self-contained HTML file to a temp path and give the user the path to open.
+
+**What goes in it.** A preview that restates the sentence in a nicer font is worthless. Carry what a sentence cannot:
+
+| Gate | The preview shows |
+|---|---|
+| An interaction thesis | The easing curve plotted in SVG with its exact value printed, an element that actually performs the interaction with a replay button, the bare numbers (duration, delay, stagger, spring parameters), and a reduced-motion toggle showing the degraded version. |
+| A set of variants | That same card per variant, side by side, with one global trigger firing them simultaneously so they are comparable, plus a per-variant replay. |
+| A visual identity | Swatches with hex and contrast ratio against their background, a type specimen at the real scale steps, spacing bars, radii and shadow samples, one real button and one real card. |
+| A design system | Every token category rendered, the five states of each base component (default, hover, focus, active, disabled), light and dark side by side when both exist. |
+
+**Rules the preview obeys:**
+
+- **It is throwaway. It never becomes the implementation.** Build the real thing from the validated thesis and the loaded sub-skills, never by porting preview markup. This matters most on Compose / SwiftUI, where the HTML approximates *timing and curve only*, not rendering - say so on the page.
+- Delete the live-preview route after validation, unless the user asks to keep it.
+- Never install a dependency to build a preview.
+- Never start a dev server without asking.
+- Only show values that are in the thesis. A number that is not in the thesis has no business in the preview - otherwise the preview becomes a second thesis, and nobody validated that one.
+<!-- genjutsu:shared:preview:end -->
 
 ---
 
@@ -150,7 +204,7 @@ Formulate a sentence that captures the interaction intent. Examples:
 - "This macOS dashboard will use 100ms opacity hover states (no scale on hover, desktop subtlety) and a Cmd+1-9 keyboard shortcut to navigate panels."
 - "This Android header will use an AGSL shader bound to scrollOffset for a dynamic liquid-glass effect (Android 13+, with a static fallback below)."
 
-**Present the thesis and WAIT for validation before coding.**
+**This is the first visual gate.** Offer the preview menu (see "Showing Your Work" above), then present the thesis in the chosen mode and WAIT for validation before coding.
 
 If rejected, don't start over — ask what feels wrong about it and adjust.
 
@@ -255,6 +309,8 @@ Otherwise stick to the base motion sub-skill.
 > **Variant C — [Name]** (impressive)
 > [One sentence: the feel + the technique]
 
+That's the inline form. If the session mode is **artifact** or **live preview**, render the three variants there instead - side by side, one global trigger so they fire together and stay comparable - and keep the text above as their captions. Announce the mode in one line; don't reopen the menu.
+
 Wait for the user to pick before implementing. Always respect the validated thesis.
 
 ### 7. AUDIT — Verification before delivery
@@ -308,6 +364,9 @@ Before delivering, run the checks matching the detected stack.
 | "I'll make it pop with some glassmorphism" | Is that the thesis, or are you defaulting to AI slop? |
 | "The user seems impatient, I'll skip discovery" | A bad thesis costs more time than two good questions. |
 | "I'll add a few extra animations while I'm at it" | Scope creep. Stick to the thesis. |
+| "The thesis sentence is clear, I'll just write it out" | A sentence can't carry an easing curve. Offer the preview menu first. |
+| "I'll ask again how they want to see the variants" | Asked once, sticks for the session. Announce the mode and go. |
+| "The preview looks great, I'll port it into the app" | The preview is throwaway. Build from the thesis and the loaded sub-skills. |
 
 ---
 
@@ -323,13 +382,15 @@ Creative request received
   |
   +- SCOPE: light / medium / full?
   |
-  +- THESIS: one sentence, wait for validation
+  +- PREVIEW: how do they want to see it? (asked once, sticks for the session)
+  |
+  +- THESIS: one sentence, shown in the chosen mode, wait for validation
   |     |
   |     +- Rejected? → ask what feels wrong, adjust
   |
   +- LOAD: motion-principles + stack skills
   |
-  +- IMPLEMENT: code (variants if medium/full, present before coding)
+  +- IMPLEMENT: code (variants if medium/full, shown in the chosen mode, present before coding)
   |
   +- AUDIT: motion, a11y, consistency, performance
 ```

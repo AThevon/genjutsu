@@ -2,6 +2,30 @@
 
 All notable changes to this plugin are documented here. Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## v3.2.0 - 2026-07-31
+
+Presentation release: the validation gates now show their work instead of describing it.
+
+### Added
+
+- **The preview gate.** `cast` and `paint` stop at a handful of points to have you approve something visual - an interaction thesis, a set of variants, a visual identity, a design system. Until now each was described in prose and rendered as plain text in the transcript, which meant approving an easing curve you could not see and a palette you could not look at. Both skills now ask **how you want to see it** before the first of those gates:
+  - **Artifact** - a live page: the easing curve plotted with its exact value, an element actually performing the motion with a replay button, the raw numbers (duration, delay, stagger, spring parameters), a reduced-motion toggle. For a design system: swatches with their contrast ratios, a real type specimen, the five states of every component, light and dark side by side.
+  - **Live preview** - a throwaway route in your own project with your real stack and tokens; a `@Preview` / `#Preview` scratch file on Compose / SwiftUI, where an HTML page can only approximate.
+  - **Inline** - the existing behavior, and still the recommended default for a 150ms hover.
+
+  The question is asked **once**. The choice holds for the session, later gates only announce the mode in one line, and you switch by saying so.
+- The gate is a cross-cutting protocol rather than a new pipeline stage, so `cast` keeps its seven steps and `paint` its five phases. It ships as a new `genjutsu:shared:preview` guarded region, byte-identical in both orchestrators and enforced by the existing CI drift check.
+- New iron rule in both skills: **the preview is throwaway and never becomes the implementation.** This matters most on Compose / SwiftUI, where an HTML preview approximates timing and curve only, not rendering - and now says so on the page. Supporting rules: the live-preview route is deleted after validation, no dependency is installed to build a preview, no dev server is started without asking, and only values that are already in the thesis may appear in it (otherwise the preview becomes a second, unvalidated thesis).
+
+### Changed
+
+- `allowed-tools` in `cast` and `paint` now includes `Artifact`. Artifact production degrades cleanly across surfaces: native on claude.ai, the `Artifact` tool on Claude Code, and a self-contained HTML file written to a temp path when neither is available.
+
+### Notes
+
+- `paint`'s page-by-page validation (Phase 4) is deliberately excluded - it is judged in the real project, where a preview would only add a copy step.
+- The docs site ([genjutsu.athevon.dev](https://genjutsu.athevon.dev)) lives in a separate repository; its `cast` and `paint` pages do not describe the gate yet.
+
 ## v3.1.0 - 2026-07-24
 
 Correctness + reach release: the design dataset is refreshed, the technical guidance is more accurate across every stack, and claude.ai now installs in a single upload.

@@ -51,7 +51,7 @@ Takes any creative request and makes it exceptional. Adapts to your stack and sc
 **Pipeline:** Scan stack -> Evaluate scope -> Propose interaction thesis -> Load sub-skills -> Implement -> Mini-audit
 
 - Detects your dependencies automatically across web (GSAP, Framer Motion, Three.js, CSS), Android (Jetpack Compose, Compose Multiplatform) and Apple (SwiftUI iOS / macOS)
-- Proposes an **interaction thesis** before writing a single line of code
+- Proposes an **interaction thesis** before writing a single line of code, and asks **how you want to see it** first
 - Scales from a single hover effect to a full scroll-driven page or a Compose `SharedTransitionLayout` flow
 - Runs a quick audit on exit: reduced-motion, exit animations, recomposition, hitches, layout performance
 
@@ -62,6 +62,7 @@ Builds a complete visual universe from scratch. Brainstorm first, implement seco
 **Pipeline:** Brainstorm -> Define visual + interaction thesis -> Generate design system -> Implement -> Full audit
 
 - Mandatory creative direction session before any code
+- Shows the theses and the design system in the format you pick, instead of asking you to approve a palette as a list of hex codes
 - Generates a persistent stack-aware `MASTER.md` design system (Tailwind/CSS for web, `Theme.kt` for Compose, `Color+App.swift` for SwiftUI, `commonMain` for CMP)
 - Full audit at the end: motion gaps, accessibility, color consistency, responsive, performance, native hitches
 - Optional MCP integration (Stitch, Nano Banana, 21st.dev Magic)
@@ -78,6 +79,18 @@ Builds a complete visual universe from scratch. Brainstorm first, implement seco
 | "Build me a portfolio from scratch" | `/genjutsu:paint` |
 | "Build a SwiftUI iOS app design system from scratch" | `/genjutsu:paint` |
 | "Bootstrap a Compose Multiplatform design system" | `/genjutsu:paint` |
+
+### Seeing what it proposes
+
+Both skills stop and wait for your approval at a handful of points: the interaction thesis, the variants, the visual identity, the design system. A sentence cannot carry an easing curve and a list of hex codes cannot carry a palette, so before the first of those gates the skill asks how you want to see it.
+
+| Mode | What you get |
+|---|---|
+| **Artifact** | A live page. The easing curve plotted with its exact value, an element actually performing the motion with a replay button, the raw numbers, a reduced-motion toggle. For a design system: swatches with their contrast ratios, a real type specimen, the five states of every component. |
+| **Live preview** | A throwaway route in your own project - real stack, real tokens, real components. On Compose or SwiftUI, a `@Preview` / `#Preview` scratch file. Deleted once you have approved. |
+| **Inline** | The sentence, in the conversation. Still the right answer for a 150ms hover. |
+
+You are asked once. The choice holds for the rest of the session, later gates just announce the mode, and you switch by saying so. The preview is always throwaway: it exists to be looked at, never to become the implementation.
 
 ---
 
