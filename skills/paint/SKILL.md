@@ -1,7 +1,7 @@
 ---
 name: paint
 description: "Paint a complete visual universe with genjutsu - art direction brainstorm, design system, implementation, audit. Anti-AI-slop design pipeline. Adapts to Web, Android (Compose), Apple (SwiftUI)."
-allowed-tools: Bash, Read, Edit, Write, Grep, Glob, WebSearch
+allowed-tools: Bash, Read, Edit, Write, Grep, Glob, WebSearch, Artifact
 ---
 
 # Paint - The Master Painter
@@ -55,6 +55,60 @@ The flair lives at the intro and during work narration. The moment a result land
 8. **The audit is not optional.** Phase 5 always runs, even if the user seems happy.
 9. **Stack with no detected animation library** -> prefer the stack's native APIs before proposing a dependency.
 10. **Animation library detected** (GSAP, Framer Motion, Lottie, Rive, etc.) -> respect the dev's choice. Do not propose a replacement.
+11. **Show, don't just describe.** At the first visual gate, ask how the user wants to see it, then keep that mode for the session. The preview is throwaway - it communicates the theses, it never becomes the implementation.
+
+---
+
+<!-- genjutsu:shared:preview:start -->
+## Showing Your Work - The Preview Gate
+
+Some gates in this pipeline exist so the user can *look* at something before approving it: an interaction thesis, a set of variants, a visual identity, a design system. Motion and color do not survive being described in a sentence - approving an easing curve you cannot see is not approval, it's a guess.
+
+So before the first gate of that kind, ask how they want to see it. Then never ask again.
+
+**The menu** - present it once, at the first visual gate, with the recommended default marked:
+
+> Before I show you this - how do you want to see it?
+>
+> **A. Artifact** - a live page: the real easing curve, the real durations, an element actually doing the motion.
+> **B. Live preview** - a throwaway route in your project, real stack, real tokens. Native: a `@Preview` / `#Preview` scratch file.
+> **C. Inline** - written out here in the conversation.
+
+**Recommended default** - state it in the menu, never apply it silently:
+
+| Situation | Default |
+|---|---|
+| Scope is light (a hover, one transition) | C - inline |
+| Scope is medium or full, web stack | A - artifact |
+| Scope is medium or full, Compose / SwiftUI | B - live preview, A as second choice |
+| A full visual identity or design system is on the table | A - artifact |
+| No dev server, or the repo must not be written to | A - artifact |
+
+**The choice sticks for the whole session.** At every later gate, announce the mode in one line ("Variants in artifact.") and go. Do not reopen the menu. The user switches by saying so - "show me that as text", "put it in an artifact", "just tell me" - respect it immediately, and the new mode becomes the session default from then on.
+
+**Producing an artifact** - resolve the environment, degrade, never fail:
+
+1. **claude.ai** renders artifacts natively. Just produce one.
+2. **Claude Code** - use the `Artifact` tool if it is available.
+3. **Neither** - write a self-contained HTML file to a temp path and give the user the path to open.
+
+**What goes in it.** A preview that restates the sentence in a nicer font is worthless. Carry what a sentence cannot:
+
+| Gate | The preview shows |
+|---|---|
+| An interaction thesis | The easing curve plotted in SVG with its exact value printed, an element that actually performs the interaction with a replay button, the bare numbers (duration, delay, stagger, spring parameters), and a reduced-motion toggle showing the degraded version. |
+| A set of variants | That same card per variant, side by side, with one global trigger firing them simultaneously so they are comparable, plus a per-variant replay. |
+| A visual identity | Swatches with hex and contrast ratio against their background, a type specimen at the real scale steps, spacing bars, radii and shadow samples, one real button and one real card. |
+| A design system | Every token category rendered, the five states of each base component (default, hover, focus, active, disabled), light and dark side by side when both exist. |
+
+**Rules the preview obeys:**
+
+- **It is throwaway. It never becomes the implementation.** Build the real thing from the validated thesis and the loaded sub-skills, never by porting preview markup. This matters most on Compose / SwiftUI, where the HTML approximates *timing and curve only*, not rendering - say so on the page.
+- Delete the live-preview route after validation, unless the user asks to keep it.
+- Never install a dependency to build a preview.
+- Never start a dev server without asking.
+- Only show values that are in the thesis. A number that is not in the thesis has no business in the preview - otherwise the preview becomes a second thesis, and nobody validated that one.
+<!-- genjutsu:shared:preview:end -->
 
 ---
 
@@ -241,6 +295,8 @@ A single sentence that captures the motion and interaction language. **Must expl
 
 **Self-check:** read your thesis back. If you can't immediately derive the CSS/JS properties from it, it's too vague. Rewrite.
 
+**This is the first visual gate.** Offer the preview menu (see "Showing Your Work" above), then present both theses in the chosen mode. The visual thesis in particular is worth far more shown than described - "fluorescent chartreuse accents" is a guess until it sits next to the neutrals.
+
 **Wait for explicit user validation of BOTH theses before moving on.** If the user pushes back, don't start over — ask what feels wrong and adjust.
 
 ---
@@ -287,6 +343,10 @@ Check if these MCPs are connected and use them when available:
 - **21st.dev Magic** — Generate UI components from descriptions
 
 If MCPs are not available, skip gracefully — the design system + code implementation is the core path.
+
+#### Show it before Phase 4
+
+Present the design system in the session's preview mode - announce the mode in one line, don't reopen the menu - and get validation before implementing anything. A palette and a type scale listed as hex codes and pixel values in a transcript are precise and completely unreviewable; every token in MASTER.md is about to be applied everywhere, so this is the cheapest place to catch a wrong one.
 
 ---
 
@@ -416,3 +476,6 @@ This is intentional: `/genjutsu:paint` rebuilds the visual universe. To enhance 
 | "This animation would be cool even though the thesis says no bounce" | The thesis is law. Change it? Re-validate with the user first. |
 | "The audit can wait, the user seems happy" | The audit is not optional. Phase 5 always runs. |
 | "I'll interpret 'yeah something like that' as a yes" | That's not confirmation. Ask which part resonates. |
+| "I'll list the palette as hex codes, that's precise" | Precise and unreviewable. Show it in the session's preview mode. |
+| "I'll ask again how they want to see the design system" | Asked once, sticks for the session. Announce the mode and go. |
+| "The preview page looks good, I'll build the app from it" | The preview is throwaway. Build from MASTER.md. |
