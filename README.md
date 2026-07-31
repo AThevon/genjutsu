@@ -4,15 +4,39 @@
 
 <h1 align="center">genjutsu</h1>
 
-<p align="center"><em>The art of illusion. Cast motion. Paint signatures. Zero AI slop.</em></p>
+<p align="center"><em>The art of illusion. Cast motion. Paint signatures.</em></p>
 
-<p align="center"><a href="https://genjutsu.athevon.dev"><strong>genjutsu.athevon.dev</strong></a></p>
+<p align="center">
+  <a href="https://genjutsu.athevon.dev"><strong>genjutsu.athevon.dev</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://genjutsu.athevon.dev/docs"><strong>Documentation</strong></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/AThevon/genjutsu/releases/latest"><img src="https://img.shields.io/github/v/release/AThevon/genjutsu?style=flat-square&color=b11523&label=release" alt="Latest release" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-b11523?style=flat-square" alt="MIT license" /></a>
+  <a href="https://genjutsu.athevon.dev/docs"><img src="https://img.shields.io/badge/docs-genjutsu.athevon.dev-b11523?style=flat-square" alt="Documentation" /></a>
+</p>
 
 Creative coding skills for [Claude Code](https://claude.ai/code) and [claude.ai](https://claude.ai) - transforms any interface from functional to exceptional through motion design, interaction patterns, and visual systems. Covers Web (React, Vue, Svelte, vanilla CSS, Three.js, Canvas), Android (Jetpack Compose, Compose Multiplatform), and Apple (SwiftUI iOS + macOS).
 
-[The site](https://genjutsu.athevon.dev) walks through it in five chapters - what it is, the skills, the stacks, why it exists, how to install. Drawn live in code, sumi ink on canvas, no images.
-
 > **v3.0 - rebrand**: this plugin used to be called `creative-excellence`. The skills `/creative-excellence:creative-excellence` and `/creative-excellence:design-excellence` are now `/genjutsu:cast` and `/genjutsu:paint`. See [CHANGELOG.md](./CHANGELOG.md) for the migration steps if you had v2.x installed.
+
+---
+
+## Documentation
+
+[genjutsu.athevon.dev](https://genjutsu.athevon.dev) is built with genjutsu itself. The ink on it is painted by your own scroll, and every mark is drawn in code, no image assets.
+
+| Page | What is in it |
+|---|---|
+| [Overview](https://genjutsu.athevon.dev/docs) | What genjutsu is, how the pieces fit, the shortest path to seeing something move |
+| [Install](https://genjutsu.athevon.dev/docs/install) | Both surfaces, verifying the install, updating, uninstalling |
+| [`cast`](https://genjutsu.athevon.dev/docs/cast) | The seven-stage pipeline, its two validation gates, how to write a good request |
+| [`paint`](https://genjutsu.athevon.dev/docs/paint) | The five phases, the two theses, what lands in your repo |
+| [Modules](https://genjutsu.athevon.dev/docs/jutsu) | All fifteen, by family: [foundations](https://genjutsu.athevon.dev/docs/jutsu/foundations), [web](https://genjutsu.athevon.dev/docs/jutsu/web), [Apple](https://genjutsu.athevon.dev/docs/jutsu/apple), [Android](https://genjutsu.athevon.dev/docs/jutsu/android) |
+| [Principles](https://genjutsu.athevon.dev/docs/principles) | The rules the skills enforce, and why each one exists |
+| [FAQ](https://genjutsu.athevon.dev/docs/faq) | Plans, dependencies, cast against paint, what to check when output feels generic |
 
 ---
 
@@ -103,6 +127,8 @@ Internal modules loaded dynamically by the orchestrators. Not invocable directly
 
 ## Installation
 
+The short version is on the site: [genjutsu.athevon.dev/docs/install](https://genjutsu.athevon.dev/docs/install). The long version, including partial installs, is below.
+
 ### claude.ai (web/app)
 
 **Prerequisites:** Plan Pro, Max, Team or Enterprise with "Code execution" enabled.
@@ -111,7 +137,7 @@ Internal modules loaded dynamically by the orchestrators. Not invocable directly
 
 One upload, everything included (router + `cast` + `paint` + all sub-skills).
 
-1. Go to the [Releases](https://github.com/AThevon/genjutsu/releases) page and download **`genjutsu.zip`**.
+1. Download **[`genjutsu.zip`](https://github.com/AThevon/genjutsu/releases/latest/download/genjutsu.zip)**. That link always serves the newest release, so it never goes stale.
 2. On claude.ai, go to **Customize > Skills > Upload skill** and upload `genjutsu.zip`.
 3. Enable the toggle. Done - one skill, both `cast` and `paint` pipelines, all sub-skills bundled.
 
@@ -143,13 +169,16 @@ cd genjutsu
 
 ### Claude Code (CLI)
 
-```bash
-# Add the plugin marketplace
-/plugin marketplace add git@github.com:AThevon/genjutsu.git
+Two slash commands, typed inside a Claude Code session:
 
-# Install
+```text
+/plugin marketplace add AThevon/genjutsu
 /plugin install genjutsu
 ```
+
+Then run `/genjutsu:cast` or `/genjutsu:paint`. You can pass the request on the same line: `/genjutsu:cast make the pricing cards feel physical on hover`.
+
+The marketplace also accepts the full git URL if you prefer it: `/plugin marketplace add git@github.com:AThevon/genjutsu.git`.
 
 Or as a git submodule in your dotfiles:
 
