@@ -428,43 +428,69 @@ Wait for the user to pick before implementing. Always respect the validated thes
 
 ### 7. AUDIT — Verification before delivery
 
-Before delivering, run the checks matching the detected stack.
+Before delivering, run the checks matching the detected stack. Iron rule 6 says 60fps or nothing, and an audit that asserts it without measuring is how that rule gets quietly broken.
 
 <!-- genjutsu:shared:audit:start -->
-**All stacks:**
-- [ ] Reduced motion respected (CSS `prefers-reduced-motion`, SwiftUI `accessibilityReduceMotion`, or Compose helper using `ValueAnimator.areAnimatorsEnabled()` / `Settings.Global.ANIMATOR_DURATION_SCALE`).
-- [ ] Exit animations present (no abrupt vanishings).
-- [ ] No layout-property animations (animate transform / opacity / graphicsLayer instead).
-- [ ] Focus visible on interactive elements.
-- [ ] Interactive elements have all relevant states (default, hover/press, focus, active, disabled).
-- [ ] Colors and spacing consistent with the project's design tokens (MASTER.md when one exists) - no rogue hex values.
+The closing step of this pipeline used to be twenty-five checkboxes, several of which name a
+tool the agent cannot run. Ticking "60fps verified via Chrome DevTools" without opening Chrome
+turns "I did not look" into "I looked and it is fine", which is worse than saying nothing.
 
-**Web:**
-- [ ] Conditional renders with AnimatePresence (or framework equivalent).
-- [ ] Contrast ratio >= 4.5:1 for all text.
-- [ ] No forced reflow, `will-change` used sparingly.
-- [ ] 60fps target verified via Chrome DevTools Performance panel.
-- [ ] No clickable divs without role/button.
-- [ ] `aria-hidden` on purely decorative animations.
-- [ ] Responsive on 4 breakpoints: 375px (mobile) / 768px (tablet) / 1024px (small desktop) / 1440px (large desktop).
+So the checks are split. **Report the first group with the evidence you used. Never tick the
+second group at all** - hand it over.
 
-**Compose:**
-- [ ] Recomposition counts verified: Layout Inspector > Component Tree > View Options > **Show Recomposition Counts** (API 29+). There is no `Modifier.recomposeHighlighter` in androidx.
-- [ ] No animations on `width`/`height` (use `Modifier.graphicsLayer { translationX/Y, scaleX/Y }`).
-- [ ] `Modifier.semantics` set on custom interactive components.
-- [ ] Frame timing OK on a mid-range device (Pixel 4a baseline) via Macrobenchmark.
+### Checked here, with evidence
 
-**SwiftUI:**
-- [ ] No `body` recomputed on irrelevant state changes (use `@StateObject`, `@ObservableObject` correctly).
-- [ ] Hitches Instrument shows no dropped frames during animation.
-- [ ] `.accessibilityLabel` / `.accessibilityHint` on all interactive views.
-- [ ] Tested with Reduce Motion ON and Dynamic Type at 200%.
+Each line is reported as `check - verdict - the evidence`. The evidence is the grep you ran, the
+value you computed, or the `file:line` you read. A verdict with no evidence beside it is not a
+finding, and an item you could not check is reported as **not checked** rather than passed.
 
-**macOS-specific (in addition to SwiftUI):**
-- [ ] Hover states present on every interactive element.
-- [ ] Keyboard shortcuts (`Cmd+N`, `Cmd+W`, `Cmd+F`, etc.) bound to primary actions.
-- [ ] Multi-window state shared coherently if applicable.
-- [ ] Focus rings visible on keyboard navigation (no `outline: none` without alternative).
+- [ ] **Reduced motion** honoured. Web: a `prefers-reduced-motion` block that actually degrades
+      the animation, not an empty one. SwiftUI: `accessibilityReduceMotion`. Compose: a helper
+      on `ValueAnimator.areAnimatorsEnabled()` / `Settings.Global.ANIMATOR_DURATION_SCALE`.
+      Evidence: the file and line of the guard, and what it degrades to.
+- [ ] **Exit animations** present wherever something unmounts. Evidence: the conditional render
+      and its exit path, or the list of unmounts that have none.
+- [ ] **No layout-property animation.** Nothing animating `width`, `height`, `top`, `left`,
+      `margin` or `padding`; use transform, opacity or `graphicsLayer`. Evidence: the grep and
+      its hits, or that it returned nothing.
+- [ ] **Focus visible** on every interactive element, and no `outline: none` without a
+      replacement. Evidence: the grep.
+- [ ] **All five states** on interactive elements: default, hover or press, focus, active,
+      disabled. Evidence: the states you found per component, and the ones missing.
+- [ ] **Tokens, not magic numbers.** Colours and spacing come from the project's design tokens
+      (MASTER.md when one exists). Evidence: the rogue values, with `file:line`.
+- [ ] **Contrast** at least 4.5:1 for body text, 3:1 for large text and UI boundaries.
+      **Compute it** from the token values you emitted; do not eyeball a swatch. Evidence: the
+      pair and the computed ratio, e.g. `#831843 on #FDF2F8 = 9.4:1`.
+- [ ] **Semantics.** Web: no clickable `div` without a role, `aria-hidden` on decorative motion.
+      Compose: `Modifier.semantics` on custom interactive components. SwiftUI:
+      `.accessibilityLabel` on controls that have no text. Evidence: the grep.
+- [ ] **Web only.** Conditional renders wrapped in `AnimatePresence` or the framework's
+      equivalent; `will-change` used sparingly and removed after the animation. Evidence: the grep.
+
+### You must run these - not verified here
+
+The agent cannot open a profiler, attach to a device, or move a pointer. These are reported as a
+handoff block with the exact invocation, and marked **UNVERIFIED**. Do not tick them, do not
+soften them, and do not omit the section because the rest looked clean.
+
+| Target | What to run | Pass condition |
+|---|---|---|
+| Web | Chrome DevTools > Performance, record across the interaction | no frame over 16.7ms |
+| Web | The page at 375 / 768 / 1024 / 1440 | no horizontal scroll, no clipped content |
+| Web | The page with the OS "reduce motion" setting on | the degraded path actually runs |
+| Compose | Layout Inspector > Component Tree > View Options > **Show Recomposition Counts** | counts stable while scrolling |
+| Compose | `androidx.benchmark.macro` Macrobenchmark on a mid-range device | frame time under 16.67ms at 60fps, 8.33ms at 120fps |
+| SwiftUI | Instruments > Animation Hitches | no hitch during the transition |
+| SwiftUI | Reduce Motion on, Dynamic Type at 200% | nothing clipped, nothing that only moves |
+| macOS | Pointer over every interactive element; keyboard through the whole view | hover states fire, focus ring visible, shortcuts bound |
+
+If a preview or a dev server is already running and the user agrees, driving the browser to
+collect the web rows is better than handing them over. Never start one just for the audit, and
+never install anything for it.
+
+**Report the two groups separately**, with the counts. "9 checked, 2 problems found, 8 handed
+over" is an honest audit. A single list of ticks is not.
 <!-- genjutsu:shared:audit:end -->
 
 ---
@@ -479,6 +505,8 @@ Before delivering, run the checks matching the detected stack.
 | "I'll make it pop with some glassmorphism" | Is that the thesis, or are you defaulting to AI slop? |
 | "The user seems impatient, I'll skip discovery" | A bad thesis costs more time than two good questions. |
 | "I'll add a few extra animations while I'm at it" | Scope creep. Stick to the thesis. |
+| "The audit items all look fine, I'll tick them" | A tick is not a finding. Report the grep, the ratio, the file:line - or report it as not checked. |
+| "I can't profile, so I'll leave that part out" | The handoff block is the deliverable for those. Omitting it reads as a pass. |
 | "The thesis sentence is clear, I'll just write it out" | A sentence can't carry an easing curve. Offer the preview menu first. |
 | "I'll ask again how they want to see the variants" | Asked once, sticks for the session. Announce the mode and go. |
 | "The preview looks great, I'll port it into the app" | The preview is throwaway. Build from the thesis and the loaded sub-skills. |

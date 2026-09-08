@@ -2,6 +2,76 @@
 
 All notable changes to this plugin are documented here. Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## v3.5.0 - 2026-09-08
+
+The audit stops asserting and starts reporting, and the design intelligence actually runs.
+
+### Changed
+
+- **The closing audit is split in two, and neither half is a tick.** Both pipelines ended in
+  twenty-five checkboxes, several of which name a tool the agent cannot run: Chrome DevTools,
+  Macrobenchmark on a device, Instruments Hitches. Ticking "60fps verified via Chrome DevTools"
+  without opening Chrome turns "I did not look" into "I looked and it is fine", and it was the
+  last thing the user read.
+
+  What can be established from the code is now reported **with the evidence used**: the grep and
+  its hits, the computed value, the `file:line`. Contrast is computed from the emitted tokens
+  rather than eyeballed, so a finding reads `#831843 on #FDF2F8 = 9.4:1`. An item that could not
+  be checked is reported as **not checked**, never as passed.
+
+  What needs a profiler, a device or a pointer becomes a **handoff table** with the exact
+  invocation and the pass condition, marked UNVERIFIED. The agent may not tick those, soften
+  them, or drop the section because the rest looked clean. The report ends with the counts of
+  both groups, because "9 checked, 2 problems, 8 handed over" is an audit and a list of ticks is
+  not. Two new Red Flags rows in each orchestrator guard the two ways this gets undone.
+
+  Where a dev server or preview is already running and the user agrees, driving it to collect the
+  web rows beats handing them over. Nothing is started or installed for an audit.
+
+- **`paint` Phase 3 now runs the design intelligence instead of hoping.** It loaded
+  `ui-ux-pro-max` and stopped, so whether the search engine behind it ever ran was left to the
+  model. 1.8 MB of vendored data, 55% of the tracked repo, sat behind a judgement nobody
+  measured. Phase 3 now invokes `search.py --design-system -f markdown` directly, queried with
+  the **validated visual thesis** rather than the raw user request, since the thesis is what was
+  approved.
+
+  The result is framed as a proposal, not an answer: it is a lookup against a static dataset that
+  has never seen the project, so keep what serves the thesis, discard what fights it, and say in
+  one line what was taken and what was dropped. If `python3` is unavailable the pipeline says so
+  and derives the system by hand rather than stopping.
+
+- **`-f markdown` is mandatory on `--design-system`**, applied to all six invocations. The
+  default `ascii` emits about 7,000 bytes carrying raw ANSI colour escapes - `hex_to_ansi` has no
+  isatty guard, so they survive the pipe and land in context as garbage. Markdown returns the
+  same content in about 2,100 bytes. A 3.3x token reduction on the most-run command in the skill.
+
+### Added
+
+- **`CONTRIBUTING.md`.** The evidence standard, stated once: a correction needs a primary source,
+  the acceptable one is named per platform, and a blog post, your memory and a model's output are
+  not among them. It also says what a test proves and what it does not, with three real examples
+  from the v3.4.0 pass, because the worst class of error here throws nothing at all. Plus a
+  private security path, which the repo lacked despite having taken one vulnerability report.
+- **`PLATFORM-CONTRACT.md`.** What a platform family must answer, with the reference
+  implementation for each of ten questions; the ten wiring sites across `cast` and `paint` and
+  which four are compared byte for byte; an honest quarterly cost written to let someone decline;
+  and how a family gets removed, because the plugin that is right about three platforms beats the
+  plugin that is stale about six.
+- Four issue forms and a pull-request template. The wrong-claim form requires the source URL and
+  asks separately how you established it, since a URL is easy to paste and a method is not.
+- **`VERIFY-NEEDED`** as a marker in `VERSIONS.md`: one public list of unconfirmed rows rather
+  than a second tracker that would drift from the first. Two genuinely unverified rows are marked.
+
+### Notes
+
+- No CODEOWNERS. It silently ignores owners without write access, GitHub never requests a review
+  from the pull-request author, and only organisation teams can own a path, so on a personal repo
+  with one maintainer it would document a routing guarantee it does not provide.
+- `docs/superpowers/` is no longer tracked. Agent working notes are not part of a plugin.
+- The vendored dataset question is settled in `UPSTREAM.md`: load-bearing, keep it, and the
+  v2.11.1 to v2.15.0 sync is worth taking when there is an afternoon. The eight out-of-scope
+  stack CSVs stay, because the clean-mirror property is worth more than the 184 KB.
+
 ## v3.4.0 - 2026-09-08
 
 Correctness release. The pipelines were fine; the knowledge base underneath them had started
