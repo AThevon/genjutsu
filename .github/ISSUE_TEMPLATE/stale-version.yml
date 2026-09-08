@@ -1,0 +1,36 @@
+name: A VERSIONS.md row is out of date
+description: A library, SDK or browser feature has moved since the date recorded in skills/_jutsu/VERSIONS.md.
+title: "[stale] "
+labels: ["correctness"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        [`skills/_jutsu/VERSIONS.md`](https://github.com/AThevon/genjutsu/blob/main/skills/_jutsu/VERSIONS.md)
+        records what every version-sensitive claim was checked against and when. Rows go stale on
+        their own. Flagging one is a complete contribution even if you do not fix the content.
+
+  - type: input
+    id: subject
+    attributes:
+      label: Which row
+      description: The Subject column, verbatim.
+      placeholder: androidx.compose.material3:material3 - MotionScheme / MaterialExpressiveTheme
+    validations:
+      required: true
+
+  - type: textarea
+    id: moved
+    attributes:
+      label: What has shipped since
+      description: The new version, and anything renamed, deprecated or added that the skills would now get wrong.
+    validations:
+      required: true
+
+  - type: input
+    id: source
+    attributes:
+      label: Primary source
+      placeholder: https://developer.android.com/jetpack/androidx/releases/compose-material3
+    validations:
+      required: true

@@ -1,0 +1,44 @@
+name: The pipeline misbehaved
+description: cast or paint did something wrong - skipped a gate, loaded nothing, produced generic output.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      options:
+        - Claude Code (plugin install)
+        - claude.ai (genjutsu.zip)
+        - Cowork
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: skill
+    attributes:
+      label: Which pipeline
+      options:
+        - /genjutsu:cast
+        - /genjutsu:paint
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what you expected
+      description: >
+        If sub-skills failed to load, paste the resolution error. It names every root it tried,
+        which is the fastest way to identify a mount layout genjutsu does not know about yet.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: genjutsu version
+      description: The version field in .claude-plugin/plugin.json, or the release you downloaded.
+      placeholder: "3.4.0"

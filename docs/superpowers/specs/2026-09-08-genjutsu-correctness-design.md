@@ -34,7 +34,7 @@ unique cloners in fourteen days. The ZIP path is about 2% of distribution. The
 18-ZIP packaging pipeline and its `SKILL.md` to `GUIDE.md` rewrite serve almost
 nobody.
 
-## The four blocks
+## The five blocks
 
 1. **Correctness (v3.4.0)** - specified below. Roughly three sessions.
 2. **Reach** - publish so `npx skills add AThevon/genjutsu` works, which yields a
@@ -47,10 +47,46 @@ nobody.
    which would retire `package-for-claude-ai.sh`.
 4. **Evidence** - turn the closing 25-item checklist from assertion into
    measurement.
+5. **The site** - `genjutsu.athevon.dev`, separate repo. See below.
 
 Explicitly not this year: a fourth platform family. Adding Flutter widens the
 surface at the moment its depth is failing verification, and it is the most
 cloneable thing on the list.
+
+### Block 5 - the site does not argue for the product
+
+`genjutsu.athevon.dev` lives in its own repo and is built with genjutsu itself.
+That is the whole problem: it is boring in its construction, and a docs site for
+a motion and visual-design plugin that reads as a competent static page is an
+argument against the product it documents. It describes the merits instead of
+demonstrating them.
+
+The reframing: **the site is not documentation that mentions genjutsu, it is the
+artefact genjutsu produced.** Every page should be answerable with "this is what
+you get". A visitor arriving from Google, which is the top referrer by a wide
+margin, should understand the value before reading a sentence.
+
+Angles worth exploring, none of them decided:
+
+- The `cast` page should let you watch a thesis become an interaction, with the
+  easing curve plotted and the numbers visible, rather than describing a seven
+  step pipeline in prose. The preview gate already generates exactly this
+  artefact; the site reimplements the description of it instead.
+- The `paint` page should show a visual identity being derived, not list five
+  phases.
+- The module pages are fifteen entries of reference prose. They are the least
+  interesting way to present the thing that is actually the payload.
+- Something on the site should be visibly impossible to have templated. That is
+  the anti-AI-slop claim, made rather than stated.
+
+Two constraints carried over from the site's own working notes: the contrast
+floor holds, and no client-side GitHub calls.
+
+One maintenance item to settle in the same pass: the README and the site
+duplicate a large surface, and they have already desynced once - the v3.2.0
+notes record that the site's `cast` and `paint` pages still do not describe the
+preview gate. Decide who owns what, in writing, rather than trimming the README
+and hoping. Nothing today can see across the two repos.
 
 ## Non-goals for v3.4.0
 
@@ -193,15 +229,14 @@ The pass is done when, from a clean checkout:
 ## Follow-ups found while verifying, left out of v3.4.0
 
 Surfaced by the fact-check pass, not falsehoods, so out of scope for a correctness release.
-Each is one line of work.
+Each is one line of work. Re-checked against the tree on 2026-09-08 after the corrections
+landed: `.pointerStyle`, `.onContinuousHover` and `yoyoEase` came off this list, the first two
+because the Apple pass added them and the third because the symbol is nowhere in the tree.
 
-- GSAP 3.15 deprecated `yoyoEase` in favour of `easeReverse` (`gsap/references/core.md:74`).
 - three r182 deprecated `PCFSoftShadowMap` for `PCFShadowMap`
   (`threejs-r3f/references/scene-setup.md:363, :376`).
 - `swiftui-motion` never mentions `navigationTransition(_:)` / `NavigationTransition.zoom` /
   `matchedTransitionSource(id:in:)`, all iOS 18+.
-- `desktop-principles` never mentions `.pointerStyle(_:)` (macOS 15+) or
-  `.onContinuousHover` (macOS 14+).
 - The `MaterialShapes` list in `m3-expressive-deep.md:171` is accurate but incomplete.
 - Motion 13.2 added a `motion/three` entry point that drives Three.js objects, materials and
   TSL uniform nodes. Relevant cross-link for `threejs-r3f`.
