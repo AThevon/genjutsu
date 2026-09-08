@@ -99,6 +99,13 @@ Search specific domains using the CLI tool below.
 
 Requires `python3` (available by default in the Claude Code shell and in claude.ai's code-execution sandbox). This skill does not install anything.
 
+**Always pass `-f markdown` on `--design-system`.** The default is `ascii`, which is built for a
+terminal: it emits about 7,000 bytes carrying raw ANSI colour escapes, and `hex_to_ansi` has no
+isatty guard, so those escapes survive being piped and land in the context window as garbage.
+`-f markdown` returns the same information in about 2,100 bytes of clean markdown. The consumer
+here is a model, not a terminal, so this is a 3.3x token reduction on the most-run command in
+this skill.
+
 ---
 
 ## How to Use This Skill
@@ -129,7 +136,7 @@ Extract key information from user request:
 **Always start with `--design-system`** to get comprehensive recommendations with reasoning:
 
 ```bash
-python3 scripts/search.py "<product_type> <industry> <keywords>" --design-system [-p "Project Name"]
+python3 scripts/search.py "<product_type> <industry> <keywords>" --design-system [-p "Project Name"] -f markdown
 ```
 
 This command:
@@ -140,7 +147,7 @@ This command:
 
 **Example:**
 ```bash
-python3 scripts/search.py "beauty spa wellness service" --design-system -p "Serenity Spa"
+python3 scripts/search.py "beauty spa wellness service" --design-system -p "Serenity Spa" -f markdown
 ```
 
 ### Step 2b: Persist Design System (Master + Overrides Pattern)
@@ -148,7 +155,7 @@ python3 scripts/search.py "beauty spa wellness service" --design-system -p "Sere
 To save the design system for **hierarchical retrieval across sessions**, add `--persist` (point `--output-dir` at the project root so files land there, not in the skill dir):
 
 ```bash
-python3 scripts/search.py "<query>" --design-system --persist -p "Project Name" --output-dir "$PROJECT_ROOT"
+python3 scripts/search.py "<query>" --design-system --persist -p "Project Name" --output-dir "$PROJECT_ROOT" -f markdown
 ```
 
 This creates:
@@ -159,7 +166,7 @@ This creates:
 
 **With page-specific override:**
 ```bash
-python3 scripts/search.py "<query>" --design-system --persist -p "Project Name" --page "dashboard" --output-dir "$PROJECT_ROOT"
+python3 scripts/search.py "<query>" --design-system --persist -p "Project Name" --page "dashboard" --output-dir "$PROJECT_ROOT" -f markdown
 ```
 
 This also creates:
@@ -270,7 +277,7 @@ Available stacks: `html-tailwind`, `react`, `nextjs`, `astro`, `vue`, `nuxtjs`, 
 ### Step 2: Generate Design System (REQUIRED)
 
 ```bash
-python3 scripts/search.py "beauty spa wellness service elegant" --design-system -p "Serenity Spa"
+python3 scripts/search.py "beauty spa wellness service elegant" --design-system -p "Serenity Spa" -f markdown
 ```
 
 **Output:** Complete design system with pattern, style, colors, typography, effects, and anti-patterns.
@@ -301,7 +308,7 @@ The `--design-system` flag supports two output formats:
 
 ```bash
 # ASCII box (default) - best for terminal display
-python3 scripts/search.py "fintech crypto" --design-system
+python3 scripts/search.py "fintech crypto" --design-system -f markdown
 
 # Markdown - best for documentation
 python3 scripts/search.py "fintech crypto" --design-system -f markdown

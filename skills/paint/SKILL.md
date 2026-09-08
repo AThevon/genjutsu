@@ -451,13 +451,33 @@ A single sentence that captures the motion and interaction language. **Must expl
 
 ### Phase 3 — DESIGN SYSTEM
 
-Load the `ui-ux-pro-max` sub-skill. **Phase 2 ended in a user gate, so this is a new Bash
-call and `$SKILL_BASE` no longer exists.** Re-emit the resolution block from "Sub-skills
+Load the `ui-ux-pro-max` sub-skill and **run it**. **Phase 2 ended in a user gate, so this is a
+new Bash call and `$SKILL_BASE` no longer exists.** Re-emit the resolution block from "Sub-skills
 Path Detection" above in this same call - it reads its own cache, so it is cheap - and then:
 
 ```bash
 load_skill ui-ux-pro-max
+
+# Query it with the validated visual thesis, not with the raw user request. The thesis is the
+# thing that was approved; the request was not. Product type, industry and the mood adjectives
+# from Phase 2, in that order, work best.
+python3 "$SKILL_BASE/ui-ux-pro-max/scripts/search.py" \
+  "<product type> <industry> <mood adjectives from the visual thesis>" \
+  --design-system -f markdown
 ```
+
+**`-f markdown` is not optional.** The default `ascii` format emits raw ANSI colour escapes that
+survive the pipe and land in context as garbage, at roughly 3.3x the tokens for the same content.
+
+What comes back is a candidate palette with role names and CSS variable names, a font pairing
+with a ready Google Fonts URL, an effects note and a list of anti-patterns for the style. Treat
+it as **a proposal, not an answer**: it is a lookup against a static dataset and it has never
+seen the project. Keep what serves the validated visual thesis, discard what fights it, and say
+in one line what you took and what you dropped. A palette that contradicts the thesis the user
+approved loses to the thesis every time.
+
+If `python3` is unavailable or the script fails, say so in one line and derive the system from
+the thesis by hand. The pipeline does not stop for this.
 
 #### Stack-aware token generation
 
