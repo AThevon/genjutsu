@@ -20,6 +20,14 @@ Rows are verified against primary sources - MDN browser-compat-data, caniuse,
 `api/current.txt` in androidx-main, Apple's DocC JSON, the npm registry - never against
 recollection.
 
+**`VERIFY-NEEDED` in a note means nobody has confirmed that row.** It is the one marker this
+file uses, and the public to-do list: no separate tracker, because a second list of the same
+thing drifts from the first. Claiming one is worth an issue only if you want to avoid duplicate
+work; otherwise just open the PR. Finishing one means checking it against the primary source,
+updating the value and the date whether or not it moved, and updating the content it describes
+if it did. A row whose date moved and whose value did not is a real contribution: it is the only
+way anyone knows the claim is still true.
+
 ## Web - CSS platform features
 
 | Subject | Verified against | Date | Notes |
@@ -33,7 +41,7 @@ recollection.
 | sibling-index() / sibling-count() | Chrome/Edge 138+, Safari 26.2+, Firefox 154+ | 2026-09-08 | Baseline Newly available since 2026-08-18, ~80% global. Removes the main reason to reach for JS to stagger a dynamic list. |
 | interpolate-size / calc-size() | Chrome/Edge 129+ only; Firefox and Safari not shipped | 2026-09-08 | Baseline Limited, still flagged experimental in BCD. ~70% global. Chromium-only — enhancement layer over grid-template-rows 0fr/1fr. |
 | @scope | Chrome/Edge 118+, Firefox 146+, Safari 17.4+ (spec-complete at Safari 26.4) | 2026-09-08 | Baseline Newly available since 2026-03-24, ~90% global. Not currently mentioned anywhere in the skill — no correction needed, listed for completeness. |
-| Reference stable browser versions | Chrome 153 (2026-09-08, first two-week-cadence release), Edge 151, Firefox 155 (2026-09-01), Safari 26.6.1 (2026-08-18); Safari 27 in beta | 2026-09-08 | Both Chrome and Firefox moved to two-week release cycles in September 2026, so version numbers now drift roughly twice as fast as this file assumes. |
+| Reference stable browser versions | Chrome 153 (2026-09-08, first two-week-cadence release), Edge 151, Firefox 155 (2026-09-01), Safari 26.6.1 (2026-08-18); Safari 27 in beta | 2026-09-08 | VERIFY-NEEDED (drifts fastest in this file). Both Chrome and Firefox moved to two-week release cycles in September 2026, so these numbers go stale about twice as fast as everything else here. |
 
 ## Web - animation and 3D libraries
 
@@ -69,7 +77,7 @@ recollection.
 
 | Subject | Verified against | Date | Notes |
 |---|---|---|---|
-| SwiftUI (Apple platforms) | iOS 26 / macOS 26 shipping; iOS 27 / macOS 27 SDK in beta (Xcode 27), GA 14 Sep 2026 | 2026-09-08 | Availability strings taken from developer.apple.com DocC JSON. iOS 27 entries are still flagged BETA on this date. |
+| SwiftUI (Apple platforms) | iOS 26 / macOS 26 shipping; iOS 27 / macOS 27 SDK in beta (Xcode 27), GA 14 Sep 2026 | 2026-09-08 | VERIFY-NEEDED after 2026-09-14. Availability strings taken from developer.apple.com DocC JSON. iOS 27 entries were still flagged BETA on this date and GA was six days away, so every iOS 27 availability string in the Apple modules needs re-reading once it ships. |
 | SwiftUI Liquid Glass API (.glassEffect, Glass, GlassEffectContainer, glassEffectID, glassEffectUnion, glassEffectTransition, GlassButtonStyle) | iOS 26.0 / iPadOS 26.0 / Mac Catalyst 26.0 / macOS 26.0 / tvOS 26.0 / watchOS 26.0 (no visionOS) | 2026-09-08 | Unchanged in the 2026 cycle: nothing renamed or deprecated. Glass has exactly .regular / .clear / .identity plus .tint(_:) and .interactive(_:). Default shape is Capsule (DefaultGlassEffectShape). |
 | SwiftUI @Animatable / @AnimatableIgnored macros | Xcode 26 toolchain (WWDC25); declared availability iOS 13.0 / iPadOS 13.0 / Mac Catalyst 13.0 / macOS 10.15 / tvOS 13.0 / visionOS 1.0 / watchOS 6.0 | 2026-09-08 | Toolchain requirement, not a deployment-target requirement. |
 | SwiftUI hover APIs (hoverEffect, HoverEffect, onHover, onContinuousHover, pointerStyle) | hoverEffect iOS/iPadOS/Mac Catalyst 13.4, tvOS 16.0, visionOS 1.0 - macOS UNAVAILABLE; onHover iOS 13.4 / macOS 10.15; onContinuousHover iOS 17.0 / macOS 14.0; pointerStyle macOS 15.0 / visionOS 2.0 | 2026-09-08 |  |

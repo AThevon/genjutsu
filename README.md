@@ -294,6 +294,22 @@ The skills speak in two registers:
 
 ---
 
+## Contributing
+
+The most valuable contribution to this repo is **"this claim is wrong, here is the primary
+source"**. It is a knowledge repository: a wrong sentence does not throw an error, it becomes
+wrong code in somebody else's project.
+
+- [CONTRIBUTING.md](./CONTRIBUTING.md) - the evidence standard, what not to touch, how to run the checks
+- [PLATFORM-CONTRACT.md](./PLATFORM-CONTRACT.md) - what a platform family must answer, what owning one costs, and how one gets removed
+- [`skills/_jutsu/VERSIONS.md`](./skills/_jutsu/VERSIONS.md) - what every version-sensitive claim was checked against and when. Rows marked `VERIFY-NEEDED` are the open work.
+
+One person currently maintains roughly 736 API symbols across six targets. If you work in
+Compose, SwiftUI or motion-heavy web, owning one family's quarterly re-derivation is the single
+most useful thing anyone could do here.
+
+---
+
 ## Credits
 
 Built by studying the best creative coding resources available.

@@ -3,3 +3,9 @@ __pycache__/
 .DS_Store
 node_modules/
 dist/
+
+# Local working documents. Design notes, planning and agent scratch never ship:
+# this is a public plugin, and internal process docs are not part of it.
+docs/superpowers/
+.claude/settings.local.json
+*.local.md

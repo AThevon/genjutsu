@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question about using genjutsu
+    url: https://github.com/AThevon/genjutsu/discussions/categories/q-a
+    about: How to phrase a request, which pipeline to use, what to expect. Not an issue.
+  - name: An idea, or a platform you want covered
+    url: https://github.com/AThevon/genjutsu/discussions/categories/ideas
+    about: Read PLATFORM-CONTRACT.md first if it is a new platform family. This is also where you offer to own one.
+  - name: Show what you cast
+    url: https://github.com/AThevon/genjutsu/discussions/categories/show-and-tell
+    about: Something you built with it.
+  - name: Security vulnerability
+    url: https://github.com/AThevon/genjutsu/security/advisories/new
+    about: Private disclosure. Never open a public issue for this.

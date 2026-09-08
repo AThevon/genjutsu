@@ -149,13 +149,14 @@ projects still have the old name and nothing is broken.
 ### Notes
 
 - No new platform, framework or language. No pipeline restructuring. No sub-skill renames.
-- Known follow-ups, found while verifying and deliberately left out of this release: GSAP 3.15
-  deprecated `yoyoEase` for `easeReverse`; three r182 deprecated `PCFSoftShadowMap` for
-  `PCFShadowMap`; `swiftui-motion` does not mention `navigationTransition` /
-  `matchedTransitionSource` (iOS 18+); `desktop-principles` does not mention `.pointerStyle`
-  (macOS 15+); the `MaterialShapes` list is incomplete; Motion 13.2 added a `motion/three`
-  entry point; the Compose "since 1.6+/1.7+" markers read as "this is new" against a 1.12.0
-  baseline.
+- Known follow-ups, found while verifying and deliberately left out of this release: three r182
+  deprecated `PCFSoftShadowMap` for `PCFShadowMap`; `swiftui-motion` does not mention
+  `navigationTransition` / `matchedTransitionSource` (iOS 18+); the `MaterialShapes` list is
+  incomplete; Motion 13.2 added a `motion/three` entry point; the Compose "since 1.6+/1.7+"
+  markers read as "this is new" against a 1.12.0 baseline. Three items that were on this list
+  when it was first drafted are not on it any more: `.pointerStyle` and `.onContinuousHover`
+  landed in `desktop-principles` as part of this release's Apple corrections, and `yoyoEase`
+  turned out not to appear anywhere in the tree, so there was nothing to deprecate.
 
 ## v3.3.0 - 2026-07-31
 

@@ -1,0 +1,84 @@
+name: A claim in a skill is wrong
+description: Something genjutsu tells the agent does not match reality - a symbol that does not exist, a version that is off, support claimed where there is none.
+title: "[wrong] "
+labels: ["correctness"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is the most valuable thing you can send. A wrong sentence here does not throw an
+        error, it becomes wrong code in somebody else's project.
+
+        One rule: **a correction needs a primary source.** Not a blog post, not a model's output.
+        The acceptable sources per platform are listed in
+        [CONTRIBUTING.md](https://github.com/AThevon/genjutsu/blob/main/CONTRIBUTING.md#the-evidence-standard).
+
+  - type: input
+    id: location
+    attributes:
+      label: File and line
+      description: Where it reads today.
+      placeholder: skills/_jutsu/compose-motion/SKILL.md:41
+    validations:
+      required: true
+
+  - type: dropdown
+    id: family
+    attributes:
+      label: Family
+      options:
+        - Web (gsap, motion, css-native, threejs-r3f, canvas-generative)
+        - Android (compose-motion, compose-graphics, compose-multiplatform)
+        - Apple (swiftui-motion, swiftui-graphics)
+        - Foundations (motion, mobile, desktop, design-audit)
+        - The orchestrators (cast, paint)
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: What it says now
+      description: Paste the exact text, not a paraphrase.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: truth
+    attributes:
+      label: What is actually true
+      description: If you know the replacement text, write it as it should appear in the file.
+    validations:
+      required: true
+
+  - type: input
+    id: source
+    attributes:
+      label: Primary source
+      description: >
+        A URL. MDN browser-compat-data or caniuse for web support, the npm registry or the
+        library's release notes for packages, api/current.txt in androidx-main for Compose,
+        developer.apple.com for SwiftUI. If you established it by testing rather than by
+        citation, put "tested" here and describe the test below.
+      placeholder: https://github.com/androidx/androidx/blob/androidx-main/compose/animation/animation-core/api/current.txt
+    validations:
+      required: true
+
+  - type: textarea
+    id: method
+    attributes:
+      label: How did you establish this?
+      description: >
+        Optional, but it is what separates a real correction from a plausible one. Be specific
+        about what your check proved. A symbol resolving in your IDE is not proof it ships. Code
+        compiling is not proof it behaves as documented. The worst errors throw nothing at all.
+
+  - type: checkboxes
+    id: ack
+    attributes:
+      label: Before submitting
+      options:
+        - label: The source above is a primary source, not a blog post, a forum answer, or an AI's output.
+          required: true
