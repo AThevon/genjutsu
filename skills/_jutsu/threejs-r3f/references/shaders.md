@@ -98,6 +98,15 @@ const WaveMaterial = shaderMaterial(
   `
 )
 
+// TypeScript (R3F v9): the global JSX namespace is gone — augment ThreeElements instead
+import { extend, type ThreeElement } from '@react-three/fiber'
+
+declare module '@react-three/fiber' {
+  interface ThreeElements {
+    waveMaterial: ThreeElement<typeof WaveMaterial>
+  }
+}
+
 extend({ WaveMaterial })
 
 // Usage in JSX:

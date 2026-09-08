@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 Adrien Thevon
+Copyright (c) 2024 Next Level Builder
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,14 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-## Third-party components
-
-`skills/_jutsu/ui-ux-pro-max/` vendors the dataset, the `references/` and the Python
-search engine of [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill),
-which is MIT licensed, Copyright (c) 2024 Next Level Builder. Their permission notice is
-reproduced verbatim in `skills/_jutsu/ui-ux-pro-max/LICENSE-upstream.txt` and governs
-those files. The copyright above covers the rest of this repository, including that
-sub-skill's own `SKILL.md`, which is genjutsu-authored.

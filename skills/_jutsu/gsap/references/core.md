@@ -81,8 +81,11 @@ Format: `"type.direction"`, e.g. `"power2.out"`, `"elastic.inOut"`, `"back.in"`.
 Common types:
 - `none` (linear), `power1`-`power4`, `back`, `elastic`, `bounce`, `circ`, `expo`, `sine`
 - `steps(n)` -> stepped animation
-- `"slow(0.7, 0.7, false)"` -> slow-mo effect
-- Custom: `CustomEase.create("myEase", "M0,0 C0.5,0 0.5,1 1,1")`
+- `"slow(0.7, 0.7, false)"` -> slow-mo effect. **Not in core** — EasePack:
+  `import { EasePack } from "gsap/EasePack"; gsap.registerPlugin(EasePack);`
+- `"rough({ strength: 1, points: 20 })"` and `"expoScale(...)"` -> also EasePack, same registration
+- Custom: `CustomEase.create("myEase", "M0,0 C0.5,0 0.5,1 1,1")`. **Not in core** —
+  `import { CustomEase } from "gsap/CustomEase"; gsap.registerPlugin(CustomEase);` (same for CustomBounce / CustomWiggle)
 
 ## Stagger
 

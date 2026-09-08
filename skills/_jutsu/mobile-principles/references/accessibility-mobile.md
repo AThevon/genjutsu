@@ -153,7 +153,7 @@ Switch Access works if you respect standard focusable semantics (`Modifier.focus
 }
 ```
 
-Large click targets (44px min, WCAG 2.5.5), no hover-only affordances, no drag-only interactions without a button fallback.
+Large click targets (WCAG 2.5.8 Target Size (Minimum) is the **AA** bar at 24x24 CSS px, with a spacing exception; WCAG 2.5.5 Target Size (Enhanced) is the **AAA** bar at 44x44 CSS px - design to 44, audit against 24), no hover-only affordances, no drag-only interactions without a button fallback.
 
 ---
 

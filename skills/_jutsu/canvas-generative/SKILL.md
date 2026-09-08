@@ -3,6 +3,10 @@ name: canvas-generative
 description: "Algorithmic and generative art with Canvas 2D - particles, flow fields, noise, fractals, L-systems."
 ---
 
+> **Version-sensitive.** Every API name, SDK gate and browser-support claim below was
+> verified on **2026-09-08** against primary sources. What against, and when, is in
+> `_jutsu/VERSIONS.md`. If that date is old, re-verify before acting on a version number.
+
 # Canvas Generative
 
 > Algorithmic and generative art with Canvas 2D.

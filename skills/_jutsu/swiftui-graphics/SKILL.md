@@ -3,6 +3,10 @@ name: swiftui-graphics
 description: "Advanced SwiftUI visuals - Metal shaders (.colorEffect, .layerEffect, .distortionEffect), .visualEffect, Liquid Glass (iOS 26), Canvas, holographic and CRT effects."
 ---
 
+> **Version-sensitive.** Every API name, SDK gate and browser-support claim below was
+> verified on **2026-09-08** against primary sources. What against, and when, is in
+> `_jutsu/VERSIONS.md`. If that date is old, re-verify before acting on a version number.
+
 # SwiftUI Graphics
 
 > Advanced SwiftUI visuals: Metal shaders, visual effects, Liquid Glass, Canvas.
@@ -30,7 +34,7 @@ description: "Advanced SwiftUI visuals - Metal shaders (.colorEffect, .layerEffe
 
 ## Metal Shaders Intro
 
-SwiftUI binds to Metal Shading Language (MSL) via three modifiers shipped in iOS 17: `.colorEffect`, `.distortionEffect`, `.layerEffect`. You author a `.metal` file in your app target, mark functions with the `[[ stitchable ]]` attribute, and SwiftUI auto-generates the Swift binding via `ShaderLibrary.<functionName>(...)`. One library per app target. Shaders run on the GPU at native resolution; arguments are passed as `.float`, `.float2`, `.color`, `.image` from Swift. iOS 17+ only; for older targets, fall back to gradients, blur, or `Canvas`.
+SwiftUI binds to Metal Shading Language (MSL) via three modifiers shipped in iOS 17: `.colorEffect`, `.distortionEffect`, `.layerEffect`. You author a `.metal` file in your app target, mark functions with the `[[ stitchable ]]` attribute, and SwiftUI auto-generates the Swift binding via `ShaderLibrary.<functionName>(...)`. One library per app target. Shaders run on the GPU at native resolution; arguments are passed as `.float`, `.float2`, `.color`, `.image` from Swift. Availability: **iOS 17.0+, iPadOS 17.0+, Mac Catalyst 17.0+, macOS 14.0+, tvOS 17.0+, visionOS 1.0+ - not watchOS**. Below those, fall back to gradients, blur, or `Canvas`.
 
 The three slots differ by what data they receive:
 - `.colorEffect`: gets `(position, color)`, returns transformed color. No neighbor sampling.
@@ -207,21 +211,26 @@ func scale(for y: CGFloat) -> CGFloat {
 System glassmorphism with adaptive depth and morphing transitions. Built into the OS, optimized at the system level.
 
 ```swift
-@Namespace var glassNS
-
 struct HeroCard: View {
+    // @Namespace is a property wrapper - it has to live inside the View, not at file scope.
+    @Namespace private var glassNS
+
     var body: some View {
-        if #available(iOS 26.0, *) {
-            Image("hero")
-                .resizable()
-                .scaledToFit()
-                .glassEffect(.regular)
-                .glassEffectID("hero", in: glassNS)
+        if #available(iOS 26.0, macOS 26.0, *) {
+            // glassEffectID only does anything inside a GlassEffectContainer.
+            GlassEffectContainer(spacing: 20.0) {
+                Label("Hero", systemImage: "sparkles")
+                    .font(.title2)
+                    .padding()
+                    // Default shape is a Capsule (DefaultGlassEffectShape); pass `in:` for anything else.
+                    .glassEffect(.regular, in: .rect(cornerRadius: 24))
+                    .glassEffectID("hero", in: glassNS)
+            }
         } else {
-            Image("hero")
-                .resizable()
-                .scaledToFit()
-                .background(.ultraThinMaterial)
+            Label("Hero", systemImage: "sparkles")
+                .font(.title2)
+                .padding()
+                .background(.ultraThinMaterial, in: .rect(cornerRadius: 24))
         }
     }
 }

@@ -3,10 +3,22 @@ name: threejs-r3f
 description: "Three.js and React Three Fiber sub-skill - 3D scenes, shaders, postprocessing."
 ---
 
+> **Version-sensitive.** Every API name, SDK gate and browser-support claim below was
+> verified on **2026-09-08** against primary sources. What against, and when, is in
+> `_jutsu/VERSIONS.md`. If that date is old, re-verify before acting on a version number.
+
 # Three.js & React Three Fiber
 
 > 3D on the web. Three.js is the engine, R3F is the React renderer.
 > Concise rules here. Deep-dive in `references/`.
+>
+> **Versions:** `three` r185 (`0.185.x`) · `@react-three/fiber` 9.x · `@react-three/drei` 10.x · `@react-three/postprocessing` 3.x.
+> **R3F 9 is React 19 only** — its declared peer range is `react` / `react-dom` `>=19 <19.3` (drei 10 asks `^19`). React 18 projects must stay on R3F 8 + drei 9. Check the installed React major before scaffolding.
+> **Renderers:** `WebGLRenderer` is still R3F's default. `WebGPURenderer` + TSL is shipped (not flagged) and self-falls-back to WebGL 2, but three's docs call it "the new alternative of `WebGLRenderer`", not the default. Opt in with an async `gl` callback:
+> ```tsx
+> import * as THREE from 'three/webgpu'
+> <Canvas gl={async (props) => { const r = new THREE.WebGPURenderer(props as any); await r.init(); return r }} />
+> ```
 
 ---
 
@@ -123,7 +135,8 @@ import { BlendFunction } from 'postprocessing'
 | `useTexture` + KTX2 | Compressed GPU textures (1/4 VRAM) |
 | `frameloop="demand"` on Canvas | Only render when something changes (static scenes) |
 | `invalidate()` from useThree | Trigger a render in demand mode |
-| Offscreen canvas (`<Canvas eventSource={...}>`) | Run rendering off main thread |
+| `<AdaptiveDpr pixelated />` + `<AdaptiveEvents />` (drei) | Drop resolution and raycasting while the camera moves, restore when idle |
+| `<Bvh>` (drei) | Heavy scenes that need fast raycasting / hover picking |
 
 **Target metrics:** < 100 draw calls, < 1M triangles, 60fps on mid-range GPU.
 Use `stats-gl` or `r3f-perf` to monitor.

@@ -3,6 +3,10 @@ name: design-audit
 description: "Design audit checklist - motion gaps, accessibility, color consistency, responsive, performance."
 ---
 
+> **Version-sensitive.** Every API name, SDK gate and browser-support claim below was
+> verified on **2026-09-08** against primary sources. What against, and when, is in
+> `_jutsu/VERSIONS.md`. If that date is old, re-verify before acting on a version number.
+
 # Design Audit
 
 > The final checkpoint. Loaded by `/genjutsu:paint` at the end of the pipeline.
@@ -10,14 +14,58 @@ description: "Design audit checklist - motion gaps, accessibility, color consist
 
 ---
 
+## How these greps are run
+
+**Define these two helpers first, in the same Bash call as the greps below.**
+
+Every grep in this file used to end in `src/`. A default Next.js app-router or Nuxt 3
+project has no `src/` at all, so those greps matched nothing, and the pipeline read
+"no findings" as a passing gate immediately before delivery. The audit reported a clean
+bill of health on code it had never read.
+
+```bash
+# Recursion, root and noise directories in one place. The root is the project, not a
+# guessed subdirectory; --include already narrows by file type and the excludes carry
+# the rest. Note the arguments are passed as "$@", never through an unquoted variable:
+# zsh does not word-split those, so the usual $SRC / $EXCL trick silently collapses
+# into a single bogus argument.
+gj() {
+  grep -rn \
+    --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=.next \
+    --exclude-dir=.nuxt --exclude-dir=.output --exclude-dir=.svelte-kit \
+    --exclude-dir=.astro --exclude-dir=dist --exclude-dir=build --exclude-dir=out \
+    --exclude-dir=coverage --exclude-dir=vendor --exclude-dir=.venv \
+    "$@" .
+}
+
+# Same, for the inventory greps: -h drops the filename and -o prints only the match,
+# so the output can be counted.
+gjo() {
+  grep -rhoE \
+    --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=.next \
+    --exclude-dir=.nuxt --exclude-dir=.output --exclude-dir=.svelte-kit \
+    --exclude-dir=.astro --exclude-dir=dist --exclude-dir=build --exclude-dir=out \
+    --exclude-dir=coverage --exclude-dir=vendor --exclude-dir=.venv \
+    "$@" .
+}
+```
+
+If the project is a monorepo and the scan is too broad, narrow it by appending a path:
+`gj ':hover' --include='*.css' packages/web` works, because the trailing `.` is only a
+default and grep accepts several roots.
+
+---
+
 ## Motion Gap Analysis
 
-Run these greps against the project to detect missing animations.
+Run these greps against the project to detect missing animations. Single-file component
+formats (`.vue`, `.svelte`, `.astro`) carry their styles inline, so they are included
+wherever a CSS or JSX pattern is being looked for.
 
 ### Conditional renders without AnimatePresence
 
 ```bash
-grep -rn '{.*&&\s*<\|{.*?\s*:\s*<\|{.*ternary.*<' --include='*.tsx' --include='*.jsx' src/ | grep -v 'AnimatePresence'
+gj '{.*&&\s*<\|{.*?\s*:\s*<\|{.*ternary.*<' --include='*.vue' --include='*.svelte' --include='*.astro' --include='*.tsx' --include='*.jsx' | grep -v 'AnimatePresence'
 ```
 
 Look for: `{show && <Component />}` or ternary renders without a wrapping `<AnimatePresence>`. Every conditional mount/unmount needs exit animation support.
@@ -25,7 +73,7 @@ Look for: `{show && <Component />}` or ternary renders without a wrapping `<Anim
 ### Hover states without transition
 
 ```bash
-grep -rn ':hover' --include='*.css' --include='*.scss' --include='*.module.css' src/ | grep -vE 'transition|animation'
+gj ':hover' --include='*.vue' --include='*.svelte' --include='*.astro' --include='*.css' --include='*.scss' --include='*.module.css' | grep -vE 'transition|animation'
 ```
 
 Every `:hover` rule must have a corresponding `transition` on the base selector. Instant state flips feel broken.
@@ -33,7 +81,7 @@ Every `:hover` rule must have a corresponding `transition` on the base selector.
 ### Dynamic lists without stagger
 
 ```bash
-grep -rn '\.map(' --include='*.tsx' --include='*.jsx' src/ | grep -vE 'stagger|delay.*index|variants|transition.*delay'
+gj '\.map(' --include='*.vue' --include='*.svelte' --include='*.astro' --include='*.tsx' --include='*.jsx' | grep -vE 'stagger|delay.*index|variants|transition.*delay'
 ```
 
 Lists rendered via `.map()` should stagger their entrance. Simultaneous pop-in looks cheap.
@@ -41,7 +89,7 @@ Lists rendered via `.map()` should stagger their entrance. Simultaneous pop-in l
 ### Style changes without transition
 
 ```bash
-grep -rn 'style={{' --include='*.tsx' --include='*.jsx' src/ | grep -vE 'transition|transform|opacity'
+gj 'style={{' --include='*.vue' --include='*.svelte' --include='*.astro' --include='*.tsx' --include='*.jsx' | grep -vE 'transition|transform|opacity'
 ```
 
 Inline style changes (e.g., dynamic background, color) need a CSS transition or motion wrapper.
@@ -49,7 +97,7 @@ Inline style changes (e.g., dynamic background, color) need a CSS transition or 
 ### Entries without corresponding exits
 
 ```bash
-grep -rn 'initial=' --include='*.tsx' --include='*.jsx' src/ | grep -v 'exit='
+gj 'initial=' --include='*.vue' --include='*.svelte' --include='*.astro' --include='*.tsx' --include='*.jsx' | grep -v 'exit='
 ```
 
 Every Framer Motion `initial` + `animate` should have an `exit` prop when inside `AnimatePresence`.
@@ -64,7 +112,7 @@ A project with animation MUST have at least one global handler matching its stac
 
 ```bash
 # Web
-grep -rn 'prefers-reduced-motion' --include='*.css' --include='*.scss' --include='*.ts' --include='*.tsx' --include='*.js' --include='*.jsx' src/ 2>/dev/null
+gj 'prefers-reduced-motion' --include='*.css' --include='*.scss' --include='*.ts' --include='*.vue' --include='*.svelte' --include='*.astro' --include='*.tsx' --include='*.js' --include='*.jsx' 2>/dev/null
 
 # SwiftUI / UIKit
 grep -rn 'accessibilityReduceMotion\|isReduceMotionEnabled\|reduceMotionStatusDidChangeNotification' --include='*.swift' . 2>/dev/null
@@ -84,7 +132,7 @@ grep -rn 'LocalAccessibilityManager\|isReduceTransitions\|TRANSITION_ANIMATION_S
 ### Focus visible on all interactives
 
 ```bash
-grep -rn 'outline:\s*none\|outline:\s*0' --include='*.css' --include='*.scss' --include='*.module.css' src/
+gj 'outline:\s*none\|outline:\s*0' --include='*.vue' --include='*.svelte' --include='*.astro' --include='*.css' --include='*.scss' --include='*.module.css'
 ```
 
 Any `outline: none` MUST be paired with a custom `:focus-visible` style. Removing focus rings without replacement is a WCAG failure.
@@ -92,7 +140,7 @@ Any `outline: none` MUST be paired with a custom `:focus-visible` style. Removin
 ### Semantic HTML -- no clickable divs
 
 ```bash
-grep -rn 'onClick' --include='*.tsx' --include='*.jsx' src/ | grep -E '<div|<span' | grep -v 'role='
+gj 'onClick' --include='*.vue' --include='*.svelte' --include='*.astro' --include='*.tsx' --include='*.jsx' | grep -E '<div|<span' | grep -v 'role='
 ```
 
 Every `<div onClick>` or `<span onClick>` must either be a `<button>`, an `<a>`, or have `role="button"` + `tabIndex` + `onKeyDown`.
@@ -100,7 +148,7 @@ Every `<div onClick>` or `<span onClick>` must either be a `<button>`, an `<a>`,
 ### ARIA on decorative animations
 
 ```bash
-grep -rn '<motion\.\|<animated\.\|<Lottie\|<Canvas' --include='*.tsx' --include='*.jsx' src/ | grep -v 'aria-hidden'
+gj '<motion\.\|<animated\.\|<Lottie\|<Canvas' --include='*.vue' --include='*.svelte' --include='*.astro' --include='*.tsx' --include='*.jsx' | grep -v 'aria-hidden'
 ```
 
 Purely decorative animations (background particles, ambient motion, Lottie illustrations) must have `aria-hidden="true"` to avoid polluting screen readers.
@@ -112,7 +160,7 @@ Purely decorative animations (background particles, ambient motion, Lottie illus
 ### Layout thrashing -- animating layout properties
 
 ```bash
-grep -rn 'transition.*\(width\|height\|top\|left\|right\|bottom\|margin\|padding\)' --include='*.css' --include='*.scss' --include='*.module.css' src/
+gj 'transition.*\(width\|height\|top\|left\|right\|bottom\|margin\|padding\)' --include='*.vue' --include='*.svelte' --include='*.astro' --include='*.css' --include='*.scss' --include='*.module.css'
 ```
 
 Animating layout properties triggers reflow every frame. Replace with `transform: translate/scale` and `opacity`.
@@ -120,7 +168,7 @@ Animating layout properties triggers reflow every frame. Replace with `transform
 ### Excessive paint triggers
 
 ```bash
-grep -rn 'will-change' --include='*.css' --include='*.scss' --include='*.module.css' src/
+gj 'will-change' --include='*.vue' --include='*.svelte' --include='*.astro' --include='*.css' --include='*.scss' --include='*.module.css'
 ```
 
 `will-change` should be rare and scoped. If more than ~5 elements use it permanently, the GPU memory cost outweighs the benefit. Apply it dynamically (add on hover/focus, remove on animation end).
@@ -150,7 +198,7 @@ If the project only uses fades, slides, and springs, native APIs (Compose `anima
 ### requestAnimationFrame vs setTimeout
 
 ```bash
-grep -rn 'setTimeout\|setInterval' --include='*.ts' --include='*.tsx' --include='*.js' --include='*.jsx' src/ | grep -iE 'anim\|motion\|scroll\|position\|style\|transform'
+gj 'setTimeout\|setInterval' --include='*.ts' --include='*.vue' --include='*.svelte' --include='*.astro' --include='*.tsx' --include='*.js' --include='*.jsx' | grep -iE 'anim\|motion\|scroll\|position\|style\|transform'
 ```
 
 Animation loops must use `requestAnimationFrame`. `setTimeout`/`setInterval` causes frame drops and doesn't pause in background tabs.
@@ -162,7 +210,8 @@ Animation loops must use `requestAnimationFrame`. `setTimeout`/`setInterval` cau
 ### Duration consistency
 
 ```bash
-grep -rnoE 'duration[:"'\''= ]+[0-9.]+' --include='*.tsx' --include='*.jsx' --include='*.ts' --include='*.css' --include='*.scss' src/ | sort -t: -k3 | uniq -c -f2 | sort -rn
+gjo 'duration[:"'\''= ]+[0-9.]+' --include='*.vue' --include='*.svelte' --include='*.astro' --include='*.tsx' --include='*.jsx' --include='*.ts' --include='*.css' --include='*.scss' \
+  | sed -E 's/^duration[:"'\''= ]+//' | tr -d ' ' | sort -n | uniq -c | sort -rn
 ```
 
 A well-designed project uses 3-5 distinct durations max (e.g., 0.15, 0.25, 0.35, 0.5). If you see 15 different values, extract them into a motion tokens file.
@@ -173,7 +222,7 @@ Run all 3 greps to inventory easing values across the codebase:
 
 ```bash
 # Web (CSS / JS / TSX)
-grep -rnoE 'ease[A-Za-z]*|cubic-bezier\([^)]+\)|spring\([^)]*\)' --include='*.tsx' --include='*.jsx' --include='*.ts' --include='*.css' --include='*.scss' src/ 2>/dev/null
+gjo 'ease[A-Za-z]*|cubic-bezier\([^)]+\)|spring\([^)]*\)' --include='*.vue' --include='*.svelte' --include='*.astro' --include='*.tsx' --include='*.jsx' --include='*.ts' --include='*.css' --include='*.scss' 2>/dev/null
 
 # SwiftUI
 grep -rnoE '\.spring\([^)]*\)|\.snappy|\.bouncy|\.smooth|\.linear\(|\.easeIn|\.easeOut|\.interpolatingSpring' --include='*.swift' . 2>/dev/null
@@ -192,7 +241,7 @@ Scan for motion components and verify that:
 - Enter has full choreography (translate + opacity + scale), exit is simpler (opacity only or opacity + slight scale)
 
 ```bash
-grep -A5 'exit=' --include='*.tsx' --include='*.jsx' -rn src/
+gj -A5 'exit=' --include='*.vue' --include='*.svelte' --include='*.astro' --include='*.tsx' --include='*.jsx'
 ```
 
 Compare `animate` and `exit` props side by side. Asymmetric timing (fast exit, slow enter) is correct. The reverse is wrong.
@@ -206,7 +255,7 @@ Pick the subsection matching the project stack.
 ### Compose (Android / Multiplatform)
 - [ ] Run **Layout Inspector** (Android Studio): inspect recompositions, identify components recomposing on every state change.
 - [ ] Run **Macrobenchmark** (`androidx.benchmark.macro`): measure frame timing on a real device under representative scrolling / animation load. Target: <16.67ms per frame at 60fps, <8.33ms at 120fps.
-- [ ] Inspect **recomposition counts** via `Modifier.recomposeHighlighter()` (Compose 1.6+) or Layout Inspector.
+- [ ] Inspect **recomposition counts**: Layout Inspector > Component Tree > View Options > **Show Recomposition Counts** (API 29+, Compose 1.2+). Reset the counters before each interaction so the numbers mean something. There is no `Modifier.recomposeHighlighter` in androidx - it is a sample you vendor into a debug source set.
 - [ ] Generate **Baseline Profiles** (`BaselineProfileGenerator`) for production builds.
 - [ ] Verify `Modifier.semantics` is set on custom components (TalkBack support).
 

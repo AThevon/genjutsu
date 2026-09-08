@@ -1,6 +1,6 @@
 # Framer Motion — API Reference
 
-> `motion` v11+ — `import { motion, AnimatePresence, ... } from "motion/react"`
+> `motion` v13 (formerly `framer-motion`) — `npm install motion`, then `import { motion, AnimatePresence, ... } from "motion/react"`
 
 ## motion component — Props
 
@@ -107,10 +107,10 @@ transition={{
 }}
 
 // Orchestration in variants
+// staggerChildren / staggerDirection are deprecated since Motion 12.22.
+// import { stagger } from "motion/react"
 transition={{
-  staggerChildren: 0.08,
-  delayChildren: 0.2,
-  staggerDirection: -1,       // reverse
+  delayChildren: stagger(0.08, { startDelay: 0.2, from: "last" }), // from: "last" = reverse
   when: "beforeChildren",     // or "afterChildren"
 }}
 ```

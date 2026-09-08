@@ -3,6 +3,10 @@ name: mobile-principles
 description: "Mobile-specific UX principles - touch targets, hover-less doctrine, thumb zones, safe areas, gestures, mobile perf budgets. Cross-platform (web mobile, iOS, Android)."
 ---
 
+> **Version-sensitive.** Every API name, SDK gate and browser-support claim below was
+> verified on **2026-09-08** against primary sources. What against, and when, is in
+> `_jutsu/VERSIONS.md`. If that date is old, re-verify before acting on a version number.
+
 # Mobile Principles
 
 > Touch-first UX context. Loaded when mobile is detected (web mobile, iOS, Android).
@@ -12,11 +16,12 @@ description: "Mobile-specific UX principles - touch targets, hover-less doctrine
 
 ## Touch Targets
 
-| Platform | Minimum | Recommended | Spec |
-|---|---|---|---|
-| Apple iOS | 44pt | 44pt + 8pt spacing | Apple HIG |
-| Android | 48dp | 48dp + 8dp spacing | Material Design |
-| Web mobile | 44px | 44px + 8px spacing | WCAG 2.5.5 |
+| Platform | Recommended (design to this) | Hard floor | Spacing | Spec |
+|---|---|---|---|---|
+| Apple iOS / iPadOS | 44x44 pt | 28x28 pt | ~12 pt padding around bezeled controls, ~24 pt around unbezeled ones | Apple HIG, Accessibility > Mobility |
+| Apple watchOS | 44x44 pt | 28x28 pt | as above | Apple HIG |
+| Android | 48x48 dp | 48x48 dp | 8 dp between targets | Material Design 3 |
+| Web mobile | 44x44 CSS px | 24x24 CSS px | 24 px un-overlapped spacing satisfies the AA exception | WCAG 2.5.5 Target Size (Enhanced), **AAA** = 44x44; WCAG 2.5.8 Target Size (Minimum), **AA** = 24x24 |
 
 **Rule of thumb:** any tap target smaller than the platform minimum is a usability bug, period.
 The hit area can extend beyond the visible glyph (use padding, `hitSlop`, or a transparent inner spacer), but the *interactive* surface must reach the minimum. Spacing matters as much as size: two 44pt buttons touching edges are still mistappable.
@@ -184,7 +189,7 @@ val spec = if (reduceMotion) snap() else tween<Float>(durationMillis = 300)
 
 The five gestures users already know. Reusing them is free UX; reinventing them is friction.
 
-- **Swipe-back:** iOS edge-swipe from the left to pop the navigation stack. Never override; mirror it on Android via predictive back (Android 14+).
+- **Swipe-back:** iOS edge-swipe from the leading edge to pop the navigation stack. Never override; mirror it on Android via predictive back, available since **Android 13 (API 33)** and opted into with `android:enableOnBackInvokedCallback="true"` plus `OnBackPressedCallback` / `PredictiveBackHandler`. On Android 13-14 the animations were behind a developer option; from **Android 15** the system back-to-home / cross-activity / cross-task animations show automatically for opted-in apps.
 - **Pull-to-refresh:** downward drag at the top of a scroll surface to refetch. Standard on feeds, mail, lists.
 - **Drag-to-dismiss:** modal sheets and image viewers close when dragged downward past a threshold (typically 100-150pt).
 - **Pinch-to-zoom:** two-finger spread/pinch on images, maps, and zoomable canvases. Respect minimum/maximum scale.
@@ -225,7 +230,11 @@ The five gestures users already know. Reusing them is free UX; reinventing them 
 ### 2. Sub-minimum touch targets
 
 ```kotlin
-// BAD - 32dp icon button, mistappable, fails Material guideline
+// BAD - looks 32dp and reads as a 32dp target to whoever writes the next one.
+// Material 3's IconButton actually applies minimumInteractiveComponentSize() itself, so
+// the touch target stays 48dp here - but only because the component rescues you, and only
+// while LocalMinimumInteractiveComponentEnforcement is on. On a custom Box or Row with the
+// same modifier, the target really is 32dp and really is mistappable.
 IconButton(
   onClick = onDelete,
   modifier = Modifier.size(32.dp),
@@ -283,7 +292,8 @@ ScrollView { content }
 
 ## Sources
 
-- Steven Hoober, "Designing for Touch" (mobile thumb zones research)
+- Steven Hoober, "How Do Users Really Hold Mobile Devices?", UXmatters, 18 Feb 2013 (n=1,333 observed: 49% one-handed, 36% cradled, 15% two-handed): https://www.uxmatters.com/mt/archives/2013/02/how-do-users-really-hold-mobile-devices.php
 - Apple Human Interface Guidelines (iOS): https://developer.apple.com/design/human-interface-guidelines/
 - Material Design (Android): https://m3.material.io/foundations/layout/canonical-layouts/overview
-- WCAG 2.5.5 Target Size: https://www.w3.org/WAI/WCAG21/Understanding/target-size.html
+- WCAG 2.5.8 Target Size (Minimum), Level AA, 24x24 CSS px: https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html
+- WCAG 2.5.5 Target Size (Enhanced), Level AAA, 44x44 CSS px: https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced.html

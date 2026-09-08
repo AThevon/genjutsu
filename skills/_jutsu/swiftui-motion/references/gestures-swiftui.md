@@ -86,7 +86,7 @@ Image("photo")
 
 Rare on phones (one-handed), more common on iPad and visionOS. Combine with `MagnifyGesture` via `.simultaneously(with:)` for a photo-editor-style canvas.
 
-### SpatialTapGesture (iOS 17+)
+### SpatialTapGesture (iOS 16+, macOS 13+, watchOS 9+)
 
 ```swift
 .gesture(

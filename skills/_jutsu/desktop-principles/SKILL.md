@@ -3,6 +3,10 @@ name: desktop-principles
 description: "Desktop-specific UX principles - hover states, pointer precision, keyboard shortcuts, multi-window, focus management. Covers macOS, Windows, Linux, web desktop."
 ---
 
+> **Version-sensitive.** Every API name, SDK gate and browser-support claim below was
+> verified on **2026-09-08** against primary sources. What against, and when, is in
+> `_jutsu/VERSIONS.md`. If that date is old, re-verify before acting on a version number.
+
 # Desktop Principles
 
 > Desktop UX context. Loaded when desktop is detected (macOS, Windows, Linux desktop, web desktop).
@@ -31,7 +35,14 @@ Hover is the primary affordance signal on desktop, the inverse of mobile. A poin
 }
 ```
 
-**SwiftUI - .onHover for macOS, .hoverEffect for iPadOS:**
+**SwiftUI - `.onHover` is the portable hover signal; `.hoverEffect` is iOS/iPadOS-only and must be `#if`-gated:**
+
+| Modifier | Availability | Notes |
+|---|---|---|
+| `.onHover { Bool }` | iOS 13.4+, iPadOS 13.4+, Mac Catalyst 13.4+, macOS 10.15+, visionOS 1.0+ | the one that works on macOS |
+| `.onContinuousHover { HoverPhase }` | iOS 17.0+, macOS 14.0+, tvOS 17.0+, visionOS 1.0+ | pointer position, not just in/out |
+| `.hoverEffect(_:)` | iOS 13.4+, iPadOS 13.4+, Mac Catalyst 13.4+, tvOS 16.0+, visionOS 1.0+ - **macOS unavailable** | compile error in a macOS target |
+| `.pointerStyle(_:)` | macOS 15.0+, visionOS 2.0+ | change the macOS cursor over a view |
 ```swift
 struct ToolbarButton: View {
   @State private var hovering = false
@@ -42,7 +53,18 @@ struct ToolbarButton: View {
       .background(hovering ? Color.gray.opacity(0.15) : .clear)
       .onHover { hovering = $0 }
       .animation(.easeOut(duration: 0.12), value: hovering)
-      .hoverEffect(.highlight) // iPadOS pointer support, no-op on macOS
+      .pointerHighlight() // see the extension below - .hoverEffect is UNAVAILABLE on macOS
+  }
+}
+
+// `.hoverEffect` is @available(macOS, unavailable). Gate it with #if, never with #available.
+extension View {
+  @ViewBuilder func pointerHighlight() -> some View {
+    #if os(macOS)
+    self
+    #else
+    self.hoverEffect(.highlight)
+    #endif
   }
 }
 ```
@@ -69,7 +91,7 @@ fun ToolbarButton(onClick: () -> Unit) {
 
 ## Pointer Precision
 
-Mouse and trackpad pointers are far more accurate than thumbs, so desktop targets can be smaller than the 44pt mobile minimum. Common ranges are 24-32px for icon buttons, 28-36px for toolbar items. WCAG 2.5.8 (AA, target size minimum) sets the absolute floor at **24x24 CSS pixels** for non-mobile pointer input. Sub-24px targets need spacing or be grouped with sibling targets.
+Mouse and trackpad pointers are far more accurate than thumbs, so desktop targets can be smaller than the 44pt mobile minimum. Common ranges are 24-32px for icon buttons, 28-36px for toolbar items. WCAG 2.5.8 Target Size (Minimum), Level AA, sets the floor at **24x24 CSS pixels** for *all* pointer input - it is not desktop-specific. A sub-24px target still passes under the spacing exception: draw a 24px-diameter circle centred on each undersized target and no two circles may intersect. Apple's macOS HIG is stricter in spirit and looser in numbers: 28x28 pt default control size, 20x20 pt absolute minimum.
 
 **Fitts's Law in practice:** the time to acquire a target shrinks with size and grows with distance. Screen edges and corners are infinite-depth targets - the cursor stops there regardless of overshoot. Put high-frequency global controls (close window, system menu, app dock) in corners and along edges. macOS menubar and Windows taskbar are textbook applications: edge-anchored, zero-overshoot acquisition.
 
@@ -94,7 +116,11 @@ Desktop users expect parity with native conventions. Missing `⌘+F` in a list-h
 ```js
 // Prefer event.metaKey on macOS, event.ctrlKey elsewhere.
 // navigator.platform is deprecated but still pragmatic; fall back to userAgent.
-const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+// navigator.platform is always a non-empty string where it exists, so `||` never falls through.
+// Prefer UA-CH where available, then platform, then the UA string.
+const isMac = /Mac|iPhone|iPad/.test(
+  navigator.userAgentData?.platform ?? navigator.platform ?? navigator.userAgent ?? ""
+);
 
 window.addEventListener("keydown", (e) => {
   const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
@@ -218,7 +244,9 @@ val focusManager = LocalFocusManager.current
 
 TextField(
   value = email, onValueChange = { email = it },
-  modifier = Modifier.focusRequester(emailFocus).focusable(),
+  modifier = Modifier.focusRequester(emailFocus),
+  // Without keyboardOptions.imeAction the IME never emits Next and onNext never fires.
+  keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
   keyboardActions = KeyboardActions(onNext = { passwordFocus.requestFocus() }),
 )
 

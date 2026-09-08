@@ -94,11 +94,11 @@ The `animation: { phase in ... }` closure runs once per phase transition and ret
 
 ### Gotchas
 
-- Phase enum must be `CaseIterable + Hashable`. SwiftUI walks through `allCases` in declaration order.
+- The phase type only has to be `Equatable` - `phaseAnimator(_ phases: some Sequence, ...) where Phase : Equatable`. `CaseIterable` is optional sugar so you can write `Phase.allCases`, which SwiftUI walks in declaration order; any `Sequence` of `Equatable` values works (`[0.0, 1.2, 1.0]`, for instance).
 - Transitions are sequential, never parallel. If two properties need to animate on different curves *at the same time*, use `KeyframeAnimator`.
 - Without `trigger:`, the animator settles on the last phase and stops. To loop, repeat the same phase as last and rely on `trigger` toggling, or use `KeyframeAnimator(initialValue:repeating:content:)`.
 - Tap-spam-resistance: increment a counter as `trigger` (`trigger += 1`) instead of toggling a `Bool`. Toggling can collapse rapid taps into a single phase change because SwiftUI dedupes equal values.
-- The phase enum is type-erased to `Hashable` in the API; if you need values inside the phase use associated types or a separate value model.
+- The phase type is only constrained to `Equatable` in the API; if you need richer per-phase values, give the enum associated values (it stays `Equatable`) or keep a separate value model.
 
 ---
 

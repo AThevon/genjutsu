@@ -47,14 +47,14 @@ The flair lives at the intro and during work narration. The moment a result land
 
 1. **Never skip the brainstorm.** Not even if the user says "just make it look good." Especially then. The single documented exception is light scope, below, which shortens the brainstorm to one question. It never removes it.
 2. **One question at a time during brainstorm.** Never bundle. The second question depends on the first answer.
-3. **Never proceed without both theses validated.** Visual + interaction, both explicitly approved.
+3. **Never proceed without the theses validated.** Visual + interaction, both explicitly approved. The one exception is light scope, below: no visual identity is at stake there, so the interaction thesis alone is required - and it is still validated explicitly, never assumed.
 4. **Every design token comes from MASTER.md.** No magic numbers, no rogue hex values. On light scope, where no MASTER.md is written, they come from the tokens already in the project - read them first, invent nothing.
 5. **Every animation respects the interaction thesis.** Timing, easing, forbidden patterns — no exceptions.
 6. **Never install a dependency without asking.**
 7. **Work page by page, validate page by page.** Never try to do everything at once.
-8. **The audit is not optional.** Phase 5 always runs, even if the user seems happy.
+8. **The audit is not optional.** Phase 5 always runs, even if the user seems happy. On light scope it shortens to the quick check - reduced-motion, exit animation, 60fps - but it never disappears.
 9. **Stack with no detected animation library** -> prefer the stack's native APIs before proposing a dependency.
-10. **Animation library detected** (GSAP, Framer Motion, Lottie, Rive, etc.) -> respect the dev's choice. Do not propose a replacement.
+10. **Animation library detected** (GSAP, Motion / Framer Motion, Lottie, Rive, etc.) -> respect the dev's choice. Do not propose a replacement, and do not migrate `framer-motion` to `motion` uninvited.
 11. **Show, don't just describe.** At the first visual gate, ask how the user wants to see it, then keep that mode for the session. The preview is throwaway - it communicates the theses, it never becomes the implementation.
 
 ---
@@ -173,6 +173,14 @@ Call whatever the host actually exposes, under the name it exposes it as - check
 ## Sub-skills Path Detection
 
 <!-- genjutsu:shared:skill-base:start -->
+**This block defines shell state, and shell state does not survive between Bash calls.**
+`$SKILL_BASE` and `load_skill` exist only inside the single Bash invocation that ran this
+block. Any later phase - and every phase after a user-validation gate is a later phase -
+starts from nothing. So: **re-emit this whole block in the same Bash call as the
+`load_skill` lines you are about to run.** Never `cat "$SKILL_BASE/..."` in a call that did
+not define it; the path resolves to `/<name>/SKILL.md`, the `cat` fails, and the pipeline
+carries on without the sub-skill. The block caches its result, so re-emitting it is cheap.
+
 ```bash
 # Environment detection, most specific first:
 # - claude.ai: skills are uploaded individually to /mnt/skills/user/<name>/
@@ -218,8 +226,20 @@ genjutsu_probe_jutsu() {
   return 1
 }
 
-BUNDLE_JUTSU="$(find /mnt/skills/user -maxdepth 2 -type d -name _jutsu 2>/dev/null | head -1)"
-if [ -n "$BUNDLE_JUTSU" ]; then
+# A previous call in this session may already have resolved it. Re-read the cache
+# first, and only trust it while it still points at a real directory.
+GENJUTSU_CACHE="${TMPDIR:-/tmp}/genjutsu-skill-base"
+SKILL_BASE=""
+if [ -s "$GENJUTSU_CACHE" ]; then
+  SKILL_BASE="$(cat "$GENJUTSU_CACHE" 2>/dev/null)"
+  [ -d "$SKILL_BASE" ] || SKILL_BASE=""
+fi
+
+BUNDLE_JUTSU=""
+[ -z "$SKILL_BASE" ] && BUNDLE_JUTSU="$(find /mnt/skills/user -maxdepth 2 -type d -name _jutsu 2>/dev/null | head -1)"
+if [ -n "$SKILL_BASE" ]; then
+  : # already resolved earlier in this session
+elif [ -n "$BUNDLE_JUTSU" ]; then
   # claude.ai - single self-contained genjutsu bundle
   SKILL_BASE="$BUNDLE_JUTSU"
 elif [ -d "/mnt/skills/user" ]; then
@@ -239,6 +259,12 @@ else
   if [ -z "$SKILL_BASE" ] || [ ! -d "$SKILL_BASE" ]; then
     SKILL_BASE="$(genjutsu_probe_jutsu)"
   fi
+fi
+
+# Cache it, so the phases that run after a user gate can pick it up instead of
+# re-probing. Only written once it actually points somewhere.
+if [ -n "$SKILL_BASE" ] && [ -d "$SKILL_BASE" ]; then
+  printf '%s\n' "$SKILL_BASE" > "$GENJUTSU_CACHE" 2>/dev/null || true
 fi
 
 # Abort clearly instead of cat-ing bogus paths if resolution failed. Name every
@@ -270,7 +296,10 @@ load_skill() {
 ```
 <!-- genjutsu:shared:skill-base:end -->
 
-All sub-skills are loaded via `load_skill <name>` (defined above), which cat's `$SKILL_BASE/<name>/SKILL.md` and warns instead of failing if a sub-skill was not uploaded.
+All sub-skills are loaded via `load_skill <name>` (defined above), which cats the sub-skill's
+entry file and warns instead of failing if it was not uploaded. Every phase below that loads
+something must re-emit the resolution block in the same Bash call: the phases are separated by
+user gates, and nothing carries across them.
 
 ---
 
@@ -287,7 +316,7 @@ Before asking the user about tech stack, scan the project to detect what's alrea
 <!-- genjutsu:shared:scan:start -->
 ```bash
 # 1. Web (existing)
-cat package.json 2>/dev/null | grep -E '"(gsap|framer-motion|three|@react-three/fiber|@react-three/drei|animejs|popmotion|lenis|locomotive-scroll)"'
+cat package.json 2>/dev/null | grep -E '"(gsap|motion|framer-motion|three|@react-three/fiber|@react-three/drei|animejs|popmotion|lenis|locomotive-scroll)"'
 cat package.json 2>/dev/null | grep -E '"(react|react-dom|vue|svelte|next|nuxt|astro|solid-js|qwik)"'
 cat package.json 2>/dev/null | grep -E '"(tailwindcss|styled-components|@emotion|sass|less|vanilla-extract|panda)"'
 
@@ -317,7 +346,12 @@ grep -rE 'setContentView\(R\.layout' --include='*.kt' --include='*.java' . 2>/de
 ```
 
 Map the results:
-- **Animation lib**: gsap, framer-motion, three/@react-three, anime.js, or none
+- **Animation lib**: gsap, `motion`, `framer-motion`, three/@react-three, anime.js, or none.
+  **`motion` and `framer-motion` are the same library at two names.** Framer Motion was renamed
+  to Motion; `motion` is the current package and `framer-motion` is the legacy one, still widely
+  installed and still published. Note which of the two is in `package.json` - the import path
+  differs and the sub-skill needs to know. If both are present, the project is mid-migration:
+  say so and follow whichever one the file you are editing already imports.
 - **Framework**: React, Vue, Svelte, Next.js, Nuxt, Astro, vanilla
 - **CSS**: Tailwind, styled-components, CSS modules, vanilla CSS
 - **If nothing detected**: from scratch, everything is available
@@ -417,10 +451,12 @@ A single sentence that captures the motion and interaction language. **Must expl
 
 ### Phase 3 — DESIGN SYSTEM
 
-Load `_jutsu/ui-ux-pro-max` sub-skill:
+Load the `ui-ux-pro-max` sub-skill. **Phase 2 ended in a user gate, so this is a new Bash
+call and `$SKILL_BASE` no longer exists.** Re-emit the resolution block from "Sub-skills
+Path Detection" above in this same call - it reads its own cache, so it is cheap - and then:
 
 ```bash
-cat "$SKILL_BASE/ui-ux-pro-max/SKILL.md"
+load_skill ui-ux-pro-max
 ```
 
 #### Stack-aware token generation
@@ -476,23 +512,23 @@ Load sub-skills based on tech stack and interaction thesis.
 
 | Detected | Load |
 |---|---|
-| Mobile context (web mobile OR native iOS / Android) | `$SKILL_BASE/mobile-principles/SKILL.md` |
-| Desktop context (macOS OR web desktop with no mobile indicators) | `$SKILL_BASE/desktop-principles/SKILL.md` |
-| Audit explicitly requested OR scope=full | `$SKILL_BASE/design-audit/SKILL.md` |
-| Advanced UI/UX questions | `$SKILL_BASE/ui-ux-pro-max/SKILL.md` |
+| Mobile context (web mobile OR native iOS / Android) | `load_skill mobile-principles` |
+| Desktop context (macOS OR web desktop with no mobile indicators) | `load_skill desktop-principles` |
+| Audit explicitly requested OR scope=full | `load_skill design-audit` |
+| Advanced UI/UX questions | `load_skill ui-ux-pro-max` |
 
 **Stack-specific** (load by SCAN):
 
 | Detected stack | Sub-skill to load |
 |---|---|
-| gsap | `$SKILL_BASE/gsap/SKILL.md` |
-| framer-motion | `$SKILL_BASE/framer-motion/SKILL.md` |
-| Pure CSS / Tailwind / no lib | `$SKILL_BASE/css-native/SKILL.md` |
-| three / @react-three | `$SKILL_BASE/threejs-r3f/SKILL.md` |
-| Canvas / generative | `$SKILL_BASE/canvas-generative/SKILL.md` |
-| Android Compose | `$SKILL_BASE/compose-motion/SKILL.md` (always) + `$SKILL_BASE/compose-graphics/SKILL.md` (if scope=full or thesis is advanced - see below) |
-| Compose Multiplatform | `$SKILL_BASE/compose-motion/SKILL.md` + `$SKILL_BASE/compose-multiplatform/SKILL.md` (always); `$SKILL_BASE/swiftui-motion/SKILL.md` if iOS target detected and SwiftUI interop demanded; `$SKILL_BASE/compose-graphics/SKILL.md` if advanced |
-| SwiftUI iOS or macOS | `$SKILL_BASE/swiftui-motion/SKILL.md` (always) + `$SKILL_BASE/swiftui-graphics/SKILL.md` (if scope=full or thesis is advanced) |
+| gsap | `load_skill gsap` |
+| `motion` or `framer-motion` (same library, two package names) | `load_skill framer-motion` |
+| Pure CSS / Tailwind / no lib | `load_skill css-native` |
+| three / @react-three | `load_skill threejs-r3f` |
+| Canvas / generative | `load_skill canvas-generative` |
+| Android Compose | `load_skill compose-motion` (always) + `load_skill compose-graphics` (if scope=full or thesis is advanced - see below) |
+| Compose Multiplatform | `load_skill compose-motion` + `load_skill compose-multiplatform` (always); `load_skill swiftui-motion` if iOS target detected and SwiftUI interop demanded; `load_skill compose-graphics` if advanced |
+| SwiftUI iOS or macOS | `load_skill swiftui-motion` (always) + `load_skill swiftui-graphics` (if scope=full or thesis is advanced) |
 
 **"Advanced thesis" trigger** for `compose-graphics` / `swiftui-graphics`:
 
@@ -518,21 +554,23 @@ Implementation rules:
 
 ### Phase 5 — AUDIT (never skip)
 
-Load `_jutsu/design-audit` sub-skill:
+Load the `design-audit` sub-skill. **Phase 4 ended in a user gate, so `$SKILL_BASE` is gone
+again.** Re-emit the resolution block in this same call, then:
 
 ```bash
-cat "$SKILL_BASE/design-audit/SKILL.md"
+load_skill design-audit
 ```
 
 Run the full audit checklist matching the detected stack.
 
+<!-- genjutsu:shared:audit:start -->
 **All stacks:**
 - [ ] Reduced motion respected (CSS `prefers-reduced-motion`, SwiftUI `accessibilityReduceMotion`, or Compose helper using `ValueAnimator.areAnimatorsEnabled()` / `Settings.Global.ANIMATOR_DURATION_SCALE`).
 - [ ] Exit animations present (no abrupt vanishings).
 - [ ] No layout-property animations (animate transform / opacity / graphicsLayer instead).
 - [ ] Focus visible on interactive elements.
 - [ ] Interactive elements have all relevant states (default, hover/press, focus, active, disabled).
-- [ ] Colors and spacing consistent with MASTER.md tokens - no rogue hex values.
+- [ ] Colors and spacing consistent with the project's design tokens (MASTER.md when one exists) - no rogue hex values.
 
 **Web:**
 - [ ] Conditional renders with AnimatePresence (or framework equivalent).
@@ -544,7 +582,7 @@ Run the full audit checklist matching the detected stack.
 - [ ] Responsive on 4 breakpoints: 375px (mobile) / 768px (tablet) / 1024px (small desktop) / 1440px (large desktop).
 
 **Compose:**
-- [ ] Recomposition counts verified (Layout Inspector / `Modifier.recomposeHighlighter`).
+- [ ] Recomposition counts verified: Layout Inspector > Component Tree > View Options > **Show Recomposition Counts** (API 29+). There is no `Modifier.recomposeHighlighter` in androidx.
 - [ ] No animations on `width`/`height` (use `Modifier.graphicsLayer { translationX/Y, scaleX/Y }`).
 - [ ] `Modifier.semantics` set on custom interactive components.
 - [ ] Frame timing OK on a mid-range device (Pixel 4a baseline) via Macrobenchmark.
@@ -560,6 +598,7 @@ Run the full audit checklist matching the detected stack.
 - [ ] Keyboard shortcuts (`Cmd+N`, `Cmd+W`, `Cmd+F`, etc.) bound to primary actions.
 - [ ] Multi-window state shared coherently if applicable.
 - [ ] Focus rings visible on keyboard navigation (no `outline: none` without alternative).
+<!-- genjutsu:shared:audit:end -->
 
 Present findings grouped by severity: **Critical > Important > Nice-to-have**.
 
@@ -588,7 +627,7 @@ This is intentional: `/genjutsu:paint` rebuilds the visual universe. To enhance 
 | "I'll pick colors that feel right" | Every token comes from MASTER.md. No freelancing. |
 | "I'll do the whole site in one pass" | Page by page. Validate page by page. |
 | "This animation would be cool even though the thesis says no bounce" | The thesis is law. Change it? Re-validate with the user first. |
-| "The audit can wait, the user seems happy" | The audit is not optional. Phase 5 always runs. |
+| "The audit can wait, the user seems happy" | The audit is not optional. Phase 5 always runs - shortened on light scope, never skipped. |
 | "I'll interpret 'yeah something like that' as a yes" | That's not confirmation. Ask which part resonates. |
 | "I'll list the palette as hex codes, that's precise" | Precise and unreviewable. Show it in the session's preview mode. |
 | "I'll ask again how they want to see the design system" | Asked once, sticks for the session. Announce the mode and go. |

@@ -3,6 +3,10 @@ name: compose-graphics
 description: "Advanced Compose visuals - Material 3 Expressive motion physics, AGSL shaders (Android 13+), Canvas/DrawScope generative, graphicsLayer effects."
 ---
 
+> **Version-sensitive.** Every API name, SDK gate and browser-support claim below was
+> verified on **2026-09-08** against primary sources. What against, and when, is in
+> `_jutsu/VERSIONS.md`. If that date is old, re-verify before acting on a version number.
+
 # Compose Graphics
 
 > Advanced Compose visuals: M3 Expressive motion physics, AGSL shaders (Android 13+), Canvas / DrawScope, graphicsLayer effects.
@@ -47,16 +51,18 @@ MaterialTheme(motionScheme = MotionScheme.expressive()) {
 
 Tokens exposed:
 
-| Token | Domain | Speed |
-|---|---|---|
-| `fastSpatialSpec()` | Position / size | < 200ms |
-| `defaultSpatialSpec()` | Position / size | ~ 350ms |
-| `slowSpatialSpec()` | Position / size | ~ 600ms |
-| `fastEffectsSpec()` | Opacity / color | < 150ms |
-| `defaultEffectsSpec()` | Opacity / color | ~ 250ms |
-| `slowEffectsSpec()` | Opacity / color | ~ 400ms |
+| Token | Domain | Spring (damping / stiffness) - standard | ... expressive |
+|---|---|---|---|
+| `fastSpatialSpec()` | Position / size | `0.9 / 1400` | `0.6 / 800` |
+| `defaultSpatialSpec()` | Position / size | `0.9 / 700` | `0.8 / 380` |
+| `slowSpatialSpec()` | Position / size | `0.9 / 300` | `0.8 / 200` |
+| `fastEffectsSpec()` | Opacity / color | `1.0 / 3800` | `1.0 / 3800` |
+| `defaultEffectsSpec()` | Opacity / color | `1.0 / 1600` | `1.0 / 1600` |
+| `slowEffectsSpec()` | Opacity / color | `1.0 / 800` | `1.0 / 800` |
 
-> **Spatial vs Effects:** spatial = anything physical (height, offset, scale). Effects = visual properties without inertia (alpha, color, elevation). Springs feel natural for spatial; tweens feel right for effects. The tokens encode this for you.
+> **Spatial vs Effects:** spatial = anything physical (height, offset, scale). Effects = visual properties without inertia (alpha, color, elevation). *Both* families are springs - the effects ones are just critically damped (`dampingRatio = 1.0`) and much stiffer, so they never overshoot. Only the spatial springs differ between `standard()` and `expressive()`.
+
+> **Availability:** `MotionScheme`, `MaterialTheme(motionScheme = ...)` and `MaterialExpressiveTheme` are **stable in material3 1.4.0** (no opt-in needed). `MaterialShapes` and the shape-morphing helpers are not - they need 1.5.0-alpha and `@OptIn(ExperimentalMaterial3ExpressiveApi::class)`.
 
 ### Hero Card Expand (Expressive Springs)
 
@@ -98,28 +104,54 @@ fun ExpressiveHero() {
 | Calm spatial | `MaterialTheme.motionScheme.defaultSpatialSpec()` (use the token) |
 | Critical (no overshoot) | `spring(stiffness = Spring.StiffnessHigh, dampingRatio = 1f)` |
 
-### Shape Morphing (M3 Expressive 1.3+)
+### Shape Morphing (`MaterialShapes` + `Morph`)
 
-`androidx.graphics.shapes` ships predefined morphable shapes (`MaterialShapes.Circle`, `Pentagon`, `Cookie4Sided`, `Sunny`, `Heart`, etc.) and a `Morph(start, end)` interpolator.
+Two different libraries, and the split matters:
+
+- `androidx.graphics.shapes:graphics-shapes` (stable **1.1.0**) ships `RoundedPolygon`, `CornerRounding` and `Morph(start, end)`. Its `Morph.toPath(progress)` returns an **`android.graphics.Path`**.
+- The predefined Material shapes (`MaterialShapes.Circle`, `Pentagon`, `Cookie4Sided`, `Sunny`, `Heart`, ...) live in **material3**, not in graphics-shapes. They are still `@ExperimentalMaterial3ExpressiveApi` and ship only in `androidx.compose.material3:material3:1.5.0-alpha*` - they are **not** in stable material3 1.4.0. material3 also adds `Morph.toPath(progress)` returning a **Compose `Path`**, plus `RoundedPolygon.toShape()`.
+
+Never write `.asAndroidPath().asComposePath()`: with the graphics-shapes import it does not compile (`android.graphics.Path` has no `asAndroidPath()`), and with the material3 import it is a pointless round trip. And because `MaterialShapes` are **normalized to a 0..1 box**, the path must be scaled to the draw size - dropping the raw path into `GenericShape` yields a ~1px shape in the top-left corner.
 
 ```kotlin
-val morph = remember { Morph(MaterialShapes.Circle, MaterialShapes.Cookie4Sided) }
-val progress by animateFloatAsState(
-    targetValue = if (active) 1f else 0f,
-    animationSpec = MaterialTheme.motionScheme.slowSpatialSpec(),
-    label = "morph"
-)
-Box(
-    modifier = Modifier
-        .size(96.dp)
-        .clip(GenericShape { size, _ ->
-            addPath(
-                morph.toPath(progress).asAndroidPath().asComposePath()
-            )
-        })
-        .background(MaterialTheme.colorScheme.primary)
-)
+import androidx.compose.material3.MaterialShapes
+import androidx.compose.material3.toPath          // Morph.toPath -> androidx.compose.ui.graphics.Path
+import androidx.graphics.shapes.Morph
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun MorphingBadge(active: Boolean) {
+    val morph = remember { Morph(MaterialShapes.Circle, MaterialShapes.Cookie4Sided) }
+    val progress by animateFloatAsState(
+        targetValue = if (active) 1f else 0f,
+        animationSpec = MaterialTheme.motionScheme.slowSpatialSpec(),
+        label = "morph",
+    )
+    Box(
+        modifier = Modifier
+            .size(96.dp)
+            .clip(MorphShape(morph, progress))
+            .background(MaterialTheme.colorScheme.primary)
+    )
+}
+
+/** MaterialShapes are normalized to 0..1: scale the path to the draw size, then centre it. */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+private class MorphShape(private val morph: Morph, private val progress: Float) : Shape {
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline {
+        val path = morph.toPath(progress = progress)
+        path.transform(Matrix().apply { scale(x = size.width, y = size.height) })
+        path.translate(size.center - path.getBounds().center)
+        return Outline.Generic(path)
+    }
+}
 ```
+
+For a static (non-morphing) shape, skip all of this: `MaterialShapes.Cookie4Sided.toShape()` returns a ready-to-use `Shape` that already handles the scaling.
 
 ### When to Use Expressive vs Standard
 

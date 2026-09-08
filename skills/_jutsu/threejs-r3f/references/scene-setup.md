@@ -242,6 +242,7 @@ function PointerCamera() {
 
 ```tsx
 import { useGLTF } from '@react-three/drei'
+import type { ThreeElements } from '@react-three/fiber'
 import type { GLTF } from 'three-stdlib'
 
 type ModelGLTF = GLTF & {
@@ -255,7 +256,7 @@ type ModelGLTF = GLTF & {
   }
 }
 
-function Model(props: JSX.IntrinsicElements['group']) {
+function Model(props: ThreeElements['group']) {
   const { nodes, materials } = useGLTF('/model.glb') as ModelGLTF
 
   return (

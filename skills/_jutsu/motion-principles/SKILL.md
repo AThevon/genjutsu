@@ -3,6 +3,10 @@ name: motion-principles
 description: "Motion design foundation - timing, easing, enter/exit patterns, accessibility, performance."
 ---
 
+> **Version-sensitive.** Every API name, SDK gate and browser-support claim below was
+> verified on **2026-09-08** against primary sources. What against, and when, is in
+> `_jutsu/VERSIONS.md`. If that date is old, re-verify before acting on a version number.
+
 # Motion Principles
 
 > The foundation. Loaded by every creative skill invocation.

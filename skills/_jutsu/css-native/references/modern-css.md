@@ -1,6 +1,8 @@
 # Modern CSS — Browser Support, Fallbacks & Progressive Enhancement
 
-> Last verified: March 2026
+> Last verified: 8 September 2026 — against MDN browser-compat-data, caniuse (data of 2026-08-24) and webstatus.dev.
+>
+> Reference stable versions at time of writing: Chrome/Edge 153, Firefox 155, Safari 26.6 (Safari 27 in beta).
 
 ---
 
@@ -10,22 +12,29 @@
 
 | Browser | Version | Status |
 |---|---|---|
-| Chrome | 115+ | Supported |
-| Edge | 115+ | Supported |
-| Firefox | 128+ | Supported (shipped July 2024) |
-| Safari | 18.4+ | Supported (shipped early 2025) |
+| Chrome | 115+ | Supported (July 2023) |
+| Edge | 115+ | Supported (July 2023) |
+| Firefox | **Not shipped** | Nightly only, behind `layout.css.scroll-driven-animations.enabled` (on by default in Nightly since 136, off in Beta and Release). `animation-range-start` / `animation-range-end` and `timeline-scope` are still unimplemented even in Nightly ([bug 1676779](https://bugzil.la/1676779)) |
+| Safari | 26+ | Supported (Sept 2025) — **not** in Safari 18.x |
 
-**Global coverage**: ~90%+ (as of March 2026)
+**Global coverage**: ~84% (derived from caniuse usage data, Aug 2026). Baseline: **Limited availability** — roughly one visitor in six is on Firefox and gets nothing.
+
+**The `@supports (animation-timeline: scroll())` guard is mandatory.** Never let a scroll-driven animation be the only thing that makes content visible. Scroll-driven animations are an Interop 2026 focus area, so Firefox intends to ship — but it has not.
 
 ### View Transitions API
 
 | Feature | Chrome | Edge | Firefox | Safari |
 |---|---|---|---|---|
-| Same-document (`startViewTransition`) | 111+ | 111+ | 133+ | 18+ |
-| Cross-document (`@view-transition`) | 126+ | 126+ | Not yet | 18.2+ |
-| `view-transition-class` | 125+ | 125+ | Not yet | 18.2+ |
+| Same-document (`startViewTransition`) | 111+ | 111+ | 144+ | 18+ |
+| Cross-document (`@view-transition`) | 126+ | 126+ | **Not yet** | 18.2+ |
+| `view-transition-class` | 125+ | 125+ | 144+ | 18.2+ |
+| `view-transition-name: match-element` | 137+ | 137+ | 144+ | 18.4+ |
 
-**Note**: Cross-document view transitions are an Interop 2026 focus area — Firefox support expected to land in 2026.
+**Global coverage**: same-document ~90%, cross-document ~85%.
+
+**Baseline**: same-document view transitions became **Newly available on 14 Oct 2025** (Firefox 144). Cross-document is still **Limited** — Firefox 144+ implements View Transitions Level 1 only, so `@view-transition { navigation: auto }` is still a no-op there.
+
+**Note**: there is no `view-transition-name: auto` — the auto-naming value is `match-element`, and it only works for same-document transitions. View transitions are an Interop 2026 focus area (carried over from 2025).
 
 ### @starting-style
 
@@ -36,18 +45,24 @@
 | Firefox | 129+ | Supported |
 | Safari | 17.5+ | Supported |
 
-**Global coverage**: ~93%+ — Baseline Newly Available (2024)
+**Global coverage**: ~90% — Baseline **Newly available since 6 Aug 2024** (Firefox 129 completed it).
+
+**The gotcha is not `@starting-style`, it is what you transition with it.** `transition-behavior: allow-discrete` itself is Chrome 117+ / Firefox 129+ / Safari 17.4+, but actually *transitioning* `display` or `content-visibility` with it is **Chrome 117+ and Safari 18+ only — Firefox does not implement it**. In Firefox the enter animation plays and the exit animation is skipped (the element just disappears). That is a graceful degradation, not a bug — but never rely on the exit transition firing.
 
 ### CSS Anchor Positioning
 
 | Browser | Version | Status |
 |---|---|---|
-| Chrome | 125+ | Supported |
-| Edge | 125+ | Supported |
-| Firefox | Nightly | In development (Interop 2026) |
-| Safari | 26+ | Supported (shipped 2026) |
+| Chrome | 125+ | Supported. `position-area` since 129 — it shipped as `inset-area` in 125–130 and that old name was removed in 131 |
+| Edge | 125+ | Same as Chrome |
+| Firefox | 147+ | Supported — enabled by default 13 Jan 2026 |
+| Safari | 26+ | Supported (Sept 2025) |
 
-**Note**: Anchor positioning is an Interop 2026 focus area. Firefox expected to ship stable support in 2026.
+**Global coverage**: ~84%. All three engines now ship `anchor-name`, `position-anchor`, `position-area`, `@position-try`, `position-try-fallbacks` and `position-visibility`.
+
+**Still guard it.** web-features rates anchor positioning **Limited** because sub-features diverge across engines — e.g. `position-anchor: normal` only lands in Chrome 151 / Firefox 151 / Safari 27, and `position-visibility: anchor-visible` is Safari 27 only. Keep `@supports (anchor-name: --a)` plus a `position: absolute` fallback.
+
+**Renames to watch** (old names will silently do nothing): `inset-area` → `position-area`, and `position-try-options` → `position-try-fallbacks` (renamed in Chrome 128). Anchor positioning is an Interop 2026 focus area, carried over from 2025.
 
 ### Container Queries
 
@@ -55,9 +70,51 @@
 |---|---|---|---|---|
 | Size queries (`@container`) | 105+ | 105+ | 110+ | 16+ |
 | Container-relative units (`cqw`, `cqh`) | 105+ | 105+ | 110+ | 16+ |
-| Style queries (`@container style()`) | 111+ | 111+ | Not yet | 18+ |
+| Style queries on custom properties (`@container style(--x: y)`) | 111+ | 111+ | 151+ | 18+ |
+| Scroll-state queries (`@container scroll-state()`) | 133+ | 133+ | Not yet | Not yet |
 
-**Global coverage (size queries)**: ~95%+
+**Global coverage**: size queries ~94%; custom-property style queries ~90% — **Baseline Newly available since 19 May 2026** (Firefox 151). Scroll-state queries ~69%.
+
+**Note**: `style()` only accepts **custom properties** in Chrome, Edge and Safari — querying a standard property is not shipped, so `@container style(display: flex)` does nothing. Container style queries are an Interop 2026 focus area.
+
+**Scroll-state queries** (`stuck`, `snapped`, `scrollable`, plus `scrolled` from Chrome 144) let you style a sticky header the moment it sticks, or a snapped slide the moment it snaps — with no scroll listener. Chromium-only, no Firefox or Safari implementation; pure enhancement, and no `@supports` syntax detects it, so build the un-stuck state as the default.
+
+### Native Stagger — `sibling-index()` / `sibling-count()`
+
+| Browser | Version | Status |
+|---|---|---|
+| Chrome | 138+ | Supported (24 June 2025) |
+| Edge | 138+ | Supported |
+| Firefox | 154+ | Supported (18 Aug 2026) |
+| Safari | 26.2+ | Supported (12 Dec 2025) |
+
+**Global coverage**: ~80% — **Baseline Newly available since 18 Aug 2026.**
+
+This kills one of the last real reasons to pull in a JS animation library: the child's index is now a CSS value, so a stagger needs no `nth-child` ladder and no known element count.
+
+```css
+@supports (animation-delay: calc(sibling-index() * 1ms)) {
+  li {
+    animation: rise 400ms var(--ease-out-expo) both;
+    animation-delay: calc(sibling-index() * 60ms);
+  }
+}
+```
+
+Without support every item animates simultaneously — acceptable degradation, so the `@supports` guard is optional rather than load-bearing. `sibling-count()` gives the total, which is what you need for percentage-based or reversed staggers.
+
+### `interpolate-size` / `calc-size()` — animating to `height: auto`
+
+| Browser | Version | Status |
+|---|---|---|
+| Chrome | 129+ | Supported |
+| Edge | 129+ | Supported |
+| Firefox | **Not shipped** | — |
+| Safari | **Not shipped** | — |
+
+**Global coverage**: ~70% — Baseline **Limited**, still marked experimental. Chromium-only.
+
+Use it as a bonus layer on top of a `grid-template-rows: 0fr → 1fr` or `max-height` accordion, never as the mechanism. `interpolate-size: allow-keywords` on `:root` opts the whole document in, so scope it deliberately.
 
 ---
 
@@ -236,9 +293,9 @@ function navigate(updateFn) {
   .card { flex-direction: row; }
 }
 
-/* Style queries: Chrome/Edge/Safari only — use with care */
+/* Style queries on custom properties: Chrome/Edge 111+, Safari 18+, Firefox 151+ */
 @supports (container-type: inline-size) {
-  /* Size queries are safe — 95%+ coverage */
+  /* Size queries are safe — ~94% coverage */
 }
 
 /* Style queries: progressive enhancement only */
@@ -364,14 +421,20 @@ Full native modal with enter/exit animation, zero JavaScript.
 ### Strategy 4: Anchor + Popover Combo (Animated Tooltip)
 
 ```html
-<button anchor="tip" popovertarget="tip">Hover me</button>
+<button id="tip-trigger" popovertarget="tip">Hover me</button>
 
-<div id="tip" popover="hint" anchor="trigger">
+<div id="tip" popover="hint">
   Tooltip content
 </div>
 ```
 
 ```css
+/* The anchor must declare its name in CSS. The HTML `anchor` attribute is
+   non-standard and experimental — never rely on it. */
+#tip-trigger {
+  anchor-name: --trigger;
+}
+
 [popover="hint"] {
   position: fixed;
   position-anchor: --trigger;
