@@ -179,7 +179,8 @@ block. Any later phase - and every phase after a user-validation gate is a later
 starts from nothing. So: **re-emit this whole block in the same Bash call as the
 `load_skill` lines you are about to run.** Never `cat "$SKILL_BASE/..."` in a call that did
 not define it; the path resolves to `/<name>/SKILL.md`, the `cat` fails, and the pipeline
-carries on without the sub-skill. The block caches its result, so re-emitting it is cheap.
+carries on without the sub-skill. Re-emitting costs a handful of depth-capped `find` calls,
+which is cheaper than being wrong about which version you loaded.
 
 ```bash
 # Environment detection, most specific first:
@@ -226,20 +227,13 @@ genjutsu_probe_jutsu() {
   return 1
 }
 
-# A previous call in this session may already have resolved it. Re-read the cache
-# first, and only trust it while it still points at a real directory.
-GENJUTSU_CACHE="${TMPDIR:-/tmp}/genjutsu-skill-base"
+# Resolve from scratch every time. A cache was tried here and removed: after a plugin
+# update the old version directory is still on disk, so a cached path passes an
+# "is it a directory" check and silently serves the previous release's sub-skills to
+# the current orchestrator. Being right costs a few depth-capped finds.
 SKILL_BASE=""
-if [ -s "$GENJUTSU_CACHE" ]; then
-  SKILL_BASE="$(cat "$GENJUTSU_CACHE" 2>/dev/null)"
-  [ -d "$SKILL_BASE" ] || SKILL_BASE=""
-fi
-
-BUNDLE_JUTSU=""
-[ -z "$SKILL_BASE" ] && BUNDLE_JUTSU="$(find /mnt/skills/user -maxdepth 2 -type d -name _jutsu 2>/dev/null | head -1)"
-if [ -n "$SKILL_BASE" ]; then
-  : # already resolved earlier in this session
-elif [ -n "$BUNDLE_JUTSU" ]; then
+BUNDLE_JUTSU="$(find /mnt/skills/user -maxdepth 2 -type d -name _jutsu 2>/dev/null | head -1)"
+if [ -n "$BUNDLE_JUTSU" ]; then
   # claude.ai - single self-contained genjutsu bundle
   SKILL_BASE="$BUNDLE_JUTSU"
 elif [ -d "/mnt/skills/user" ]; then
@@ -261,11 +255,6 @@ else
   fi
 fi
 
-# Cache it, so the phases that run after a user gate can pick it up instead of
-# re-probing. Only written once it actually points somewhere.
-if [ -n "$SKILL_BASE" ] && [ -d "$SKILL_BASE" ]; then
-  printf '%s\n' "$SKILL_BASE" > "$GENJUTSU_CACHE" 2>/dev/null || true
-fi
 
 # Abort clearly instead of cat-ing bogus paths if resolution failed. Name every
 # root that was tried, so a new host layout can be reported instead of guessed.
@@ -453,7 +442,7 @@ A single sentence that captures the motion and interaction language. **Must expl
 
 Load the `ui-ux-pro-max` sub-skill and **run it**. **Phase 2 ended in a user gate, so this is a
 new Bash call and `$SKILL_BASE` no longer exists.** Re-emit the resolution block from "Sub-skills
-Path Detection" above in this same call - it reads its own cache, so it is cheap - and then:
+Path Detection" above in this same call, then:
 
 ```bash
 load_skill ui-ux-pro-max

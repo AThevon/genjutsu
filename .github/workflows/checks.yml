@@ -27,6 +27,14 @@ jobs:
       - name: No banned symbol has come back
         run: ./scripts/check-denylist.sh
 
+      - name: The $SKILL_BASE resolver still resolves
+        # This block is shell embedded in markdown, which is why it had no tests
+        # and why it shipped two silent total failures: nothing resolved on
+        # Cowork in v3.3.0, and a cache served the previous release's sub-skills
+        # in v3.4.0. The suite extracts the block from cast/SKILL.md and runs it
+        # against fixture layouts.
+        run: ./scripts/test-resolver.sh
+
       - name: Every SKILL.md is valid against the Agent Skills spec
         run: python3 scripts/validate-skills.py
 
