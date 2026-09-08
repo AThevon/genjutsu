@@ -3,6 +3,10 @@ name: swiftui-motion
 description: "SwiftUI animation foundations - withAnimation, transitions, matchedGeometryEffect, PhaseAnimator, KeyframeAnimator, springs, gestures."
 ---
 
+> **Version-sensitive.** Every API name, SDK gate and browser-support claim below was
+> verified on **2026-09-08** against primary sources. What against, and when, is in
+> `_jutsu/VERSIONS.md`. If that date is old, re-verify before acting on a version number.
+
 # SwiftUI Motion
 
 > SwiftUI animation core. Loaded for any SwiftUI project (iOS, macOS, multi-target Apple).
@@ -18,7 +22,7 @@ description: "SwiftUI animation foundations - withAnimation, transitions, matche
 | Single value over time | `withAnimation { } + @State` or `.animation(_, value:)` |
 | Multiple coordinated states | `PhaseAnimator(phases)` (iOS 17+) |
 | Time-based keyframes | `KeyframeAnimator(initialValue:repeating:content:)` (iOS 17+) |
-| Custom property animations | `@Animatable` macro (iOS 26+) or `Animatable` protocol (iOS 13+) |
+| Custom property animations | `@Animatable` macro (needs Xcode 26 / SwiftUI 2025 SDK to compile; **runtime availability iOS 13.0+ / macOS 10.15+ / watchOS 6.0+**) or the `Animatable` protocol by hand (iOS 13+) |
 | Shared element transitions | `matchedGeometryEffect(id:in:)` |
 | Gesture-driven | `DragGesture` / `MagnifyGesture` + `.offset` / `.scaleEffect` |
 | Loop forever | `.animation(.linear.repeatForever(autoreverses: true), value: ...)` or `.phaseAnimator` |
@@ -29,7 +33,10 @@ description: "SwiftUI animation foundations - withAnimation, transitions, matche
 
 ## Springs (the only easing you should care about)
 
-SwiftUI ships 4 named springs (iOS 17+). Use them. Tune `response` / `dampingFraction` only when a preset is wrong.
+SwiftUI ships named spring presets (iOS 17+): `.snappy`, `.bouncy`, `.smooth`, plus the parameterised
+`.spring(duration:bounce:blendDuration:)` and `.interactiveSpring(...)`. Each of the three named ones
+also takes `(duration:extraBounce:)` overloads. Use them. Tune `response` / `dampingFraction` only when
+a preset is wrong.
 
 | Preset (iOS 17+) | Equivalent | Mood |
 |---|---|---|
@@ -38,7 +45,9 @@ SwiftUI ships 4 named springs (iOS 17+). Use them. Tune `response` / `dampingFra
 | `.smooth` | `.spring(response: 0.5, dampingFraction: 1.0)` | calm, no bounce |
 | `.interactiveSpring()` | `.spring(response: 0.15, dampingFraction: 0.86)` | gesture follow |
 
-`response` is the time the spring takes to settle (lower = snappier, higher = softer). `dampingFraction` is the overshoot intensity in `0...1` (1 = no overshoot, 0 = perpetual oscillation - never use 0). For UI work, stay in `response: 0.2...0.5` and `dampingFraction: 0.7...1.0`. Deep-dive: `references/springs-cheatsheet.md`.
+`response` is the spring's **period** - its stiffness expressed as a duration, i.e. how long one
+oscillation would take. It is **not** the settling time: a `.spring(response: 0.5, dampingFraction: 1.0)`
+keeps moving well past 0.5s. Lower = snappier, higher = softer. `dampingFraction` is the overshoot intensity in `0...1` (1 = no overshoot, 0 = perpetual oscillation - never use 0). For UI work, stay in `response: 0.2...0.5` and `dampingFraction: 0.7...1.0`. Deep-dive: `references/springs-cheatsheet.md`.
 
 iOS 17+ also exposes `.spring(duration:bounce:)` where `bounce` is `0...1` (0 = critically damped, 1 = full bounce). It's the same spring, exposed in a more designer-friendly way:
 
@@ -128,7 +137,7 @@ struct Gallery: View {
 
 ## PhaseAnimator (iOS 17+)
 
-For ordered state choreography. Define a `CaseIterable + Hashable` enum, SwiftUI walks through phases sequentially, settling on the last one.
+For ordered state choreography. The API takes `some Sequence` of a phase type constrained to `Equatable` (not `Hashable`); `CaseIterable` is only a convenience so you can pass `Phase.allCases`. SwiftUI walks the sequence in order and settles on the last element.
 
 ```swift
 enum SuccessPhase: CaseIterable { case start, scaleUp, rotate, settle }
@@ -207,7 +216,7 @@ Four keyframe types: `LinearKeyframe` (constant velocity between points), `Sprin
 
 ## Animatable / @Animatable
 
-For custom drawing that needs interpolation. The `@Animatable` macro (iOS 26+, WWDC25) auto-synthesizes `animatableData` for any `Equatable` properties; the older `Animatable` protocol (iOS 13+) still works pre-26.
+For custom drawing that needs interpolation. The `@Animatable` macro (introduced with the iOS 26 SDK at WWDC25, so it needs Xcode 26+; its declared availability is iOS 13.0+ / macOS 10.15+ / watchOS 6.0+, so it back-deploys) attaches to a struct/class/enum and synthesizes both the `Animatable` conformance and `animatableData` from the stored properties that are themselves animatable (`Double`, `CGFloat`, `Angle`, `CGSize`, `CGPoint`, `UnitPoint`, any `VectorArithmetic`). Mark a stored property `@AnimatableIgnored` (same availability) to keep it out of the synthesized data. Writing `animatableData` by hand still works and is what you do on an older toolchain.
 
 ```swift
 struct ProgressRing: Shape {
@@ -236,7 +245,7 @@ ProgressRing(progress: progress)
     .animation(.spring(.smooth), value: progress)
 ```
 
-For multi-property shapes use `AnimatablePair<A, B>` (or nested pairs) as `animatableData`. The `@Animatable` macro removes that boilerplate when properties are `Equatable + Animatable`.
+For multi-property shapes use `AnimatablePair<A, B>` (or nested pairs) as `animatableData`. The `@Animatable` macro removes that boilerplate: annotate the shape and every stored property conforming to `VectorArithmetic` (`Double`, `CGFloat`, `Angle`, `CGSize`, `CGPoint`, `UnitPoint`, ...) is folded into the synthesized `animatableData` automatically; opt a property out with `@AnimatableIgnored`.
 
 ---
 
@@ -249,7 +258,7 @@ For multi-property shapes use `AnimatablePair<A, B>` (or nested pairs) as `anima
 | `DragGesture` | continuous | drag, swipe-to-dismiss |
 | `MagnifyGesture` | continuous | pinch-zoom (iOS 17+, replaces `MagnificationGesture`) |
 | `RotateGesture` | continuous | rotate (iOS 17+, replaces `RotationGesture`) |
-| `SpatialTapGesture` | discrete | tap with location info |
+| `SpatialTapGesture` (iOS 16+, macOS 13+) | discrete | tap with location info |
 
 ```swift
 let tap = TapGesture().onEnded { print("tap") }

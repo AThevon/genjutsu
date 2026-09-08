@@ -89,9 +89,9 @@ gsap.from('.hero', { opacity: 0, y: 60, duration: 0.8, ease: "power4.out" });
 | `back` | `back.out(1.7)` | Overshoots then settles | Playful entries, modals |
 | `bounce` | `bounce.out` | Bounces at the end | Game UI, notifications, playful |
 | `elastic` | `elastic.out(1, 0.3)` | Spring-like wobble | Attention-grabbing, fun UI |
-| `slow` | `slow(0.7, 0.7, false)` | Slow middle section | Cinematic reveals |
+| `slow` | `slow(0.7, 0.7, false)` | Slow middle section | Cinematic reveals. **EasePack, not core** — `gsap.registerPlugin(EasePack)` |
 | `steps` | `steps(12)` | Frame-by-frame | Sprite animations, retro |
-| `rough` | `rough({ strength: 1, points: 20, ... })` | Shaky/glitchy | Horror, distortion effects |
+| `rough` | `rough({ strength: 1, points: 20, ... })` | Shaky/glitchy | Horror, distortion. **EasePack, not core** — `gsap.registerPlugin(EasePack)` |
 | `circ` | `circ.out` | Circular motion curve | Natural motion arcs |
 | `expo` | `expo.out` | Very fast then very slow | Snappy professional UI |
 
@@ -206,7 +206,9 @@ gsap.from('.el', {
 
 **Option 3: InertiaPlugin (true physics)**
 ```js
-// Requires InertiaPlugin (Club GSAP)
+// InertiaPlugin is FREE since GSAP 3.13 — it ships in the public `gsap` package.
+// import { InertiaPlugin } from "gsap/InertiaPlugin";
+// gsap.registerPlugin(InertiaPlugin);
 gsap.to('.el', {
   inertia: {
     x: 500,      // velocity
@@ -224,7 +226,7 @@ gsap.to('.el', {
 | Hover/focus state | `ease-out` or `cubic-bezier(0.2,0,0,1)` | `power2.out` | `type: "tween", ease: "easeOut"` |
 | Modal entry | `cubic-bezier(0.16, 1, 0.3, 1)` | `power3.out` or `back.out(1.4)` | `type: "spring", stiffness: 300, damping: 25` |
 | Modal exit | `ease-in` or `cubic-bezier(0.4, 0, 1, 1)` | `power2.in` | `type: "tween", ease: "easeIn", duration: 0.15` |
-| List stagger | `ease-out` | `power2.out` with `stagger: 0.05` | Spring + `staggerChildren: 0.05` |
+| List stagger | `ease-out` | `power2.out` with `stagger: 0.05` | Spring + `delayChildren: stagger(0.05)` |
 | Scroll-driven | `linear` | `none` | N/A (use `useScroll`) |
 | Page transition | `cubic-bezier(0.4, 0, 0.2, 1)` | `power2.inOut` | `type: "tween", ease: "easeInOut"` |
 | Bounce / playful | `linear(...)` bounce curve | `bounce.out` or `elastic.out` | `type: "spring", stiffness: 600, damping: 15` |

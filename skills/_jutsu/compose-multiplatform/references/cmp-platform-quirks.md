@@ -1,6 +1,6 @@
 # CMP Platform Quirks
 
-Catalog of platform-specific behaviors and surprising differences across Android / iOS / Desktop / Web targets in CMP. Updated for CMP 1.7+.
+Catalog of platform-specific behaviors and surprising differences across Android / iOS / Desktop / Web targets in CMP. Verified against CMP 1.12.0 (stable, 25 Aug 2026); "1.7+" markers below indicate when a behavior first landed, not the version to target.
 The point is not to be exhaustive but to flag the cases where "write once, run everywhere" leaks - so you can plan for them rather than discover them in QA.
 
 ---
@@ -40,7 +40,16 @@ The Compose canvas fills its host element by default. CSS `width: 100vw; height:
 ## Inputs
 
 ### Soft keyboard (iOS)
-`imePadding()` requires `IOSKeyboardEventListener` setup in CMP 1.7. Pre-1.7, you had to handle it manually via `UIKeyboardWillShowNotification`. The listener attaches when the Compose view controller mounts; if you're embedding inside SwiftUI and the SwiftUI parent already adjusts for the keyboard, you'll get double-adjustment. Disable one side.
+`WindowInsets.ime` and `Modifier.imePadding()` are implemented on iOS. There is no `IOSKeyboardEventListener` type - what you actually configure is `ComposeUIViewControllerConfiguration.onFocusBehavior`, whose default `OnFocusBehavior.FocusableAboveKeyboard` pans the entire Compose view so the focused element sits above the keyboard. Set `OnFocusBehavior.DoNothing` when you want to own the layout with `imePadding()` / `WindowInsets.ime`:
+
+```kotlin
+// iosMain
+fun MainViewController(): UIViewController = ComposeUIViewController(
+    configure = { onFocusBehavior = OnFocusBehavior.DoNothing }
+) { AppContent() }
+```
+
+If you embed inside SwiftUI and the SwiftUI parent already adjusts for the keyboard, you get double-adjustment. Disable one side.
 
 ### Hardware keyboard (Desktop)
 `Modifier.onKeyEvent { event -> ... }` works for global key handling. Use `Modifier.onPreviewKeyEvent` to intercept before child composables. `Key.Tab`, `Key.Enter`, modifier keys (`event.isCtrlPressed`, `event.isMetaPressed`) are platform-aware.
@@ -111,11 +120,11 @@ Desktop nuance: closing the last window can either quit the app or keep it runni
 
 ## Resources
 
-Use `org.jetbrains.compose.resources` plugin for fonts, images, strings, files. Generated `Res.font.X`, `Res.drawable.X`, `Res.string.X`, `Res.file.X` accessors live in a generated package keyed off your module name (e.g., `myproject.composeapp.generated.resources.Res`).
+Use the `org.jetbrains.compose` Gradle plugin's resources support (APIs live in the `org.jetbrains.compose.resources` package) for fonts, images, strings, files. Generated `Res.font.X`, `Res.drawable.X`, `Res.string.X`, `Res.plurals.X` and `Res.array.X` accessors live in a generated package keyed off your module name (e.g., `myproject.composeapp.generated.resources.Res`). Raw files have **no** generated accessor - read them by path with the suspend function `Res.readBytes("files/...")`.
 
 Localization: `commonMain/composeResources/values/strings.xml` is the default; add `values-fr/strings.xml` for French, `values-ja/strings.xml` for Japanese. Access via `stringResource(Res.string.app_name)`. Plural forms via `pluralStringResource(Res.plurals.items, count)`.
 
-Drawable formats: SVG, PNG, JPEG. Vector drawables (Android XML format) are supported but SVG is preferred for cross-platform.
+Drawable formats: raster PNG / JPEG / BMP / WebP, plus Android XML vector drawables (same format as Android, minus external references to Android resources). **SVG is supported on every target except Android** - so the Android XML vector, not SVG, is the portable vector format for a project that ships Android.
 
 ---
 

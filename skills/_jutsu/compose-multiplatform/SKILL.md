@@ -3,6 +3,10 @@ name: compose-multiplatform
 description: "Compose Multiplatform / KMP patterns - expect/actual composables, platform-specific code, density and font handling cross-target, iOS/Android/Desktop interop."
 ---
 
+> **Version-sensitive.** Every API name, SDK gate and browser-support claim below was
+> verified on **2026-09-08** against primary sources. What against, and when, is in
+> `_jutsu/VERSIONS.md`. If that date is old, re-verify before acting on a version number.
+
 # Compose Multiplatform
 
 > Compose Multiplatform (CMP) and Kotlin Multiplatform (KMP) patterns for cross-platform UI.
@@ -90,7 +94,13 @@ actual fun PlatformBlur(modifier: Modifier, content: @Composable () -> Unit) {
 actual fun PlatformBlur(modifier: Modifier, content: @Composable () -> Unit) {
     Box(modifier) {
         UIKitView(
-            factory = { UIVisualEffectView(effect = UIBlurEffect.systemMaterial()) },
+            factory = {
+                UIVisualEffectView(
+                    effect = UIBlurEffect.effectWithStyle(
+                        UIBlurEffectStyle.UIBlurEffectStyleSystemMaterial
+                    )
+                )
+            },
             modifier = Modifier.matchParentSize()
         )
         content()
@@ -140,10 +150,11 @@ composeApp/src/commonMain/composeResources/
 │   ├── Inter-Regular.ttf
 │   └── Inter-Bold.ttf
 ├── drawable/
-│   └── logo.svg
+│   └── logo.xml            ← Android XML vector. SVG works on every target EXCEPT Android
 └── values/
     ├── strings.xml          ← default locale
-    └── strings.fr.xml       ← French overrides
+└── values-fr/
+    └── strings.xml          ← French overrides (qualifier goes on the DIRECTORY)
 ```
 
 Usage in `commonMain`:
@@ -161,7 +172,7 @@ val InterFamily = FontFamily(
 Text("Hello", fontFamily = InterFamily)
 ```
 
-Same pattern for `Res.drawable.logo` (image), `Res.string.app_name` (localized string via `stringResource(...)`), `Res.file.config` (raw bytes via `Res.readBytes(...)`).
+Same pattern for `Res.drawable.logo` (image) and `Res.string.app_name` (localized string via `stringResource(...)`). Raw files are the exception: there is no generated `Res.file.*` accessor - you pass a path string to the suspend function `Res.readBytes(path)`, e.g. `val bytes = Res.readBytes("files/config.json")`, for anything under `composeResources/files/`.
 
 ---
 
@@ -251,7 +262,17 @@ The animation primer lives in `../compose-motion/SKILL.md`. Cross-platform delta
 
 - **Drawer state on iOS**: native `ModalNavigationDrawer` swipe-to-open from the leading edge conflicts with iOS's back-swipe gesture. Use a button trigger or move the swipe area inward 30dp+.
 - **`LayoutDirection.Rtl` quirks**: Android handles RTL natively, iOS Compose had bugs in 1.6 (text alignment, padding inversions). Improved in 1.7+ but verify with real Arabic/Hebrew strings.
-- **Soft keyboard handling**: `imePadding()` works on Android out of the box. On iOS Compose 1.6+, it requires `IOSKeyboardEventListener` setup or a `WindowInsets` observer wired through the platform layer.
+- **Soft keyboard handling**: `imePadding()` / `WindowInsets.ime` work on Android out of the box and are implemented on iOS too. There is **no** `IOSKeyboardEventListener` type in CMP - the real knob is `ComposeUIViewControllerConfiguration.onFocusBehavior`, which defaults to `OnFocusBehavior.FocusableAboveKeyboard` (CMP pans the *whole* Compose view up so the focused field clears the keyboard). If you want to drive the layout yourself with `imePadding()` / `WindowInsets.ime`, turn the automatic pan off:
+  ```kotlin
+  // iosMain - imports: androidx.compose.ui.window.ComposeUIViewController,
+  //                    androidx.compose.ui.uikit.OnFocusBehavior
+  fun MainViewController(): UIViewController = ComposeUIViewController(
+      configure = { onFocusBehavior = OnFocusBehavior.DoNothing }
+  ) {
+      AppContent()
+  }
+  ```
+  Leaving the default on *and* applying `imePadding()` is the classic double-adjustment bug; same if the SwiftUI parent hosting the controller also adjusts for the keyboard.
 - **`Color.parseHex(...)`** does not exist in Compose. Use `Color(0xFFRRGGBB)` or write a tiny extension.
 - **System fonts on iOS via Compose**: do not fallback to `FontFamily.SansSerif` and expect SF Pro. Compose on iOS ships its own font fallback chain. Either bundle SF Pro via Compose Resources (license-permitting) or use `UIKitView` to drop a native `UILabel` for system-font text.
 - **Animations on Web (Wasm)**: heavier startup, occasional first-frame stutter; profile with browser devtools and lazy-load heavy animation graphs.
@@ -261,8 +282,10 @@ The animation primer lives in `../compose-motion/SKILL.md`. Cross-platform delta
 
 ## CMP version notes
 
-- Compose Multiplatform 1.7 stable: `SharedTransitionLayout` cross-platform, improved iOS keyboard handling, lifecycle observability via `LocalLifecycleOwner` on iOS.
-- Kotlin 2.0+ required (K2 compiler).
+- Current stable is **Compose Multiplatform 1.12.0** (released 25 Aug 2026); 1.10.3 was the previous long-lived line. Treat 1.7 as the historical floor for `SharedTransitionLayout` cross-platform, iOS keyboard handling and `LocalLifecycleOwner` on iOS, not as the version to target.
+- Since 1.7, iOS interop lives in `androidx.compose.ui.viewinterop` (`UIKitView`, `UIKitViewController`, `UIKitInteropProperties`); the old `androidx.compose.ui.interop.UIKitView` overloads with `interactive:` / `accessibilityEnabled:` parameters are `@Deprecated`.
+- 1.10 added `UIKitInteropProperties(placedAsOverlay = true)` so an interop view can be composited *above* Compose content, plus intrinsic-size (`sizeThatFits`) support for wrapping SwiftUI views in a `UIHostingController`.
+- Kotlin 2.x with the K2 compiler; pair the latest CMP with the latest Kotlin (2.2.20+ for iOS/web targets).
 - Some Material 3 components have platform-specific look (e.g., `Switch` on iOS auto-renders with iOS-style proportions; `DatePicker` stays Material across all targets).
 - `compose-multiplatform-resources` plugin is the standard for assets; the older `moko-resources` is no longer recommended for new projects.
 

@@ -406,13 +406,17 @@ Stagger transforms a group of identical animations into a choreography.
 .card:nth-child(3) { --i: 2; }
 ```
 
-### Framer Motion (variants)
+### Motion / Framer Motion (variants)
 
 ```tsx
+import { stagger } from "motion/react"; // or "framer-motion" - same library, two package names
+
 const container = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.05, delayChildren: 0.1 } },
-  exit: { transition: { staggerChildren: 0.03, staggerDirection: -1 } },
+  // staggerChildren + staggerDirection are deprecated since Motion 12.22 (Jul 2025).
+  // stagger() returns startDelay + duration * distance, so this is the same timing.
+  show: { transition: { delayChildren: stagger(0.05, { startDelay: 0.1 }) } },
+  exit: { transition: { delayChildren: stagger(0.03, { from: "last" }) } },
 };
 const item = {
   hidden: { opacity: 0, y: 8 },

@@ -1,6 +1,6 @@
 # GSAP Plugins
 
-## SplitText (Free since v3.12)
+## SplitText (Free since v3.13)
 
 Splits text into `chars`, `words`, `lines` for granular animations.
 

@@ -3,9 +3,28 @@ name: framer-motion
 description: "Framer Motion / Motion sub-skill - AnimatePresence, layout animations, gestures, motion values."
 ---
 
+> **Version-sensitive.** Every API name, SDK gate and browser-support claim below was
+> verified on **2026-09-08** against primary sources. What against, and when, is in
+> `_jutsu/VERSIONS.md`. If that date is old, re-verify before acting on a version number.
+
 # Framer Motion — Sub-skill
 
-> Package: `motion` (v11+, formerly `framer-motion`). Import: `import { motion, AnimatePresence } from "motion/react"`
+> **Two package names, one library.** Framer Motion was renamed to Motion. `motion` and
+> `framer-motion` both publish the same version (13.2.0 as of 2026-09-08): `motion` declares
+> `"framer-motion": "^13.2.0"` as a dependency and `motion/react` re-exports it. Neither is
+> broken, and `framer-motion` is still the one most installed projects have.
+>
+> **Read `package.json` and follow what is there.** Do not migrate a project from one to the
+> other unless the user asks - that is Iron Rule 8 in `cast` / 10 in `paint`.
+>
+> | In `package.json` | Import from | Install line |
+> |---|---|---|
+> | `motion` | `"motion/react"` | `npm install motion` |
+> | `framer-motion` | `"framer-motion"` | `npm install framer-motion` |
+> | both | whichever the file you are editing already imports; say the project is mid-migration | - |
+>
+> Every API in this skill is identical across the two names at v13. Where a symbol is newer
+> than v11, it is flagged inline. Peers: `react` / `react-dom` `^18 || ^19`.
 
 ## When to use Framer Motion vs alternatives
 
@@ -60,14 +79,18 @@ description: "Framer Motion / Motion sub-skill - AnimatePresence, layout animati
 ## Variants — Propagation and orchestration
 
 ```tsx
+import { stagger } from "motion/react";
+
 const container = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.2,
-      staggerDirection: 1,    // 1 = normal, -1 = reverse
+      // staggerChildren + staggerDirection are DEPRECATED (Motion 12.22, Jul 2025).
+      // Pass a stagger() function to delayChildren instead.
+      delayChildren: stagger(0.08, { startDelay: 0.2 }),
+      // reverse order: stagger(0.08, { from: "last" })
+      // also available: from: "first" | "center" | "last" | index, and ease
     },
   },
 };
@@ -129,6 +152,21 @@ const { scrollYProgress } = useScroll({
 **Motion values do NOT trigger React re-renders** — they update the DOM directly via `style`.
 
 ## Do Not
+
+### Do not use motion with styled-components / Emotion without `isValidProp` (v13+)
+
+Motion 13.0 removed `@emotion/is-prop-valid` as an optional dependency. Without explicit injection, motion-only props leak onto the DOM.
+
+```tsx
+import isPropValid from "@emotion/is-prop-valid";
+import { MotionConfig } from "motion/react";
+
+<MotionConfig isValidProp={isPropValid}>
+  <App />
+</MotionConfig>
+```
+
+Or reverse the composition so the styling library owns prop forwarding: `const MotionDiv = motion.create(StyledDiv)`.
 
 ### Do not setState in callbacks without a guard
 

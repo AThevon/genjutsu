@@ -116,23 +116,18 @@ Open it via Tools -> Layout Inspector while running on a connected device. Compo
 
 ---
 
-## `Modifier.recomposeHighlighter()` (dev only)
+## Watching recompositions happen (dev only)
 
-Compose 1.6+ ships an opt-in `Modifier.recomposeHighlighter()` (you also find Cyril Pierre's standalone version on GitHub) that flashes a colored border on every recomposition. Drop it on suspicious nodes during dev:
+**There is no `Modifier.recomposeHighlighter()` in any androidx artifact.** It is a copy-paste sample from the [android/snippets](https://github.com/android/snippets/blob/main/compose/recomposehighlighter/src/main/java/com/example/android/compose/recomposehighlighter/RecomposeHighlighter.kt) repo (a `ModifierNodeElement` + `DrawModifierNode` you vendor into your own debug source set). Do not `import` it - it will not resolve.
 
-```kotlin
-@Composable
-fun Header(title: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .recomposeHighlighter()                    // dev only
-            .padding(16.dp),
-    ) { Text(title) }
-}
-```
+Use the shipped tooling instead:
 
-If the border flashes when you scroll a list further down the tree, you have a leak. Remove for prod.
+1. **Layout Inspector recomposition counts** (the default answer). Run on a device, open Layout Inspector, and in the Component Tree turn on **Show Recomposition Counts** from the **View Options** menu. Two columns appear per node: compositions and skips. **Reset** at the top of the Component Tree zeroes them so you can attribute counts to one interaction. Requires API 29+ and Compose 1.2+.
+2. **Recomposition highlighting** - the same Layout Inspector draws a gradient overlay on the image pane that fades out, so the hottest composables are visible spatially. This is the shipped equivalent of the snippet above.
+3. **Composition tracing** for a system trace that names your composable functions - the right tool once you know *where* and need to know *how long*.
+4. **Compose compiler reports** (`-P plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=...`) to find unstable parameters that defeat skipping in the first place.
+
+If you do vendor the snippet, keep it in `debug/` so it cannot reach a release build.
 
 ---
 

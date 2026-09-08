@@ -40,7 +40,10 @@ val tState = rememberTransformableState { zoomChange, panChange, rotationChange 
 }
 Modifier.transformable(state = tState)
 
-// Swipeable / snap-points (Compose 1.6+, replaces deprecated swipeable)
+// Swipeable / snap-points - replaces the deprecated `swipeable`.
+// Thresholds and animation specs have moved OFF the state and ONTO the fling behavior:
+// the AnchoredDraggableState(initialValue, anchors, positionalThreshold, velocityThreshold,
+// snapAnimationSpec, decayAnimationSpec) factory is deprecated, and `velocityThreshold` is gone.
 val anchored = remember {
     AnchoredDraggableState(
         initialValue = DragValue.Center,
@@ -49,16 +52,20 @@ val anchored = remember {
             DragValue.Center at 0f
             DragValue.End at 1000f
         },
-        positionalThreshold = { distance -> distance * 0.5f },
-        velocityThreshold = { with(density) { 100.dp.toPx() } },
-        snapAnimationSpec = spring(),
-        decayAnimationSpec = splineBasedDecay(density),
     )
 }
-Modifier.anchoredDraggable(state = anchored, orientation = Orientation.Horizontal)
+Modifier.anchoredDraggable(
+    state = anchored,
+    orientation = Orientation.Horizontal,
+    flingBehavior = AnchoredDraggableDefaults.flingBehavior(
+        state = anchored,
+        positionalThreshold = { distance -> distance * 0.5f },
+        animationSpec = AnchoredDraggableDefaults.SnapAnimationSpec,
+    ),
+)
 ```
 
-`AnchoredDraggableState` is the modern primitive behind swipe-to-dismiss, bottom sheets, and side drawers. The state exposes `currentValue`, `targetValue`, `progress`, and `offset` - everything you need to drive UI off the drag.
+`AnchoredDraggableState` is the modern primitive behind swipe-to-dismiss, bottom sheets, and side drawers. The state exposes `currentValue`, `settledValue`, `targetValue`, `offset` / `requireOffset()`, and `progress(from, to)` - everything you need to drive UI off the drag. (The no-argument `progress` property is deprecated; pass the two anchors you want the fraction between.)
 
 ---
 

@@ -1,6 +1,6 @@
 # Shared Element Transitions in Compose
 
-`SharedTransitionLayout` morphs an element's bounds, position, and (with `sharedBounds`) shape between two destinations. The receiver lays out both states in the same coordinate space and interpolates between them. Stable since Compose 1.7 - this is the canonical hero / detail / picture-in-picture pattern.
+`SharedTransitionLayout` morphs an element's bounds, position, and (with `sharedBounds`) shape between two destinations. The receiver lays out both states in the same coordinate space and interpolates between them. Introduced in Compose 1.7 (then behind `@ExperimentalSharedTransitionApi`) and reshaped since - parameter names below target Compose 1.12.0. This is the canonical hero / detail / picture-in-picture pattern.
 
 ---
 
@@ -71,7 +71,7 @@ fun ListScreen(
                     painter = item.painter,
                     contentDescription = null,
                     modifier = Modifier.sharedElement(
-                        state = rememberSharedContentState("image-${item.id}"),
+                        sharedContentState = rememberSharedContentState("image-${item.id}"),
                         animatedVisibilityScope = avs,
                     ),
                 )
@@ -102,7 +102,7 @@ fun DetailScreen(
                     .fillMaxWidth()
                     .height(360.dp)
                     .sharedElement(
-                        state = rememberSharedContentState("image-${item.id}"),
+                        sharedContentState = rememberSharedContentState("image-${item.id}"),
                         animatedVisibilityScope = avs,
                     ),
             )
@@ -129,7 +129,7 @@ Image(
     modifier = Modifier
         .aspectRatio(1f)
         .sharedElement(
-            state = rememberSharedContentState("photo-${item.id}"),
+            sharedContentState = rememberSharedContentState("photo-${item.id}"),
             animatedVisibilityScope = avs,
             boundsTransform = { _, _ ->
                 spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = 0.85f)
@@ -145,7 +145,7 @@ Image(
     modifier = Modifier
         .fillMaxWidth()
         .sharedElement(
-            state = rememberSharedContentState("photo-${item.id}"),
+            sharedContentState = rememberSharedContentState("photo-${item.id}"),
             animatedVisibilityScope = avs,
         ),
 )
@@ -172,7 +172,7 @@ SharedTransitionLayout {
                         .height(48.dp)
                         .background(palette[page], RoundedCornerShape(24.dp))
                         .sharedElement(
-                            state = rememberSharedContentState("tab-pill"),
+                            sharedContentState = rememberSharedContentState("tab-pill"),
                             animatedVisibilityScope = this@AnimatedContent,
                         ),
                 )
@@ -215,9 +215,9 @@ If the same screen contains multiple shared elements, namespace them: `"image-${
 
 - `enter` / `exit`: `EnterTransition` / `ExitTransition` for content INSIDE the morphing bounds (default `fadeIn()` / `fadeOut()`).
 - `boundsTransform`: spring/tween for the bounds interpolation itself.
-- `resizeMode`: `ScaleToBounds(contentScale, alignment)` (default - scales content to match bounds, useful when content shape matches) or `RemeasureToBounds` (re-measures content at every step, useful for text reflow).
+- `resizeMode`: `ResizeMode.scaleToBounds(contentScale, alignment)` (default - scales content to match bounds, useful when content shape matches) or `ResizeMode.RemeasureToBounds` (re-measures content at every step, useful for text reflow). `ScaleToBounds` was lower-cased to the factory function `scaleToBounds(...)` in compose-animation 1.10.0-alpha01.
 - `clipInOverlayDuringTransition`: an `OverlayClip(shape)` applied while the element is in the overlay. Use a rounded shape that matches your destination card to avoid hard rectangle flashes.
-- `placeHolderSize`: how the source slot reserves space during the transition (`PlaceHolderSize.contentSize` by default, `PlaceHolderSize.animatedSize` to animate the gap).
+- `placeholderSize`: how the source slot reserves space during the transition (`PlaceholderSize.contentSize` by default, `PlaceholderSize.animatedSize` to animate the gap). Note the lower-case `h` - `PlaceHolderSize` was renamed in compose-animation 1.10.0-alpha04.
 
 Quick template for a card-to-screen morph:
 
@@ -236,7 +236,7 @@ Modifier.sharedBounds(
 
 ## Compose Navigation Integration
 
-With androidx.navigation 2.8+ for Compose, scopes are accessible directly inside `composable<Route>` lambdas via `LocalNavAnimatedVisibilityScope` and a `SharedTransitionLayout` wrapping the `NavHost`.
+With androidx.navigation 2.8+ for Compose (current stable 2.10.0), wrap the `NavHost` in a `SharedTransitionLayout` and use the `composable<Route>` content lambda's own receiver: it is an `AnimatedContentScope`, hence an `AnimatedVisibilityScope`. There is no `LocalNavAnimatedVisibilityScope` in androidx - if you want a CompositionLocal instead of threading the scope through parameters, you declare it yourself. (Navigation 3 *does* ship one, under a different name: `androidx.navigation3.ui.LocalNavAnimatedContentScope`.)
 
 ```kotlin
 SharedTransitionLayout {
@@ -260,7 +260,7 @@ SharedTransitionLayout {
 }
 ```
 
-Pass `sts` and `avs` exactly as you would inside a manual `AnimatedContent`. The `composable` lambda IS an `AnimatedVisibilityScope`. If you ship Compose Navigation 3 (stable expected early 2026), the surface is the same - the ergonomics get a bit nicer with type-safe routes already inferred.
+Pass `sts` and `avs` exactly as you would inside a manual `AnimatedContent`. The `composable` lambda IS an `AnimatedVisibilityScope`. Navigation 3 shipped 1.0.0 stable on 19 Nov 2025 (current stable 1.1.7) and the surface is **not** the same: you wrap `NavDisplay` in a `SharedTransitionLayout`, pass the `SharedTransitionScope` down (or straight to `NavDisplay`'s `sharedTransitionScope` parameter), and get the `AnimatedVisibilityScope` from `LocalNavAnimatedContentScope.current` instead of a lambda receiver.
 
 ---
 

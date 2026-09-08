@@ -52,7 +52,7 @@ Takes any creative request and makes it exceptional. Adapts to your stack and sc
 
 **Pipeline:** Scan stack -> Evaluate scope -> Propose interaction thesis -> Load sub-skills -> Implement -> Mini-audit
 
-- Detects your dependencies automatically across web (GSAP, Framer Motion, Three.js, CSS), Android (Jetpack Compose, Compose Multiplatform) and Apple (SwiftUI iOS / macOS)
+- Detects your dependencies automatically across web (GSAP, Motion / Framer Motion, Three.js, CSS), Android (Jetpack Compose, Compose Multiplatform) and Apple (SwiftUI iOS / macOS)
 - Proposes an **interaction thesis** before writing a single line of code, and asks **how you want to see it** first
 - Scales from a single hover effect to a full scroll-driven page or a Compose `SharedTransitionLayout` flow
 - Runs a quick audit on exit: reduced-motion, exit animations, recomposition, hitches, layout performance
@@ -120,7 +120,7 @@ Internal modules loaded dynamically by the orchestrators. Not invocable directly
 | Sub-skill | Scope | Files |
 |---|---|---|
 | gsap | Core, timeline, ScrollTrigger, plugins | SKILL + 4 references |
-| framer-motion | AnimatePresence, layout, gestures, motion values | SKILL + 1 reference |
+| framer-motion | Motion and Framer Motion (same library, two package names) - AnimatePresence, layout, gestures, motion values | SKILL + 1 reference |
 | css-native | Scroll-driven, View Transitions, @starting-style | SKILL + 1 reference |
 | threejs-r3f | Three.js, React Three Fiber, shaders, postprocessing | SKILL + 2 references |
 | canvas-generative | Particles, flow fields, noise, fractals, L-systems | SKILL + 1 reference |
@@ -230,6 +230,7 @@ genjutsu/
 │   ├── cast/SKILL.md                       <- orchestrator (Illusionist)
 │   ├── paint/SKILL.md                      <- orchestrator (Master Painter)
 │   └── _jutsu/                             <- internal sub-skills (never invoked directly)
+│       ├── VERSIONS.md                     <- what every version claim was verified against
 │       ├── motion-principles/              <- foundation, always loaded
 │       ├── mobile-principles/              <- shared (touch contexts)
 │       ├── desktop-principles/             <- shared (pointer/keyboard contexts)

@@ -3,11 +3,15 @@ name: compose-motion
 description: "Jetpack Compose animation foundations - animate*AsState, AnimatedVisibility, Crossfade, updateTransition, SharedTransitionLayout, gestures."
 ---
 
+> **Version-sensitive.** Every API name, SDK gate and browser-support claim below was
+> verified on **2026-09-08** against primary sources. What against, and when, is in
+> `_jutsu/VERSIONS.md`. If that date is old, re-verify before acting on a version number.
+
 # Compose Motion - Sub-skill
 
 > Jetpack Compose animation core. Loaded for Android Compose and Compose Multiplatform projects.
 > Concise rules here. Deep-dive in `references/`.
-> Baseline: current stable Jetpack Compose (1.7+). Modern stable APIs only - no `swipeable`, no `animateContentSize` hacks where `AnimatedContent` is correct.
+> Baseline: Jetpack Compose 1.12.0 (current stable, Aug 2026) - i.e. Compose BOM 2026.08.x. Modern stable APIs only - no `swipeable`, no `animateContentSize` hacks where `AnimatedContent` is correct. Anything below flagged 'Compose 1.x+' is a *since* marker, not the target.
 
 ---
 
@@ -38,7 +42,7 @@ description: "Jetpack Compose animation foundations - animate*AsState, AnimatedV
 | Bouncy reveal (toast, FAB, success) | `spring(stiffness = Spring.StiffnessLow, dampingRatio = Spring.DampingRatioMediumBouncy)` |
 | Drag follow (1:1 finger tracking) | `spring(stiffness = Spring.StiffnessHigh, dampingRatio = 1f)` |
 
-Stiffness constants: `VeryLow` 200, `Low` 400, `MediumLow` 700, `Medium` 1500, `High` 10000. Higher = faster settle. Damping constants: `HighBouncy` 0.2, `MediumBouncy` 0.5, `LowBouncy` 0.75, `NoBouncy` 1.0. Below 1.0 overshoots. Springs ignore `durationMillis`; if you need a deterministic duration, use `tween(...)` instead.
+Stiffness constants (`androidx.compose.animation.core.Spring`): `StiffnessVeryLow` 50f, `StiffnessLow` 200f, `StiffnessMediumLow` 400f, `StiffnessMedium` 1500f (the `spring()` default), `StiffnessHigh` 10000f. Higher = faster settle. Damping constants: `DampingRatioHighBouncy` 0.2f, `DampingRatioMediumBouncy` 0.5f, `DampingRatioLowBouncy` 0.75f, `DampingRatioNoBouncy` 1.0f (the default). Below 1.0 overshoots. Springs ignore `durationMillis`; if you need a deterministic duration, use `tween(...)` instead.
 
 ---
 
@@ -164,7 +168,7 @@ with(sharedTransitionScope) {
         painter = painter,
         contentDescription = null,
         modifier = Modifier.sharedElement(
-            state = rememberSharedContentState(key = "hero-${item.id}"),
+            sharedContentState = rememberSharedContentState(key = "hero-${item.id}"),
             animatedVisibilityScope = animatedVisibilityScope,
         ),
     )

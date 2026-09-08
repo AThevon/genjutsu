@@ -1,0 +1,52 @@
+name: Checks
+
+# Runs on every PR and every push to main, and is called by the release workflow
+# so that publishing cannot skip it. Before this existed, release.yml triggered on
+# `push: tags: v*` while the only check triggered on `pull_request` and
+# `push: branches: [main]` - a tag push matched neither, so cutting a release ran
+# nothing at all.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+
+      - name: Shared blocks are in sync between cast and paint
+        run: ./scripts/check-shared-blocks.sh
+
+      - name: No banned symbol has come back
+        run: ./scripts/check-denylist.sh
+
+      - name: Every SKILL.md is valid against the Agent Skills spec
+        run: python3 scripts/validate-skills.py
+
+      - name: ui-ux-pro-max dataset is well formed
+        run: python3 skills/_jutsu/ui-ux-pro-max/scripts/validate_data.py
+
+      - name: ui-ux-pro-max engine tests
+        working-directory: skills/_jutsu/ui-ux-pro-max/scripts
+        run: python3 -m unittest discover -s tests
+
+      - name: Packaging produces the bundle and the individual ZIPs
+        run: |
+          ./package-for-claude-ai.sh
+          test -f dist/genjutsu.zip || { echo "dist/genjutsu.zip missing"; exit 1; }
+          # claude.ai rejects a skill ZIP holding more than one SKILL.md. The
+          # bundle renames the inner ones to GUIDE.md; assert it actually did.
+          n=$(unzip -Z1 dist/genjutsu.zip | grep -cE '(^|/)SKILL\.md$' || true)
+          if [ "$n" -ne 1 ]; then
+            echo "genjutsu.zip contains $n SKILL.md, expected exactly 1:"
+            unzip -Z1 dist/genjutsu.zip | grep -E '(^|/)SKILL\.md$' || true
+            exit 1
+          fi
+          echo "genjutsu.zip: exactly 1 SKILL.md, $(unzip -Z1 dist/genjutsu.zip | grep -c 'GUIDE\.md$' || true) GUIDE.md"

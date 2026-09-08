@@ -13,17 +13,21 @@ The theme exposes six animation specs through `MaterialTheme.motionScheme`. They
 | Domain | Token family | Implementation |
 |---|---|---|
 | **Spatial** - position, size, scale | `*SpatialSpec()` | Spring-based. Inertia, overshoot, settle. |
-| **Effects** - opacity, color, elevation | `*EffectsSpec()` | Tween-based. Predictable, no overshoot. |
+| **Effects** - opacity, color, elevation | `*EffectsSpec()` | Also spring-based, but critically damped (`dampingRatio = 1.0`) and much stiffer. Predictable, no overshoot. |
 
 > Why split? A bouncing alpha looks broken (opacity overshoots into negative or above 1). A tweened position looks robotic (no inertia). The split codifies what works and what doesn't.
 
 ### Speed Variants
 
-| Speed | Spatial | Effects |
-|---|---|---|
-| Fast | `fastSpatialSpec()` (~ 200ms) | `fastEffectsSpec()` (~ 150ms) |
-| Default | `defaultSpatialSpec()` (~ 350ms) | `defaultEffectsSpec()` (~ 250ms) |
-| Slow | `slowSpatialSpec()` (~ 600ms) | `slowEffectsSpec()` (~ 400ms) |
+Springs have no duration; these are the actual `dampingRatio` / `stiffness` values behind each token (material3 1.4.0, `StandardMotionTokens` / `ExpressiveMotionTokens`):
+
+| Speed | Spatial - standard | Spatial - expressive | Effects (both schemes) |
+|---|---|---|---|
+| Fast | `0.9 / 1400` | `0.6 / 800` | `1.0 / 3800` |
+| Default | `0.9 / 700` | `0.8 / 380` | `1.0 / 1600` |
+| Slow | `0.9 / 300` | `0.8 / 200` | `1.0 / 800` |
+
+Read the columns: expressive spatial is *softer and looser* than standard (lower stiffness, lower damping = visible overshoot), while the effects springs are identical across both schemes and critically damped.
 
 ### When to Override
 
@@ -137,9 +141,9 @@ fun ExpressiveHeroCard(item: Item) {
         modifier = Modifier
             .size(200.dp)
             .shadow(elevation, shape = RoundedCornerShape(16.dp))
-            .clip(GenericShape { _, _ ->
-                addPath(morph.toPath(morphProgress).asAndroidPath().asComposePath())
-            })
+            // MorphShape scales the normalized 0..1 morph path to the draw size -
+            // see ../SKILL.md "Shape Morphing" for the class.
+            .clip(MorphShape(morph, morphProgress))
             .background(color)
             .clickable { expanded = !expanded }
     ) {
@@ -156,7 +160,7 @@ What ships in this 30-line composable: spatial spring on size and elevation, twe
 
 ## Shape Morphing Patterns
 
-`androidx.graphics.shapes` is the M3 Expressive shape engine. Two key APIs.
+`androidx.graphics.shapes:graphics-shapes` (stable 1.1.0) is the geometry engine: `RoundedPolygon`, `CornerRounding`, `Morph`. The named Material shapes below are a *separate* thing - `androidx.compose.material3.MaterialShapes`, still `@ExperimentalMaterial3ExpressiveApi`, shipping only in `androidx.compose.material3:material3:1.5.0-alpha*` (absent from stable 1.4.0). Import them from material3, not from graphics-shapes.
 
 ### Predefined Shapes
 
@@ -179,8 +183,12 @@ These are tuned for smooth morphing. They share consistent vertex counts after s
 ### Morph
 
 ```kotlin
+import androidx.compose.material3.toPath   // Compose Path overload; the graphics-shapes
+                                           // one returns android.graphics.Path
+import androidx.graphics.shapes.Morph
+
 val morph = remember { Morph(MaterialShapes.Circle, MaterialShapes.Cookie4Sided) }
-val path = morph.toPath(progress) // progress in 0..1
+val path: Path = morph.toPath(progress)    // progress in 0..1, path normalized to a 0..1 box
 ```
 
 Combine with springs for organic feel:

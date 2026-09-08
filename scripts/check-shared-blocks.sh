@@ -12,7 +12,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CAST="$ROOT/skills/cast/SKILL.md"
 PAINT="$ROOT/skills/paint/SKILL.md"
-REGIONS=(scan skill-base load preview)
+REGIONS=(scan skill-base load preview audit)
 
 extract() { # <file> <region>
   awk -v s="<!-- genjutsu:shared:$2:start -->" -v e="<!-- genjutsu:shared:$2:end -->" '
@@ -39,6 +39,21 @@ for r in "${REGIONS[@]}"; do
     echo "OK   [$r]: cast and paint match"
   fi
 done
+
+# A region can be added to the two files and forgotten here, which is how the
+# audit checklist drifted unguarded for three releases. Fail if the markers
+# present in the files do not match REGIONS exactly, in either direction.
+found="$(grep -ho '<!-- genjutsu:shared:[a-z-]*:start -->' "$CAST" "$PAINT" \
+  | sed 's/.*shared:\([a-z-]*\):start.*/\1/' | sort -u)"
+declared="$(printf '%s\n' "${REGIONS[@]}" | sort -u)"
+if [ "$found" != "$declared" ]; then
+  echo "FAIL: the guarded regions in the files do not match REGIONS in this script."
+  diff <(printf '%s\n' "$declared") <(printf '%s\n' "$found") \
+    | sed 's/^</  only in REGIONS: /; s/^>/  only in the files: /' || true
+  status=1
+else
+  echo "OK   [markers]: REGIONS matches the markers found in cast and paint"
+fi
 
 if [ "$status" -ne 0 ]; then
   echo ""

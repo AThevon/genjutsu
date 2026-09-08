@@ -20,7 +20,10 @@ iOS 26 ships a system glassmorphism layer with adaptive depth, refraction, and m
 | `.glassEffect(.identity)` | No-op variant, to conditionally disable the effect |
 | `.glassEffectID(_, in:)` | Pair a glass surface with a namespace for morphing |
 | `GlassEffectContainer` | Group glass surfaces that should morph as one |
-| `.glassBackgroundEffect(displayMode:)` | Older watchOS alias; iOS prefers `.glassEffect()` |
+| `.glassBackgroundEffect(displayMode:)` | **visionOS 1.0+ only** - not available on iOS/iPadOS/macOS/tvOS/watchOS. It predates Liquid Glass and is unrelated to it |
+| `.glassEffectUnion(id:namespace:)` | Fuse several sibling effects into one glass shape while at rest (iOS 26+) |
+| `.glassEffectTransition(_:)` / `GlassEffectTransition` | Pick the add/remove transition: `.matchedGeometry` (default inside the container's spacing) or `.materialize` (iOS 26+) |
+| `.buttonStyle(.glass)` / `.glassProminent` | `GlassButtonStyle` / `GlassProminentButtonStyle` for standard buttons (iOS 26+) |
 
 Variant guidance (iOS 26 `Glass` exposes only these):
 - `.clear`: high transparency, content stays visible. Use for lightweight chrome over rich/media backgrounds.
@@ -41,7 +44,9 @@ struct ExpandingCard: View {
     @State var expanded = false
 
     var body: some View {
-        ZStack {
+        // Required: glassEffectID morphing only happens inside a GlassEffectContainer.
+        // The container's `spacing` is what decides when two shapes merge/split.
+        GlassEffectContainer(spacing: 40.0) {
             if !expanded {
                 Image("hero")
                     .resizable()
@@ -109,8 +114,7 @@ struct GlassTabBar: View {
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 12)
-            .glassEffect(.regular)
-            .clipShape(Capsule())
+            .glassEffect(.regular, in: .capsule)
             .padding(.bottom, 16)
         }
     }

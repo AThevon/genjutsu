@@ -3,7 +3,14 @@ name: gsap
 description: "GSAP animation engine sub-skill - core, timeline, ScrollTrigger, plugins."
 ---
 
+> **Version-sensitive.** Every API name, SDK gate and browser-support claim below was
+> verified on **2026-09-08** against primary sources. What against, and when, is in
+> `_jutsu/VERSIONS.md`. If that date is old, re-verify before acting on a version number.
+
 # GSAP — Animation Engine
+
+> GSAP 3.15 (released 13 Apr 2026). Since 3.13 the entire library — including every former Club plugin (SplitText, MorphSVG, DrawSVG, ScrollSmoother, InertiaPlugin, MotionPathHelper, CustomEase…) — ships in the public `gsap` npm package and is free, commercial use included, under the GreenSock Standard "no charge" license. There is no Club paywall.
+> GreenSock also publish official agent skills (MIT, 8 skills: core, timeline, scrolltrigger, plugins, utils, react, performance, frameworks): https://github.com/greensock/gsap-skills — worth installing alongside this sub-skill.
 
 ## When to use GSAP
 
