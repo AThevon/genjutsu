@@ -345,3 +345,16 @@ Built by studying the best creative coding resources available.
 ## License
 
 [MIT](LICENSE)
+
+---
+
+<p align="center">
+  Built by <a href="https://athevon.dev"><strong>Adrien Thevon</strong></a>, software engineer in Toulouse.
+  <br />
+  <sub>
+    Also mine:
+    <a href="https://github.com/AThevon/TokenEater">TokenEater</a>, a native macOS monitor for Claude usage limits
+    &nbsp;·&nbsp;
+    <a href="https://github.com/AThevon/worktigre">worktigre</a>, a git worktree manager
+  </sub>
+</p>
