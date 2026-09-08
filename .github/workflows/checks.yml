@@ -37,6 +37,13 @@ jobs:
         working-directory: skills/_jutsu/ui-ux-pro-max/scripts
         run: python3 -m unittest discover -s tests
 
+      - name: design-audit tests
+        # The load-bearing case in here is that every check can still fire. The
+        # greps this replaced had been reporting clean on projects they never
+        # opened; a check that goes inert must fail CI, not pass an audit.
+        working-directory: skills/_jutsu/design-audit/scripts
+        run: python3 -m unittest discover -s tests
+
       - name: Packaging produces the bundle and the individual ZIPs
         run: |
           ./package-for-claude-ai.sh
