@@ -33,11 +33,24 @@ Two things follow, and both correct what this file used to claim:
 | New `scripts/reasoning_contract.py`, imported by the other scripts | v2.15.0 |
 | New data files: `catalog-summary.json`, `data-provenance.json`, `google-font-licenses.json`, `phosphor-icons-upstream.json` | v2.15.0 |
 
-A sync is therefore a single jump from v2.11.1 to v2.15.0, and it is an engine rewrite
-rather than a data refresh. Whether it is worth taking is an open question, not a chore:
-no orchestrator invokes `search.py` directly - `paint` Phase 3 loads this `SKILL.md`, and
-the script runs only if the model chooses to follow the workflow described in it. Decide
-whether this sub-skill is load-bearing before spending a sync on it.
+A sync is therefore a single jump from v2.11.1 to v2.15.0, and it is an engine rewrite rather
+than a data refresh.
+
+**Settled on 2026-09-08: this sub-skill is load-bearing, and the sync is worth taking when
+someone has an afternoon.** It used to be an open question, because `paint` Phase 3 only loaded
+this `SKILL.md` and the script ran solely if the model chose to follow the workflow described in
+it. Phase 3 now invokes `search.py --design-system -f markdown` directly, with the validated
+visual thesis as the query. The output was checked by hand: a coherent palette with role and CSS
+variable names, a font pairing with a ready Google Fonts URL, an effects note and a list of
+anti-patterns. That is real input to a design system, so the 1.8 MB this directory costs (55% of
+the tracked repo) is earned rather than dead weight.
+
+Two consequences. The eight out-of-scope stack CSVs stay: slimming them would save 184 KB and
+break the clean-mirror property that makes a sync a copy instead of a merge. And a sync now has
+a functional test rather than a vibe check - run the smoke test below and read the output.
+
+`google-fonts.csv` is 728 KB, 22% of the whole repo on its own. It is a real search domain in
+`core.py`, read on demand, so it costs disk and clone time rather than context. Left alone.
 
 ## Vendored vs genjutsu-authored
 
