@@ -12,6 +12,8 @@
   <a href="https://genjutsu.athevon.dev/docs"><strong>Documentation</strong></a>
   &nbsp;·&nbsp;
   <a href="https://genjutsu.athevon.dev/docs/install"><strong>Install</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/AThevon/genjutsu/discussions"><strong>Discussions</strong></a>
 </p>
 
 <p align="center">
@@ -339,6 +341,18 @@ Built by studying the best creative coding resources available.
 - Steven Hoober (thumb zones research) - "Designing for Touch"
 - [Material Design 3 - Motion](https://m3.material.io/styles/motion/overview/specs) and [M3 Expressive](https://m3.material.io/blog/m3-expressive-motion-theming)
 - [Apple HIG iOS](https://developer.apple.com/design/human-interface-guidelines/) and [macOS](https://developer.apple.com/design/human-interface-guidelines/macos)
+
+---
+
+## Talk to me
+
+[Discussions](https://github.com/AThevon/genjutsu/discussions) are open.
+
+- [Show and tell](https://github.com/AThevon/genjutsu/discussions/categories/show-and-tell) - post what you cast. A gif, a screenshot, a link. Output that came out wrong is as useful as output that came out well.
+- [Q&A](https://github.com/AThevon/genjutsu/discussions/categories/q-a) - install problems, a module that misfires, output that feels generic.
+- [Ideas](https://github.com/AThevon/genjutsu/discussions/categories/ideas) - a surface, a framework, a module that is missing.
+
+A bug with a clear repro is still better as an [issue](https://github.com/AThevon/genjutsu/issues), it keeps a trail.
 
 ---
 
