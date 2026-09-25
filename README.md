@@ -20,6 +20,7 @@
   <a href="https://github.com/AThevon/genjutsu/releases/latest"><img src="https://img.shields.io/github/v/release/AThevon/genjutsu?style=flat-square&color=b11523&label=release" alt="Latest release" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-b11523?style=flat-square" alt="MIT license" /></a>
   <img src="https://img.shields.io/badge/works%20with-Claude%20Code%20%2B%20claude.ai%20%2B%20Cowork-b11523?style=flat-square" alt="Works with Claude Code, claude.ai and Cowork" />
+  <a href="https://github.com/sponsors/AThevon"><img src="https://img.shields.io/badge/sponsor-b11523?style=flat-square&logo=githubsponsors&logoColor=white" alt="Sponsor on GitHub" /></a>
 </p>
 
 Creative coding skills for [Claude Code](https://claude.ai/code), [claude.ai](https://claude.ai) and [Cowork](https://claude.com/plugins-for/cowork) - transforms any interface from functional to exceptional through motion design, interaction patterns, and visual systems. Covers Web (React, Vue, Svelte, vanilla CSS, Three.js, Canvas), Android (Jetpack Compose, Compose Multiplatform), and Apple (SwiftUI iOS + macOS).
@@ -370,6 +371,12 @@ Built by studying the best creative coding resources available.
 - [Ideas](https://github.com/AThevon/genjutsu/discussions/categories/ideas) - a surface, a framework, a module that is missing.
 
 A bug with a clear repro is still better as an [issue](https://github.com/AThevon/genjutsu/issues), it keeps a trail.
+
+---
+
+## Support
+
+genjutsu is free and MIT. If it saved you a few rounds of generic output, you can [sponsor its development on GitHub](https://github.com/sponsors/AThevon).
 
 ---
 
