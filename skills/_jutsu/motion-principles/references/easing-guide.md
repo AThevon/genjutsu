@@ -89,9 +89,9 @@ gsap.from('.hero', { opacity: 0, y: 60, duration: 0.8, ease: "power4.out" });
 | `back` | `back.out(1.7)` | Overshoots then settles | Playful entries, modals |
 | `bounce` | `bounce.out` | Bounces at the end | Game UI, notifications, playful |
 | `elastic` | `elastic.out(1, 0.3)` | Spring-like wobble | Attention-grabbing, fun UI |
-| `slow` | `slow(0.7, 0.7, false)` | Slow middle section | Cinematic reveals. **EasePack, not core** — `gsap.registerPlugin(EasePack)` |
+| `slow` | `slow(0.7, 0.7, false)` | Slow middle section | Cinematic reveals. **EasePack, not core** - `gsap.registerPlugin(EasePack)` |
 | `steps` | `steps(12)` | Frame-by-frame | Sprite animations, retro |
-| `rough` | `rough({ strength: 1, points: 20, ... })` | Shaky/glitchy | Horror, distortion. **EasePack, not core** — `gsap.registerPlugin(EasePack)` |
+| `rough` | `rough({ strength: 1, points: 20, ... })` | Shaky/glitchy | Horror, distortion. **EasePack, not core** - `gsap.registerPlugin(EasePack)` |
 | `circ` | `circ.out` | Circular motion curve | Natural motion arcs |
 | `expo` | `expo.out` | Very fast then very slow | Snappy professional UI |
 
@@ -206,7 +206,7 @@ gsap.from('.el', {
 
 **Option 3: InertiaPlugin (true physics)**
 ```js
-// InertiaPlugin is FREE since GSAP 3.13 — it ships in the public `gsap` package.
+// InertiaPlugin is FREE since GSAP 3.13 - it ships in the public `gsap` package.
 // import { InertiaPlugin } from "gsap/InertiaPlugin";
 // gsap.registerPlugin(InertiaPlugin);
 gsap.to('.el', {

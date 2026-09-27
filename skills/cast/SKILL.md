@@ -122,7 +122,7 @@ Call whatever the host actually exposes, under the name it exposes it as - check
 
 ## Pipeline
 
-### 1. SCAN — Detect the stack
+### 1. SCAN - Detect the stack
 
 Before anything else, scan the project:
 
@@ -176,7 +176,7 @@ Map the results:
 - **Legacy mixed**: presence of `.xib`, `.storyboard`, layout XML, `setContentView(R.layout.*)`. Mention only, no auto-load.
 <!-- genjutsu:shared:scan:end -->
 
-### 2. DISCOVER — Understand the intent (when needed)
+### 2. DISCOVER - Understand the intent (when needed)
 
 **Skip this step if** the request is specific and self-contained ("add a hover scale on this button", "animate this list entry"). Go straight to SCOPE.
 
@@ -188,18 +188,18 @@ The goal is to understand what the user actually wants before proposing anything
 
 Ask about the least-understood aspect first. Common domains:
 
-- **Mood/feel** — What emotion should this evoke? (snappy, cinematic, playful, serious, raw...)
-- **References** — Any sites/pages/components they've seen that feel right?
-- **Constraints** — Performance budget? Accessibility requirements? Browser support?
-- **Scope boundaries** — What's in, what's explicitly out?
+- **Mood/feel** - What emotion should this evoke? (snappy, cinematic, playful, serious, raw...)
+- **References** - Any sites/pages/components they've seen that feel right?
+- **Constraints** - Performance budget? Accessibility requirements? Browser support?
+- **Scope boundaries** - What's in, what's explicitly out?
 
 **How to handle vague answers:**
 
 When the user says "something modern" or "I'll know it when I see it":
 
-1. **Offer concrete options** — "Modern can mean a lot of things. More like Linear's clean transitions, Vercel's dramatic reveals, or Stripe's fluid gradients?"
-2. **Reframe** — "What would feel *wrong*? That helps me narrow it."
-3. **Name the consequence** — "This choice affects whether I go CSS-only or pull in GSAP. Worth pinning down."
+1. **Offer concrete options** - "Modern can mean a lot of things. More like Linear's clean transitions, Vercel's dramatic reveals, or Stripe's fluid gradients?"
+2. **Reframe** - "What would feel *wrong*? That helps me narrow it."
+3. **Name the consequence** - "This choice affects whether I go CSS-only or pull in GSAP. Worth pinning down."
 
 **Never** silently interpret a vague answer as confirmation. If you're not sure what they meant, say so.
 
@@ -213,7 +213,7 @@ Ask exactly one question:
 
 If the user picks legacy integration: write the bridge (`AndroidView` for Compose, `UIViewControllerRepresentable` for SwiftUI) to expose the modern code inside the legacy screen. Never generate new legacy code (no XML, no XIB, no setContentView).
 
-### 3. SCOPE — Evaluate the request
+### 3. SCOPE - Evaluate the request
 
 | Scope | Description | Sub-skills | Variants |
 |-------|-------------|------------|----------|
@@ -223,7 +223,7 @@ If the user picks legacy integration: write the bridge (`AndroidView` for Compos
 
 Rule: never bring out the heavy artillery for a hover effect.
 
-### 4. THESIS — One sentence before coding
+### 4. THESIS - One sentence before coding
 
 Formulate a sentence that captures the interaction intent. Examples:
 
@@ -237,9 +237,9 @@ Formulate a sentence that captures the interaction intent. Examples:
 
 **This is the first visual gate.** Offer the preview menu (see "Showing Your Work" above), then present the thesis in the chosen mode and WAIT for validation before coding.
 
-If rejected, don't start over — ask what feels wrong about it and adjust.
+If rejected, don't start over - ask what feels wrong about it and adjust.
 
-### 5. LOAD — Load the relevant sub-skills
+### 5. LOAD - Load the relevant sub-skills
 
 Detect the environment and resolve the sub-skills base path:
 
@@ -395,27 +395,27 @@ The thesis is "advanced" (and triggers loading the graphics sub-skill) if it con
 Otherwise stick to the base motion sub-skill.
 <!-- genjutsu:shared:load:end -->
 
-### 6. IMPLEMENT — Code while respecting the loaded principles
+### 6. IMPLEMENT - Code while respecting the loaded principles
 
 - **Light scope**: direct implementation, no variants
 - **Medium/full scope**: propose 2-3 variants before coding
 
 **Variant presentation format (medium/full):**
 
-> **Variant A — [Name]** (subtle)
+> **Variant A - [Name]** (subtle)
 > [One sentence: the feel + the technique]
 >
-> **Variant B — [Name]** (balanced)
+> **Variant B - [Name]** (balanced)
 > [One sentence: the feel + the technique]
 >
-> **Variant C — [Name]** (impressive)
+> **Variant C - [Name]** (impressive)
 > [One sentence: the feel + the technique]
 
 That's the inline form. If the session mode is **artifact** or **live preview**, render the three variants there instead - side by side, one global trigger so they fire together and stay comparable - and keep the text above as their captions. Announce the mode in one line; don't reopen the menu.
 
 Wait for the user to pick before implementing. Always respect the validated thesis.
 
-### 7. AUDIT — Verification before delivery
+### 7. AUDIT - Verification before delivery
 
 Before delivering, run the checks matching the detected stack. Iron rule 6 says 60fps or nothing, and an audit that asserts it without measuring is how that rule gets quietly broken.
 
@@ -484,7 +484,7 @@ over" is an honest audit. A single list of ticks is not.
 
 ---
 
-## Red Flags — You're About to Violate This Skill
+## Red Flags - You're About to Violate This Skill
 
 | Thought | Reality |
 |---------|---------|

@@ -7,14 +7,14 @@ description: "Zero-dependency animations and visual techniques - scroll-driven, 
 > verified on **2026-09-08** against primary sources. What against, and when, is in
 > `_jutsu/VERSIONS.md`. If that date is old, re-verify before acting on a version number.
 
-# CSS Native — Zero-Dependency Animations & Visual Techniques
+# CSS Native - Zero-Dependency Animations & Visual Techniques
 
 ## When to Use CSS Native vs Library
 
 | Situation | Decision |
 |---|---|
 | < 3 animations on the page | CSS native |
-| Scroll-driven reveal/parallax | CSS native (`animation-timeline`), always inside `@supports (animation-timeline: scroll())` with the content visible by default — no Firefox release support |
+| Scroll-driven reveal/parallax | CSS native (`animation-timeline`), always inside `@supports (animation-timeline: scroll())` with the content visible by default - no Firefox release support |
 | Enter/exit from `display: none` | CSS native (`@starting-style` + `transition-behavior: allow-discrete`) |
 | Tooltip/popover positioning | CSS native (anchor positioning) |
 | Page transitions (MPA or SPA) | CSS native (View Transitions API) |
@@ -23,7 +23,7 @@ description: "Zero-dependency animations and visual techniques - scroll-driven, 
 | Physics-based spring with interruption | Framer Motion |
 | Morph between SVG shapes | GSAP MorphSVG |
 
-Rule of thumb: if you can express it in a `@keyframes` + one `animation-timeline`, stay in CSS. The moment you need imperative control, sequence coordination, or runtime values — reach for a library.
+Rule of thumb: if you can express it in a `@keyframes` + one `animation-timeline`, stay in CSS. The moment you need imperative control, sequence coordination, or runtime values - reach for a library.
 
 ---
 
@@ -45,7 +45,7 @@ Animate based on scroll position of a container.
 }
 ```
 
-- `scroll(<scroller> <axis>)` — scroller: `nearest` | `root` | `self`, axis: `block` | `inline` | `x` | `y`
+- `scroll(<scroller> <axis>)` - scroller: `nearest` | `root` | `self`, axis: `block` | `inline` | `x` | `y`
 - Default: `scroll(nearest block)`
 
 ### View Progress Timeline
@@ -137,7 +137,7 @@ document.startViewTransition(() => {
 
 ## @starting-style
 
-Native enter animations from `display: none` — no JS timing hacks.
+Native enter animations from `display: none` - no JS timing hacks.
 
 ```css
 .dialog {
@@ -257,7 +257,7 @@ Container-relative units in keyframes:
 }
 ```
 
-Shape morphing: transition between `circle()`, `ellipse()`, `polygon()`, `inset()` — as long as the function type and point count match.
+Shape morphing: transition between `circle()`, `ellipse()`, `polygon()`, `inset()` - as long as the function type and point count match.
 
 ### backdrop-filter
 
@@ -308,8 +308,8 @@ Shape morphing: transition between `circle()`, `ellipse()`, `polygon()`, `inset(
 | BAD | GOOD | Why |
 |---|---|---|
 | `transition: all 300ms` | `transition: opacity 300ms, transform 300ms` | `all` triggers transitions on every property change, causes unexpected animations, and prevents browser optimization |
-| Animate `width`, `height`, `top`, `left` | Animate `transform`, `opacity`, `clip-path`, `filter` | Layout-triggering properties force reflow on every frame — composite-only properties run on GPU |
-| Scroll-driven animations without fallback | `@supports (animation-timeline: scroll()) { ... }` | Firefox has **no** release-channel support at all (Nightly only, behind `layout.css.scroll-driven-animations.enabled`) and Safari only shipped it in 26 — about one visitor in six sees nothing |
+| Animate `width`, `height`, `top`, `left` | Animate `transform`, `opacity`, `clip-path`, `filter` | Layout-triggering properties force reflow on every frame - composite-only properties run on GPU |
+| Scroll-driven animations without fallback | `@supports (animation-timeline: scroll()) { ... }` | Firefox has **no** release-channel support at all (Nightly only, behind `layout.css.scroll-driven-animations.enabled`) and Safari only shipped it in 26 - about one visitor in six sees nothing |
 | `@starting-style` without `transition-behavior` | Always pair with `allow-discrete` for display/overlay | Without it, `display: none` transitions are skipped entirely |
 | Anchor positioning without `position-try-fallbacks` | Always define fallback positions | Element clips out of viewport if primary position has no space |
 | `animation-fill-mode: forwards` on scroll-driven | Use `both` for scroll-driven animations | `forwards` can lock the element in its final state even when scrolling back |

@@ -7,10 +7,10 @@ description: "GSAP animation engine sub-skill - core, timeline, ScrollTrigger, p
 > verified on **2026-09-08** against primary sources. What against, and when, is in
 > `_jutsu/VERSIONS.md`. If that date is old, re-verify before acting on a version number.
 
-# GSAP — Animation Engine
+# GSAP - Animation Engine
 
-> GSAP 3.15 (released 13 Apr 2026). Since 3.13 the entire library — including every former Club plugin (SplitText, MorphSVG, DrawSVG, ScrollSmoother, InertiaPlugin, MotionPathHelper, CustomEase…) — ships in the public `gsap` npm package and is free, commercial use included, under the GreenSock Standard "no charge" license. There is no Club paywall.
-> GreenSock also publish official agent skills (MIT, 8 skills: core, timeline, scrolltrigger, plugins, utils, react, performance, frameworks): https://github.com/greensock/gsap-skills — worth installing alongside this sub-skill.
+> GSAP 3.15 (released 13 Apr 2026). Since 3.13 the entire library - including every former Club plugin (SplitText, MorphSVG, DrawSVG, ScrollSmoother, InertiaPlugin, MotionPathHelper, CustomEase…) - ships in the public `gsap` npm package and is free, commercial use included, under the GreenSock Standard "no charge" license. There is no Club paywall.
+> GreenSock also publish official agent skills (MIT, 8 skills: core, timeline, scrolltrigger, plugins, utils, react, performance, frameworks): https://github.com/greensock/gsap-skills - worth installing alongside this sub-skill.
 
 ## When to use GSAP
 
@@ -129,36 +129,36 @@ gsap.to(".panel-content", {
 });
 ```
 
-## DO NOT — Critical mistakes
+## DO NOT - Critical mistakes
 
 ### 1. Ease on containerAnimation
 
 ```js
-// BAD — ease breaks the scroll mapping
+// BAD - ease breaks the scroll mapping
 scrollTrigger: { containerAnimation: scrollTween, scrub: 1, ease: "power2.out" }
 
-// GOOD — always ease: "none" on the parent tween
+// GOOD - always ease: "none" on the parent tween
 const scrollTween = gsap.to(".panels", { x: ..., ease: "none", scrollTrigger: { scrub: 1 } });
 ```
 
 ### 2. ScrollTrigger on a child tween in a timeline
 
 ```js
-// BAD — ScrollTrigger ignores child tweens of a timeline that has its own ScrollTrigger
+// BAD - ScrollTrigger ignores child tweens of a timeline that has its own ScrollTrigger
 const tl = gsap.timeline({ scrollTrigger: { trigger: ".section" } });
 tl.to(".box", { x: 100, scrollTrigger: { trigger: ".box" } }); // IGNORE
 
-// GOOD — one ScrollTrigger per timeline OR standalone tweens
+// GOOD - one ScrollTrigger per timeline OR standalone tweens
 gsap.to(".box", { x: 100, scrollTrigger: { trigger: ".box" } }); // tween standalone
 ```
 
 ### 3. setState in onUpdate
 
 ```js
-// BAD — setState 60x/s = re-render hell
+// BAD - setState 60x/s = re-render hell
 scrollTrigger: { onUpdate: (self) => setProgress(self.progress) }
 
-// GOOD — mutate a ref or DOM element directly
+// GOOD - mutate a ref or DOM element directly
 const progressRef = useRef(0);
 scrollTrigger: { onUpdate: (self) => { progressRef.current = self.progress; } }
 // Or better: gsap.quickSetter to mutate the DOM without React
@@ -167,11 +167,11 @@ scrollTrigger: { onUpdate: (self) => { progressRef.current = self.progress; } }
 ### 4. immediateRender on from() in a timeline
 
 ```js
-// BAD — from() has immediateRender: true by default, breaks sequencing
+// BAD - from() has immediateRender: true by default, breaks sequencing
 tl.to(".box", { x: 100 });
 tl.from(".box", { y: 50 }); // visually jumps to the start
 
-// GOOD — disable immediateRender when from() follows another tween
+// GOOD - disable immediateRender when from() follows another tween
 tl.to(".box", { x: 100 });
 tl.from(".box", { y: 50, immediateRender: false });
 ```
@@ -179,17 +179,17 @@ tl.from(".box", { y: 50, immediateRender: false });
 ### 5. Animating non-transform properties
 
 ```js
-// BAD — width/height/top/left trigger layout reflow
+// BAD - width/height/top/left trigger layout reflow
 gsap.to(".box", { width: 200, height: 200 });
 
-// GOOD — use transforms (GPU-accelerated, composited)
+// GOOD - use transforms (GPU-accelerated, composited)
 gsap.to(".box", { scaleX: 1.5, scaleY: 1.5 });
 // If actual size needed: use Flip plugin for layout transition
 ```
 
 ## Refs
 
-- `references/core.md` — Complete gsap.to/from/fromTo/set API, options
-- `references/timeline.md` — Timeline, position parameter, nesting
-- `references/scrolltrigger.md` — Full ScrollTrigger reference
-- `references/plugins.md` — SplitText, Flip, MorphSVG, DrawSVG, MotionPath, Observer
+- `references/core.md` - Complete gsap.to/from/fromTo/set API, options
+- `references/timeline.md` - Timeline, position parameter, nesting
+- `references/scrolltrigger.md` - Full ScrollTrigger reference
+- `references/plugins.md` - SplitText, Flip, MorphSVG, DrawSVG, MotionPath, Observer

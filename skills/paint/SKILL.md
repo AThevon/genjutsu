@@ -49,7 +49,7 @@ The flair lives at the intro and during work narration. The moment a result land
 2. **One question at a time during brainstorm.** Never bundle. The second question depends on the first answer.
 3. **Never proceed without the theses validated.** Visual + interaction, both explicitly approved. The one exception is light scope, below: no visual identity is at stake there, so the interaction thesis alone is required - and it is still validated explicitly, never assumed.
 4. **Every design token comes from MASTER.md.** No magic numbers, no rogue hex values. On light scope, where no MASTER.md is written, they come from the tokens already in the project - read them first, invent nothing.
-5. **Every animation respects the interaction thesis.** Timing, easing, forbidden patterns — no exceptions.
+5. **Every animation respects the interaction thesis.** Timing, easing, forbidden patterns - no exceptions.
 6. **Never install a dependency without asking.**
 7. **Work page by page, validate page by page.** Never try to do everything at once.
 8. **The audit is not optional.** Phase 5 always runs, even if the user seems happy. On light scope it shortens to the quick check - reduced-motion, exit animation, 60fps - but it never disappears.
@@ -294,7 +294,7 @@ user gates, and nothing carries across them.
 
 ## Pipeline
 
-### Phase 1 — BRAINSTORM (mandatory, never skip)
+### Phase 1 - BRAINSTORM (mandatory, never skip)
 
 This is the foundation. Rush it and everything downstream is wrong. The goal: understand the user's vision well enough to write two theses they'd agree with without hesitation.
 
@@ -362,24 +362,24 @@ If the user picks legacy integration: write the bridge (`AndroidView` for Compos
 
 **The five domains to cover:**
 
-1. **Product** — What is it? (app, landing page, portfolio, SaaS, e-commerce, blog, dashboard...)
-2. **Audience** — Who uses it? (devs, designers, general public, enterprise, kids, luxury...)
-3. **Mood** — 3 to 5 adjectives that define the visual feel
-4. **References** — Sites, screenshots, mood boards, anything visual
-5. **Tech stack** — What's already in place? Or starting from scratch?
+1. **Product** - What is it? (app, landing page, portfolio, SaaS, e-commerce, blog, dashboard...)
+2. **Audience** - Who uses it? (devs, designers, general public, enterprise, kids, luxury...)
+3. **Mood** - 3 to 5 adjectives that define the visual feel
+4. **References** - Sites, screenshots, mood boards, anything visual
+5. **Tech stack** - What's already in place? Or starting from scratch?
 
-**How to ask:** One question at a time, starting with the least obvious domain. If you already know the tech stack from scanning `package.json`, don't ask — start with mood or audience instead. Each answer reshapes how you ask the next question.
+**How to ask:** One question at a time, starting with the least obvious domain. If you already know the tech stack from scanning `package.json`, don't ask - start with mood or audience instead. Each answer reshapes how you ask the next question.
 
 **How to handle vague answers:**
 
 When the user says "modern" or "clean" or "I don't know, just make it nice":
 
-1. **Validate** — "That's a starting point. Let's make it precise."
-2. **Offer concrete options** — "Clean like Stripe's editorial whitespace, clean like Linear's dense-but-organized, or clean like Apple's dramatic minimalism?"
-3. **Reframe** — "What would feel *wrong*? What sites make you cringe? That's just as useful."
-4. **Name the consequence** — "This choice drives the entire color palette and typography. Worth spending a minute on."
+1. **Validate** - "That's a starting point. Let's make it precise."
+2. **Offer concrete options** - "Clean like Stripe's editorial whitespace, clean like Linear's dense-but-organized, or clean like Apple's dramatic minimalism?"
+3. **Reframe** - "What would feel *wrong*? What sites make you cringe? That's just as useful."
+4. **Name the consequence** - "This choice drives the entire color palette and typography. Worth spending a minute on."
 
-**Never** interpret a vague answer as confirmation. "Yeah something like that" means dig deeper — ask which part of "that" resonates.
+**Never** interpret a vague answer as confirmation. "Yeah something like that" means dig deeper - ask which part of "that" resonates.
 
 **When the user pushes to skip or rush brainstorm:**
 
@@ -395,7 +395,7 @@ This gives them an informed choice. If they choose assumptions, name each assump
 
 ---
 
-### Phase 2 — THESIS (define direction, get validation)
+### Phase 2 - THESIS (define direction, get validation)
 
 From the brainstorm, produce two theses:
 
@@ -403,10 +403,10 @@ From the brainstorm, produce two theses:
 
 A single sentence that captures the entire visual identity. **Must explicitly address all four:**
 
-- **Color direction** — dark/light, palette family, accent color
-- **Typography spirit** — serif/sans/mono, weight usage, size contrast
-- **Spacing philosophy** — dense/airy, base unit feel
-- **Component style** — rounded/sharp, bordered/filled, elevated/flat
+- **Color direction** - dark/light, palette family, accent color
+- **Typography spirit** - serif/sans/mono, weight usage, size contrast
+- **Spacing philosophy** - dense/airy, base unit feel
+- **Component style** - rounded/sharp, bordered/filled, elevated/flat
 
 > Example: "Dark neo-brutalist interface with bold monospace type, fluorescent chartreuse accents, generous whitespace, raw-edged components with offset shadows."
 
@@ -416,12 +416,12 @@ A single sentence that captures the entire visual identity. **Must explicitly ad
 
 A single sentence that captures the motion and interaction language. **Must explicitly address all four:**
 
-- **Timing range** — fast (100-200ms), medium (200-400ms), or slow (400ms+)
-- **Hover behavior** — what happens on hover
-- **Scroll behavior** — reveals, parallax, or nothing
-- **Forbidden patterns** — what this project will NOT do
+- **Timing range** - fast (100-200ms), medium (200-400ms), or slow (400ms+)
+- **Hover behavior** - what happens on hover
+- **Scroll behavior** - reveals, parallax, or nothing
+- **Forbidden patterns** - what this project will NOT do
 
-> Example: "Fast and dry transitions (100-200ms), hover with subtle scale (1.02), scroll-triggered reveals with stagger, no bounce or elastic — all sharp ease-out."
+> Example: "Fast and dry transitions (100-200ms), hover with subtle scale (1.02), scroll-triggered reveals with stagger, no bounce or elastic - all sharp ease-out."
 
 **Cross-platform thesis examples:**
 
@@ -434,11 +434,11 @@ A single sentence that captures the motion and interaction language. **Must expl
 
 **This is the first visual gate.** Offer the preview menu (see "Showing Your Work" above), then present both theses in the chosen mode. The visual thesis in particular is worth far more shown than described - "fluorescent chartreuse accents" is a guess until it sits next to the neutrals.
 
-**Wait for explicit user validation of BOTH theses before moving on.** If the user pushes back, don't start over — ask what feels wrong and adjust.
+**Wait for explicit user validation of BOTH theses before moving on.** If the user pushes back, don't start over - ask what feels wrong and adjust.
 
 ---
 
-### Phase 3 — DESIGN SYSTEM
+### Phase 3 - DESIGN SYSTEM
 
 Load the `ui-ux-pro-max` sub-skill and **run it**. **Phase 2 ended in a user gate, so this is a
 new Bash call and `$SKILL_BASE` no longer exists.** Re-emit the resolution block from "Sub-skills
@@ -482,13 +482,13 @@ The MASTER.md document itself remains a single canonical source-of-truth file. T
 
 Generate the complete design system based on both theses:
 
-- **Color palette** — Primary, secondary, accent, neutrals, semantic (success/warning/error/info). Light + dark if needed.
-- **Typography** — Font stack, size scale (fluid or fixed), weight usage, line-height rules.
-- **Spacing** — Base unit, scale (4px, 8px, 12px, 16px, 24px, 32px, 48px, 64px...).
-- **Radii** — Border radius scale (none, sm, md, lg, full).
-- **Shadows** — Elevation levels (0-4), consistent with visual thesis.
-- **Base components** — Button, input, card, badge, link — styled per the theses.
-- **Motion tokens** — Duration scale (fast/normal/slow), easing names, stagger delay.
+- **Color palette** - Primary, secondary, accent, neutrals, semantic (success/warning/error/info). Light + dark if needed.
+- **Typography** - Font stack, size scale (fluid or fixed), weight usage, line-height rules.
+- **Spacing** - Base unit, scale (4px, 8px, 12px, 16px, 24px, 32px, 48px, 64px...).
+- **Radii** - Border radius scale (none, sm, md, lg, full).
+- **Shadows** - Elevation levels (0-4), consistent with visual thesis.
+- **Base components** - Button, input, card, badge, link - styled per the theses.
+- **Motion tokens** - Duration scale (fast/normal/slow), easing names, stagger delay.
 
 #### MASTER.md
 
@@ -497,11 +497,11 @@ Create a `MASTER.md` at project root with the full design system. This file is t
 #### MCP Tools (if available)
 
 Check if these MCPs are connected and use them when available:
-- **Stitch** — Generate mockups/wireframes
-- **Nano Banana** — Generate visual assets (illustrations, icons, backgrounds)
-- **21st.dev Magic** — Generate UI components from descriptions
+- **Stitch** - Generate mockups/wireframes
+- **Nano Banana** - Generate visual assets (illustrations, icons, backgrounds)
+- **21st.dev Magic** - Generate UI components from descriptions
 
-If MCPs are not available, skip gracefully — the design system + code implementation is the core path.
+If MCPs are not available, skip gracefully - the design system + code implementation is the core path.
 
 #### Show it before Phase 4
 
@@ -509,7 +509,7 @@ Present the design system in the session's preview mode - announce the mode in o
 
 ---
 
-### Phase 4 — IMPLEMENT
+### Phase 4 - IMPLEMENT
 
 Load sub-skills based on tech stack and interaction thesis.
 
@@ -553,7 +553,7 @@ Otherwise stick to the base motion sub-skill.
 <!-- genjutsu:shared:load:end -->
 
 Implementation rules:
-- Work **page by page** or **component by component** — never try to do everything at once.
+- Work **page by page** or **component by component** - never try to do everything at once.
 - Every color, font, spacing, shadow, radius MUST come from MASTER.md tokens. No magic numbers.
 - Every animation MUST respect the interaction thesis (timing, easing, forbidden patterns).
 - Apply the 5-state rule for interactive elements: **default, hover, focus, active, disabled**.
@@ -561,7 +561,7 @@ Implementation rules:
 
 ---
 
-### Phase 5 — AUDIT (never skip)
+### Phase 5 - AUDIT (never skip)
 
 Load the `design-audit` sub-skill. **Phase 4 ended in a user gate, so `$SKILL_BASE` is gone
 again.** Re-emit the resolution block in this same call, then:
@@ -646,17 +646,17 @@ When invoked on a project that already has design/styling:
 1. Still run the full BRAINSTORM (Phase 1)
 2. Acknowledge existing design, but the thesis overrides it
 3. In Phase 4, **replace** existing design tokens/styles with the new design system
-4. Preserve functionality and layout structure — only replace the visual layer
+4. Preserve functionality and layout structure - only replace the visual layer
 
 This is intentional: `/genjutsu:paint` rebuilds the visual universe. To enhance what exists, use `/genjutsu:cast` instead.
 
 ---
 
-## Red Flags — You're About to Violate This Skill
+## Red Flags - You're About to Violate This Skill
 
 | Thought | Reality |
 |---------|---------|
-| "The user already said 'minimal dark' — I have enough for a thesis" | Two words aren't five domains. Keep asking. |
+| "The user already said 'minimal dark' - I have enough for a thesis" | Two words aren't five domains. Keep asking. |
 | "I'll ask all five brainstorm questions at once" | One at a time. The answer to 'audience' changes how you ask about 'mood'. |
 | "The user seems impatient, let's skip to coding" | Use the pressure protocol. A bad thesis costs days, not minutes. |
 | "I'll pick colors that feel right" | Every token comes from MASTER.md. No freelancing. |

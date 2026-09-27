@@ -159,8 +159,8 @@ python3 scripts/search.py "<query>" --design-system --persist -p "Project Name" 
 ```
 
 This creates:
-- `design-system/<project-slug>/MASTER.md` — Global Source of Truth with all design rules
-- `design-system/<project-slug>/pages/` — Folder for page-specific overrides
+- `design-system/<project-slug>/MASTER.md` - Global Source of Truth with all design rules
+- `design-system/<project-slug>/pages/` - Folder for page-specific overrides
 
 `--persist` skips writing if `MASTER.md` already exists; add `--force` to overwrite.
 
@@ -170,7 +170,7 @@ python3 scripts/search.py "<query>" --design-system --persist -p "Project Name" 
 ```
 
 This also creates:
-- `design-system/<project-slug>/pages/dashboard.md` — Page-specific deviations from Master
+- `design-system/<project-slug>/pages/dashboard.md` - Page-specific deviations from Master
 
 **How hierarchical retrieval works:**
 1. When building a specific page (e.g., "Checkout"), first check `design-system/<project-slug>/pages/checkout.md`
