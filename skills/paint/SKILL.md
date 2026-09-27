@@ -500,6 +500,26 @@ A single sentence that captures the motion and interaction language. **Must expl
 
 **Wait for explicit user validation of BOTH theses before moving on.** If the user pushes back, don't start over - ask what feels wrong and adjust.
 
+#### The three dials (after validation)
+
+Once both theses are validated, read three values off them. Phase 3 passes them to `search.py`
+as 1-10 dials:
+
+| Dial | Read it from | 1 | 10 |
+|---|---|---|---|
+| `--variance` | the visual thesis: layout and component style | centered, symmetric, minimal | bold, asymmetric, experimental |
+| `--motion` | the interaction thesis: timing range, scroll behavior, forbidden patterns | subtle | complex, choreographed |
+| `--density` | the visual thesis: spacing philosophy | spacious | dense, dashboard |
+
+Derive each value from a clause of the validated theses, never from the raw brief and
+never from a default. "Generous whitespace" settles density low; "fast and dry, no scroll
+reveals" settles motion low. A dial the theses do not settle is left out of the call entirely:
+an unsent dial changes nothing, a guessed one biases the lookup toward something nobody
+approved. Write each value down with the clause it came from; they are shown with the design
+system before Phase 4.
+
+Light scope has no Phase 3, so it sets no dial.
+
 ---
 
 ### Phase 3 - DESIGN SYSTEM
@@ -527,13 +547,25 @@ load_skill ui-ux-pro-max
 # Query it with the validated visual thesis, not with the raw user request. The thesis is the
 # thing that was approved; the request was not. Product type, industry and the mood adjectives
 # from Phase 2, in that order, work best.
+# Append only the dials Phase 2 settled (see "The three dials"); drop each flag the theses
+# left open, and never send a dial with a made-up value.
 python3 "$SKILL_BASE/ui-ux-pro-max/scripts/search.py" \
   "<product type> <industry> <mood adjectives from the visual thesis>" \
-  --design-system -f markdown
+  --design-system -f markdown \
+  --variance <V> --motion <M> --density <D>
 ```
 
 **`-f markdown` is not optional.** The default `ascii` format emits raw ANSI colour escapes that
 survive the pipe and land in context as garbage, at roughly 3.3x the tokens for the same content.
+
+**What the dials do on this path.** With `--design-system -f markdown`, `--variance` biases which
+style the lookup picks and `--motion` attaches a motion snippet of the matching intensity: both
+change the proposal. `--density` does not. On this path it only prints its label under "Design
+Dials": the spacing scale it maps to is written by `--persist` alone, and paint does not persist.
+So derive the spacing scale in MASTER.md by hand, from the spacing philosophy of the visual
+thesis, and let the density label say what that scale has to feel like. The motion snippet is
+GSAP code: on any other stack read it for its duration and easing only, and never install GSAP
+because of it.
 
 What comes back is a candidate palette with role names and CSS variable names, a font pairing
 with a ready Google Fonts URL, an effects note and a list of anti-patterns for the style. Treat
@@ -583,6 +615,9 @@ If MCPs are not available, skip gracefully - the design system + code implementa
 #### Show it before Phase 4
 
 Present the design system in the session's preview mode - announce the mode in one line, don't reopen the menu - and get validation before implementing anything. A palette and a type scale listed as hex codes and pixel values in a transcript are precise and completely unreviewable; every token in MASTER.md is about to be applied everywhere, so this is the cheapest place to catch a wrong one.
+
+Show the dials beside it: each value sent to `search.py` with the thesis clause it came from,
+and each dial left out with the reason.
 
 ---
 

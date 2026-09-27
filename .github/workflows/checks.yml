@@ -66,6 +66,12 @@ jobs:
         working-directory: skills/_jutsu/ui-ux-pro-max/scripts
         run: python3 -m unittest discover -s tests
 
+      - name: paint's claims about the ui-ux-pro-max dials still hold
+        # paint says --variance and --motion change the markdown design system and
+        # --density only labels it. That is a fact about the vendored engine; an
+        # upstream sync can break it, and this step makes that break visible.
+        run: python3 scripts/check-paint-dials.py
+
       - name: design-audit tests
         # The load-bearing case in here is that every check can still fire. The
         # greps this replaced had been reporting clean on projects they never
