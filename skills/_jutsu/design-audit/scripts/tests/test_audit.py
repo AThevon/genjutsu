@@ -13,7 +13,9 @@ Run: python3 -m unittest discover -s tests
 
 from __future__ import annotations
 
+import json
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -22,6 +24,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import audit  # noqa: E402
+
+AUDIT = Path(__file__).resolve().parent.parent / "audit.py"
 
 
 def build(files: dict[str, str]) -> Path:
@@ -229,6 +233,58 @@ class OutputShape(unittest.TestCase):
         for c in audit.CHECKS:
             with self.subTest(check=c.id):
                 self.assertIn(c.severity, audit.SEVERITY_ORDER)
+
+
+class CheckMechanics(unittest.TestCase):
+    """v4: a check belongs to a group, reads a surface, and may be a function."""
+
+    def test_check_defaults_keep_the_old_behaviour(self):
+        c = audit.Check(id="x", title="x", severity="important", exts={".css"}, pattern="a")
+        self.assertEqual((c.group, c.surface, c.fn), ("hygiene", "source", None))
+        bare = audit.Check(id="y", title="y", severity="important", exts={".css"})
+        self.assertEqual(bare.pattern, "")
+
+    def test_non_tell_checks_are_hygiene(self):
+        for c in audit.CHECKS:
+            if not c.id.startswith("tell-"):
+                with self.subTest(check=c.id):
+                    self.assertEqual(c.group, "hygiene")
+
+    def test_result_carries_the_group(self):
+        root = build({"src/a.css": ".btn:hover { color: red; }\n"})
+        try:
+            res = audit_it(root, only="hover-no-transition")["hover-no-transition"]
+            self.assertEqual(res.group, "hygiene")
+        finally:
+            shutil.rmtree(root)
+
+    def test_walk_includes_html(self):
+        root = build({"index.html": "<p>hi</p>\n", "notes.txt": "x\n"})
+        try:
+            files = audit.walk(audit.discover_roots(root)[0], root)
+            self.assertEqual([f.name for f in files], ["index.html"])
+        finally:
+            shutil.rmtree(root)
+
+    def test_select_checks_by_group(self):
+        self.assertEqual({c.group for c in audit.select_checks(None, ["hygiene"])}, {"hygiene"})
+        with self.assertRaises(ValueError):
+            audit.select_checks(None, ["nope"])
+        with self.assertRaises(ValueError):
+            audit.select_checks(["nope"], None)
+
+    def test_cli_group_option(self):
+        root = build({"src/a.css": ".btn:hover { color: red; }\n"})
+        try:
+            ok = subprocess.run([sys.executable, str(AUDIT), str(root), "--json", "--group", "hygiene"],
+                                capture_output=True, text=True, check=True)
+            self.assertEqual({r["group"] for r in json.loads(ok.stdout)["results"]}, {"hygiene"})
+            bad = subprocess.run([sys.executable, str(AUDIT), str(root), "--group", "nope"],
+                                 capture_output=True, text=True)
+            self.assertEqual(bad.returncode, 2)
+            self.assertIn("unknown group", bad.stderr)
+        finally:
+            shutil.rmtree(root)
 
 
 if __name__ == "__main__":

@@ -21,6 +21,7 @@ Usage:
     python3 audit.py [root]              # markdown, for a human or a model
     python3 audit.py [root] --json       # machine-readable
     python3 audit.py [root] --only hover-no-transition
+    python3 audit.py [root] --group tells
 
 Exit status is 0 unless the audit itself failed to run. Findings are not errors:
 this reports, the caller decides.
@@ -35,6 +36,7 @@ import sys
 from collections import Counter
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
+from typing import Callable
 
 # Directories that are never the user's source.
 SKIP_DIRS = {
@@ -50,6 +52,12 @@ JSX = {".tsx", ".jsx"}
 SFC = {".vue", ".svelte", ".astro"}
 STYLE = {".css", ".scss", ".sass", ".less"}
 SCRIPT = {".ts", ".js", ".mjs"}
+HTML = {".html"}
+
+# A check belongs to exactly one group. "hygiene" is motion and accessibility,
+# judged by the check itself. "tells" are defaults a model reaches for by reflex:
+# the script reports them, the validated thesis decides whether they stay.
+GROUPS = ("hygiene", "tells")
 
 
 @dataclass
@@ -70,6 +78,7 @@ class Result:
     scanned: int         # files actually examined
     meaning: str         # what this result means, in words
     findings: list = field(default_factory=list)
+    group: str = "hygiene"
 
 
 @dataclass
@@ -78,7 +87,7 @@ class Check:
     title: str
     severity: str        # critical | important | nice-to-have
     exts: set
-    pattern: str
+    pattern: str = ""
     # A line matching `unless` is not a finding. This is where the false
     # positives die: `:hover` next to a `transition` is fine.
     unless: str | None = None
@@ -86,6 +95,13 @@ class Check:
     absence: bool = False
     zero_means: str = ""
     absent_means: str = ""
+    group: str = "hygiene"
+    # What the pattern reads: "source" is the raw file line by line, "text" is the
+    # displayed text only, "markup" is the class attributes only.
+    surface: str = "source"
+    # For checks a line regex cannot express. Receives the relevant files and the
+    # project root, returns findings; `pattern` is then unused.
+    fn: Callable[[list[Path], Path], list[Finding]] | None = None
 
 
 CHECKS = [
@@ -221,7 +237,7 @@ def walk(roots: list[Path], base: Path) -> list[Path]:
                 continue
             if any(part in SKIP_DIRS for part in p.relative_to(base).parts):
                 continue
-            if p.suffix in JSX | SFC | STYLE | SCRIPT:
+            if p.suffix in JSX | SFC | STYLE | SCRIPT | HTML:
                 files.append(p)
     return sorted(set(files))
 
@@ -236,7 +252,8 @@ def read(p: Path) -> list[str] | None:
 def run_check(check: Check, files: list[Path], base: Path) -> Result:
     relevant = [f for f in files if f.suffix in check.exts]
     res = Result(check=check.id, title=check.title, severity=check.severity,
-                 status="clean", scanned=len(relevant), meaning=check.zero_means)
+                 status="clean", scanned=len(relevant), meaning=check.zero_means,
+                 group=check.group)
 
     if not relevant:
         res.status = "not-applicable"
@@ -389,11 +406,30 @@ def as_markdown(base: Path, how: str, files: list[Path], results: list[Result], 
     return "\n".join(out)
 
 
+def select_checks(only: list[str] | None, groups: list[str] | None) -> list[Check]:
+    """The checks to run. Raises ValueError naming an id or a group that does not exist."""
+    checks = CHECKS
+    if only:
+        wanted = set(only)
+        unknown = wanted - {c.id for c in CHECKS}
+        if unknown:
+            raise ValueError(f"unknown check(s): {', '.join(sorted(unknown))}")
+        checks = [c for c in checks if c.id in wanted]
+    if groups:
+        wanted = set(groups)
+        unknown = wanted - set(GROUPS)
+        if unknown:
+            raise ValueError(f"unknown group(s): {', '.join(sorted(unknown))}")
+        checks = [c for c in checks if c.group in wanted]
+    return checks
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("root", nargs="?", default=".", help="project root (default: current directory)")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--only", action="append", help="run only these check ids")
+    ap.add_argument("--group", action="append", help="run only the checks of these groups: " + ", ".join(GROUPS))
     args = ap.parse_args()
 
     base = Path(args.root).resolve()
@@ -404,14 +440,11 @@ def main() -> int:
     roots, how = discover_roots(base)
     files = walk(roots, base)
 
-    checks = CHECKS
-    if args.only:
-        wanted = set(args.only)
-        checks = [c for c in CHECKS if c.id in wanted]
-        unknown = wanted - {c.id for c in CHECKS}
-        if unknown:
-            print(f"audit: unknown check(s): {', '.join(sorted(unknown))}", file=sys.stderr)
-            return 2
+    try:
+        checks = select_checks(args.only, args.group)
+    except ValueError as e:
+        print(f"audit: {e}", file=sys.stderr)
+        return 2
 
     results = [run_check(c, files, base) for c in checks]
     inv = run_inventory(files, base)
