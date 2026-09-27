@@ -7,5 +7,7 @@ dist/
 # Local working documents. Design notes, planning and agent scratch never ship:
 # this is a public plugin, and internal process docs are not part of it.
 docs/superpowers/
+# Eval runs: large, machine-specific, and billed sessions. Never committed.
+evals/results/
 .claude/settings.local.json
 *.local.md

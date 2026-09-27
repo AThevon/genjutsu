@@ -2,6 +2,59 @@
 
 All notable changes to this plugin are documented here. Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## v3.6.0 - 2026-09-08
+
+The audit greps become a script with tests, and the resolver loses the cache that served the
+previous release.
+
+This entry was written after the release: v3.6.0 was tagged and published with `plugin.json` and
+`marketplace.json` still reading 3.5.0 and no CHANGELOG entry. Both manifests now read 3.6.0.
+
+### Changed
+
+- **`design-audit` runs a script instead of nineteen greps.** Fifteen of the greps were anchored
+  on `src/`, which a default Next.js app-router or Nuxt 3 project does not have, so they matched
+  nothing, and the pipeline read the empty output as a clean bill of health right before
+  delivery. A grep cannot tell "I looked and found nothing" from "there was nothing here to look
+  at": both print zero lines. Every check now declares what its own zero result means, and a
+  project with no `.tsx` files gets NOT APPLICABLE rather than a pass. The report ends with all
+  three counts.
+- **The `$SKILL_BASE` cache is gone.** It was added in v3.4.0 and it was a staleness bug: after a
+  plugin update the previous version directory is still on disk, so a cached path passed the "is
+  it a directory" guard and the current orchestrator silently loaded the previous release's
+  sub-skills. Reproduced against a two-version fixture: the cache served 3.1.0 while 3.5.0 was
+  installed. The block already says to re-emit it in the same shell call as the loads, and
+  resolution is a handful of depth-capped finds. Being right is cheaper than being fast here.
+- **`design-audit/SKILL.md` drops from 298 lines to 101.** The greps moved into the script. What
+  remains is how to run it, how to read the three statuses, the contrast computation the script
+  deliberately does not do, and the device handoffs it cannot do.
+
+### Added
+
+- **`design-audit/scripts/audit.py`.** Ten checks, root detection, `node_modules` and build
+  output skipped, `.vue`, `.svelte` and `.astro` alongside JSX and CSS, and findings that carry
+  `file:line` and the matched text, so the caller reports evidence rather than a verdict.
+  Markdown or JSON. The exit status is 0 unless the audit itself failed to run: findings are not
+  errors. Each check carries an `unless` clause, which is where the false positives die: a
+  `:hover` next to a `transition` is not a finding.
+- **`design-audit/scripts/tests/test_audit.py`**, wired into CI. Every check has a fixture that
+  must make it fire and one that must not, and a check added without a fixture fails the suite. A
+  check that goes silently inert breaks the build instead of reporting a clean audit.
+- **`scripts/test-resolver.sh`**, wired into CI. It extracts the guarded resolver block from
+  `cast/SKILL.md` and runs it byte for byte against fixture layouts: `$CLAUDE_PLUGIN_ROOT` wins
+  when substituted, the versioned cache is the fallback, the newest version wins and ordering is
+  numeric (3.10.0 beats 3.9.0), a skills directory under `$HOME` and a session root above `$PWD`
+  both resolve, nothing installed resolves empty, a plugin root pointing nowhere is discarded, no
+  cache file is written, and a stale cache file left on disk is never consulted. The block had
+  shipped two silent total failures with zero tests: nothing resolved on Cowork in v3.3.0, and the
+  wrong version resolved in v3.4.0.
+
+### Fixed
+
+- **The duration inventory missed the common case.** It keyed on `duration:`, so it skipped
+  `transition: width 300ms`. It now reads times in an animation context, normalises them, and
+  ignores `maxAge: 3600s`.
+
 ## v3.5.0 - 2026-09-08
 
 The audit stops asserting and starts reporting, and the design intelligence actually runs.
