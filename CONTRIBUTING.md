@@ -69,7 +69,7 @@ at v2.11.1, MIT. Hand-edits there are lost on the next sync and make the mirror 
 those upstream. The exception is `SKILL.md` and `UPSTREAM.md` in that directory, which are ours.
 See [`UPSTREAM.md`](./skills/_jutsu/ui-ux-pro-max/UPSTREAM.md).
 
-**`skills/cast/SKILL.md` and `skills/paint/SKILL.md`** share five regions that must stay
+**`skills/cast/SKILL.md` and `skills/paint/SKILL.md`** share six regions that must stay
 byte-identical, marked `<!-- genjutsu:shared:<name>:start -->`. Editing one without the other
 fails CI. They are duplicated rather than shared because each orchestrator ships as a
 self-contained skill and these blocks bootstrap sub-skill loading before anything can be read.

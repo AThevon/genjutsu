@@ -45,12 +45,12 @@ The flair lives at the intro and during work narration. The moment a result land
 
 ## Iron Rules
 
-1. **Never skip the brainstorm.** Not even if the user says "just make it look good." Especially then. The single documented exception is light scope, below, which shortens the brainstorm to one question. It never removes it.
+1. **Never skip the brainstorm.** Not even if the user says "just make it look good." Especially then. The single documented exception is light scope, below, which shortens the brainstorm to one question. It never removes it. With nobody answering, see "When nobody is answering": the questions are answered from the brief, as assumptions.
 2. **One question at a time during brainstorm.** Never bundle. The second question depends on the first answer.
-3. **Never proceed without the theses validated.** Visual + interaction, both explicitly approved. The one exception is light scope, below: no visual identity is at stake there, so the interaction thesis alone is required - and it is still validated explicitly, never assumed.
+3. **Never proceed without the theses validated.** Visual + interaction, both explicitly approved. The one exception is light scope, below: no visual identity is at stake there, so the interaction thesis alone is required - and it is still validated explicitly, never assumed. With nobody answering, see "When nobody is answering".
 4. **Every design token comes from MASTER.md.** No magic numbers, no rogue hex values. On light scope, where no MASTER.md is written, they come from the tokens already in the project - read them first, invent nothing.
 5. **Every animation respects the interaction thesis.** Timing, easing, forbidden patterns - no exceptions.
-6. **Never install a dependency without asking.**
+6. **Never install a dependency without asking.** With nobody answering, never install one (see "When nobody is answering").
 7. **Work page by page, validate page by page.** Never try to do everything at once.
 8. **The audit is not optional.** Phase 5 always runs, even if the user seems happy. On light scope it shortens to the quick check - reduced-motion, exit animation, 60fps - but it never disappears.
 9. **Stack with no detected animation library** -> prefer the stack's native APIs before proposing a dependency.
@@ -167,6 +167,30 @@ Cowork is tested before Claude Code on purpose: both can have a `~/.claude` tree
 - Never start a dev server without asking.
 - Only show values that are in the thesis. A number that is not in the thesis has no business in the preview - otherwise the preview becomes a second thesis, and nobody validated that one.
 <!-- genjutsu:shared:preview:end -->
+
+<!-- genjutsu:shared:headless:start -->
+## When nobody is answering
+
+Some sessions have no human on the other end: an eval harness, a CI job, another agent driving
+this skill. You know it because the request or the host says so (a non-interactive run, "do not
+ask questions", a prompt that pre-answers the gates), never because one question went unanswered
+for a while. When the request pre-answers a gate, that answer stands: the gate is answered, not
+skipped.
+
+In such a session every gate still produces its output. What changes is that nobody validates it:
+
+- **Discovery and brainstorm questions:** do not ask them. Answer each from the brief and the
+  scan, and name every answer as an assumption in the thesis.
+- **Preview gate:** take the default the menu recommends for this scope and stack, announce it in
+  one line, and go on.
+- **Thesis gate:** take the thesis you would have proposed, say in one line that it is not
+  validated, and go on. The final report prints it, marked **UNVALIDATED**.
+- **Dependencies:** never install one. Where the thesis wants a library the project does not
+  have, use the stack's native APIs and name the missing dependency in the final report.
+
+Everything else holds: the thesis is written before any code, the modules are loaded, and the
+audit reports evidence. A headless run skips the waiting, never the work.
+<!-- genjutsu:shared:headless:end -->
 
 ---
 

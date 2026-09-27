@@ -63,6 +63,16 @@ mutate "$WORK/router-no-markers/packaging/genjutsu-router.md" \
   't.replace("<!-- genjutsu:router:cast:start -->", "", 1)'
 expect "a router block without its markers fails" 1 router-no-markers
 
+copy headless-missing
+mutate "$WORK/headless-missing/skills/paint/SKILL.md" \
+  't[:t.index("<!-- genjutsu:shared:headless:start -->")] + t[t.index("<!-- genjutsu:shared:headless:end -->") + len("<!-- genjutsu:shared:headless:end -->"):]'
+expect "the headless region removed from paint fails" 1 headless-missing
+
+copy headless-drift
+mutate "$WORK/headless-drift/skills/cast/SKILL.md" \
+  't.replace("never install one. Where the thesis wants", "install only what the thesis wants. Where the thesis wants", 1)'
+expect "the headless region edited in cast only fails" 1 headless-drift
+
 echo
 echo "$pass passed, $fail failed"
 [ "$fail" -eq 0 ] || exit 1
