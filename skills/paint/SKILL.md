@@ -542,6 +542,13 @@ Load sub-skills based on tech stack and interaction thesis.
 - `load_skill motion-principles` - the foundation
 
 <!-- genjutsu:shared:load:start -->
+**One module per shell call.** The output of a shell call over about 30,000 characters does not
+arrive inline: you get a 2,000-character preview and a file path, and a module you could not
+read is a module you did not load. So each loading call re-emits the skill-base block and loads
+one module, which keeps its output under 25,000 characters: no module entry file is over that
+cap, and `validate-skills.py` keeps it that way. Keep the tally as you go: `load_skill` prints
+`NOT LOADED` for a missing module and carries on, and the final report lists both.
+
 **Context layers** (load when applicable):
 
 | Detected | Load |
@@ -658,6 +665,18 @@ never install anything for it.
 
 **Report the two groups separately**, with the counts. "9 checked, 2 problems found, 8 handed
 over" is an honest audit. A single list of ticks is not.
+
+**Close the report with the modules**, always, as two lines of their own:
+
+```
+Modules loaded: motion-principles, framer-motion, design-audit
+Modules not loaded: none
+```
+
+`Modules not loaded` names every module a `load_skill` call reported as `NOT LOADED`, and every
+module the load tables called for that was never requested. Write `none` only when both are
+empty. Shell state does not survive between calls, so this list is yours to keep from the first
+load to the last: nothing in the shell remembers it for you.
 <!-- genjutsu:shared:audit:end -->
 
 Within the checked group, order the findings by severity: **Critical > Important > Nice-to-have**. The handed-over group is not ordered and not filtered - it goes over whole, because the user is the one who has to run it.
