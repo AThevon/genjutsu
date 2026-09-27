@@ -53,9 +53,10 @@ jobs:
       - name: Every SKILL.md is valid against the Agent Skills spec
         run: python3 scripts/validate-skills.py
 
-      - name: Script tests (every unittest under scripts/tests)
-        # One step for the whole folder: later plans add their test files here
-        # (eval suite, showcase generator) and never a second step.
+      - name: Script tests (validate-skills, the eval suite and its graders)
+        # claude plugin eval is billed per run and never runs here. What runs here
+        # is free: the suite parses, every grader has a known type, and the free
+        # graders are pinned against known pages so that none of them goes inert.
         working-directory: scripts
         run: python3 -m unittest discover -s tests
 
