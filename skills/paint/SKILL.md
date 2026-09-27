@@ -490,7 +490,7 @@ A single sentence that captures the motion and interaction language. **Must expl
 ### Phase 3 - DESIGN SYSTEM
 
 Load the `ui-ux-pro-max` sub-skill and **run it**. **Phase 2 ended in a user gate, so this is a
-new Bash call and `$SKILL_BASE` no longer exists.** Re-emit the resolution block from "Sub-skills
+new shell call and `$SKILL_BASE` no longer exists.** Re-emit the resolution block from "Sub-skills
 Path Detection" above in this same call, then:
 
 ```bash
