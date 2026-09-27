@@ -426,7 +426,10 @@ arrive inline: you get a 2,000-character preview and a file path, and a module y
 read is a module you did not load. So each loading call re-emits the skill-base block and loads
 one module, which keeps its output under 25,000 characters: no module entry file is over that
 cap, and `validate-skills.py` keeps it that way. Keep the tally as you go: `load_skill` prints
-`NOT LOADED` for a missing module and carries on, and the final report lists both.
+`NOT LOADED` for a missing module and carries on, and the final report lists both. Load each
+module whole: never pipe `load_skill` or `load_ref` into `head`, `tail`, `sed`, or `grep`, since
+the batching rule above already keeps each call under the limit, and a truncated module is a
+module not loaded.
 
 **Context layers** (load when applicable):
 

@@ -24,6 +24,9 @@ FIELDS = ["- **Marker:**", "- **Why it is a tell:**", "- **The question:**"]
 FAMILIES = ["Invented information", "Decorative filler", "Reflex convergence", "Hollow copy"]
 MAX_SKILL_LINES = 250
 MAX_CHARS = 25_000   # per file, and for the two together: they load in one shell call
+# The shared load region's rule against truncating a module through a pipe;
+# both skills/cast/SKILL.md and skills/paint/SKILL.md must state it.
+NO_TRUNCATE = "never pipe `load_skill` or `load_ref` into `head`, `tail`, `sed`, or `grep`"
 PRESCRIBES = re.compile(r"(?i)\binstead\b|\breplace (?:it |them )?with\b|\bswap (?:it |them )?for\b"
                         r"|\bswitch to\b|\bprefer\b|\bgo with\b")
 
@@ -128,6 +131,9 @@ def main() -> int:
             errors.append(f"{name}: the tells row is missing from the shared load region")
         if load_lines not in load:
             errors.append(f"{name}: the shared load region does not show the dedicated tells call")
+        if NO_TRUNCATE not in load:
+            errors.append(f"{name}: the shared load region does not forbid piping load_skill/load_ref "
+                          f"into head/tail/sed/grep")
         if "**Tells confronted with the thesis.**" not in audit_region or audit_cmd not in audit_region:
             errors.append(f"{name}: the shared audit region has no 'Tells confronted with the thesis' item")
         for block in re.findall(r"```bash\n(.*?)```", text, re.S):
