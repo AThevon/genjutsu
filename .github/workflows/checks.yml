@@ -35,7 +35,9 @@ jobs:
           ./scripts/check-dashes.sh
 
       - name: Shared blocks are in sync between cast and paint
-        run: ./scripts/check-shared-blocks.sh
+        run: |
+          ./scripts/test-shared-blocks.sh
+          ./scripts/check-shared-blocks.sh
 
       - name: No banned symbol has come back
         run: ./scripts/check-denylist.sh

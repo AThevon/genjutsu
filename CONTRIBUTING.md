@@ -73,6 +73,9 @@ See [`UPSTREAM.md`](./skills/_jutsu/ui-ux-pro-max/UPSTREAM.md).
 byte-identical, marked `<!-- genjutsu:shared:<name>:start -->`. Editing one without the other
 fails CI. They are duplicated rather than shared because each orchestrator ships as a
 self-contained skill and these blocks bootstrap sub-skill loading before anything can be read.
+The bundle's router, `packaging/genjutsu-router.md`, carries its search twice, once per
+pipeline, between `<!-- genjutsu:router:<pipeline>:start -->` markers: the two blocks must
+match line for line except their `p=cast` / `p=paint` line.
 
 **A new platform family** is not a pull request, it is a conversation. Read
 [`PLATFORM-CONTRACT.md`](./PLATFORM-CONTRACT.md) first: adding one touches eight sites across two
@@ -85,7 +88,7 @@ All of these run in CI. Run them before opening the PR and you will not be surpr
 ```bash
 ./scripts/test-check-version.sh && ./scripts/check-version.sh   # manifests, CHANGELOG and tag agree
 ./scripts/test-check-dashes.sh && ./scripts/check-dashes.sh     # no U+2014 in a tracked file
-./scripts/check-shared-blocks.sh        # the five regions are identical in cast and paint
+./scripts/test-shared-blocks.sh && ./scripts/check-shared-blocks.sh   # shared regions and router blocks match
 ./scripts/check-denylist.sh             # no string that was wrong once has come back
 ./scripts/test-resolver.sh              # the resolver, one fixture per install layout
 python3 scripts/validate-skills.py      # every SKILL.md against the Agent Skills spec
