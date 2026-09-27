@@ -41,7 +41,11 @@ it is dead weight for most requests, not to hit a count.
 directory, the Agent Skills six-field allowlist (`name`, `description`, `license`,
 `compatibility`, `metadata`, `allowed-tools` - only the first two are required, and no module in
 the tree uses more than three), length limits, no duplicate names. A body over 500 lines warns
-and still passes; three files are already over it.
+and still passes; three files are already over it. It also requires `metadata.internal` on
+every module and forbids it on `cast` and `paint`, and it caps at 25,000 characters every module
+entry file and every reference an orchestrator prints with `load_ref`: one shell call prints
+each of them whole, and past about 30,000 characters that output stops arriving inline. Any other
+reference over the cap warns.
 
 Every module under `skills/_jutsu/` carries a `metadata:` block with `internal: true`, an
 unquoted YAML boolean, because the `npx skills` CLI tests it with `=== true`. It hides the modules

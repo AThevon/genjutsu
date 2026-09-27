@@ -51,6 +51,12 @@ jobs:
       - name: Every SKILL.md is valid against the Agent Skills spec
         run: python3 scripts/validate-skills.py
 
+      - name: Script tests (every unittest under scripts/tests)
+        # One step for the whole folder: later plans add their test files here
+        # (eval suite, showcase generator) and never a second step.
+        working-directory: scripts
+        run: python3 -m unittest discover -s tests
+
       - name: ui-ux-pro-max dataset is well formed
         run: python3 skills/_jutsu/ui-ux-pro-max/scripts/validate_data.py
 
