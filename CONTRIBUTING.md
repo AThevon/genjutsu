@@ -83,6 +83,7 @@ files, four of them inside byte-identical regions, and commits somebody to keepi
 All of these run in CI. Run them before opening the PR and you will not be surprised.
 
 ```bash
+./scripts/test-check-version.sh && ./scripts/check-version.sh   # manifests, CHANGELOG and tag agree
 ./scripts/check-shared-blocks.sh        # the five regions are identical in cast and paint
 ./scripts/check-denylist.sh             # no string that was wrong once has come back
 python3 scripts/validate-skills.py      # every SKILL.md against the Agent Skills spec

@@ -21,6 +21,14 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Versions agree (plugin.json, marketplace.json, CHANGELOG, and the tag on a release)
+        # v3.6.0 was published with both manifests still reading 3.5.0 and no
+        # CHANGELOG entry. release.yml calls this workflow on a tag push, where
+        # GITHUB_REF_TYPE is "tag" and the tag is compared too.
+        run: |
+          ./scripts/test-check-version.sh
+          ./scripts/check-version.sh
+
       - name: Shared blocks are in sync between cast and paint
         run: ./scripts/check-shared-blocks.sh
 
