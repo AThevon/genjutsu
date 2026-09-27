@@ -202,5 +202,79 @@ class DeltaTest(Base):
         self.assertNotIn("RELEASE GATE", out)
 
 
+def trace_line(role, *blocks):
+    return json.dumps({"type": role, "message": {"role": role, "content": list(blocks)}})
+
+
+def tool_use(tid, name, **inp):
+    return {"type": "tool_use", "id": tid, "name": name, "input": inp}
+
+
+def tool_result(tid, text):
+    return {"type": "tool_result", "tool_use_id": tid, "content": [{"type": "text", "text": text}]}
+
+
+def text(t):
+    return {"type": "text", "text": t}
+
+
+class InspectTest(Base):
+    def trace(self, *lines, name="trace.jsonl") -> str:
+        p = self.tmp / name
+        p.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        return str(p)
+
+    def inspect(self, trace_path) -> tuple[int, str]:
+        d = doc(case("swiftui-skip", [run(1.0, trace=trace_path, guard_name="swift-screen-written")]))
+        return self.cli("inspect", self.write_json(d), "--case", "swiftui-*")
+
+    CLEAN = (
+        trace_line("assistant", tool_use("s1", "Skill", skill="genjutsu:paint")),
+        # The skill's own source names the failure messages: never count those.
+        trace_line("user", tool_result("s1", "echo \"genjutsu: sub-skill '$1' NOT LOADED\" >&2\nnpx skills add https://genjutsu.athevon.dev -g")),
+        trace_line("assistant", tool_use("b1", "Bash", command="GENJUTSU_SKILL_DIR=...\nload_skill motion-principles\nload_skill swiftui-motion")),
+        trace_line("user", tool_result("b1", "# Motion principles\n...")),
+        trace_line("assistant", text("Done.\nModules loaded: motion-principles, swiftui-motion\nModules not loaded: none")),
+    )
+
+    def test_clean_run(self):
+        code, out = self.inspect(self.trace(*self.CLEAN))
+        self.assertEqual(code, 0, out)
+        self.assertIn("requested: motion-principles, swiftui-motion", out)
+        self.assertIn("final report: Modules loaded: motion-principles, swiftui-motion", out)
+        self.assertIn("problems: none", out)
+
+    def test_module_not_loaded_in_a_shell_result(self):
+        code, out = self.inspect(self.trace(*self.CLEAN,
+            trace_line("assistant", tool_use("b2", "Bash", command="load_skill design-audit")),
+            trace_line("user", tool_result("b2", "genjutsu: sub-skill 'design-audit' NOT LOADED"))))
+        self.assertEqual(code, 1)
+        self.assertIn("NOT LOADED: design-audit", out)
+
+    def test_resolution_failure(self):
+        code, out = self.inspect(self.trace(
+            trace_line("assistant", tool_use("b1", "Bash", command="load_skill motion-principles")),
+            trace_line("user", tool_result("b1", "genjutsu: could not find the genjutsu modules (a _jutsu directory holding motion-principles).\n    any agent    npx skills add https://genjutsu.athevon.dev -g"))))
+        self.assertEqual(code, 1)
+        self.assertIn("module directory NOT resolved", out)
+
+    def test_sandbox_denial(self):
+        code, out = self.inspect(self.trace(*self.CLEAN,
+            trace_line("assistant", tool_use("b3", "Bash", command="cat /Users/x/genjutsu/skills/_jutsu/gsap/SKILL.md")),
+            trace_line("user", tool_result("b3", "cat: /Users/x/genjutsu/skills/_jutsu/gsap/SKILL.md: Operation not permitted"))))
+        self.assertEqual(code, 1)
+        self.assertIn("1 read(s) denied by the sandbox", out)
+
+    def test_unrecognised_trace(self):
+        code, out = self.inspect(self.trace(json.dumps({"event": "start"})))
+        self.assertEqual(code, 2)
+        self.assertIn("no tool call recognised", out)
+
+    def test_missing_trace(self):
+        code, out = self.inspect(str(self.tmp / "nope" / "trace.jsonl"))
+        self.assertEqual(code, 2)
+        self.assertIn("trace not found", out)
+
+
 if __name__ == "__main__":
     unittest.main()

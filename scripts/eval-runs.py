@@ -236,6 +236,104 @@ def cmd_delta(args) -> int:
     return 0 if ok and not partial else 1
 
 
+def iter_blocks(obj):
+    """Yield tool_use, tool_result and text blocks, without descending into them."""
+    if isinstance(obj, dict):
+        if obj.get("type") in ("tool_use", "tool_result", "text"):
+            yield obj
+            return
+        for v in obj.values():
+            yield from iter_blocks(v)
+    elif isinstance(obj, list):
+        for v in obj:
+            yield from iter_blocks(v)
+
+
+def result_text(block: dict) -> str:
+    content = block.get("content")
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        return "\n".join(b.get("text", "") for b in content if isinstance(b, dict))
+    return ""
+
+
+def read_trace(path: str) -> dict:
+    p = Path(path)
+    if not path or not p.is_file():
+        raise EvalError(f"trace not found: {path or '(empty tracePath)'}")
+    names, commands, outputs, finals = {}, [], [], []
+    for line in p.read_text(encoding="utf-8", errors="replace").splitlines():
+        try:
+            entry = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        role = entry.get("type") if isinstance(entry, dict) else None
+        if isinstance(entry, dict) and isinstance(entry.get("message"), dict):
+            role = entry["message"].get("role", role)
+        for b in iter_blocks(entry):
+            if b["type"] == "tool_use":
+                names[b.get("id")] = b.get("name")
+                if b.get("name") == "Bash":
+                    commands.append(str((b.get("input") or {}).get("command", "")))
+            elif b["type"] == "tool_result":
+                outputs.append((b.get("tool_use_id"), result_text(b)))
+            elif b["type"] == "text" and role == "assistant":
+                finals.append(b.get("text", ""))
+    if not names:
+        raise EvalError(f"no tool call recognised in {path}; read it by hand")
+    shell_out = [text for tid, text in outputs if names.get(tid) == "Bash"]
+    read_out = [text for tid, text in outputs if names.get(tid) in ("Bash", "Read")]
+    loaded_line = ""
+    for text in finals:
+        for m in MODULES_LOADED.finditer(text):
+            loaded_line = m.group(0)
+    return {
+        "requested": sorted({m for c in commands for m in LOAD_CALL.findall(c)}),
+        "not_loaded": sorted({m for t in shell_out for m in NOT_LOADED.findall(t)}),
+        "resolution_failed": any(RESOLUTION_FAILED in t for t in shell_out),
+        "denied": sum(1 for t in read_out if DENIED.search(t)),
+        "modules_loaded": loaded_line,
+    }
+
+
+def selected(cases: list[Case], globs: list[str] | None) -> list[Case]:
+    if not globs:
+        return cases
+    return [c for c in cases if any(fnmatch.fnmatch(c.name, g) for g in globs)]
+
+
+def cmd_inspect(args) -> int:
+    _, cases = load_doc(Path(args.json))
+    status = 0
+    for c in selected(cases, args.case):
+        for arm in ARMS:
+            for r in c.arms[arm]:
+                label = f"{c.name} [{arm}] run {r.index + 1}"
+                try:
+                    t = read_trace(r.trace)
+                except EvalError as e:
+                    print(f"{label}: {e}")
+                    status = max(status, 2)
+                    continue
+                problems = []
+                if t["resolution_failed"]:
+                    problems.append("module directory NOT resolved")
+                if t["not_loaded"]:
+                    problems.append(f"NOT LOADED: {', '.join(t['not_loaded'])}")
+                if t["denied"]:
+                    problems.append(f"{t['denied']} read(s) denied by the sandbox")
+                if r.error:
+                    problems.append(f"run error: {r.error}")
+                print(f"{label}: score {r.score:.2f}")
+                print(f"  requested: {', '.join(t['requested']) or 'none'}")
+                print(f"  final report: {t['modules_loaded'] or 'no Modules loaded line'}")
+                print(f"  problems: {'; '.join(problems) or 'none'}")
+                if problems and arm == "with":
+                    status = max(status, 1)
+    return status
+
+
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -243,10 +341,13 @@ def build_parser() -> argparse.ArgumentParser:
     d.add_argument("json")
     d.add_argument("--format", choices=("text", "markdown"), default="text")
     d.add_argument("--no-gate", action="store_true", help="print the table only (a suite that is not genjutsu's)")
+    i = sub.add_parser("inspect")
+    i.add_argument("json")
+    i.add_argument("--case", action="append")
     return ap
 
 
-COMMANDS = {"delta": cmd_delta}
+COMMANDS = {"delta": cmd_delta, "inspect": cmd_inspect}
 
 
 def main(argv: list[str]) -> int:
