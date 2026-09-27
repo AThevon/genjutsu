@@ -109,6 +109,37 @@ def main() -> int:
     if listed != running:
         errors.append(f"SKILL.md lists {sorted(listed)}, audit.py runs {sorted(running)}")
 
+    # Wiring. tells is only useful if the orchestrators load it where the spec says:
+    # in its own shell call, from the shared load region, before paint's dataset
+    # query, and audited from the shared audit region.
+    load_lines = "load_skill tells\nload_ref tells references/web.md\n"
+    audit_cmd = 'python3 "$SKILL_BASE/design-audit/scripts/audit.py" . --group tells'
+    texts = {}
+    for name in ("cast", "paint"):
+        texts[name] = (root / "skills" / name / "SKILL.md").read_text(encoding="utf-8")
+
+    def region(text: str, name: str) -> str:
+        start, end = f"<!-- genjutsu:shared:{name}:start -->", f"<!-- genjutsu:shared:{name}:end -->"
+        return text.split(start, 1)[1].split(end, 1)[0] if start in text and end in text else ""
+
+    for name, text in texts.items():
+        load, audit_region = region(text, "load"), region(text, "audit")
+        if "| Web stack and scope is medium or full |" not in load:
+            errors.append(f"{name}: the tells row is missing from the shared load region")
+        if load_lines not in load:
+            errors.append(f"{name}: the shared load region does not show the dedicated tells call")
+        if "**Tells confronted with the thesis.**" not in audit_region or audit_cmd not in audit_region:
+            errors.append(f"{name}: the shared audit region has no 'Tells confronted with the thesis' item")
+        for block in re.findall(r"```bash\n(.*?)```", text, re.S):
+            if "load_skill tells" in block and len(re.findall(r"^load_skill ", block, re.M)) != 1:
+                errors.append(f"{name}: the tells call also loads another module")
+    phase3 = texts["paint"].split("### Phase 3", 1)[-1].split("### Phase 4", 1)[0]
+    at, search = phase3.find(load_lines), phase3.find("scripts/search.py")
+    if not 0 <= at < search:
+        errors.append("paint: Phase 3 must load tells in its own call before running search.py")
+    if phase3.count(load_lines) > 1:
+        errors.append("paint: Phase 3 must hold exactly one tells call")
+
     for e in errors:
         print(f"FAIL: {e}")
     if errors:

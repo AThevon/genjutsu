@@ -489,6 +489,19 @@ A single sentence that captures the motion and interaction language. **Must expl
 
 ### Phase 3 - DESIGN SYSTEM
 
+**On a web stack, load `tells` first** (light scope never reaches this phase), in a shell
+call of its own, before the design-system query. Phase 2 ended in a user gate, so re-emit the
+resolution block in that call:
+
+```bash
+# (skill-base block re-emitted above this line)
+load_skill tells
+load_ref tells references/web.md
+```
+
+The query below answers from a static dataset that has never seen the project. `tells` is what
+lets you recognise which of its proposals are reflexes the validated thesis never asked for.
+
 Load the `ui-ux-pro-max` sub-skill and **run it**. **Phase 2 ended in a user gate, so this is a
 new shell call and `$SKILL_BASE` no longer exists.** Re-emit the resolution block from "Sub-skills
 Path Detection" above in this same call, then:
@@ -577,10 +590,26 @@ cap, and `validate-skills.py` keeps it that way. Keep the tally as you go: `load
 
 | Detected | Load |
 |---|---|
+| Web stack and scope is medium or full | `load_skill tells` (dedicated call, with `references/web.md`, see below) |
 | Mobile context (web mobile OR native iOS / Android) | `load_skill mobile-principles` |
 | Desktop context (macOS OR web desktop with no mobile indicators) | `load_skill desktop-principles` |
 | Audit explicitly requested OR scope=full | `load_skill design-audit` |
 | Advanced UI/UX questions | `load_skill ui-ux-pro-max` |
+
+**`tells` gets a shell call of its own.** With its web reference it weighs about 20,000
+characters, too close to the point where a shell call's output stops arriving inline to share a
+call with any other module. Re-emit the skill-base block in that call, then:
+
+```bash
+# (skill-base block re-emitted above this line)
+load_skill tells
+load_ref tells references/web.md
+```
+
+It loads after the thesis gate and before any visual choice is frozen: the validated thesis says
+which patterns are wanted, and `tells` names the reflexes nobody asked for. Never on a Compose or
+SwiftUI stack, never on light scope. In paint this row is already met: Phase 3 loads `tells`
+before the design-system query.
 
 **Stack-specific** (load by SCAN):
 
@@ -665,6 +694,15 @@ finding, and an item you could not check is reported as **not checked** rather t
       `.accessibilityLabel` on controls that have no text. Evidence: the grep.
 - [ ] **Web only.** Conditional renders wrapped in `AnimatePresence` or the framework's
       equivalent; `will-change` used sparingly and removed after the animation. Evidence: the grep.
+- [ ] **Tells confronted with the thesis.** Only when `tells` was loaded. In one shell call,
+      re-emit the skill-base block and run
+      `python3 "$SKILL_BASE/design-audit/scripts/audit.py" . --group tells`, whether or not
+      `design-audit` was loaded. Evidence, for each finding: either the problem you kept, with its
+      `file:line`, or the sentence of the validated thesis that names the pattern. A kept tell
+      counts among the problems found. An allowed one is listed as "allowed by the thesis", with
+      the sentence quoted, and is not a problem. The manual reads `tells` lists (fake product in
+      divs, repeated layout family, floating corner paragraph, copy register, copy held in
+      JavaScript data) are reported the same way.
 
 ### You must run these - not verified here
 
