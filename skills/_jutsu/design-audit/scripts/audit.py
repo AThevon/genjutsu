@@ -269,6 +269,7 @@ VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link",
              "source", "track", "wbr"}
 RAW_TAGS = {"script", "style"}
 _TAG_NAME = re.compile(r"[A-Za-z][\w.:-]*")
+_TYPE_PARAMS = re.compile(r"\s*,|\s+extends\s")
 _ATTR_VALUE = r"""\s*=\s*(?:"([^"]*)"|'([^']*)'|\{\s*(?:"([^"]*)"|'([^']*)'|`([^`$]*)`)\s*\})"""
 
 
@@ -279,17 +280,26 @@ class Token:
     body: str            # attribute source for "open", the raw text for "text"
     offset: int          # where `body` starts in the file
     self_closing: bool = False
+    void: bool = False   # an HTML void element: it never has children or a closing tag
 
 
-def _tokens(src: str) -> list[Token]:
-    """Tags and the text between them, for JSX, SFC and HTML.
+def _is_void(name: str, html: bool) -> bool:
+    """HTML is case-insensitive, so `<IMG>` is void in an .html file. In JSX and SFC
+    files a capitalised name is a component (`<Link>`, `<Input>`), never the void
+    `<link>` or `<input>`: there only the exact lowercase name is void."""
+    return (name.lower() if html else name) in VOID_TAGS
+
+
+def _tokens(src: str, html: bool = False) -> list[Token]:
+    """Tags and the text between them, for JSX, SFC and HTML (`html=True` for .html).
 
     Deliberately small. A `<` opens a tag only when a letter, `/` or `>` follows it, and,
     outside any element, only when no identifier sits right before it, so `Array<string>`
-    and `a < b` stay code while `word<b>bold</b>` inside a paragraph stays markup. Inside
-    a tag, braces and quotes are tracked, so `onClick={() => go()}` does not end the tag
-    at the arrow. `<script>` and `<style>` bodies, HTML comments and an Astro frontmatter
-    fence are skipped whole.
+    and `a < b` stay code while `word<b>bold</b>` inside a paragraph stays markup. A name
+    followed by `,` or ` extends ` is a type-parameter list, so the TSX generic arrow
+    `<T,>(x: T) => x` stays code too. Inside a tag, braces and quotes are tracked, so
+    `onClick={() => go()}` does not end the tag at the arrow. `<script>` and `<style>`
+    bodies, HTML comments and an Astro frontmatter fence are skipped whole.
     """
     out: list[Token] = []
     n = len(src)
@@ -328,6 +338,9 @@ def _tokens(src: str) -> list[Token]:
         m = _TAG_NAME.match(src, j)
         name = m.group(0) if m else ""
         k = m.end() if m else j
+        if name and not closing and _TYPE_PARAMS.match(src, k):
+            i += 1
+            continue
         body_start = k
         depth, quote = 0, ""
         while k < n:
@@ -352,8 +365,9 @@ def _tokens(src: str) -> list[Token]:
             level = max(0, level - 1)
         else:
             self_closing = src[k - 1] == "/"
-            out.append(Token("open", name, src[body_start:k], body_start, self_closing))
-            if not self_closing and name.lower() not in VOID_TAGS:
+            void = _is_void(name, html)
+            out.append(Token("open", name, src[body_start:k], body_start, self_closing, void))
+            if not self_closing and not void:
                 level += 1
             if name.lower() in RAW_TAGS and not self_closing:
                 end = re.compile(r"</\s*" + re.escape(name) + r"\s*>", re.I).search(src, k + 1)
@@ -430,12 +444,12 @@ def displayed_text_lines(path: Path, lines: list[str]) -> list[tuple[int, str]]:
     line_of = _line_index(src)
     out: list[tuple[int, str]] = []
     depth = 0
-    for tok in _tokens(src):
+    for tok in _tokens(src, html=path.suffix in HTML):
         if tok.kind == "open":
             for off, value in _attr_values(tok, TEXT_ATTRS):
                 if value.strip():
                     out.append((line_of(off), " ".join(value.split())))
-            if not tok.self_closing and tok.name.lower() not in VOID_TAGS:
+            if not tok.self_closing and not tok.void:
                 depth += 1
         elif tok.kind == "close":
             depth = max(0, depth - 1)
@@ -457,7 +471,7 @@ def markup_class_lines(path: Path, lines: list[str]) -> list[tuple[int, str]]:
     src = "\n".join(lines)
     line_of = _line_index(src)
     return [(line_of(off), " ".join(value.split()))
-            for tok in _tokens(src) if tok.kind == "open"
+            for tok in _tokens(src, html=path.suffix in HTML) if tok.kind == "open"
             for off, value in _attr_values(tok, CLASS_ATTRS)]
 
 
@@ -579,17 +593,17 @@ class Element:
     children: list = field(default_factory=list)
 
 
-def element_tree(src: str) -> list[Element]:
+def element_tree(src: str, html: bool = False) -> list[Element]:
     """Top-level elements of a markup file, children nested, void tags as leaves."""
     line_of = _line_index(src)
     roots: list[Element] = []
     stack: list[Element] = []
-    for tok in _tokens(src):
+    for tok in _tokens(src, html=html):
         if tok.kind == "open":
             classes = " ".join(" ".join(v.split()) for _, v in _attr_values(tok, CLASS_ATTRS))
             el = Element(tok.name, classes, tok.body, line_of(tok.offset))
             (stack[-1].children if stack else roots).append(el)
-            if not tok.self_closing and tok.name.lower() not in VOID_TAGS:
+            if not tok.self_closing and not tok.void:
                 stack.append(el)
         elif tok.kind == "close":
             names = [e.name for e in stack]
@@ -616,7 +630,7 @@ def find_equal_cards(files: list[Path], base: Path) -> list[Finding]:
         lines = read(f)
         if lines is None:
             continue
-        for el in _elements(element_tree("\n".join(lines))):
+        for el in _elements(element_tree("\n".join(lines), html=f.suffix in HTML)):
             if not (THREE_COLUMN_CLASS.search(el.classes) or REPEAT_THREE.search(el.attrs)):
                 continue
             kids = [c for c in el.children if c.name]
@@ -658,7 +672,7 @@ def cta_labels(path: Path, lines: list[str]) -> list[tuple[int, str]]:
     src = "\n".join(lines)
     line_of = _line_index(src)
     out, frames = [], []
-    for tok in _tokens(src):
+    for tok in _tokens(src, html=path.suffix in HTML):
         if tok.kind == "open" and tok.name.lower() in CTA_TAGS and not tok.self_closing:
             frames.append((tok.name, line_of(tok.offset), []))
         elif tok.kind == "text" and frames:

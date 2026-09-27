@@ -426,6 +426,13 @@ class TextSurface(unittest.TestCase):
                 'if (a < b && c > d) run()\n')
         self.assertEqual(self.text_of("src/A.tsx", body), [])
 
+    def test_a_generic_arrow_is_not_a_tag(self):
+        body = ('const id = <T,>(x: T) => x\n'
+                'const pair = <A, B>(a: A, b: B) => [a, b]\n'
+                'const keep = <T extends object>(o: T) => o\n'
+                'export const L = ({ xs }) => <ul>{xs.map(<T,>(x: T) => <li key={String(x)}>Item</li>)}</ul>\n')
+        self.assertEqual(self.text_of("src/A.tsx", body), [(4, "Item")])
+
     def test_script_style_and_comments_are_skipped_in_html(self):
         body = ('<!doctype html>\n<html><head><style>.a{width:100%}</style>\n'
                 '<script>const s = "<p>not text</p>"</script></head>\n'
@@ -785,6 +792,53 @@ class TellsAreReportedApart(unittest.TestCase):
             self.assertIn("1 tell check(s) fired", md)
         finally:
             shutil.rmtree(root)
+
+
+class ComponentsAreNotVoid(unittest.TestCase):
+    """`<Link>` is a component, not the void `<link>`: in JSX and SFC files only a
+    lowercase name is an HTML void element. HTML itself stays case-insensitive."""
+
+    def equal_cards(self, files: dict[str, str]) -> list[tuple[str, int]]:
+        root = build(files)
+        try:
+            res = audit_it(root, only="tell-equal-cards")["tell-equal-cards"]
+            return [(f.file, f.line) for f in res.findings]
+        finally:
+            shutil.rmtree(root)
+
+    def test_a_grid_of_link_cards_is_equal_cards(self):
+        body = ("export default () => (\n"
+                '  <div className="grid md:grid-cols-3 gap-6">\n'
+                '    <Link href="/plates" className="card"><h3>Plates</h3><p>Thrown</p></Link>\n'
+                '    <Link href="/bowls" className="card"><h3>Bowls</h3><p>Turned</p></Link>\n'
+                '    <Link href="/cups" className="card"><h3>Cups</h3><p>Pulled</p></Link>\n'
+                "  </div>\n"
+                ")\n")
+        self.assertEqual(self.equal_cards({"app/page.tsx": body}), [("app/page.tsx", 2)])
+
+    def test_text_after_a_closing_component_is_still_displayed(self):
+        body = '<footer><Link href="/">Home</Link> Made in Lyon</footer>\n'
+        for name in ("app/page.tsx", "src/Footer.jsx", "src/Footer.vue", "src/Footer.svelte",
+                     "src/Footer.astro"):
+            with self.subTest(file=name):
+                self.assertEqual(audit.displayed_text_lines(Path(name), body.splitlines()),
+                                 [(1, "Home"), (1, "Made in Lyon")])
+
+    def test_lowercase_input_and_img_stay_void_in_jsx(self):
+        body = ("export const A = () => (\n"
+                '  <p>Open<img src="/k.jpg" alt="Kiln"><input placeholder="Email"></p>\n'
+                ")\n"
+                "const later = 1\n")
+        self.assertEqual(audit.displayed_text_lines(Path("src/A.tsx"), body.splitlines()),
+                         [(2, "Open"), (2, "Kiln"), (2, "Email")])
+        grid = ('<div className="grid grid-cols-3"><img className="t" src="/a.png">'
+                '<img className="t" src="/b.png"><img className="t" src="/c.png"></div>\n')
+        self.assertEqual(self.equal_cards({"src/A.tsx": grid}), [("src/A.tsx", 1)])
+
+    def test_html_void_tags_stay_case_insensitive(self):
+        grid = ('<div class="grid grid-cols-3"><IMG class="t" src="/a.png">'
+                '<Img class="t" src="/b.png"><img class="t" src="/c.png"></div>\n')
+        self.assertEqual(self.equal_cards({"index.html": grid}), [("index.html", 1)])
 
 
 if __name__ == "__main__":
