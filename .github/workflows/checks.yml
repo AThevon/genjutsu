@@ -58,7 +58,9 @@ jobs:
         # is free: the suite parses, every grader has a known type, and the free
         # graders are pinned against known pages so that none of them goes inert.
         working-directory: scripts
-        run: python3 -m unittest discover -s tests
+        run: |
+          python3 -m unittest discover -s tests
+          python3 check-evals.py
 
       - name: ui-ux-pro-max dataset is well formed
         run: python3 skills/_jutsu/ui-ux-pro-max/scripts/validate_data.py

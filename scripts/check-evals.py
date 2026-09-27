@@ -36,7 +36,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 # Cases the release gate reads. Each one is added by the task that writes it.
-EXPECTED_CASES: tuple[str, ...] = ()
+EXPECTED_CASES: tuple[str, ...] = ("studio-landing",)
 
 # Positive guards: a run that fails its case's guard produced nothing to grade,
 # and the delta reading (scripts/eval-runs.py) leaves it out of both arms.
