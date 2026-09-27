@@ -30,6 +30,7 @@ this reports, the caller decides.
 from __future__ import annotations
 
 import argparse
+import bisect
 import json
 import re
 import sys
@@ -221,6 +222,215 @@ INVENTORY = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Surfaces. A tell lives in what the visitor reads, not in the source around it:
+# `width: "100%"` in a style object is not a claim of perfection, `99.99% uptime`
+# in a paragraph is. So "text" checks never see raw lines, only what this
+# extractor returns, and it is tested on its own.
+# ---------------------------------------------------------------------------
+
+MARKUP_EXTS = JSX | SFC | HTML
+TEXT_ATTRS = ("alt", "title", "aria-label", "placeholder")
+CLASS_ATTRS = ("className", "class")
+VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta",
+             "source", "track", "wbr"}
+RAW_TAGS = {"script", "style"}
+_TAG_NAME = re.compile(r"[A-Za-z][\w.:-]*")
+_ATTR_VALUE = r"""\s*=\s*(?:"([^"]*)"|'([^']*)'|\{\s*(?:"([^"]*)"|'([^']*)'|`([^`$]*)`)\s*\})"""
+
+
+@dataclass
+class Token:
+    kind: str            # "open" | "close" | "text"
+    name: str            # tag name, "" for a fragment or for text
+    body: str            # attribute source for "open", the raw text for "text"
+    offset: int          # where `body` starts in the file
+    self_closing: bool = False
+
+
+def _tokens(src: str) -> list[Token]:
+    """Tags and the text between them, for JSX, SFC and HTML.
+
+    Deliberately small. A `<` opens a tag only when a letter, `/` or `>` follows it, and,
+    outside any element, only when no identifier sits right before it, so `Array<string>`
+    and `a < b` stay code while `word<b>bold</b>` inside a paragraph stays markup. Inside
+    a tag, braces and quotes are tracked, so `onClick={() => go()}` does not end the tag
+    at the arrow. `<script>` and `<style>` bodies, HTML comments and an Astro frontmatter
+    fence are skipped whole.
+    """
+    out: list[Token] = []
+    n = len(src)
+    i = 0
+    level = 0
+    if src.startswith("---"):
+        fence = src.find("\n---", 3)
+        if fence != -1:
+            eol = src.find("\n", fence + 4)
+            i = n if eol == -1 else eol + 1
+    text_start = i
+
+    def flush(end: int) -> None:
+        if end > text_start:
+            out.append(Token("text", "", src[text_start:end], text_start))
+
+    while i < n:
+        if src[i] != "<":
+            i += 1
+            continue
+        if src.startswith("<!--", i):
+            flush(i)
+            close = src.find("-->", i + 4)
+            i = n if close == -1 else close + 3
+            text_start = i
+            continue
+        nxt = src[i + 1:i + 2]
+        prev = src[i - 1] if i else "\n"
+        closing = nxt == "/"
+        after = src[i + 2:i + 3] if closing else nxt
+        code_like = level == 0 and (prev.isalnum() or prev in "_$.)]")
+        if not (after.isalpha() or after == ">") or code_like:
+            i += 1
+            continue
+        j = i + (2 if closing else 1)
+        m = _TAG_NAME.match(src, j)
+        name = m.group(0) if m else ""
+        k = m.end() if m else j
+        body_start = k
+        depth, quote = 0, ""
+        while k < n:
+            ch = src[k]
+            if quote:
+                if ch == quote:
+                    quote = ""
+            elif ch in "\"'`":
+                quote = ch
+            elif ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth = max(0, depth - 1)
+            elif ch == ">" and depth == 0:
+                break
+            k += 1
+        if k >= n:
+            break
+        flush(i)
+        if closing:
+            out.append(Token("close", name, "", i))
+            level = max(0, level - 1)
+        else:
+            self_closing = src[k - 1] == "/"
+            out.append(Token("open", name, src[body_start:k], body_start, self_closing))
+            if not self_closing and name.lower() not in VOID_TAGS:
+                level += 1
+            if name.lower() in RAW_TAGS and not self_closing:
+                end = re.compile(r"</\s*" + re.escape(name) + r"\s*>", re.I).search(src, k + 1)
+                k = n - 1 if end is None else end.start() - 1
+        i = k + 1
+        text_start = i
+    flush(n)
+    return out
+
+
+def _strip_expressions(text: str) -> str:
+    """Blank `{...}` expressions out of a text chunk, keeping offsets and newlines.
+
+    A chunk can start inside an expression that opened before the previous tag
+    (`{items.map(i => <li>...</li>)}` leaves `)}` behind) or end inside one that
+    closes after the next tag. Both halves are code, never copy.
+    """
+    chars = list(text)
+    depth, quote, cut = 0, "", -1
+    for idx, ch in enumerate(text):
+        if depth:
+            if quote:
+                if ch == quote:
+                    quote = ""
+            elif ch in "\"'`":
+                quote = ch
+            elif ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+            if ch != "\n":
+                chars[idx] = " "
+            continue
+        if ch == "{":
+            depth = 1
+            chars[idx] = " "
+        elif ch == "}":
+            cut = idx
+    if cut >= 0:
+        for idx in range(cut + 1):
+            if chars[idx] != "\n":
+                chars[idx] = " "
+    return "".join(chars)
+
+
+def _line_index(src: str):
+    starts = [0] + [m.end() for m in re.finditer("\n", src)]
+    return lambda offset: bisect.bisect_right(starts, offset)
+
+
+def _attr_values(tok: Token, names: tuple[str, ...]) -> list[tuple[int, str]]:
+    """(offset, value) for each literal value of the named attributes on an open tag."""
+    alts = "|".join(re.escape(a) for a in names)
+    pat = re.compile(r"(?<![\w:@.-])(?:" + alts + r")" + _ATTR_VALUE)
+    out = []
+    for m in pat.finditer(tok.body):
+        for g in range(1, 6):
+            if m.group(g) is not None:
+                out.append((tok.offset + m.start(g), m.group(g)))
+                break
+    return out
+
+
+def displayed_text_lines(path: Path, lines: list[str]) -> list[tuple[int, str]]:
+    """(line number, text) for everything a visitor reads in a markup file.
+
+    Text between tags, inside at least one element, with `{...}` expressions blanked
+    out, plus the values of alt, title, aria-label and placeholder. Never className,
+    class, style or any JS object: those are markup and code, not copy.
+    """
+    if path.suffix not in MARKUP_EXTS:
+        return []
+    src = "\n".join(lines)
+    line_of = _line_index(src)
+    out: list[tuple[int, str]] = []
+    depth = 0
+    for tok in _tokens(src):
+        if tok.kind == "open":
+            for off, value in _attr_values(tok, TEXT_ATTRS):
+                if value.strip():
+                    out.append((line_of(off), " ".join(value.split())))
+            if not tok.self_closing and tok.name.lower() not in VOID_TAGS:
+                depth += 1
+        elif tok.kind == "close":
+            depth = max(0, depth - 1)
+        elif depth:
+            cleaned = _strip_expressions(tok.body)
+            pos = tok.offset
+            for seg in cleaned.split("\n"):
+                text = " ".join(seg.split())
+                if text:
+                    out.append((line_of(pos), text))
+                pos += len(seg) + 1
+    return out
+
+
+def markup_class_lines(path: Path, lines: list[str]) -> list[tuple[int, str]]:
+    """(line number, class list) for every literal className / class attribute."""
+    if path.suffix not in MARKUP_EXTS:
+        return []
+    src = "\n".join(lines)
+    line_of = _line_index(src)
+    return [(line_of(off), " ".join(value.split()))
+            for tok in _tokens(src) if tok.kind == "open"
+            for off, value in _attr_values(tok, CLASS_ATTRS)]
+
+
+SURFACES = {"text": displayed_text_lines, "markup": markup_class_lines}
+
+
 def discover_roots(base: Path) -> tuple[list[Path], str]:
     """Directories to scan, and how they were chosen."""
     hits = [base / d for d in ROOT_CANDIDATES if (base / d).is_dir()]
@@ -263,15 +473,26 @@ def run_check(check: Check, files: list[Path], base: Path) -> Result:
         )
         return res
 
+    if check.fn is not None:
+        for fd in check.fn(relevant, base):
+            fd.check, fd.severity = check.id, check.severity
+            res.findings.append(fd)
+        if res.findings:
+            res.status = "findings"
+            res.meaning = f"{len(res.findings)} occurrence(s) across {len(relevant)} file(s) scanned."
+        return res
+
     pat = re.compile(check.pattern)
     unless = re.compile(check.unless) if check.unless else None
     found_any = False
+    extract = SURFACES.get(check.surface)
 
     for f in relevant:
         lines = read(f)
         if lines is None:
             continue
-        for n, line in enumerate(lines, 1):
+        pairs = extract(f, lines) if extract else list(enumerate(lines, 1))
+        for n, line in pairs:
             if not pat.search(line):
                 continue
             found_any = True

@@ -287,5 +287,126 @@ class CheckMechanics(unittest.TestCase):
             shutil.rmtree(root)
 
 
+class TextSurface(unittest.TestCase):
+    """What a text check can see. `width: "100%"` must never read as a claim."""
+
+    def text_of(self, name: str, body: str) -> list[tuple[int, str]]:
+        return audit.displayed_text_lines(Path(name), body.splitlines())
+
+    def test_text_between_tags_and_text_attributes(self):
+        body = ('export default function P() {\n'
+                '  return (\n'
+                '    <main>\n'
+                '      <h1 title="Studio">Hello there</h1>\n'
+                '      <img alt="A kiln at dusk" src="/k.jpg" />\n'
+                '      <input placeholder="Your email" aria-label="Email" />\n'
+                '    </main>\n'
+                '  )\n'
+                '}\n')
+        self.assertEqual(self.text_of("app/page.tsx", body), [
+            (4, "Studio"), (4, "Hello there"), (5, "A kiln at dusk"), (6, "Your email"), (6, "Email"),
+        ])
+
+    def test_style_objects_and_class_names_never_come_out(self):
+        body = ('const card = { width: "100%", height: "50%" }\n'
+                'export const A = () => (\n'
+                '  <div style={{ width: "100%" }} className="w-full grid-cols-3">\n'
+                '    Ready\n'
+                '  </div>\n'
+                ')\n')
+        texts = [t for _, t in self.text_of("src/A.tsx", body)]
+        self.assertEqual(texts, ["Ready"])
+
+    def test_inline_tags_inside_text_stay_markup(self):
+        body = '<p>Plain<b>bold</b> end</p>\n'
+        self.assertEqual(self.text_of("src/A.tsx", body), [(1, "Plain"), (1, "bold"), (1, "end")])
+
+    def test_arrow_in_an_attribute_does_not_end_the_tag(self):
+        body = '<button onClick={() => go(1 > 0)}>Book a call</button>\n'
+        self.assertEqual(self.text_of("src/A.tsx", body), [(1, "Book a call")])
+
+    def test_expressions_are_blanked_and_mapped_children_still_read(self):
+        body = ('<ul>\n'
+                '  {items.map((i) => (\n'
+                '    <li key={i.id}>Plate {i.n} of the series</li>\n'
+                '  ))}\n'
+                '</ul>\n')
+        self.assertEqual(self.text_of("src/L.jsx", body), [(3, "Plate of the series")])
+
+    def test_generics_and_comparisons_are_not_tags(self):
+        body = ('const [v, setV] = useState<string>("x")\n'
+                'if (a < b && c > d) run()\n')
+        self.assertEqual(self.text_of("src/A.tsx", body), [])
+
+    def test_script_style_and_comments_are_skipped_in_html(self):
+        body = ('<!doctype html>\n<html><head><style>.a{width:100%}</style>\n'
+                '<script>const s = "<p>not text</p>"</script></head>\n'
+                '<body><!-- <p>hidden</p> --><p>Shown</p></body></html>\n')
+        self.assertEqual(self.text_of("index.html", body), [(4, "Shown")])
+
+    def test_astro_frontmatter_and_vue_script_are_code(self):
+        astro = '---\nconst title = "<b>not</b>"\n---\n<h2>{title}</h2><p>Visible</p>\n'
+        self.assertEqual(self.text_of("src/pages/index.astro", astro), [(4, "Visible")])
+        vue = '<template><p>Hi</p></template>\n<script setup>\nconst x = "<i>no</i>"\n</script>\n'
+        self.assertEqual(self.text_of("src/C.vue", vue), [(1, "Hi")])
+
+    def test_css_and_scripts_have_no_text_surface(self):
+        self.assertEqual(self.text_of("src/a.css", '.a::after { content: "Elevate"; }\n'), [])
+        self.assertEqual(self.text_of("src/a.ts", 'export const t = "<p>Elevate</p>"\n'), [])
+
+    def test_copy_in_js_data_is_not_displayed_text(self):
+        """A documented limit: copy kept in JS data and rendered through {...} is not seen.
+        tells/SKILL.md and design-audit say so; this keeps the docs and the code in step."""
+        body = 'const f = [{ t: "Elevate" }]\nexport const A = () => <p>{f[0].t}</p>\n'
+        self.assertEqual(self.text_of("src/A.tsx", body), [])
+
+
+class MarkupSurface(unittest.TestCase):
+    def test_class_values_only(self):
+        body = ('<div className="grid grid-cols-3" title="x">\n'
+                "  <p class='lead'>Text</p>\n"
+                '  <span className={`pill`} style={{ color: "red" }} />\n'
+                '</div>\n')
+        self.assertEqual(audit.markup_class_lines(Path("src/A.tsx"), body.splitlines()),
+                         [(1, "grid grid-cols-3"), (2, "lead"), (3, "pill")])
+
+
+class SurfaceDispatch(unittest.TestCase):
+    def run_one(self, check: audit.Check, files: dict[str, str]) -> audit.Result:
+        root = build(files)
+        try:
+            return audit.run_check(check, audit.walk(audit.discover_roots(root)[0], root), root)
+        finally:
+            shutil.rmtree(root)
+
+    def test_text_surface_ignores_code_that_source_would_match(self):
+        files = {"src/A.tsx": 'const s = { width: "100%" }\nexport const A = () => <p>100% organic</p>\n'}
+        text = audit.Check(id="t", title="t", severity="nice-to-have", exts=audit.JSX,
+                           pattern=r"100%", surface="text")
+        source = audit.Check(id="s", title="s", severity="nice-to-have", exts=audit.JSX, pattern=r"100%")
+        self.assertEqual([(f.line, f.text) for f in self.run_one(text, files).findings], [(2, "100% organic")])
+        self.assertEqual(len(self.run_one(source, files).findings), 2)
+
+    def test_markup_surface_reads_class_attributes(self):
+        files = {"src/A.tsx": '<p className="uppercase tracking-widest">uppercase</p>\n'}
+        c = audit.Check(id="m", title="m", severity="nice-to-have", exts=audit.JSX,
+                        pattern=r"tracking-widest", surface="markup")
+        self.assertEqual([f.text for f in self.run_one(c, files).findings], ["uppercase tracking-widest"])
+
+    def test_fn_check_gets_relevant_files_and_its_id(self):
+        seen = []
+
+        def fn(files, base):
+            seen.extend(p.name for p in files)
+            return [audit.Finding("", "", "src/A.tsx", 1, "hit")]
+
+        c = audit.Check(id="f", title="f", severity="nice-to-have", exts=audit.JSX, fn=fn, group="tells")
+        res = self.run_one(c, {"src/A.tsx": "<p/>\n", "src/a.css": ".a{}\n"})
+        self.assertEqual(seen, ["A.tsx"])
+        self.assertEqual((res.status, res.group, res.findings[0].check, res.findings[0].severity),
+                         ("findings", "tells", "f", "nice-to-have"))
+        self.assertEqual(self.run_one(c, {"src/a.css": ".a{}\n"}).status, "not-applicable")
+
+
 if __name__ == "__main__":
     unittest.main()
