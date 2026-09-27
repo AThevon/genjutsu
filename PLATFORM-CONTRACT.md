@@ -80,6 +80,33 @@ Three of these sites are duplicated across the two orchestrators with no CI guar
 known weakness, not a design: the audit checklist was in the same state until v3.4.0 and had
 already drifted.
 
+## Hosts
+
+genjutsu is written against capabilities, not against a product. A host runs it when it gives the
+model three things:
+
+- **The skill's own directory, known to the model.** Claude Code substitutes
+  `${CLAUDE_SKILL_DIR}` by itself. Anywhere else the model passes the directory it read the file
+  from, as `GENJUTSU_SKILL_DIR` for `cast` and `paint`, or `GENJUTSU_BUNDLE_DIR` for the router.
+  When neither is available, the resolver falls back to bounded probes.
+- **A shell**, to run the resolver and print the modules. Every shell call is assumed to start
+  from nothing: no variable, function or working directory carries over.
+- **File writes**, for the code, the tokens and `MASTER.md`.
+
+Optional: a tool that renders HTML for the user. Without one, the preview gate writes a throwaway
+HTML file and hands over its path, or falls back to inline.
+
+**What is supported.** Claude Code (plugin or `npx skills`), claude.ai and Cowork are tested by the
+maintainer before a release. genjutsu also installs and runs in other agents through
+`npx skills add https://genjutsu.athevon.dev -g` (Codex, Cursor and others): not tested by the
+maintainer, not supported. Nothing in the skills behaves differently per agent, and nothing will.
+Knowing which directories an installer writes to is infrastructure; a code path per agent is
+not.
+
+**Triage.** A bug report is reproduced under Claude Code first. One that reproduces there is a
+genjutsu bug. One that does not is labelled `community`: it stays open for someone who uses that
+agent, and a fix is welcome as long as it changes nothing for the supported hosts.
+
 ## Detection has to be conservative
 
 A false positive is worse than a miss. If SCAN wrongly concludes a project is Compose, the whole

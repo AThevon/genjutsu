@@ -81,6 +81,16 @@ match line for line except their `p=cast` / `p=paint` line.
 [`PLATFORM-CONTRACT.md`](./PLATFORM-CONTRACT.md) first: adding one touches eight sites across two
 files, four of them inside byte-identical regions, and commits somebody to keeping it accurate.
 
+## Hosts
+
+Claude Code, claude.ai and Cowork are the supported hosts. genjutsu also installs in other agents
+through `npx skills` (Codex, Cursor and others), untested and unsupported. The Hosts section of
+[`PLATFORM-CONTRACT.md`](./PLATFORM-CONTRACT.md) says what a host has to provide.
+
+**Triage rule:** a bug that does not reproduce under Claude Code is labelled `community`. It stays
+open, and a fix is welcome as long as it changes nothing for the supported hosts. The bug form
+asks which surface you used; for another agent, name it and the install command.
+
 ## Running the checks
 
 All of these run in CI. Run them before opening the PR and you will not be surprised.

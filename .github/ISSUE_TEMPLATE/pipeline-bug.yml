@@ -9,6 +9,8 @@ body:
       label: Surface
       options:
         - Claude Code (plugin install)
+        - "npx skills (Claude Code)"
+        - "npx skills (other agent: specify)"
         - claude.ai (genjutsu.zip)
         - Cowork
         - Other
