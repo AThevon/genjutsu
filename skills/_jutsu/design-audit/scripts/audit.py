@@ -532,6 +532,152 @@ CHECKS += [
 ]
 
 
+# ---------------------------------------------------------------------------
+# Tells a line regex cannot see: they need the element tree, or every button
+# label of the project at once.
+# ---------------------------------------------------------------------------
+
+@dataclass
+class Element:
+    name: str
+    classes: str
+    attrs: str
+    line: int
+    children: list = field(default_factory=list)
+
+
+def element_tree(src: str) -> list[Element]:
+    """Top-level elements of a markup file, children nested, void tags as leaves."""
+    line_of = _line_index(src)
+    roots: list[Element] = []
+    stack: list[Element] = []
+    for tok in _tokens(src):
+        if tok.kind == "open":
+            classes = " ".join(" ".join(v.split()) for _, v in _attr_values(tok, CLASS_ATTRS))
+            el = Element(tok.name, classes, tok.body, line_of(tok.offset))
+            (stack[-1].children if stack else roots).append(el)
+            if not tok.self_closing and tok.name.lower() not in VOID_TAGS:
+                stack.append(el)
+        elif tok.kind == "close":
+            names = [e.name for e in stack]
+            if tok.name in names:
+                while stack and stack.pop().name != tok.name:
+                    pass
+    return roots
+
+
+def _elements(nodes: list[Element]):
+    for el in nodes:
+        yield el
+        yield from _elements(el.children)
+
+
+THREE_COLUMN_CLASS = re.compile(r"(?:^|[\s:])(?:grid-cols-3|columns-3)(?=\s|$)")
+REPEAT_THREE = re.compile(r"repeat\(\s*3\s*,")
+
+
+def find_equal_cards(files: list[Path], base: Path) -> list[Finding]:
+    """A three-column container whose three children carry the same class list."""
+    out = []
+    for f in files:
+        lines = read(f)
+        if lines is None:
+            continue
+        for el in _elements(element_tree("\n".join(lines))):
+            if not (THREE_COLUMN_CLASS.search(el.classes) or REPEAT_THREE.search(el.attrs)):
+                continue
+            kids = [c for c in el.children if c.name]
+            classes = {c.classes for c in kids}
+            if len(kids) == 3 and len(classes) == 1 and "" not in classes:
+                out.append(Finding("", "", str(f.relative_to(base)), el.line,
+                                   f'3 columns, 3 children with class="{kids[0].classes}"'[:200]))
+    return out
+
+
+# Labels that ask for the same thing. Matched on the whole normalized label, or
+# on its first words ("learn more about pricing" is still "learn more").
+CTA_INTENTS = {
+    "start": ["get started", "start now", "start free", "start for free", "start your free trial",
+              "start free trial", "try it free", "try for free", "try free", "sign up", "sign up free",
+              "create account", "create an account", "join now", "get access", "request access",
+              "get early access", "join the waitlist"],
+    "contact": ["contact us", "contact sales", "talk to sales", "talk to us", "book a demo", "get a demo",
+                "request a demo", "schedule a demo", "book a call", "let's talk", "get in touch"],
+    "learn": ["learn more", "read more", "find out more", "discover more", "see how it works", "explore"],
+    "buy": ["buy now", "shop now", "order now", "add to cart", "get yours", "purchase"],
+}
+CTA_TAGS = {"a", "button", "link"}
+
+
+def _cta_intent(label: str) -> str | None:
+    norm = " ".join(re.sub(r"[^a-z0-9' ]+", " ", label.lower()).split())
+    for intent, phrases in CTA_INTENTS.items():
+        for p in phrases:
+            if norm == p or norm.startswith(p + " "):
+                return intent
+    return None
+
+
+def cta_labels(path: Path, lines: list[str]) -> list[tuple[int, str]]:
+    """(line, label) for every button and link whose label is literal text."""
+    if path.suffix not in MARKUP_EXTS:
+        return []
+    src = "\n".join(lines)
+    line_of = _line_index(src)
+    out, frames = [], []
+    for tok in _tokens(src):
+        if tok.kind == "open" and tok.name.lower() in CTA_TAGS and not tok.self_closing:
+            frames.append((tok.name, line_of(tok.offset), []))
+        elif tok.kind == "text" and frames:
+            words = " ".join(_strip_expressions(tok.body).split())
+            for _, _, parts in frames:
+                if words:
+                    parts.append(words)
+        elif tok.kind == "close" and frames and frames[-1][0] == tok.name:
+            _, line, parts = frames.pop()
+            if parts:
+                out.append((line, " ".join(parts)))
+    return out
+
+
+def find_duplicate_cta(files: list[Path], base: Path) -> list[Finding]:
+    """One intent, several labels: "Get started", "Sign up" and "Try it free" on one site."""
+    by_intent: dict[str, list[tuple[str, int, str]]] = {}
+    for f in files:
+        lines = read(f)
+        if lines is None:
+            continue
+        for line, label in cta_labels(f, lines):
+            intent = _cta_intent(label)
+            if intent:
+                by_intent.setdefault(intent, []).append((str(f.relative_to(base)), line, label))
+    out = []
+    for intent, hits in sorted(by_intent.items()):
+        labels = sorted({label.lower() for _, _, label in hits})
+        if len(labels) < 2:
+            continue
+        for rel, line, label in hits:
+            out.append(Finding("", "", rel, line,
+                               f'"{label}" ({intent}; labels for this intent: {", ".join(labels)})'[:200]))
+    return out
+
+
+CHECKS += [
+    Check(
+        id="tell-equal-cards",
+        title="Three equal cards",
+        exts=MARKUP_EXTS, surface="markup", fn=find_equal_cards, **TELL,
+        zero_means="No three-column container holds three children with the same class list.",
+    ),
+    Check(
+        id="tell-duplicate-cta",
+        title="One intent under several button labels",
+        exts=MARKUP_EXTS, surface="text", fn=find_duplicate_cta, **TELL,
+        zero_means="Every call to action intent found uses a single label.",
+    ),
+]
+
+
 def discover_roots(base: Path) -> tuple[list[Path], str]:
     """Directories to scan, and how they were chosen."""
     hits = [base / d for d in ROOT_CANDIDATES if (base / d).is_dir()]

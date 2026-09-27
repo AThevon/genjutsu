@@ -138,6 +138,42 @@ CASES = {
         {"app/page.tsx": 'export default () => <h1 className="bg-gradient-to-r from-amber-500 to-rose-500 bg-clip-text text-transparent">Hi</h1>\n'},
         {"app/page.tsx": 'export default () => <h1 className="text-zinc-900">Hi</h1>\n'},
     ),
+    "tell-equal-cards": (
+        {"app/page.tsx": (
+            "export default () => (\n"
+            '  <div className="grid md:grid-cols-3 gap-6">\n'
+            '    <article className="card p-6">A</article>\n'
+            '    <article className="card p-6">B</article>\n'
+            '    <article className="card p-6">C</article>\n'
+            "  </div>\n"
+            ")\n")},
+        {"app/page.tsx": (
+            "export default () => (\n"
+            '  <div className="grid md:grid-cols-3 gap-6">\n'
+            '    <article className="card p-6 md:col-span-2">A</article>\n'
+            '    <article className="card p-6">B</article>\n'
+            '    <article className="card p-6 md:row-span-2">C</article>\n'
+            "  </div>\n"
+            ")\n")},
+    ),
+    "tell-duplicate-cta": (
+        {"app/page.tsx": (
+            "export default () => (\n"
+            "  <main>\n"
+            '    <a href="/signup">Get started</a>\n'
+            "    <button>Start free trial</button>\n"
+            '    <Link href="/join">Sign up</Link>\n'
+            "  </main>\n"
+            ")\n")},
+        {"app/page.tsx": (
+            "export default () => (\n"
+            "  <main>\n"
+            '    <a href="/signup">Get started</a>\n'
+            "    <button>Get started</button>\n"
+            '    <a href="/pricing">Learn more</a>\n'
+            "  </main>\n"
+            ")\n")},
+    ),
 }
 
 
@@ -486,6 +522,197 @@ class EmDashSpellings(unittest.TestCase):
             self.assertEqual(audit_it(root, only="tell-em-dash")["tell-em-dash"].status, "clean")
         finally:
             shutil.rmtree(root)
+
+
+class StructuralTells(unittest.TestCase):
+    """The two tells that need the element tree or the whole project at once."""
+
+    def test_equal_cards_points_at_the_container(self):
+        bad, _ = CASES["tell-equal-cards"]
+        root = build(bad)
+        try:
+            res = audit_it(root, only="tell-equal-cards")["tell-equal-cards"]
+            self.assertEqual([(f.file, f.line) for f in res.findings], [("app/page.tsx", 2)])
+        finally:
+            shutil.rmtree(root)
+
+    def test_equal_cards_ignores_two_columns_and_inline_grids_of_four(self):
+        body = ('export default () => (<>\n'
+                '  <div className="grid grid-cols-2"><p className="c">A</p><p className="c">B</p><p className="c">C</p></div>\n'
+                '  <div style={{ gridTemplateColumns: "repeat(4, 1fr)" }}><p className="c">A</p><p className="c">B</p><p className="c">C</p></div>\n'
+                '</>)\n')
+        root = build({"app/page.tsx": body})
+        try:
+            self.assertEqual(audit_it(root, only="tell-equal-cards")["tell-equal-cards"].status, "clean")
+        finally:
+            shutil.rmtree(root)
+
+    def test_equal_cards_reads_a_repeat_three_style(self):
+        body = ('<div style="grid-template-columns: repeat(3, 1fr)">'
+                '<div class="tile">A</div><div class="tile">B</div><div class="tile">C</div></div>\n')
+        root = build({"index.html": body})
+        try:
+            self.assertEqual(audit_it(root, only="tell-equal-cards")["tell-equal-cards"].status, "findings")
+        finally:
+            shutil.rmtree(root)
+
+    def test_duplicate_cta_spans_files(self):
+        root = build({
+            "app/page.tsx": 'export default () => <a href="/signup">Get started</a>\n',
+            "app/pricing/page.tsx": "export default () => <button>Sign up free</button>\n",
+        })
+        try:
+            res = audit_it(root, only="tell-duplicate-cta")["tell-duplicate-cta"]
+            self.assertEqual({f.file for f in res.findings}, {"app/page.tsx", "app/pricing/page.tsx"})
+        finally:
+            shutil.rmtree(root)
+
+    def test_cta_label_flattens_nested_markup_and_drops_expressions(self):
+        body = '<a href="#demo"><span>Book</span> a demo {arrow}</a>\n'
+        self.assertEqual(audit.cta_labels(Path("src/A.tsx"), body.splitlines()), [(1, "Book a demo")])
+
+
+TELL_IDS = {
+    "tell-invented-status", "tell-locale-strip", "tell-numbered-eyebrow", "tell-generic-step",
+    "tell-scroll-cue", "tell-placeholder-identity", "tell-round-number", "tell-filler-verb",
+    "tell-em-dash", "tell-dot-run", "tell-duplicate-cta", "tell-equal-cards", "tell-gradient-text",
+}
+
+# Three whole pages. The first is the landing a model writes when nothing stops it,
+# the second fills the same slots from a real project, the third has no web source.
+TELLS_PAGE = {
+    "app/page.tsx": (
+        'import Link from "next/link"\n'
+        "\n"
+        "export default function Page() {\n"
+        "  return (\n"
+        '    <main className="bg-stone-50">\n'
+        '      <nav className="flex justify-between">\n'
+        "        <span>LIS 14:23 · 18°C</span>\n"
+        '        <a href="/signup">Get started</a>\n'
+        "      </nav>\n"
+        "      <section>\n"
+        '        <p className="text-xs uppercase tracking-widest">00 / INDEX</p>\n'
+        '        <h1 className="bg-gradient-to-r from-amber-500 to-rose-500 bg-clip-text text-transparent">\n'
+        "          Elevate your workflow &mdash; seamlessly\n"
+        "        </h1>\n"
+        "        <p>Trusted by 10,000+ teams with 99.99% uptime.</p>\n"
+        "        <button>Start free trial</button>\n"
+        "        <span>Scroll to explore</span>\n"
+        "      </section>\n"
+        '      <section className="grid md:grid-cols-3 gap-6">\n'
+        '        <article className="card p-6">Sync</article>\n'
+        '        <article className="card p-6">Review</article>\n'
+        '        <article className="card p-6">Ship</article>\n'
+        "      </section>\n"
+        "      <ol>\n"
+        "        <li>Stage 1</li>\n"
+        "        <li>Stage 2</li>\n"
+        "      </ol>\n"
+        "      <blockquote>\n"
+        "        <p>It changed how we work.</p>\n"
+        "        <cite>Jane Doe, CEO at Acme</cite>\n"
+        "      </blockquote>\n"
+        "      <footer>\n"
+        "        <p>Brand · Motion · Spatial</p>\n"
+        "        <span>v0.6.2-rc.1</span>\n"
+        '        <Link href="/join">Sign up</Link>\n'
+        "      </footer>\n"
+        "    </main>\n"
+        "  )\n"
+        "}\n"
+    ),
+}
+
+CLEAN_PAGE = {
+    "app/page.tsx": (
+        "export default function Page() {\n"
+        "  return (\n"
+        "    <main>\n"
+        '      <nav className="flex justify-between">\n'
+        "        <span>Atelier Ferrand</span>\n"
+        '        <a href="/commissions">Start a commission</a>\n'
+        "      </nav>\n"
+        "      <section>\n"
+        '        <h1 className="text-5xl text-stone-900">Tableware thrown in Lyon since 2011</h1>\n'
+        "        <p>Forty-one glazes, each tested on a single kiln before it reaches the shop.</p>\n"
+        '        <a href="/commissions">Start a commission</a>\n'
+        "      </section>\n"
+        '      <section className="grid md:grid-cols-3 gap-6">\n'
+        '        <article className="md:col-span-2 p-6">Plates</article>\n'
+        '        <article className="p-6">Bowls</article>\n'
+        '        <article className="p-6 bg-stone-100">Cups</article>\n'
+        "      </section>\n"
+        "      <ol>\n"
+        "        <li>Choose a glaze</li>\n"
+        "        <li>Approve a test piece</li>\n"
+        "      </ol>\n"
+        "      <blockquote>\n"
+        "        <p>The test piece arrived before the invoice did.</p>\n"
+        "        <cite>Mireille Achard, Restaurant Sauvage</cite>\n"
+        "      </blockquote>\n"
+        "      <footer>\n"
+        "        <p>Lyon · since 2011</p>\n"
+        '        <a href="/contact">Write to the studio</a>\n'
+        "      </footer>\n"
+        "    </main>\n"
+        "  )\n"
+        "}\n"
+    ),
+    "app/globals.css": ".lead { color: #1a1a1a; }\n",
+}
+
+NON_WEB = {
+    "Package.swift": '// swift-tools-version:5.9\nimport PackageDescription\nlet package = Package(name: "Kiln")\n',
+    "Sources/Kiln/ContentView.swift": (
+        "import SwiftUI\n"
+        'struct ContentView: View { var body: some View { Text("Elevate \\u{2014} v0.6.2") } }\n'
+    ),
+}
+
+
+class TellsGroup(unittest.TestCase):
+    def test_the_thirteen_tells_exist(self):
+        self.assertEqual({c.id for c in audit.CHECKS if c.group == "tells"}, TELL_IDS)
+
+    def test_json_carries_the_group(self):
+        root = build(TELLS_PAGE)
+        try:
+            out = subprocess.run([sys.executable, str(AUDIT), str(root), "--json", "--group", "tells"],
+                                 capture_output=True, text=True, check=True)
+            results = json.loads(out.stdout)["results"]
+            self.assertEqual({r["check"] for r in results}, TELL_IDS)
+            self.assertEqual({r["group"] for r in results}, {"tells"})
+        finally:
+            shutil.rmtree(root)
+
+
+class PageFixtures(unittest.TestCase):
+    def run_all(self, files: dict[str, str]) -> dict[str, audit.Result]:
+        root = build(files)
+        try:
+            return audit_it(root)
+        finally:
+            shutil.rmtree(root)
+
+    def test_every_tell_fires_on_the_tells_page(self):
+        results = self.run_all(TELLS_PAGE)
+        for cid in sorted(TELL_IDS):
+            with self.subTest(check=cid):
+                self.assertEqual(results[cid].status, "findings")
+
+    def test_no_tell_fires_on_the_clean_page(self):
+        results = self.run_all(CLEAN_PAGE)
+        for cid in sorted(TELL_IDS):
+            with self.subTest(check=cid):
+                self.assertEqual(results[cid].status, "clean", [f.text for f in results[cid].findings])
+
+    def test_every_tell_is_not_applicable_without_web_source(self):
+        results = self.run_all(NON_WEB)
+        for cid in sorted(TELL_IDS):
+            with self.subTest(check=cid):
+                self.assertEqual(results[cid].status, "not-applicable")
+                self.assertIn("did not run", results[cid].meaning)
 
 
 if __name__ == "__main__":
