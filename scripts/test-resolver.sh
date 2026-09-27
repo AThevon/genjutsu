@@ -27,7 +27,31 @@ WORK="$(mktemp -d "${TMPDIR:-/tmp}/genjutsu-resolver.XXXXXX")"
 # comparison fails on a difference that is not real.
 WORK="$(cd "$WORK" && pwd -P)"
 trap 'rm -rf "$WORK"' EXIT
-echo "source: repository"
+# --bundle <zip>: run every fixture against the files as they ship in the
+# packaged bundle. Packaging renames every inner entry file to GUIDE and
+# rewrites that name in every markdown file, so a block that is right in the
+# repository can still break in the bundle, and only this run shows it.
+if [ "${1:-}" = "--bundle" ]; then
+  ZIP="${2:-}"
+  if [ ! -f "$ZIP" ]; then
+    echo "FAIL: usage: $0 --bundle <path to genjutsu.zip>"
+    exit 1
+  fi
+  mkdir -p "$WORK/bundle"
+  for pair in cast/GUIDE.md:cast.md SKILL.md:router.md _jutsu/ui-ux-pro-max/GUIDE.md:uiux.md; do
+    unzip -p "$ZIP" "${pair%%:*}" > "$WORK/bundle/${pair#*:}" 2>/dev/null
+    if [ ! -s "$WORK/bundle/${pair#*:}" ]; then
+      echo "FAIL: ${pair%%:*} is missing from $ZIP"
+      exit 1
+    fi
+  done
+  SRC_CAST="$WORK/bundle/cast.md"
+  SRC_ROUTER="$WORK/bundle/router.md"
+  SRC_UIUX="$WORK/bundle/uiux.md"
+  echo "source: bundle $ZIP"
+else
+  echo "source: repository"
+fi
 
 # extract <file> <start marker> <end marker> <out>: the fenced code between two
 # markers, fences stripped, so what runs here is byte-for-byte what ships.

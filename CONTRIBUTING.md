@@ -96,6 +96,7 @@ python3 scripts/validate-skills.py      # every SKILL.md against the Agent Skill
 python3 skills/_jutsu/ui-ux-pro-max/scripts/validate_data.py
 ( cd skills/_jutsu/ui-ux-pro-max/scripts && python3 -m unittest discover -s tests )
 ./package-for-claude-ai.sh              # the claude.ai bundle still has exactly one SKILL.md
+./scripts/test-resolver.sh --bundle dist/genjutsu.zip   # the same fixtures, on the packaged bundle
 ```
 
 `validate-skills.py` warns when a `SKILL.md` body goes over 500 lines and still exits 0. Three

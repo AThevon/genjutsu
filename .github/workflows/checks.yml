@@ -86,3 +86,6 @@ jobs:
             exit 1
           fi
           echo "genjutsu.zip: exactly 1 SKILL.md, $(unzip -Z1 dist/genjutsu.zip | grep -c 'GUIDE\.md$' || true) GUIDE.md"
+          # The resolver, the router and ui-ux-pro-max as they ship: packaging
+          # rewrites file names inside the bundle, which the repository run cannot see.
+          ./scripts/test-resolver.sh --bundle dist/genjutsu.zip
