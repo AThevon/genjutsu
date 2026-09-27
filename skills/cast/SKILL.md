@@ -517,6 +517,15 @@ Each line is reported as `check - verdict - the evidence`. The evidence is the g
 value you computed, or the `file:line` you read. A verdict with no evidence beside it is not a
 finding, and an item you could not check is reported as **not checked** rather than passed.
 
+- [ ] **Thesis against code.** First, because every check below assumes the code is the thesis
+      that was validated. For each promise the validated thesis actually makes (durations,
+      easing, springs, palette, type, layout family) give the `file:line` that holds it, or
+      "not found". A thesis that makes no palette or type promise, an interaction thesis alone,
+      gets no palette or type line. A promise with no `file:line` is a problem found, not a
+      pass. Honest downgrade: when promised motion cannot be shipped working, ship the
+      static version, say so here, and name the promise that was dropped; it counts as a
+      problem found. Never ship motion that is half broken to keep a promise on paper.
+      Evidence: one line per promise, e.g. `hover 180ms ease-out - src/Card.tsx:42`.
 - [ ] **Reduced motion** honoured. Web: a `prefers-reduced-motion` block that actually degrades
       the animation, not an empty one. SwiftUI: `accessibilityReduceMotion`. Compose: a helper
       on `ValueAnimator.areAnimatorsEnabled()` / `Settings.Global.ANIMATOR_DURATION_SCALE`.
@@ -571,7 +580,7 @@ If a preview or a dev server is already running and the user agrees, driving the
 collect the web rows is better than handing them over. Never start one just for the audit, and
 never install anything for it.
 
-**Report the two groups separately**, with the counts. "9 checked, 2 problems found, 8 handed
+**Report the two groups separately**, with the counts. "11 checked, 2 problems found, 8 handed
 over" is an honest audit. A single list of ticks is not.
 
 **Close the report with the modules**, always, as two lines of their own:

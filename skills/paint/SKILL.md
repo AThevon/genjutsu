@@ -52,7 +52,7 @@ The flair lives at the intro and during work narration. The moment a result land
 5. **Every animation respects the interaction thesis.** Timing, easing, forbidden patterns - no exceptions.
 6. **Never install a dependency without asking.** With nobody answering, never install one (see "When nobody is answering").
 7. **Work page by page, validate page by page.** Never try to do everything at once.
-8. **The audit is not optional.** Phase 5 always runs, even if the user seems happy. On light scope it shortens to the quick check - reduced-motion, exit animation, 60fps - but it never disappears.
+8. **The audit is not optional.** Phase 5 always runs, even if the user seems happy. On light scope it shortens to the quick check - thesis against code, reduced-motion, exit animation, 60fps - but it never disappears.
 9. **Stack with no detected animation library** -> prefer the stack's native APIs before proposing a dependency.
 10. **Animation library detected** (GSAP, Motion / Framer Motion, Lottie, Rive, etc.) -> respect the dev's choice. Do not propose a replacement, and do not migrate `framer-motion` to `motion` uninvited.
 11. **Show, don't just describe.** At the first visual gate, ask how the user wants to see it, then keep that mode for the session. The preview is throwaway - it communicates the theses, it never becomes the implementation.
@@ -81,7 +81,7 @@ If two or more fail, it is not light scope. Run the full pipeline and say in one
 | 2 THESIS | visual + interaction, both validated | interaction thesis only, still validated |
 | 3 DESIGN SYSTEM | generate MASTER.md and the stack token files | **skipped.** Read the tokens already in the project and use them. Write no MASTER.md. |
 | 4 IMPLEMENT | page by page, validate page by page | the one component |
-| 5 AUDIT | full design-audit sub-skill | the quick check: reduced-motion, exit animation, 60fps |
+| 5 AUDIT | full design-audit sub-skill | the quick check: thesis against code, reduced-motion, exit animation, 60fps |
 
 **Announce it once**, so the user knows which pipeline they got and can overrule it:
 
@@ -721,6 +721,15 @@ Each line is reported as `check - verdict - the evidence`. The evidence is the g
 value you computed, or the `file:line` you read. A verdict with no evidence beside it is not a
 finding, and an item you could not check is reported as **not checked** rather than passed.
 
+- [ ] **Thesis against code.** First, because every check below assumes the code is the thesis
+      that was validated. For each promise the validated thesis actually makes (durations,
+      easing, springs, palette, type, layout family) give the `file:line` that holds it, or
+      "not found". A thesis that makes no palette or type promise, an interaction thesis alone,
+      gets no palette or type line. A promise with no `file:line` is a problem found, not a
+      pass. Honest downgrade: when promised motion cannot be shipped working, ship the
+      static version, say so here, and name the promise that was dropped; it counts as a
+      problem found. Never ship motion that is half broken to keep a promise on paper.
+      Evidence: one line per promise, e.g. `hover 180ms ease-out - src/Card.tsx:42`.
 - [ ] **Reduced motion** honoured. Web: a `prefers-reduced-motion` block that actually degrades
       the animation, not an empty one. SwiftUI: `accessibilityReduceMotion`. Compose: a helper
       on `ValueAnimator.areAnimatorsEnabled()` / `Settings.Global.ANIMATOR_DURATION_SCALE`.
@@ -775,7 +784,7 @@ If a preview or a dev server is already running and the user agrees, driving the
 collect the web rows is better than handing them over. Never start one just for the audit, and
 never install anything for it.
 
-**Report the two groups separately**, with the counts. "9 checked, 2 problems found, 8 handed
+**Report the two groups separately**, with the counts. "11 checked, 2 problems found, 8 handed
 over" is an honest audit. A single list of ticks is not.
 
 **Close the report with the modules**, always, as two lines of their own:
