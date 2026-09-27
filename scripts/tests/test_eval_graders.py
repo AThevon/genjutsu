@@ -138,6 +138,7 @@ class WebGraderTest(unittest.TestCase):
                 g = graders_of(case)
                 requested = check_evals.compile_js_regex(g["tells-requested"][0]["input_match"], None)
                 self.assertIsNotNone(requested.search(tool_input(command='eval "$BLOCK"\nload_skill tells\nload_ref tells references/web.md')))
+                self.assertIsNotNone(requested.search(tool_input(command="cat /x/skills/_jutsu/tells/SKILL.md")))
                 self.assertIsNone(requested.search(tool_input(command="load_skill motion-principles")))
                 reported = regex_of(g["tells-reported-loaded"][0])
                 self.assertIsNotNone(reported.search("Modules loaded: motion-principles, tells, css-native\nModules not loaded: none"))
