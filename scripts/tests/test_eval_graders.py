@@ -20,7 +20,7 @@ _spec = importlib.util.spec_from_file_location("check_evals", SCRIPTS / "check-e
 check_evals = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(check_evals)
 
-WEB_CASES = ["studio-landing", "saas-landing"]
+WEB_CASES = ["studio-landing", "saas-landing", "thesis-allows"]
 
 # One line of page source per not_contains grader, each one the tell it exists to catch.
 TELL_LINES = {
@@ -117,6 +117,21 @@ class WebGraderTest(unittest.TestCase):
                     with self.subTest(case=case, grader=name):
                         self.assertEqual(fm, reference[name], f"{case}/{name} drifted from studio-landing")
 
+    def test_fixtures_are_identical_across_web_cases_modulo_their_name(self):
+        def normalized(case: str) -> str:
+            # The case name is the only thing a case's fixture.sh is allowed to vary on
+            # (it appears in the header comment and in the package.json "name" line);
+            # blanking it out here must leave the three scaffolds byte-identical.
+            return (EVALS / case / "fixture.sh").read_text().replace(case, "<case>")
+
+        reference = normalized(WEB_CASES[0])
+        for case in WEB_CASES[1:]:
+            with self.subTest(case=case):
+                self.assertEqual(
+                    normalized(case), reference,
+                    f"{case}/fixture.sh drifted from {WEB_CASES[0]}/fixture.sh beyond its own name",
+                )
+
     def test_loading_indicators(self):
         for case in WEB_CASES:
             with self.subTest(case=case):
@@ -131,6 +146,22 @@ class WebGraderTest(unittest.TestCase):
                 self.assertIsNotNone(sentinel.search(json.dumps({"content": "# Tells\n\n" + check_evals.SENTINEL + " Every entry"})))
                 for name in ("tells-requested", "tells-reported-loaded", "tells-read-sentinel", "paint-fired"):
                     self.assertEqual(g[name][0].get("arm"), "with-only", f"{case}/{name} must not count in the score")
+
+
+class ThesisAllowsTest(unittest.TestCase):
+    def test_locale_strip_grader_is_absent(self):
+        self.assertNotIn("no-locale-strip", graders_of("thesis-allows"))
+
+    def test_bar_graders_need_both_cities_and_a_time(self):
+        g = graders_of("thesis-allows")
+        cities, clock = regex_of(g["keeps-both-cities"][0]), regex_of(g["keeps-time-bar"][0])
+        bar = '<div>{fmt("Europe/Paris")} Paris · Tokyo {fmt("Asia/Tokyo")}</div>\nconst fmt = (tz) => new Intl.DateTimeFormat("en-GB", { timeZone: tz, timeStyle: "short" }).format(now);'
+        self.assertIsNotNone(cities.search(bar))
+        self.assertIsNotNone(clock.search(bar))
+        prose_only = "<p>A studio between Paris and Tokyo.</p>"
+        self.assertIsNotNone(cities.search(prose_only))
+        self.assertIsNone(clock.search(prose_only), "a page that dropped the bar but kept the prose must fail keeps-time-bar")
+        self.assertIsNone(cities.search("<p>A studio in Paris.</p>"))
 
 
 if __name__ == "__main__":
