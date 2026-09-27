@@ -431,6 +431,107 @@ def markup_class_lines(path: Path, lines: list[str]) -> list[tuple[int, str]]:
 SURFACES = {"text": displayed_text_lines, "markup": markup_class_lines}
 
 
+# ---------------------------------------------------------------------------
+# Tells. Each is a default a model reaches for when nothing asked for it. The
+# script cannot know whether the validated thesis names the pattern, so every
+# tell is "nice-to-have" in the "tells" group and never counts as a problem on
+# its own: the caller confronts each finding with the thesis first.
+# ---------------------------------------------------------------------------
+
+TELL = {"group": "tells", "severity": "nice-to-have"}
+
+CHECKS += [
+    Check(
+        id="tell-invented-status",
+        title="Invented build or release status",
+        exts=MARKUP_EXTS, surface="text", **TELL,
+        pattern=(r"(?i)\bv\d+\.\d+(?:\.\d+)?(?:-(?:rc|beta|alpha|pre)(?:\.\d+)?)?\b"
+                 r"|\blast\s+(?:sync(?:ed)?|deploy(?:ed)?|updated?)\s+\d+\s*(?:s|secs?|m|mins?|h)\b"
+                 r"|\bbuild\s+#?\d{3,}\b"),
+        zero_means="No version stamp, sync time or build number in the displayed text.",
+    ),
+    Check(
+        id="tell-locale-strip",
+        title="Weather, clock or timezone strip",
+        exts=MARKUP_EXTS, surface="text", **TELL,
+        pattern=(r"\b\d{1,2}:\d{2}\b.{0,24}?-?\d{1,3}\s*(?:\u00b0|&deg;|&#176;)"
+                 r"|-?\d{1,3}\s*(?:\u00b0|&deg;|&#176;).{0,24}?\b\d{1,2}:\d{2}\b"
+                 r"|\b[A-Z]{3}\s+\d{1,2}:\d{2}\b"
+                 r"|\b(?:GMT|UTC)\s?[+-]\d{1,2}\b"),
+        zero_means="No clock, temperature or timezone strip in the displayed text.",
+    ),
+    Check(
+        id="tell-numbered-eyebrow",
+        title="Numbered eyebrow or tile pagination",
+        exts=MARKUP_EXTS, surface="text", **TELL,
+        pattern=r"^(?:0\d{1,2}\s*(?:/|\u00b7|\.|:|-)\s*[A-Za-z]|\d{1,2}\s*/\s*\d{1,2}$)",
+        zero_means="No zero-padded section number and no `01 / 4` counter in the displayed text.",
+    ),
+    Check(
+        id="tell-generic-step",
+        title="Generic step label",
+        exts=MARKUP_EXTS, surface="text", **TELL,
+        pattern=r"(?i)^(?:stage|step|phase|pass)\s+(?:0?\d{1,2}|one|two|three|four|five)\b",
+        zero_means="No text starts with Stage, Step, Phase or Pass followed by a number.",
+    ),
+    Check(
+        id="tell-scroll-cue",
+        title="Scroll cue",
+        exts=MARKUP_EXTS, surface="text", **TELL,
+        pattern=r"(?i)^\W*scroll\b[^.!?]{0,24}$",
+        zero_means="No short text telling the visitor to scroll.",
+    ),
+    Check(
+        id="tell-placeholder-identity",
+        title="Placeholder name or brand",
+        exts=MARKUP_EXTS, surface="text", **TELL,
+        pattern=r"\b(?:John|Jane)\s+(?:Doe|Smith)\b|\bAcme\b|(?i:\blorem\s+ipsum\b)",
+        zero_means="No John Doe, Jane Doe, Acme or lorem ipsum in the displayed text.",
+    ),
+    Check(
+        id="tell-round-number",
+        title="Round or unsourced figure",
+        exts=MARKUP_EXTS, surface="text", **TELL,
+        pattern=r"\b99(?:\.9+)?%|\b100%|\b\d{1,3}(?:,000)+\+|\b\d+(?:\.\d+)?[KkMB]\+|\b10x\b",
+        zero_means="No 99.9%, 100%, 10,000+ or 10x style figure in the displayed text.",
+    ),
+    Check(
+        id="tell-filler-verb",
+        title="Filler verb",
+        exts=MARKUP_EXTS, surface="text", **TELL,
+        pattern=(r"(?i)\b(?:elevate[sd]?|seamless(?:ly)?|unleash(?:es|ed)?|next[- ]gen(?:eration)?"
+                 r"|revolutioni[sz](?:e|es|ed|ing)|supercharge[sd]?|effortless(?:ly)?|cutting[- ]edge"
+                 r"|game[- ]chang(?:er|ing)|reimagine[sd]?|empower(?:s|ed|ing)?)\b"),
+        zero_means="None of the listed filler verbs appears in the displayed text.",
+    ),
+    Check(
+        id="tell-em-dash",
+        title="U+2014 (em dash) in displayed text",
+        exts=MARKUP_EXTS, surface="text", **TELL,
+        # The character itself, and the three ways HTML spells it. Written as an
+        # escape: the character is never typed literally anywhere in this repo.
+        pattern=r"\u2014|&mdash;|&#8212;|&#[xX]0*2014;",
+        zero_means="No U+2014 (em dash) in the displayed text, as a character or as an entity.",
+    ),
+    Check(
+        id="tell-dot-run",
+        title="Middle-dot run",
+        exts=MARKUP_EXTS, surface="text", **TELL,
+        pattern=r"(?:\u00b7|&middot;|&#183;)[^\u00b7&]*(?:\u00b7|&middot;|&#183;)",
+        zero_means="No displayed line strings two or more middle dots together.",
+    ),
+    Check(
+        id="tell-gradient-text",
+        title="Gradient-filled text",
+        # Source, not text: the tell is a class list or a CSS rule.
+        exts=STYLE | JSX | SFC | HTML, **TELL,
+        pattern=(r"bg-clip-text[^\"'`\n]*text-transparent|text-transparent[^\"'`\n]*bg-clip-text"
+                 r"|(?:-webkit-)?background-clip\s*:\s*text"),
+        zero_means="No text is clipped to a background, in classes or in CSS.",
+    ),
+]
+
+
 def discover_roots(base: Path) -> tuple[list[Path], str]:
     """Directories to scan, and how they were chosen."""
     hits = [base / d for d in ROOT_CANDIDATES if (base / d).is_dir()]

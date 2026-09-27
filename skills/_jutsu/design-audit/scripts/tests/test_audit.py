@@ -86,6 +86,58 @@ CASES = {
         {"src/a.css": ".x { transition: opacity 200ms; }\n"},
         {"src/a.css": "@media (prefers-reduced-motion: reduce) { * { transition: none; } }\n"},
     ),
+    # Tells. The positive fixture is the reflex, the negative one the same slot
+    # filled from the project. Written with escapes: no U+2014 in this file.
+    "tell-invented-status": (
+        {"app/page.tsx": "export default () => <footer><span>v0.6.2-rc.1</span><span>last sync 4s ago</span></footer>\n"},
+        {"app/page.tsx": "export default () => <footer><span>Version history lives in the changelog.</span></footer>\n"},
+    ),
+    "tell-locale-strip": (
+        {"app/page.tsx": "export default () => <nav><span>LIS 14:23 · 18°C</span></nav>\n"},
+        {"app/page.tsx": "export default () => <p>Open 9:00 to 18:00, Tuesday to Saturday.</p>\n"},
+    ),
+    "tell-numbered-eyebrow": (
+        {"app/page.tsx": "export default () => <section><p>00 / INDEX</p><span>01 / 4</span></section>\n"},
+        {"app/page.tsx": "export default () => <section><p>Selected work</p></section>\n"},
+    ),
+    "tell-generic-step": (
+        {"app/page.tsx": "export default () => <ol><li>Stage 1</li><li>Stage 2</li></ol>\n"},
+        {"app/page.tsx": "export default () => <ol><li>Install</li><li>Configure</li></ol>\n"},
+    ),
+    "tell-scroll-cue": (
+        {"app/page.tsx": "export default () => <div><span>↓ Scroll to explore</span></div>\n"},
+        {"app/page.tsx": "export default () => <p>Scrolling back through ten years of work.</p>\n"},
+    ),
+    "tell-placeholder-identity": (
+        {"app/page.tsx": "export default () => <cite>Jane Doe, CEO at Acme</cite>\n"},
+        {"app/page.tsx": "export default () => <cite>Mireille Achard, head of product at Ferrand</cite>\n"},
+    ),
+    "tell-round-number": (
+        {"app/page.tsx": "export default () => <p><strong>99.99% uptime</strong> for 10,000+ teams</p>\n"},
+        {"app/page.tsx": "export default () => <p><strong>41 releases</strong> since 2019</p>\n"},
+    ),
+    "tell-filler-verb": (
+        {"app/page.tsx": "export default () => <h1>Elevate your workflow</h1>\n"},
+        {"app/page.tsx": "export default () => <h1>Invoices that reconcile themselves</h1>\n"},
+    ),
+    "tell-em-dash": (
+        # One file per spelling: the character and the three HTML entities.
+        {
+            "app/a.html": "<p>Made by hand \u2014 slowly</p>\n",
+            "app/b.html": "<p>Made by hand &mdash; slowly</p>\n",
+            "app/c.html": "<p>Made by hand &#8212; slowly</p>\n",
+            "app/d.tsx": "export default () => <p>Made by hand &#x2014; slowly</p>\n",
+        },
+        {"app/a.html": "<p>Made by hand - slowly</p>\n"},
+    ),
+    "tell-dot-run": (
+        {"app/page.tsx": "export default () => <p>Brand · Motion · Spatial</p>\n"},
+        {"app/page.tsx": "export default () => <p>Lyon · since 2011</p>\n"},
+    ),
+    "tell-gradient-text": (
+        {"app/page.tsx": 'export default () => <h1 className="bg-gradient-to-r from-amber-500 to-rose-500 bg-clip-text text-transparent">Hi</h1>\n'},
+        {"app/page.tsx": 'export default () => <h1 className="text-zinc-900">Hi</h1>\n'},
+    ),
 }
 
 
@@ -406,6 +458,34 @@ class SurfaceDispatch(unittest.TestCase):
         self.assertEqual((res.status, res.group, res.findings[0].check, res.findings[0].severity),
                          ("findings", "tells", "f", "nice-to-have"))
         self.assertEqual(self.run_one(c, {"src/a.css": ".a{}\n"}).status, "not-applicable")
+
+
+class EmDashSpellings(unittest.TestCase):
+    """Review focus: an em dash typed as an HTML entity is still an em dash."""
+
+    def test_every_spelling_is_found(self):
+        bad, _ = CASES["tell-em-dash"]
+        root = build(bad)
+        try:
+            res = audit_it(root, only="tell-em-dash")["tell-em-dash"]
+            self.assertEqual({f.file for f in res.findings},
+                             {"app/a.html", "app/b.html", "app/c.html", "app/d.tsx"})
+        finally:
+            shutil.rmtree(root)
+
+    def test_uppercase_hex_entity_and_attribute_values(self):
+        root = build({"app/page.tsx": 'export default () => <img alt="Kiln &#X2014; dusk" src="/k.jpg" />\n'})
+        try:
+            self.assertEqual(audit_it(root, only="tell-em-dash")["tell-em-dash"].status, "findings")
+        finally:
+            shutil.rmtree(root)
+
+    def test_code_comments_are_not_displayed_text(self):
+        root = build({"app/page.tsx": "// spacing \u2014 see tokens\nexport default () => <p>Plain</p>\n"})
+        try:
+            self.assertEqual(audit_it(root, only="tell-em-dash")["tell-em-dash"].status, "clean")
+        finally:
+            shutil.rmtree(root)
 
 
 if __name__ == "__main__":
