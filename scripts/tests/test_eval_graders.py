@@ -164,5 +164,26 @@ class ThesisAllowsTest(unittest.TestCase):
         self.assertIsNone(cities.search("<p>A studio in Paris.</p>"))
 
 
+class SwiftUISkipTest(unittest.TestCase):
+    def test_tells_is_caught_by_every_road_in(self):
+        g = graders_of("swiftui-skip")
+        shell = check_evals.compile_js_regex(g["tells-never-requested"][0]["input_match"], None)
+        read = check_evals.compile_js_regex(g["tells-never-read"][0]["input_match"], None)
+        for command in ("load_skill tells", "load_ref tells references/web.md", 'cat "$SKILL_BASE/tells/SKILL.md"', "sed -n 1,80p /x/_jutsu/tells/references/web.md"):
+            self.assertIsNotNone(shell.search(tool_input(command=command)), command)
+        self.assertIsNone(shell.search(tool_input(command="load_skill swiftui-motion\nload_skill motion-principles")))
+        self.assertIsNotNone(read.search(tool_input(file_path="/tmp/x/skills/_jutsu/tells/SKILL.md")))
+        self.assertIsNone(read.search(tool_input(file_path="/tmp/x/skills/_jutsu/swiftui-motion/SKILL.md")))
+        for name in ("tells-never-requested", "tells-never-read"):
+            fm = g[name][0]
+            self.assertEqual((fm.get("min"), fm.get("max"), fm.get("arm")), (0, 0, "both"), name)
+
+    def test_guard_needs_a_real_screen(self):
+        rx = regex_of(graders_of("swiftui-skip")["swift-screen-written"][0])
+        placeholder = (EVALS / "swiftui-skip" / "fixture.sh").read_text(encoding="utf-8")
+        self.assertIsNone(rx.search(placeholder.split("TodayView.swift <<'SWIFT'", 1)[1]))
+        self.assertIsNotNone(rx.search("var body: some View { ScrollView { LazyVStack(spacing: 12) { } } }"))
+
+
 if __name__ == "__main__":
     unittest.main()
