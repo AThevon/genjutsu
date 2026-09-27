@@ -401,6 +401,21 @@ Map the results:
 - **Legacy mixed**: presence of `.xib`, `.storyboard`, layout XML, `setContentView(R.layout.*)`. Mention only, no auto-load.
 <!-- genjutsu:shared:scan:end -->
 
+**Declare your read before the first question.** The scan has run and the request is in front of
+you. Before the first brainstorm question, say what you already believe in one line, so the user
+corrects a wrong premise before it steers every question after it:
+
+> "My read so far: <what> for <whom>, heading toward <direction>, on <stack>. Correct me before I ask anything."
+
+`<what>` is the product and `<whom>` the audience as the request states them, `<direction>` the
+mood the request or the existing design suggests, `<stack>` what the scan found. A slot you cannot
+fill is said as unknown ("for an audience I can't tell yet"), never guessed; the unknown slots are
+where the brainstorm starts. The line is its own message: send it and wait. A correction replaces
+the slot it names; a go-ahead means the read stands. It is not a brainstorm question and does not
+count against light scope's single question, and it is not a thesis: nothing in it is validated
+until Phase 2. When no human is in the session to answer, state the read and carry on with it as
+written.
+
 **If legacy mixed detected** (XIB / storyboard / layout XML / setContentView(R.layout.\*)):
 
 Ask exactly one question during brainstorm:

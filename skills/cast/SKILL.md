@@ -208,6 +208,19 @@ Map the results:
 
 The goal is to understand what the user actually wants before proposing anything. One question at a time, never bundle.
 
+**Declare your read before the first question.** The scan and the request already say a lot. Put
+it in one line, so a wrong premise dies before it shapes every question after it:
+
+> "My read so far: <what> for <whom>, heading toward <direction>, on <stack>. Correct me before I ask anything."
+
+Fill each slot from what you actually have: `<what>` and `<whom>` from the request, `<direction>`
+from the request or the existing code, `<stack>` from SCAN. A slot you cannot fill is said as
+unknown ("for an audience I can't tell yet"), never guessed, and it becomes your first question.
+The line is its own message: send it and wait. A correction replaces the slot it names; a
+go-ahead means the read stands. It is not a question and does not count as one, and it is not a
+thesis: nothing in it is validated until THESIS. When no human is in the session to answer,
+state the read and carry on with it as written.
+
 **How to ask:**
 
 Ask about the least-understood aspect first. Common domains:
