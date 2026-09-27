@@ -19,6 +19,7 @@ set -uo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SRC_CAST="$ROOT/skills/cast/SKILL.md"
+SRC_ROUTER="$ROOT/packaging/genjutsu-router.md"
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/genjutsu-resolver.XXXXXX")"
 # $TMPDIR often ends in a slash, which leaves a // in the fixture paths. The
 # resolver returns physical paths (pwd -P), so normalise here too or every
@@ -357,6 +358,77 @@ if [ -x /bin/zsh ]; then
 else
   echo "SKIP zsh cases: /bin/zsh is not present (they run on macOS)"
 fi
+
+# --- 19. The router of the bundle -------------------------------------------
+# The router is the only file a host loads as a skill in the bundle: cast and
+# paint are read through it. It must find its own bundle, never another
+# package's cast, and hand the pipeline its directory as GENJUTSU_SKILL_DIR.
+ROUTER_CAST="$WORK/router-cast.sh"; ROUTER_PAINT="$WORK/router-paint.sh"
+extract "$SRC_ROUTER" '<!-- genjutsu:router:cast:start -->' \
+  '<!-- genjutsu:router:cast:end -->' "$ROUTER_CAST"
+extract "$SRC_ROUTER" '<!-- genjutsu:router:paint:start -->' \
+  '<!-- genjutsu:router:paint:end -->' "$ROUTER_PAINT"
+
+# run_router <block> <home> <pwd> <CLAUDE_SKILL_DIR> <GENJUTSU_BUNDLE_DIR>
+run_router() {
+  (
+    set +u +o pipefail
+    HOME="$2"; export HOME
+    CLAUDE_SKILL_DIR="${4:-}"; export CLAUDE_SKILL_DIR
+    GENJUTSU_BUNDLE_DIR="${5:-}"; export GENJUTSU_BUNDLE_DIR
+    cd "$3" 2>/dev/null || exit 97
+    # shellcheck disable=SC1090
+    . "$1"
+  ) >"$WORK/out" 2>"$WORK/err"
+}
+
+H="$WORK/r1/home"; B="$WORK/r1/skills/genjutsu"
+mkdir -p "$H" "$WORK/r1/cwd"; mkbundle "$B"
+run_router "$ROUTER_CAST" "$H" "$WORK/r1/cwd" "$B" ""
+check_grep "router: a substituted CLAUDE_SKILL_DIR prints the cast dir" "GENJUTSU_SKILL_DIR=$B/cast" "$WORK/out"
+check_grep "router: then prints the cast pipeline" "CAST PIPELINE" "$WORK/out"
+run_router "$ROUTER_PAINT" "$H" "$WORK/r1/cwd" "" "$B"
+check_grep "router: GENJUTSU_BUNDLE_DIR set by the model, paint block" "GENJUTSU_SKILL_DIR=$B/paint" "$WORK/out"
+check_grep "router: the paint block prints the paint pipeline" "PAINT PIPELINE" "$WORK/out"
+
+H="$WORK/r2/home"; A="$H/.agents/skills"
+mkdir -p "$WORK/r2/cwd" "$A/cast" "$A/aaa-kit/cast"
+printf 'FOREIGN CAST\n' > "$A/cast/SKILL.md"
+printf 'FOREIGN CAST\n' > "$A/aaa-kit/cast/SKILL.md"
+mkbundle "$A/genjutsu"
+run_router "$ROUTER_CAST" "$H" "$WORK/r2/cwd" "" ""
+check_grep "router: no substitution, finds ~/.agents/skills/genjutsu" "GENJUTSU_SKILL_DIR=$A/genjutsu/cast" "$WORK/out"
+check "router: a foreign cast is never printed" "0" "$(grep -c 'FOREIGN CAST' "$WORK/out")"
+
+H="$WORK/r3/home"
+mkdir -p "$WORK/r3/cwd"; mkbundle "$H/.cursor/skills/genjutsu"
+run_router "$ROUTER_CAST" "$H" "$WORK/r3/cwd" "" ""
+check_grep "router: npx --copy into ~/.cursor/skills" "GENJUTSU_SKILL_DIR=$H/.cursor/skills/genjutsu/cast" "$WORK/out"
+
+H="$WORK/r4/home"; PR="$WORK/r4/project"
+mkdir -p "$H" "$PR/src" "$PR/.claude/skills"; mkbundle "$PR/.agents/skills/genjutsu"
+ln -s "../../.agents/skills/genjutsu" "$PR/.claude/skills/genjutsu"
+run_router "$ROUTER_CAST" "$H" "$PR/src" "" ""
+check_grep "router: npx project layout through the symlink" "GENJUTSU_SKILL_DIR=$PR/.agents/skills/genjutsu/cast" "$WORK/out"
+
+H="$WORK/r5/home"
+mkdir -p "$WORK/r5/cwd" "$H/.agents/skills/cast"
+printf 'FOREIGN CAST\n' > "$H/.agents/skills/cast/SKILL.md"
+run_router "$ROUTER_CAST" "$H" "$WORK/r5/cwd" "" ""; rc=$?
+check "router: no bundle anywhere exits non-zero" "1" "$([ "$rc" -ne 0 ] && echo 1 || echo 0)"
+check_grep "router: no bundle gives the npx command" \
+  "npx skills add https://genjutsu.athevon.dev -g" "$WORK/err"
+check "router: no bundle prints no pipeline" "0" "$(grep -c 'PIPELINE' "$WORK/out")"
+
+# The router hands the pipeline its GENJUTSU_SKILL_DIR; the pipeline's block
+# must then resolve the bundle's modules from it, end to end.
+H="$WORK/r6/home"; B="$WORK/r6/skills/genjutsu"
+mkdir -p "$H" "$WORK/r6/cwd"; mkbundle "$B"
+mkplugin "$H/.claude/plugins/cache/genjutsu/genjutsu/3.6.0"
+run_router "$ROUTER_CAST" "$H" "$WORK/r6/cwd" "$B" ""
+dir="$(sed -n 's/^GENJUTSU_SKILL_DIR=//p' "$WORK/out")"
+check "router to resolver: the printed dir resolves the bundle's modules" \
+  "$B/_jutsu" "$(resolve "$H" "$WORK/r6/cwd" "" "" "$dir")"
 
 # --- summary ---
 echo
