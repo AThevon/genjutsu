@@ -20,6 +20,7 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SRC_CAST="$ROOT/skills/cast/SKILL.md"
 SRC_ROUTER="$ROOT/packaging/genjutsu-router.md"
+SRC_UIUX="$ROOT/skills/_jutsu/ui-ux-pro-max/SKILL.md"
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/genjutsu-resolver.XXXXXX")"
 # $TMPDIR often ends in a slash, which leaves a // in the fixture paths. The
 # resolver returns physical paths (pwd -P), so normalise here too or every
@@ -429,6 +430,70 @@ run_router "$ROUTER_CAST" "$H" "$WORK/r6/cwd" "$B" ""
 dir="$(sed -n 's/^GENJUTSU_SKILL_DIR=//p' "$WORK/out")"
 check "router to resolver: the printed dir resolves the bundle's modules" \
   "$B/_jutsu" "$(resolve "$H" "$WORK/r6/cwd" "" "" "$dir")"
+
+# --- 20. ui-ux-pro-max finds its own scripts --------------------------------
+# Its commands used to `cd` into the module and run scripts/search.py relative
+# to it, which breaks as soon as the working directory does not carry over from
+# one shell call to the next. Each call now derives UIUX_DIR first.
+UIUX_BLOCK="$WORK/uiux.sh"
+extract "$SRC_UIUX" '<!-- genjutsu:uiux-dir:start -->' \
+  '<!-- genjutsu:uiux-dir:end -->' "$UIUX_BLOCK"
+
+# run_uiux <home> <pwd> <SKILL_BASE> <CLAUDE_SKILL_DIR> <UIUX_DIR given>
+run_uiux() {
+  (
+    set +u +o pipefail
+    HOME="$1"; export HOME
+    SKILL_BASE="${3:-}"; CLAUDE_SKILL_DIR="${4:-}"; UIUX_DIR="${5:-}"
+    export SKILL_BASE CLAUDE_SKILL_DIR UIUX_DIR
+    cd "$2" 2>/dev/null || exit 97
+    # shellcheck disable=SC1090
+    . "$UIUX_BLOCK" >/dev/null 2>"$WORK/err"
+    printf '%s' "${UIUX_DIR:-}" > "$WORK/out"
+  )
+  cat "$WORK/out"
+}
+mkuiux() { # <module dir>
+  mkdir -p "$1/scripts"
+  printf 'print("search")\n' > "$1/scripts/search.py"
+}
+
+H="$WORK/u1/home"; B="$WORK/u1/genjutsu"
+mkdir -p "$H" "$WORK/u1/cwd"; mkbundle "$B"; mkuiux "$B/_jutsu/ui-ux-pro-max"
+mkuiux "$H/.claude/skills/ui-ux-pro-max"
+check "ui-ux-pro-max: \$SKILL_BASE from the orchestrator wins" \
+  "$B/_jutsu/ui-ux-pro-max" "$(run_uiux "$H" "$WORK/u1/cwd" "$B/_jutsu" "" "")"
+
+H="$WORK/u2/home"; M="$WORK/u2/uploads/ui-ux-pro-max"
+mkdir -p "$H" "$WORK/u2/cwd"; mkuiux "$M"
+check "ui-ux-pro-max standalone: a substituted CLAUDE_SKILL_DIR" \
+  "$M" "$(run_uiux "$H" "$WORK/u2/cwd" "" "$M" "")"
+check "ui-ux-pro-max standalone: a UIUX_DIR named by the model" \
+  "$M" "$(run_uiux "$H" "$WORK/u2/cwd" "" "" "$M")"
+
+H="$WORK/u3/home"
+mkdir -p "$WORK/u3/cwd"; mkuiux "$H/.claude/skills/ui-ux-pro-max"
+check "ui-ux-pro-max standalone: found in ~/.claude/skills with nothing given" \
+  "$H/.claude/skills/ui-ux-pro-max" "$(run_uiux "$H" "$WORK/u3/cwd" "" "" "")"
+
+H="$WORK/u4/home"
+mkdir -p "$H" "$WORK/u4/cwd"
+check "ui-ux-pro-max: nothing anywhere resolves empty" "" "$(run_uiux "$H" "$WORK/u4/cwd" "" "" "")"
+check_grep "ui-ux-pro-max: nothing anywhere says to derive by hand" "derive the design system" "$WORK/err"
+
+# End to end with the real module: derive, then run the real search.py from a
+# project directory that is not the module's.
+H="$WORK/u5/home"
+mkdir -p "$H" "$WORK/u5/project"
+got="$(
+  set +u
+  HOME="$H"; export HOME; SKILL_BASE=""; UIUX_DIR=""
+  CLAUDE_SKILL_DIR="$ROOT/skills/_jutsu/ui-ux-pro-max"; export SKILL_BASE UIUX_DIR CLAUDE_SKILL_DIR
+  cd "$WORK/u5/project" || exit 1
+  . "$UIUX_BLOCK" >/dev/null 2>&1
+  python3 "$UIUX_DIR/scripts/search.py" "fintech dashboard" --design-system -f markdown 2>&1 | grep -c '^#'
+)"
+check "ui-ux-pro-max: the real search.py runs from a project directory" "1" "$([ "${got:-0}" -gt 0 ] && echo 1 || echo 0)"
 
 # --- summary ---
 echo
