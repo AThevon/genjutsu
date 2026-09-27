@@ -1,6 +1,8 @@
 ---
 name: desktop-principles
 description: "Desktop-specific UX principles - hover states, pointer precision, keyboard shortcuts, multi-window, focus management. Covers macOS, Windows, Linux, web desktop."
+metadata:
+  internal: true
 ---
 
 > **Version-sensitive.** Every API name, SDK gate and browser-support claim below was

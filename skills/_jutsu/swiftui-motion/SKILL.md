@@ -1,6 +1,8 @@
 ---
 name: swiftui-motion
 description: "SwiftUI animation foundations - withAnimation, transitions, matchedGeometryEffect, PhaseAnimator, KeyframeAnimator, springs, gestures."
+metadata:
+  internal: true
 ---
 
 > **Version-sensitive.** Every API name, SDK gate and browser-support claim below was

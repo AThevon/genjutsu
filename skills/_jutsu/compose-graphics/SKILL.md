@@ -1,6 +1,8 @@
 ---
 name: compose-graphics
 description: "Advanced Compose visuals - Material 3 Expressive motion physics, AGSL shaders (Android 13+), Canvas/DrawScope generative, graphicsLayer effects."
+metadata:
+  internal: true
 ---
 
 > **Version-sensitive.** Every API name, SDK gate and browser-support claim below was

@@ -1,6 +1,8 @@
 ---
 name: css-native
 description: "Zero-dependency animations and visual techniques - scroll-driven, View Transitions, @starting-style, modern CSS."
+metadata:
+  internal: true
 ---
 
 > **Version-sensitive.** Every API name, SDK gate and browser-support claim below was

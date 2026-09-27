@@ -1,6 +1,8 @@
 ---
 name: gsap
 description: "GSAP animation engine sub-skill - core, timeline, ScrollTrigger, plugins."
+metadata:
+  internal: true
 ---
 
 > **Version-sensitive.** Every API name, SDK gate and browser-support claim below was

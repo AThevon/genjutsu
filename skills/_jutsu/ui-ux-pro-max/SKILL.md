@@ -1,6 +1,8 @@
 ---
 name: ui-ux-pro-max
 description: "UI/UX design-system intelligence - 84 styles, 192 palettes, 74 font pairings, 25 charts, 99 UX guidelines across 22 stacks (searchable dataset + CLI). Internal genjutsu module: loaded by /genjutsu:cast and /genjutsu:paint, not invoked directly."
+metadata:
+  internal: true
 ---
 
 > **Version-sensitive.** Every API name, SDK gate and browser-support claim below was

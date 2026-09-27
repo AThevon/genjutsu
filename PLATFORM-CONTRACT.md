@@ -43,7 +43,10 @@ directory, the Agent Skills six-field allowlist (`name`, `description`, `license
 the tree uses more than three), length limits, no duplicate names. A body over 500 lines warns
 and still passes; three files are already over it.
 
-Internal modules carry `metadata.internal` so they do not surface as separately invocable skills.
+Every module under `skills/_jutsu/` carries a `metadata:` block with `internal: true`, an
+unquoted YAML boolean, because the `npx skills` CLI tests it with `=== true`. It hides the modules
+from `npx skills add`, so the repository route offers only `cast` and `paint`. It does not hide
+them everywhere: uploaded one by one on claude.ai, each module still shows as a skill of its own.
 
 ## The wiring: ten sites across two files
 

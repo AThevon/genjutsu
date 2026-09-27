@@ -1,6 +1,8 @@
 ---
 name: framer-motion
 description: "Framer Motion / Motion sub-skill - AnimatePresence, layout animations, gestures, motion values."
+metadata:
+  internal: true
 ---
 
 > **Version-sensitive.** Every API name, SDK gate and browser-support claim below was

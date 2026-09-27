@@ -1,6 +1,8 @@
 ---
 name: threejs-r3f
 description: "Three.js and React Three Fiber sub-skill - 3D scenes, shaders, postprocessing."
+metadata:
+  internal: true
 ---
 
 > **Version-sensitive.** Every API name, SDK gate and browser-support claim below was

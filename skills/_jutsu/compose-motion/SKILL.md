@@ -1,6 +1,8 @@
 ---
 name: compose-motion
 description: "Jetpack Compose animation foundations - animate*AsState, AnimatedVisibility, Crossfade, updateTransition, SharedTransitionLayout, gestures."
+metadata:
+  internal: true
 ---
 
 > **Version-sensitive.** Every API name, SDK gate and browser-support claim below was

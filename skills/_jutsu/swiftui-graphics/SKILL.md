@@ -1,6 +1,8 @@
 ---
 name: swiftui-graphics
 description: "Advanced SwiftUI visuals - Metal shaders (.colorEffect, .layerEffect, .distortionEffect), .visualEffect, Liquid Glass (iOS 26), Canvas, holographic and CRT effects."
+metadata:
+  internal: true
 ---
 
 > **Version-sensitive.** Every API name, SDK gate and browser-support claim below was

@@ -40,8 +40,27 @@ Confirm it routes to **paint** (brainstorm first), and that `ui-ux-pro-max` load
 ## 5. Resolution failure signals
 If at any point you see `genjutsu: could not resolve the sub-skills directory` or `sub-skill '…' not found`, path detection failed. Capture the `/mnt/skills/user` layout from step 2 and open an issue.
 
+## 6. An individual module ZIP carrying `metadata.internal`
+
+Every module declares a `metadata:` block with `internal: true` in its frontmatter: an unquoted
+YAML boolean, because the `npx skills` CLI tests it with `=== true`. claude.ai validates the
+frontmatter of an uploaded skill, so check once per release that it accepts the field.
+
+1. Build the ZIPs from the release commit: `./package-for-claude-ai.sh`.
+2. **Customize > Skills > Upload skill**, and upload `dist/motion-principles.zip`.
+3. Expect the upload to succeed and a skill named **motion-principles** to appear, listed like
+   any other uploaded skill (the field hides modules from `npx skills`, not from claude.ai).
+4. An error that mentions `metadata` or the frontmatter means claude.ai rejects the boolean.
+   Stop the release and open an issue with the exact message.
+5. Delete the uploaded module again, so the account holds only what you actually use.
+6. Add one row to the log below.
+
+| Date | Release commit | ZIP | Result | Exact message, if any |
+|---|---|---|---|---|
+
 ## Pass criteria
 - One upload, one skill.
 - Both pipelines reachable from the single skill.
 - No missing-sub-skill warnings.
 - `ui-ux-pro-max`'s `--design-system` runs.
+- An individual module ZIP carrying `metadata.internal` uploads without error (section 6, logged).
