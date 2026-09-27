@@ -1,0 +1,262 @@
+#!/usr/bin/env python3
+"""Read the results of `claude plugin eval` for the genjutsu suite.
+
+The runner's own summary averages every run, including runs that produced an
+empty page. An empty page passes every not_contains grader, so a with-arm that
+crashed would look cleaner than a baseline that wrote a real page. This reads
+the JSON instead and applies the rules the release is judged on.
+
+    delta   <run.json> [--format text|markdown] [--no-gate]
+            Per case: with / without score, delta, runs kept. A run whose
+            positive guard failed or is missing, a run no grader scored (the
+            harness failed before grading), or a run whose judge graders were
+            skipped at the cost ceiling, is left out of its arm. Then the
+            release gate.
+    inspect <run.json> [--case NAME ...]
+            Per run: modules requested, modules reported NOT LOADED, a failed
+            resolution, sandbox read denials, the final "Modules loaded:" line.
+            Exit 1 if any run shows a problem, 2 if a trace cannot be read.
+    collect <run.json> --case NAME [--case NAME ...] --out DIR [--pick CASE:ARM:INDEX]
+            Copy the workspace of the first run of each arm that passed its
+            guard (from the dirs kept by --keep-temp) to DIR/<case>/<arm>/.
+    tells   DIR [--format text|markdown]
+            Run design-audit's tells group on DIR/<case>/<arm>/app/page.tsx and
+            sum the findings per arm.
+
+Accepts the documented camelCase result (schemaVersion 1: cases[].arms.with)
+and the snake_case shape (cases[].runs / runs_without) so that a results file
+of either form can be read. Stdlib only.
+"""
+
+from __future__ import annotations
+
+import argparse
+import fnmatch
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+from dataclasses import dataclass, field
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+AUDIT = ROOT / "skills" / "_jutsu" / "design-audit" / "scripts" / "audit.py"
+
+# Must match GUARDS in scripts/check-evals.py.
+GUARDS = ("page-has-content", "swift-screen-written")
+ARMS = ("with", "without")
+COPY_IGNORE = shutil.ignore_patterns("node_modules", ".next", ".git", ".turbo")
+
+NOT_LOADED = re.compile(r"genjutsu: (?:sub-skill|reference) '([^']+)' NOT LOADED")
+RESOLUTION_FAILED = "npx skills add https://genjutsu.athevon.dev -g"
+DENIED = re.compile(r"Operation not permitted|Permission denied|EACCES|EPERM")
+LOAD_CALL = re.compile(r"\bload_skill\s+([\w-]+)")
+MODULES_LOADED = re.compile(r"Modules loaded:[^\n]*")
+
+
+class EvalError(Exception):
+    pass
+
+
+@dataclass
+class Run:
+    index: int
+    score: float
+    error: str | None
+    skipped: bool
+    trace: str
+    graders: dict[str, bool] = field(default_factory=dict)
+    scored: dict[str, bool] = field(default_factory=dict)
+
+    def guard(self) -> bool | None:
+        for name in GUARDS:
+            if name in self.graders:
+                return self.graders[name]
+        return None
+
+
+@dataclass
+class Case:
+    name: str
+    arms: dict[str, list[Run]]
+
+
+def _run(index: int, raw: dict) -> Run:
+    graders, scored = {}, {}
+    for g in raw.get("graders") or []:
+        graders[g["name"]] = bool(g.get("passed"))
+        with_only = g.get("withOnly", g.get("with_only", False))
+        scored[g["name"]] = bool(g.get("scored", not with_only))
+    return Run(
+        index=index,
+        score=float(raw.get("score") or 0.0),
+        error=raw.get("error"),
+        skipped=bool(raw.get("skippedPaidGraders", raw.get("skipped_paid_graders", False))),
+        trace=raw.get("tracePath", raw.get("trace_path")) or "",
+        graders=graders,
+        scored=scored,
+    )
+
+
+def load_doc(path: Path) -> tuple[dict, list[Case]]:
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as e:
+        raise EvalError(f"cannot read {path}: {e}") from e
+    cases = []
+    for c in doc.get("cases") or []:
+        if "arms" in c:
+            raw = {"with": c["arms"].get("with") or [], "without": c["arms"].get("without") or []}
+        elif "runs" in c:
+            raw = {"with": c.get("runs") or [], "without": c.get("runs_without") or []}
+        else:
+            raise EvalError(f"case {c.get('name')!r}: neither arms nor runs; unknown result format")
+        cases.append(Case(c["name"], {arm: [_run(i, r) for i, r in enumerate(raw[arm])] for arm in ARMS}))
+    if not cases:
+        raise EvalError(f"{path}: no case in this result")
+    return doc, cases
+
+
+def kept(runs: list[Run]) -> list[Run]:
+    # Fail closed: only a guard that passed says there is a page to grade. A run
+    # with no guard entry, which includes a run no grader scored, is left out.
+    return [r for r in runs if r.guard() is True and not r.skipped]
+
+
+def mean(runs: list[Run]) -> float | None:
+    return sum(r.score for r in runs) / len(runs) if runs else None
+
+
+def arm_stats(case: Case) -> dict:
+    out = {}
+    for arm in ARMS:
+        runs = case.arms[arm]
+        k = kept(runs)
+        out[arm] = {
+            "mean": mean(k),
+            "kept": len(k),
+            "total": len(runs),
+            "guard_failed": sum(1 for r in runs if r.guard() is False),
+            "harness_failed": sum(1 for r in runs if not r.graders),
+            "skipped": sum(1 for r in runs if r.skipped),
+            "errors": sum(1 for r in runs if r.error),
+        }
+    w, wo = out["with"]["mean"], out["without"]["mean"]
+    out["delta"] = None if w is None or wo is None or not case.arms["without"] else w - wo
+    return out
+
+
+def indicators(case: Case) -> dict[str, tuple[int, int]]:
+    runs = kept(case.arms["with"])
+    names = sorted({n for r in runs for n, s in r.scored.items() if not s})
+    return {n: (sum(1 for r in runs if r.graders.get(n)), len(runs)) for n in names}
+
+
+def all_pass(case: Case, grader: str) -> tuple[bool, str]:
+    runs = kept(case.arms["with"])
+    if not runs:
+        return False, f"{grader}: no with-arm run left to judge"
+    ok = sum(1 for r in runs if r.graders.get(grader))
+    return ok == len(runs), f"{grader} {ok}/{len(runs)}"
+
+
+def delta_positive(case: Case) -> tuple[bool, str]:
+    d = arm_stats(case)["delta"]
+    if d is None:
+        return False, "no delta (an arm has no run left after exclusions)"
+    return d > 0, f"delta {d:+.2f}"
+
+
+# The release gate of spec section 4.5, one rule list per case, plus the
+# acceptance of section 2.6 on studio-landing: tells requested and read on web.
+GATES = {
+    "studio-landing": [delta_positive, lambda c: all_pass(c, "tells-requested"),
+                       lambda c: all_pass(c, "tells-reported-loaded")],
+    "saas-landing": [delta_positive],
+    "thesis-allows": [lambda c: all_pass(c, "keeps-both-cities"), lambda c: all_pass(c, "keeps-time-bar")],
+    "swiftui-skip": [lambda c: all_pass(c, "tells-never-requested"), lambda c: all_pass(c, "tells-never-read")],
+}
+
+
+def gate(cases: list[Case]) -> tuple[bool, list[str]]:
+    by_name = {c.name: c for c in cases}
+    ok, lines = True, []
+    for name, rules in GATES.items():
+        if name not in by_name:
+            ok = False
+            lines.append(f"FAIL {name}: missing from the result")
+            continue
+        for rule in rules:
+            passed, why = rule(by_name[name])
+            ok &= passed
+            lines.append(f"{'PASS' if passed else 'FAIL'} {name}: {why}")
+    return ok, lines
+
+
+def fmt(x: float | None, signed: bool = False) -> str:
+    if x is None:
+        return "n/a"
+    return f"{x:+.2f}" if signed else f"{x:.2f}"
+
+
+def cmd_delta(args) -> int:
+    doc, cases = load_doc(Path(args.json))
+    partial = doc.get("partial")
+    rows = []
+    for c in cases:
+        s = arm_stats(c)
+        ind = ", ".join(f"{n} {a}/{b}" for n, (a, b) in indicators(c).items()) or "-"
+        rows.append((c.name, fmt(s["with"]["mean"]), fmt(s["without"]["mean"]), fmt(s["delta"], True),
+                     f"{s['with']['kept']}/{s['with']['total']}", f"{s['without']['kept']}/{s['without']['total']}", ind))
+    head = ("case", "with", "without", "delta", "kept with", "kept without", "with-only indicators")
+    if args.format == "markdown":
+        print("| " + " | ".join(head) + " |")
+        print("|" + "---|" * len(head))
+        for r in rows:
+            print("| " + " | ".join(r) + " |")
+    else:
+        widths = [max(len(str(x)) for x in col) for col in zip(head, *rows)]
+        for r in (head, *rows):
+            print("  ".join(str(x).ljust(w) for x, w in zip(r, widths)).rstrip())
+    print()
+    print("Runs left out: a failed or missing positive guard (nothing to grade), a run no grader scored (harness failure), or judge graders skipped at the cost ceiling.")
+    if partial:
+        print(f"WARNING: partial result ({doc.get('partialReason') or doc.get('partial_reason')}); do not publish these numbers.")
+    if args.no_gate:
+        return 0
+    ok, lines = gate(cases)
+    print()
+    print("Release gate (spec 4.5):")
+    for line in lines:
+        print(f"  {line}")
+    print(f"RELEASE GATE: {'PASS' if ok and not partial else 'FAIL'}")
+    return 0 if ok and not partial else 1
+
+
+def build_parser() -> argparse.ArgumentParser:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    d = sub.add_parser("delta")
+    d.add_argument("json")
+    d.add_argument("--format", choices=("text", "markdown"), default="text")
+    d.add_argument("--no-gate", action="store_true", help="print the table only (a suite that is not genjutsu's)")
+    return ap
+
+
+COMMANDS = {"delta": cmd_delta}
+
+
+def main(argv: list[str]) -> int:
+    args = build_parser().parse_args(argv[1:])
+    try:
+        return COMMANDS[args.cmd](args)
+    except EvalError as e:
+        print(f"eval-runs: {e}", file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv))
