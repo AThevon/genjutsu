@@ -87,6 +87,7 @@ All of these run in CI. Run them before opening the PR and you will not be surpr
 ./scripts/test-check-dashes.sh && ./scripts/check-dashes.sh     # no U+2014 in a tracked file
 ./scripts/check-shared-blocks.sh        # the five regions are identical in cast and paint
 ./scripts/check-denylist.sh             # no string that was wrong once has come back
+./scripts/test-resolver.sh              # the resolver, one fixture per install layout
 python3 scripts/validate-skills.py      # every SKILL.md against the Agent Skills spec
 ( cd scripts && python3 -m unittest discover -s tests )
 python3 skills/_jutsu/ui-ux-pro-max/scripts/validate_data.py

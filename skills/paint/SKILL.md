@@ -172,123 +172,148 @@ Call whatever the host actually exposes, under the name it exposes it as - check
 
 ## Sub-skills Path Detection
 
+**Tell the block where this skill lives.** The block's first line reads `GENJUTSU_SKILL_DIR`.
+Claude Code fills it in by itself. On any other host, put one line in front of the block, in the
+same shell call, naming the directory you read this file from:
+`GENJUTSU_SKILL_DIR='/absolute/path/to/paint'`. When the genjutsu router printed a
+`GENJUTSU_SKILL_DIR=` line, use that value as it is.
+
 <!-- genjutsu:shared:skill-base:start -->
-**This block defines shell state, and shell state does not survive between Bash calls.**
-`$SKILL_BASE` and `load_skill` exist only inside the single Bash invocation that ran this
-block. Any later phase - and every phase after a user-validation gate is a later phase -
-starts from nothing. So: **re-emit this whole block in the same Bash call as the
+**This block defines shell state, and shell state does not survive between shell calls.**
+`$SKILL_BASE`, `load_skill` and `load_ref` exist only inside the single shell call that ran
+this block. Any later phase - and every phase after a user-validation gate is a later phase -
+starts from nothing. So: **re-emit this whole block in the same shell call as the
 `load_skill` lines you are about to run.** Never `cat "$SKILL_BASE/..."` in a call that did
-not define it; the path resolves to `/<name>/SKILL.md`, the `cat` fails, and the pipeline
-carries on without the sub-skill. Re-emitting costs a handful of depth-capped `find` calls,
-which is cheaper than being wrong about which version you loaded.
+not define it: the path resolves to `/<name>/...`, the `cat` fails, and the module is lost.
+
+**If the block prints `could not find the genjutsu modules`, stop the pipeline.** Show the
+user the message, install command included, and do nothing else: every later step depends
+on the modules, and running without them produces exactly the generic output this skill
+exists to prevent.
 
 ```bash
-# Environment detection, most specific first:
-# - claude.ai: skills are uploaded individually to /mnt/skills/user/<name>/
-# - Claude Code: ${CLAUDE_PLUGIN_ROOT} resolves to THIS plugin version's
-#   install directory. Claude Code substitutes it anywhere in skill content.
-# - Cowork and skills-directory installs: no fixed path exists. The tree is
-#   mounted under a session root that changes every run, e.g.
-#   /sessions/<id>/mnt/.claude/skills/genjutsu/_jutsu. Probed last, so the two
-#   environments above keep resolving exactly as they did before.
-# Single-bundle upload (genjutsu.zip) first: sub-skills live under this skill's
-# own dir, e.g. /mnt/skills/user/genjutsu/_jutsu/<name>/.
+GENJUTSU_SKILL_DIR="${GENJUTSU_SKILL_DIR:-${CLAUDE_SKILL_DIR}}"
+# Resolution order, first hit wins:
+#   0. claude.ai, /mnt/skills/user: the genjutsu bundle, else individual uploads.
+#   1. This skill's own directory: its _jutsu, or the _jutsu next to it.
+#   2. ${CLAUDE_PLUGIN_ROOT}/skills/_jutsu, when Claude Code substituted it.
+#   3. Bounded probes: .claude/skills and .agents/skills from $PWD upward, then
+#      the skills directories installers write to, then /sessions (Cowork).
+#   4. The Claude Code plugin cache, newest version. Last on purpose: an old
+#      plugin install must never win over a newer bundle.
+# Resolved from scratch every time. A cache was tried here and removed: after a
+# plugin update the old version directory is still on disk, so a cached path
+# passes an "is it a directory" check and serves the previous release.
 
-# Probe for a mounted _jutsu when no fixed path applies. Bounded on purpose:
-# every root is either shallow or depth-capped, so this never walks the disk.
-genjutsu_probe_jutsu() {
-  probe_hit=""
-  # Walk up from the working directory first: cheapest, and correct whenever
-  # the session root is an ancestor of wherever the pipeline is running. Hard
-  # bounded, and the case guard catches "." and "": an empty or relative PWD
-  # would otherwise never reach "/" and the loop would spin forever.
-  probe_dir="${PWD:-$(pwd)}"
-  probe_n=0
-  while [ "$probe_n" -lt 24 ]; do
-    probe_n=$((probe_n + 1))
-    probe_hit="$(find "$probe_dir/.claude/skills" -maxdepth 2 -type d -name _jutsu 2>/dev/null | head -1)"
-    [ -n "$probe_hit" ] && { printf '%s\n' "$probe_hit"; return 0; }
-    case "$probe_dir" in /|.|"") break ;; esac
-    probe_dir="$(dirname "$probe_dir")"
+# A _jutsu directory counts only if it holds motion-principles. The shared
+# skills directory of npx serves about 80 agents, so a directory name proves
+# nothing. The entry file is named SKILL or GUIDE depending on the artifact
+# (the bundle renames it at packaging time), so the name is assembled from
+# parts: spelled out in full, the packaging step would rewrite it too.
+genjutsu_is_jutsu() {
+  for d in SKILL GUIDE; do
+    [ -f "$1/motion-principles/$d.md" ] && return 0
   done
-  # Then the fixed roots. A skills directory holds _jutsu two levels down, so
-  # that is all they get: no reason to traverse a populated one any deeper.
-  for probe_root in "$HOME/.claude/skills" /mnt/.claude/skills; do
-    [ -d "$probe_root" ] || continue
-    probe_hit="$(find "$probe_root" -maxdepth 2 -type d -name _jutsu 2>/dev/null | head -1)"
-    [ -n "$probe_hit" ] && { printf '%s\n' "$probe_hit"; return 0; }
-  done
-  # A session root is the one layout that needs more, for the session id and
-  # its mnt/ wrapper. Still capped, and skipped entirely when absent.
-  if [ -d /sessions ]; then
-    probe_hit="$(find /sessions -maxdepth 8 -type d -path '*/.claude/skills/*/_jutsu' 2>/dev/null | head -1)"
-    [ -n "$probe_hit" ] && { printf '%s\n' "$probe_hit"; return 0; }
-  fi
   return 1
 }
 
-# Resolve from scratch every time. A cache was tried here and removed: after a plugin
-# update the old version directory is still on disk, so a cached path passes an
-# "is it a directory" check and silently serves the previous release's sub-skills to
-# the current orchestrator. Being right costs a few depth-capped finds.
+# Print the first genjutsu _jutsu among the candidate paths read on stdin.
+genjutsu_first_jutsu() {
+  while read -r jutsu_c; do
+    genjutsu_is_jutsu "$jutsu_c" && { printf '%s\n' "$jutsu_c"; return 0; }
+  done
+  return 1
+}
+
 SKILL_BASE=""
-BUNDLE_JUTSU="$(find /mnt/skills/user -maxdepth 2 -type d -name _jutsu 2>/dev/null | head -1)"
-if [ -n "$BUNDLE_JUTSU" ]; then
-  # claude.ai - single self-contained genjutsu bundle
-  SKILL_BASE="$BUNDLE_JUTSU"
-elif [ -d "/mnt/skills/user" ]; then
-  # claude.ai - each sub-skill is its own uploaded skill (detect the mount, not
-  # one specific sub-skill, so a partial upload still resolves the base).
-  SKILL_BASE="/mnt/skills/user"
-else
-  # Claude Code plugin
-  SKILL_BASE="${CLAUDE_PLUGIN_ROOT}/skills/_jutsu"
-  # Fallback if the placeholder was not substituted: newest installed version.
-  # Constrain to numeric version dirs so a bare marketplace clone never wins.
-  if [ ! -d "$SKILL_BASE" ]; then
-    SKILL_BASE=$(find ~/.claude/plugins/cache -type d -path '*/genjutsu/[0-9]*/skills/_jutsu' 2>/dev/null | sort -V | tail -1)
-  fi
-  # Cowork / skills-directory install: session-rooted mount, nothing fixed to
-  # match, so probe for it only once the two fixed layouts have both missed.
-  if [ -z "$SKILL_BASE" ] || [ ! -d "$SKILL_BASE" ]; then
-    SKILL_BASE="$(genjutsu_probe_jutsu)"
-  fi
+# 0. claude.ai. Individual uploads: the mount itself is the base, even without
+# motion-principles, so a partial upload still loads what it has.
+if [ -d /mnt/skills/user ]; then
+  SKILL_BASE="$(find -L /mnt/skills/user -maxdepth 2 -type d -name _jutsu 2>/dev/null | genjutsu_first_jutsu)"
+  [ -n "$SKILL_BASE" ] || SKILL_BASE="/mnt/skills/user"
 fi
-
-
-# Abort clearly instead of cat-ing bogus paths if resolution failed. Name every
-# root that was tried, so a new host layout can be reported instead of guessed.
-if [ -z "$SKILL_BASE" ] || [ ! -d "$SKILL_BASE" ]; then
-  echo "genjutsu: could not resolve the sub-skills directory." >&2
-  echo "  claude.ai   - upload the genjutsu skill ZIP(s) via Customize > Skills." >&2
-  echo "  Claude Code - reinstall the plugin, then run /reload-plugins." >&2
-  echo "  Cowork      - expected a _jutsu directory under a */.claude/skills/<name>/ mount." >&2
-  echo "  Tried: /mnt/skills/user, \$CLAUDE_PLUGIN_ROOT, ~/.claude/plugins/cache," >&2
-  echo "         \$PWD ancestors, ~/.claude/skills, /mnt/.claude/skills, /sessions." >&2
+# 1. This skill's own directory. Empty means unknown: never probe "/_jutsu".
+if [ -z "$SKILL_BASE" ] && [ -n "$GENJUTSU_SKILL_DIR" ]; then
+  SKILL_BASE="$(printf '%s\n' "$GENJUTSU_SKILL_DIR/_jutsu" "$GENJUTSU_SKILL_DIR/../_jutsu" | genjutsu_first_jutsu)"
 fi
+# 2. Claude Code plugin root.
+if [ -z "$SKILL_BASE" ] && [ -n "${CLAUDE_PLUGIN_ROOT}" ]; then
+  SKILL_BASE="$(printf '%s\n' "${CLAUDE_PLUGIN_ROOT}/skills/_jutsu" | genjutsu_first_jutsu)"
+fi
+# 3. Bounded probes, following symlinks (npx links .claude/skills/<name> to
+# .agents/skills/<name>). The case guard stops the walk at "/", "." or "".
+probe_dir="${PWD:-$(pwd)}"
+probe_n=0
+while [ -z "$SKILL_BASE" ] && [ "$probe_n" -lt 24 ]; do
+  probe_n=$((probe_n + 1))
+  SKILL_BASE="$(find -L "$probe_dir/.claude/skills" "$probe_dir/.agents/skills" -maxdepth 2 -type d -name _jutsu 2>/dev/null | genjutsu_first_jutsu)"
+  case "$probe_dir" in /|.|"") break ;; esac
+  probe_dir="$(dirname "$probe_dir")"
+done
+for probe_root in "$HOME/.agents/skills" "$HOME/.claude/skills" "$HOME/.codex/skills" \
+    "$HOME/.cursor/skills" /mnt/.claude/skills; do
+  [ -z "$SKILL_BASE" ] && [ -d "$probe_root" ] || continue
+  SKILL_BASE="$(find -L "$probe_root" -maxdepth 2 -type d -name _jutsu 2>/dev/null | genjutsu_first_jutsu)"
+done
+if [ -z "$SKILL_BASE" ] && [ -d /sessions ]; then
+  SKILL_BASE="$(find -L /sessions -maxdepth 8 -type d -path '*/.claude/skills/*/_jutsu' 2>/dev/null | genjutsu_first_jutsu)"
+fi
+# 4. Claude Code plugin cache, newest version first. Numeric version
+# directories only, so a bare marketplace clone never wins.
+if [ -z "$SKILL_BASE" ] && [ -d "$HOME/.claude/plugins/cache" ]; then
+  SKILL_BASE="$(find "$HOME/.claude/plugins/cache" -maxdepth 6 -type d -path '*/genjutsu/[0-9]*/skills/_jutsu' 2>/dev/null | sort -V -r | genjutsu_first_jutsu)"
+fi
+[ -n "$SKILL_BASE" ] && SKILL_BASE="$(cd "$SKILL_BASE" 2>/dev/null && pwd -P)"
 
-# Load a sub-skill, warning (not failing) if its ZIP was not uploaded / is missing.
-# The entry filename depends on the artifact, not on the host: a plugin install
-# ships SKILL.md, while the claude.ai bundle renames every inner one to GUIDE.md
-# at packaging time. Either can end up mounted under a Cowork session root, so
-# try both. The name is assembled from parts on purpose - spelled out in full it
-# would be rewritten by the same packaging step, defeating the fallback.
+# Stop instead of running the pipeline without its modules. Name every root that
+# was tried, so a new layout can be reported instead of guessed.
+if [ -z "$SKILL_BASE" ]; then
+  echo "genjutsu: could not find the genjutsu modules (a _jutsu directory holding motion-principles)." >&2
+  echo "  cast and paint do not work without them. Install the full bundle:" >&2
+  echo "    any agent    npx skills add https://genjutsu.athevon.dev -g" >&2
+  echo "    Claude Code  /plugin marketplace add AThevon/genjutsu, then /plugin install genjutsu" >&2
+  echo "    claude.ai    upload genjutsu.zip in Customize > Skills" >&2
+  echo "  npx skills add AThevon/genjutsu installs cast and paint without their modules." >&2
+  echo "  Tried: /mnt/skills/user, GENJUTSU_SKILL_DIR (${GENJUTSU_SKILL_DIR:-empty}) and its parent," >&2
+  echo "         \$CLAUDE_PLUGIN_ROOT, .claude/skills and .agents/skills from \$PWD upward," >&2
+  echo "         ~/.agents/skills, ~/.claude/skills, ~/.codex/skills, ~/.cursor/skills," >&2
+  echo "         /mnt/.claude/skills, /sessions, ~/.claude/plugins/cache." >&2
+  echo "genjutsu: stop the pipeline here and show this message to the user." >&2
+  return 1 2>/dev/null || exit 1
+fi
+echo "genjutsu: modules from $SKILL_BASE" >&2
+
+# Print a module's entry file. A missing module does not stop the pipeline (a
+# partial claude.ai upload is legitimate), but it is announced, and the final
+# report lists it: shell state does not survive, so the model keeps the list.
 load_skill() {
-  for jutsu_doc in SKILL GUIDE; do
-    if [ -f "$SKILL_BASE/$1/$jutsu_doc.md" ]; then
-      cat "$SKILL_BASE/$1/$jutsu_doc.md"
+  for d in SKILL GUIDE; do
+    if [ -f "$SKILL_BASE/$1/$d.md" ]; then
+      cat "$SKILL_BASE/$1/$d.md"
       return 0
     fi
   done
-  echo "genjutsu: sub-skill '$1' not found - upload its ZIP (claude.ai) or reinstall the plugin; continuing without it." >&2
+  echo "genjutsu: sub-skill '$1' NOT LOADED - not found under $SKILL_BASE. Carry on, and list it under 'Modules not loaded' in the final report." >&2
+  return 1
+}
+
+# Print one reference file of a module: load_ref <module> <path inside it>.
+load_ref() {
+  if [ -f "$SKILL_BASE/$1/$2" ]; then
+    cat "$SKILL_BASE/$1/$2"
+    return 0
+  fi
+  echo "genjutsu: reference '$1/$2' NOT LOADED - not found under $SKILL_BASE. Carry on, and say so in the final report." >&2
+  return 1
 }
 ```
 <!-- genjutsu:shared:skill-base:end -->
 
-All sub-skills are loaded via `load_skill <name>` (defined above), which cats the sub-skill's
-entry file and warns instead of failing if it was not uploaded. Every phase below that loads
-something must re-emit the resolution block in the same Bash call: the phases are separated by
-user gates, and nothing carries across them.
+All sub-skills are loaded via `load_skill <name>` (defined above), which prints the module's
+entry file, or a `NOT LOADED` line when the module is missing, and carries on: keep the list, the
+final report needs it. When the block cannot find the modules at all, it stops, and so does the
+pipeline. Every phase below that loads something must re-emit the resolution block in the same
+shell call: the phases are separated by user gates, and nothing carries across them.
 
 ---
 
@@ -513,7 +538,7 @@ Present the design system in the session's preview mode - announce the mode in o
 
 Load sub-skills based on tech stack and interaction thesis.
 
-**Always load** (load every sub-skill below via `load_skill <name>`, defined above - it warns instead of failing silently if a ZIP is missing):
+**Always load** (via `load_skill <name>`, defined above: a missing module prints `NOT LOADED` and the pipeline carries on, so keep the list for the final report):
 - `load_skill motion-principles` - the foundation
 
 <!-- genjutsu:shared:load:start -->

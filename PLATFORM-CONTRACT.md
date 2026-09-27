@@ -72,7 +72,9 @@ file without the other and CI rejects the PR.
 | Stack-aware token generation | `paint` Phase 3 only | n/a |
 
 The `skill-base` region is the exception: it resolves paths and knows nothing about families.
-Do not touch it.
+Any change to it needs a fixture per install layout in `scripts/test-resolver.sh`, and no new
+layout ships without its own fixture. The suite also runs against the packaged bundle, because
+packaging rewrites file names inside it.
 
 Three of these sites are duplicated across the two orchestrators with no CI guard. That is a
 known weakness, not a design: the audit checklist was in the same state until v3.4.0 and had

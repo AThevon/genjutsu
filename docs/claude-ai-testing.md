@@ -30,7 +30,7 @@ If the `find` prints nothing, the bundle's files did not mount (the #26254 regre
 ## 3. Functional test - cast (enhance existing UI)
 > "Add a subtle scroll-reveal animation to a hero section in plain HTML/CSS."
 
-Confirm the assistant: routes to the **cast** pipeline, resolves sub-skills with no `genjutsu: sub-skill '<name>' not found` warning, and proposes an interaction thesis before writing code.
+Confirm the assistant: routes to the **cast** pipeline, resolves sub-skills with no `genjutsu: sub-skill '<name>' NOT LOADED` line, and proposes an interaction thesis before writing code.
 
 ## 4. Functional test - paint (build from scratch)
 > "Design a visual identity for a fintech landing page from scratch."
@@ -38,7 +38,7 @@ Confirm the assistant: routes to the **cast** pipeline, resolves sub-skills with
 Confirm it routes to **paint** (brainstorm first), and that `ui-ux-pro-max` loads (e.g. it runs `scripts/search.py ... --design-system`).
 
 ## 5. Resolution failure signals
-If at any point you see `genjutsu: could not resolve the sub-skills directory` or `sub-skill '…' not found`, path detection failed. Capture the `/mnt/skills/user` layout from step 2 and open an issue.
+If at any point you see `genjutsu: could not find the genjutsu modules` (the pipeline must then stop) or `sub-skill '<name>' NOT LOADED`, path detection failed. Capture the `/mnt/skills/user` layout from step 2 and open an issue.
 
 ## 6. An individual module ZIP carrying `metadata.internal`
 
