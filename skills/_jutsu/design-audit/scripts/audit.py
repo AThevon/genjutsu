@@ -208,10 +208,12 @@ CHECKS = [
 DURATION_CONTEXT = re.compile(r"transition|animation|duration|delay|stagger", re.I)
 DURATION_VALUE = re.compile(r"(?<![\w.-])(\d+(?:\.\d+)?)(ms|s)(?![\w-])|duration\s*[:=]\s*[\"'{]?\s*(\d+(?:\.\d+)?)", re.I)
 
+# Each entry: (extensions, extractor, note). The extractor is a regex, whose first
+# matching group (or whole match) is the value, or a function from a line to values.
 INVENTORY = {
     "durations": (
         STYLE | JSX | SFC | SCRIPT,
-        None,  # handled by collect_durations, the shorthand needs context
+        lambda line: collect_durations(line),  # the shorthand needs context
         "Durations in use. A designed system has three to five. Fifteen is an accident.",
     ),
     "easings": (
@@ -219,7 +221,38 @@ INVENTORY = {
         re.compile(r"(cubic-bezier\([^)]*\)|ease-in-out|ease-out|ease-in|linear\b|steps\([^)]*\))", re.I),
         "Easings in use. Same rule: a handful, named, or it is not a system.",
     ),
+    "colors": (
+        STYLE | JSX | SFC | SCRIPT | HTML,
+        re.compile(
+            r"(?<![&\w])(#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4}))\b"
+            r"|((?:rgba?|hsla?|oklch|oklab)\((?:[^()]|\([^()]*\))*\))"
+            r"|(?<![\w-])(?:bg|text|border|from|via|to|ring|fill|stroke|outline|decoration|shadow|accent|caret)-"
+            r"((?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky"
+            r"|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3})\b"
+        ),
+        "Colours written as literal values or palette utilities. No verdict: each one should "
+        "trace back to a token the design system or the thesis names.",
+    ),
+    "radii": (
+        STYLE | JSX | SFC | SCRIPT | HTML,
+        re.compile(
+            r"border-radius\s*:\s*([^;}\"'\n]+)"
+            r"|borderRadius\s*:\s*[\"'{]?\s*([\w.%-]+)"
+            r"|(?<![\w-])(rounded(?:-[trblse]{1,2})?(?:-(?:none|xs|sm|md|lg|xl|2xl|3xl|4xl|full|\[[^\]\s]+\]))?)(?![\w-])"
+        ),
+        "Corner radii in use. No verdict: compare the spread with the radius scale the design "
+        "system declares.",
+    ),
+    "fonts": (
+        STYLE | JSX | SFC | SCRIPT | HTML,
+        lambda line: collect_fonts(line),
+        "Font families named in the code. No verdict: each one should be a family the thesis "
+        "names, for the reason it gives.",
+    ),
 }
+# How many file:line locations an inventory keeps per value. Enough to find the
+# stray one, not so many that the report becomes the codebase.
+WHERE_LIMIT = 5
 
 
 # ---------------------------------------------------------------------------
@@ -786,27 +819,69 @@ def collect_durations(line: str) -> list[str]:
     return out
 
 
+FONT_CSS = re.compile(r"(?:font-family|--font-[\w-]+)\s*:\s*([^;}\n]+)", re.I)
+FONT_JS = re.compile(r"fontFamily\s*:\s*(?!\{)\[?\s*([^,\]}\n]+)")
+FONT_NEXT = re.compile(r"import\s*\{([^}]*)\}\s*from\s*[\"']next/font/google[\"']")
+FONT_GOOGLE = re.compile(r"fonts\.googleapis\.com/css2?\?[^\"'\s)]*")
+FONT_UTILITY = re.compile(r"(?<![\w-])font-(sans|serif|mono|display|body|heading|\[[^\]\s]+\])(?![\w-])")
+
+
+def _first_family(stack: str) -> str:
+    return stack.split(",")[0].strip().strip("\"'`").strip()
+
+
+def collect_fonts(line: str) -> list[str]:
+    """Font families named on a line.
+
+    The first family of a CSS or JS stack (the rest are fallbacks), every family
+    imported from next/font/google or requested from Google Fonts, and Tailwind
+    font utilities, which stand for whatever the theme maps them to.
+    """
+    out = [_first_family(m.group(1)) for m in FONT_CSS.finditer(line)]
+    out += [_first_family(m.group(1)) for m in FONT_JS.finditer(line)]
+    for m in FONT_NEXT.finditer(line):
+        out += [n.split(" as ")[0].strip().replace("_", " ") for n in m.group(1).split(",") if n.strip()]
+    for m in FONT_GOOGLE.finditer(line):
+        out += [f.split(":")[0].replace("+", " ") for f in re.findall(r"family=([^&]+)", m.group(0))]
+    out += ["font-" + m.group(1) for m in FONT_UTILITY.finditer(line)]
+    return [f.lower() for f in out if f]
+
+
+def _inventory_values(extract, line: str) -> list[str]:
+    if callable(extract):
+        return extract(line)
+    values = []
+    for m in extract.finditer(line):
+        v = next((g for g in m.groups() if g is not None), m.group(0))
+        values.append(" ".join(v.split()).lower())
+    return values
+
+
 def run_inventory(files: list[Path], base: Path) -> dict:
     out = {}
-    for name, (exts, pat, note) in INVENTORY.items():
+    for name, (exts, extract, note) in INVENTORY.items():
         counter: Counter = Counter()
+        where: dict[str, list[str]] = {}
         relevant = [f for f in files if f.suffix in exts]
         for f in relevant:
             lines = read(f)
             if lines is None:
                 continue
-            for line in lines:
-                if pat is None:
-                    for v in collect_durations(line):
-                        counter[v] += 1
-                    continue
-                for m in pat.findall(line):
-                    counter[m.strip().lower()] += 1
+            rel = str(f.relative_to(base))
+            for n, line in enumerate(lines, 1):
+                for v in _inventory_values(extract, line):
+                    counter[v] += 1
+                    spots = where.setdefault(v, [])
+                    spot = f"{rel}:{n}"
+                    if len(spots) < WHERE_LIMIT and spot not in spots:
+                        spots.append(spot)
+        top = counter.most_common(20)
         out[name] = {
             "note": note,
             "scanned": len(relevant),
             "distinct": len(counter),
-            "values": counter.most_common(20),
+            "values": top,
+            "where": {v: where[v] for v, _ in top},
         }
     return out
 
@@ -868,7 +943,9 @@ def as_markdown(base: Path, how: str, files: list[Path], results: list[Result], 
         out.append(f"**{name}** - {data['distinct']} distinct value(s). {data['note']}")
         if data["values"]:
             out.append("")
-            out.append("  " + ", ".join(f"`{v}` x{c}" for v, c in data["values"][:12]))
+            for v, c in data["values"][:12]:
+                spots = ", ".join(f"`{s}`" for s in data["where"].get(v, []))
+                out.append(f"- `{v}` x{c} - {spots}")
         out.append("")
 
     return "\n".join(out)

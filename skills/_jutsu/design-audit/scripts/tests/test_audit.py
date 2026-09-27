@@ -715,5 +715,46 @@ class PageFixtures(unittest.TestCase):
                 self.assertIn("did not run", results[cid].meaning)
 
 
+class DesignInventory(unittest.TestCase):
+    """Colours, radii and fonts are reported with where they live, never judged."""
+
+    def inv(self, files: dict[str, str]) -> dict:
+        root = build(files)
+        try:
+            return audit.run_inventory(audit.walk(audit.discover_roots(root)[0], root), root)
+        finally:
+            shutil.rmtree(root)
+
+    def test_colors_radii_and_fonts_are_inventoried(self):
+        inv = self.inv({
+            "app/globals.css": (":root { --ink: #1A1A1A; --paper: rgb(250, 248, 244); }\n"
+                                ".veil { background: rgba(var(--ink-rgb), 0.5); }\n"
+                                '.card { border-radius: 12px; font-family: "Fraunces", serif; }\n'
+                                "@theme { --font-body: 'Inter', sans-serif; }\n"),
+            "app/layout.tsx": ('import { Inter, Instrument_Serif } from "next/font/google"\n'
+                               'export default () => <p className="bg-zinc-900 rounded-lg font-mono">x &#8212; y</p>\n'),
+        })
+        self.assertEqual(set(dict(inv["colors"]["values"])), {"#1a1a1a", "rgb(250, 248, 244)", "rgba(var(--ink-rgb), 0.5)", "zinc-900"})
+        self.assertEqual(set(dict(inv["radii"]["values"])), {"12px", "rounded-lg"})
+        self.assertEqual(set(dict(inv["fonts"]["values"])), {"fraunces", "inter", "instrument serif", "font-mono"})
+
+    def test_each_value_keeps_a_bounded_list_of_locations(self):
+        css = "".join(f".c{i} {{ transition: opacity 300ms; }}\n" for i in range(8))
+        inv = self.inv({"src/a.css": css, "src/b.css": ".z { transition: opacity 300ms; }\n"})
+        self.assertEqual(dict(inv["durations"]["values"])["300ms"], 9)
+        self.assertEqual(inv["durations"]["where"]["300ms"], [f"src/a.css:{n}" for n in range(1, 6)])
+
+    def test_markdown_shows_where_each_value_lives(self):
+        root = build({"src/a.css": ".a { transition: opacity 300ms ease-out; }\n"})
+        try:
+            roots, how = audit.discover_roots(root)
+            files = audit.walk(roots, root)
+            results = [audit.run_check(c, files, root) for c in audit.CHECKS]
+            md = audit.as_markdown(root, how, files, results, audit.run_inventory(files, root))
+            self.assertIn("- `300ms` x1 - `src/a.css:1`", md)
+        finally:
+            shutil.rmtree(root)
+
+
 if __name__ == "__main__":
     unittest.main()
