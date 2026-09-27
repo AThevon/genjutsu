@@ -889,9 +889,23 @@ def run_inventory(files: list[Path], base: Path) -> dict:
 SEVERITY_ORDER = {"critical": 0, "important": 1, "nice-to-have": 2}
 
 
+TELLS_HEADING = "### Tells - confront each with the thesis before counting it"
+
+
+def _evidence(r: Result) -> list[str]:
+    out = []
+    for f in r.findings[:12]:
+        loc = f"`{f.file}:{f.line}`" if f.line else f"`{f.file}`"
+        out.append(f"- {loc} - `{f.text}`")
+    if len(r.findings) > 12:
+        out.append(f"- ... and {len(r.findings) - 12} more")
+    return out
+
+
 def as_markdown(base: Path, how: str, files: list[Path], results: list[Result], inv: dict) -> str:
     checked = [r for r in results if r.status != "not-applicable"]
-    problems = [r for r in checked if r.status == "findings"]
+    problems = [r for r in checked if r.status == "findings" and r.group != "tells"]
+    tells = [r for r in checked if r.status == "findings" and r.group == "tells"]
     na = [r for r in results if r.status == "not-applicable"]
 
     out = [
@@ -906,6 +920,12 @@ def as_markdown(base: Path, how: str, files: list[Path], results: list[Result], 
         "a profiler, a device or a pointer.",
         "",
     ]
+    if tells:
+        out += [
+            f"**{len(tells)} tell check(s) fired.** They are listed apart, and none of them is a",
+            "problem until it has been confronted with the validated thesis.",
+            "",
+        ]
 
     if problems:
         out.append("### Findings")
@@ -915,11 +935,20 @@ def as_markdown(base: Path, how: str, files: list[Path], results: list[Result], 
             out.append("")
             out.append(f"{r.meaning}")
             out.append("")
-            for f in r.findings[:12]:
-                loc = f"`{f.file}:{f.line}`" if f.line else f"`{f.file}`"
-                out.append(f"- {loc} - `{f.text}`")
-            if len(r.findings) > 12:
-                out.append(f"- ... and {len(r.findings) - 12} more")
+            out += _evidence(r)
+            out.append("")
+
+    if tells:
+        out.append(TELLS_HEADING)
+        out.append("")
+        out.append("A tell is evidence that a default slipped in, not a verdict. For each one, quote the")
+        out.append("sentence of the validated thesis that names the pattern (it is then allowed by the")
+        out.append("thesis), or count it as a problem. A mood word such as \"editorial\" names nothing.")
+        out.append("")
+        for r in sorted(tells, key=lambda x: x.check):
+            out.append(f"**{r.title}** ({r.check})")
+            out.append("")
+            out += _evidence(r)
             out.append("")
 
     clean = [r for r in checked if r.status == "clean"]

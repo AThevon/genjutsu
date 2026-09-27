@@ -24,7 +24,8 @@ metadata:
 python3 "$SKILL_BASE/design-audit/scripts/audit.py" .
 ```
 
-Add `--json` if you want to post-process it. `--only <check-id>` runs one check.
+Add `--json` if you want to post-process it. `--only <check-id>` runs one check, `--group tells` or
+`--group hygiene` runs one group.
 
 It reports three things, and the distinction between the last two is the whole reason it
 exists:
@@ -40,6 +41,29 @@ Nuxt 3 project has no `src/`, so they matched nothing, and the pipeline read the
 a clean bill of health and said so to the user right before delivery. The script detects its
 roots, skips `node_modules` and build output, covers `.vue` / `.svelte` / `.astro` alongside JSX
 and CSS, and has a test per check asserting that the check can still fire.
+
+**Tells are reported apart.** The script also runs the `tells` group: thirteen checks for
+defaults a model reaches for when nothing asked for them, such as a numbered eyebrow, a weather
+strip, three equal cards or a U+2014 (em dash) in the copy. They read the displayed text of the
+markup (text between tags, `alt`, `title`, `aria-label`, `placeholder`), never class names or
+style objects, so `width: "100%"` is never taken for a claim of perfection. Copy held in
+JavaScript data (an array of features, a content file) is not displayed text to the script: read
+it by hand.
+
+They land in their own section, "Tells - confront each with the thesis before counting it",
+always at `nice-to-have`, and the script never counts one as a problem, because it cannot read
+the thesis. You confront each one:
+
+- the validated thesis names the pattern (it says the studio works across Paris and Tokyo, and
+  the header shows both clocks): list it as **allowed by the thesis**, with the sentence quoted;
+- it does not: the tell is a problem, and it counts with the other problems.
+
+A mood word names nothing. "Editorial" or "agency" does not allow a numbered eyebrow; most tells
+are exactly the clichés those words summon. When the `tells` module was loaded, its rules decide.
+
+The inventory also lists colours, radii and font families next to durations and easings, each
+value with up to five `file:line` locations. No verdict there: compare them with the tokens and
+the thesis.
 
 **Contrast is not in the script.** Compute it yourself from the token values you emitted, and
 report the pair with the ratio: `#831843 on #FDF2F8 = 9.4:1`. 4.5:1 for body text, 3:1 for large

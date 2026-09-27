@@ -756,5 +756,36 @@ class DesignInventory(unittest.TestCase):
             shutil.rmtree(root)
 
 
+def section(md: str, heading: str) -> str:
+    """The markdown between `heading` and the next level-3 heading."""
+    if heading not in md:
+        return ""
+    rest = md.split(heading, 1)[1]
+    return rest.split("\n### ", 1)[0]
+
+
+class TellsAreReportedApart(unittest.TestCase):
+    def test_tells_are_never_auto_problems(self):
+        """Review focus 4. A real version on a docs page is still reported, but apart,
+        at nice-to-have, and never among the problems: only the thesis can clear it."""
+        for c in audit.CHECKS:
+            if c.id in TELL_IDS:
+                with self.subTest(check=c.id):
+                    self.assertEqual((c.group, c.severity), ("tells", "nice-to-have"))
+        root = build({"app/docs/page.tsx": "export default () => <p>Changelog for v2.4.1</p>\n"})
+        try:
+            roots, how = audit.discover_roots(root)
+            files = audit.walk(roots, root)
+            results = [audit.run_check(c, files, root) for c in audit.CHECKS]
+            res = {r.check: r for r in results}["tell-invented-status"]
+            self.assertEqual((res.status, res.group, res.severity), ("findings", "tells", "nice-to-have"))
+            md = audit.as_markdown(root, how, files, results, audit.run_inventory(files, root))
+            self.assertIn("tell-invented-status", section(md, audit.TELLS_HEADING))
+            self.assertNotIn("tell-", section(md, "### Findings"))
+            self.assertIn("1 tell check(s) fired", md)
+        finally:
+            shutil.rmtree(root)
+
+
 if __name__ == "__main__":
     unittest.main()
