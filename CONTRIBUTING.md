@@ -84,6 +84,7 @@ All of these run in CI. Run them before opening the PR and you will not be surpr
 
 ```bash
 ./scripts/test-check-version.sh && ./scripts/check-version.sh   # manifests, CHANGELOG and tag agree
+./scripts/test-check-dashes.sh && ./scripts/check-dashes.sh     # no U+2014 in a tracked file
 ./scripts/check-shared-blocks.sh        # the five regions are identical in cast and paint
 ./scripts/check-denylist.sh             # no string that was wrong once has come back
 python3 scripts/validate-skills.py      # every SKILL.md against the Agent Skills spec

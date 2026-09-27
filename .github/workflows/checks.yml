@@ -29,6 +29,11 @@ jobs:
           ./scripts/test-check-version.sh
           ./scripts/check-version.sh
 
+      - name: No U+2014 (em dash) in a tracked file
+        run: |
+          ./scripts/test-check-dashes.sh
+          ./scripts/check-dashes.sh
+
       - name: Shared blocks are in sync between cast and paint
         run: ./scripts/check-shared-blocks.sh
 
