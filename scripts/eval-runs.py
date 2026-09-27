@@ -54,6 +54,10 @@ NOT_LOADED = re.compile(r"genjutsu: (?:sub-skill|reference) '([^']+)' NOT LOADED
 RESOLUTION_FAILED = "npx skills add https://genjutsu.athevon.dev -g"
 DENIED = re.compile(r"Operation not permitted|Permission denied|EACCES|EPERM")
 LOAD_CALL = re.compile(r"\bload_skill\s+([\w-]+)")
+# A module read straight from the shell (cat, sed, head...) instead of through
+# load_skill / load_ref still counts as requested: SKILL.md, GUIDE.md and any
+# references/ path under a module's _jutsu directory name it.
+READ_CALL = re.compile(r"/_jutsu/([\w-]+)/(?:SKILL\.md|GUIDE\.md|references/)")
 MODULES_LOADED = re.compile(r"Modules loaded:[^\n]*")
 
 
@@ -289,7 +293,8 @@ def read_trace(path: str) -> dict:
         for m in MODULES_LOADED.finditer(text):
             loaded_line = m.group(0)
     return {
-        "requested": sorted({m for c in commands for m in LOAD_CALL.findall(c)}),
+        "requested": sorted({m for c in commands for m in LOAD_CALL.findall(c)}
+                            | {m for c in commands for m in READ_CALL.findall(c)}),
         "not_loaded": sorted({m for t in shell_out for m in NOT_LOADED.findall(t)}),
         "resolution_failed": any(RESOLUTION_FAILED in t for t in shell_out),
         "denied": sum(1 for t in read_out if DENIED.search(t)),

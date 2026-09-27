@@ -244,6 +244,25 @@ class InspectTest(Base):
         self.assertIn("final report: Modules loaded: motion-principles, swiftui-motion", out)
         self.assertIn("problems: none", out)
 
+    def test_a_module_read_by_cat_counts_as_requested(self):
+        code, out = self.inspect(self.trace(
+            trace_line("assistant", tool_use("b1", "Bash", command="cat /Users/x/genjutsu/skills/_jutsu/ui-ux-pro-max/SKILL.md")),
+            trace_line("user", tool_result("b1", "# UI/UX Pro Max\n...")),
+            trace_line("assistant", tool_use("b2", "Bash", command="load_skill motion-principles")),
+            trace_line("user", tool_result("b2", "# Motion principles\n...")),
+            trace_line("assistant", text("Modules loaded: motion-principles, ui-ux-pro-max\nModules not loaded: none")),
+        ))
+        self.assertEqual(code, 0, out)
+        self.assertIn("requested: motion-principles, ui-ux-pro-max", out)
+
+    def test_a_reference_read_by_cat_counts_as_requested(self):
+        code, out = self.inspect(self.trace(
+            trace_line("assistant", tool_use("b1", "Bash", command="sed -n 1,80p /Users/x/genjutsu/skills/_jutsu/tells/references/web.md")),
+            trace_line("user", tool_result("b1", "# Tells\n...")),
+        ))
+        self.assertEqual(code, 0, out)
+        self.assertIn("requested: tells", out)
+
     def test_module_not_loaded_in_a_shell_result(self):
         code, out = self.inspect(self.trace(*self.CLEAN,
             trace_line("assistant", tool_use("b2", "Bash", command="load_skill design-audit")),
