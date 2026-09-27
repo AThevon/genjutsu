@@ -592,6 +592,25 @@ seen the project. Keep what serves the validated visual thesis, discard what fig
 in one line what you took and what you dropped. A palette that contradicts the thesis the user
 approved loses to the thesis every time.
 
+Filter it twice before keeping anything: through the thesis, and through `tells`, loaded just
+before this call on a web stack (on Compose and SwiftUI `tells` is not loaded, and the thesis
+filters alone). The dataset matches keywords, so it hands back exactly the reflex picks `tells`
+describes:
+
+- **A display serif** stays only when the visual thesis names it and says why that serif: what
+  it carries for this product that another face would not. "Creative", "premium" and
+  "editorial" are not reasons; they are the mood words that summoned it.
+- **Glassmorphism**, which the dataset attaches to "SaaS", does not pass unless the thesis asks
+  for it by name.
+- Anything else in the output that `tells` lists as a reflex is held to the same test: named in
+  the thesis, or dropped. The one line that says what you took and dropped also says what this
+  filter removed.
+
+paint never passes `--persist`, so the component values hardcoded in the MASTER.md template of
+`design_system.py` never reach the project: MASTER.md is written here, from the validated theses
+and the tokens kept above. If paint ever persists, rewrite those component values from the
+tokens before keeping the file.
+
 If `python3` is unavailable or the script fails, say so in one line and derive the system from
 the thesis by hand. The pipeline does not stop for this.
 
