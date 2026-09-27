@@ -33,7 +33,7 @@ The flair lives at the intro and during work narration. The moment a result land
 | | `/genjutsu:cast` | `/genjutsu:paint` |
 |---|---|---|
 | **Philosophy** | "Make this thing beautiful/wow" | "Build a visual universe from scratch" |
-| **Entry point** | Adapts to existing code | Mandatory brainstorm, wipes design if existing |
+| **Entry point** | Adapts to existing code | Mandatory brainstorm; on an existing design, asks preserve, partial or redesign |
 | **Discovery** | Lightweight, only when vague | Full brainstorm, never skipped |
 | **Design system** | Optional, implicit | Required, generates MASTER.md |
 | **Audit** | Quick check before delivery | Full design-audit at the end |
@@ -424,6 +424,24 @@ Ask exactly one question during brainstorm:
 
 If the user picks legacy integration: write the bridge (`AndroidView` for Compose, `UIViewControllerRepresentable` for SwiftUI) to expose the modern code inside the legacy screen. Never generate new legacy code (no XML, no XIB, no setContentView).
 
+**If the project already has a visual identity** (CSS variables or a Tailwind theme, `Theme.kt` /
+`Color.kt`, `Color+App.swift` or an asset catalog, a logo, a live brand):
+
+Ask exactly one mode question during brainstorm, right after the legacy question when both apply:
+
+> "This project already has a look. Should I preserve the brand and build within it, change part of it, or redesign it?"
+
+- **Preserve** - the theses describe the brand as it is and add only what it lacks (motion,
+  states, missing steps in a scale). Existing tokens stay.
+- **Partial** - the user names what may change ("type and motion, not the colors"). The theses
+  change the values in those areas, under the existing token names, and nothing else.
+- **Redesign** - the theses replace the whole visual layer, existing tokens included.
+
+The chosen mode goes into the visual thesis as one explicit clause ("preserving the existing
+palette and logo"), so the Phase 2 gate validates it with everything else. What each mode lets
+the thesis replace is in "Existing Project Protocol" below. Light scope does not ask: no visual
+identity is at stake there, so it is preserve by definition.
+
 **The five domains to cover:**
 
 1. **Product** - What is it? (app, landing page, portfolio, SaaS, e-commerce, blog, dashboard...)
@@ -809,11 +827,23 @@ Within the checked group, order the findings by severity: **Critical > Important
 When invoked on a project that already has design/styling:
 
 1. Still run the full BRAINSTORM (Phase 1)
-2. Acknowledge existing design, but the thesis overrides it
-3. In Phase 4, **replace** existing design tokens/styles with the new design system
+2. Ask the mode question in Phase 1: preserve the brand, partial, or redesign. The mode decides what the thesis may replace: nothing already defined in preserve mode, only the areas the user named in partial mode, the whole visual layer in redesign mode
+3. In Phase 4, existing design tokens are **replaced only in redesign mode**. In preserve mode, MASTER.md takes the existing tokens as they are and adds the new ones beside them. In partial mode, it keeps every existing token name, changes the values only in the areas the user named, and adds new tokens beside them
 4. Preserve functionality and layout structure - only replace the visual layer
 
-This is intentional: `/genjutsu:paint` rebuilds the visual universe. To enhance what exists, use `/genjutsu:cast` instead.
+In all three modes, none of these change without the user's explicit agreement, asked item by
+item: public token names (code outside this project may import them), URLs and routes,
+navigation labels, form field names, the logo, legal mentions.
+
+Before writing any token file, show the diff between the existing tokens and the new ones
+(renamed, changed, added, removed) and wait for approval. After writing, build with the stack's
+own command: `tsc --noEmit` or the project's build script (`npm run build` or its pnpm / yarn
+equivalent) on web, `./gradlew assembleDebug` on Android, `xcodebuild -scheme <scheme> build` on
+Apple. When the build cannot run here, hand it over marked **UNVERIFIED** with the exact command,
+like the handed-over group of the audit.
+
+The mode answers "rebuild or enhance?" inside paint: preserve mode enhances a brand without
+replacing it. `/genjutsu:cast` stays the entry point for one effect or one component.
 
 ---
 
