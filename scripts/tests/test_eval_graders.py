@@ -20,7 +20,7 @@ _spec = importlib.util.spec_from_file_location("check_evals", SCRIPTS / "check-e
 check_evals = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(check_evals)
 
-WEB_CASES = ["studio-landing"]
+WEB_CASES = ["studio-landing", "saas-landing"]
 
 # One line of page source per not_contains grader, each one the tell it exists to catch.
 TELL_LINES = {
