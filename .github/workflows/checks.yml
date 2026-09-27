@@ -73,6 +73,12 @@ jobs:
         working-directory: skills/_jutsu/design-audit/scripts
         run: python3 -m unittest discover -s tests
 
+      - name: The tells module keeps its contract
+        # Markdown drifts silently: a fourth field in an entry, a question that
+        # became a recommendation, a module too long for its dedicated load call,
+        # or the eval sentinel copied into another file. Each one fails here.
+        run: python3 scripts/check-tells.py
+
       - name: Packaging produces the bundle and the individual ZIPs
         run: |
           ./package-for-claude-ai.sh
