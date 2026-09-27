@@ -52,7 +52,7 @@ So before the first gate of that kind, ask how they want to see it. Then never a
 
 > Before I show you this - how do you want to see it?
 >
-> **A. Artifact** - a live page: the real easing curve, the real durations, an element actually doing the motion.
+> **A. Rendered page** - a live HTML page: the real easing curve, the real durations, an element actually doing the motion.
 > **B. Live preview** - a throwaway route in your project, real stack, real tokens. Native: a `@Preview` / `#Preview` scratch file.
 > **C. Inline** - written out here in the conversation.
 
@@ -61,13 +61,13 @@ So before the first gate of that kind, ask how they want to see it. Then never a
 | Situation | Default |
 |---|---|
 | Scope is light (a hover, one transition) | C - inline |
-| Scope is medium or full, web stack | A - artifact |
+| Scope is medium or full, web stack | A - rendered page |
 | Scope is medium or full, Compose / SwiftUI | B - live preview, A as second choice |
-| A full visual identity or design system is on the table | A - artifact |
-| No dev server, or the repo must not be written to | A - artifact |
-| Host is Cowork and there is no project checkout to write into | A - artifact, B is unavailable |
+| A full visual identity or design system is on the table | A - rendered page |
+| No dev server, or the repo must not be written to | A - rendered page |
+| Host is Cowork and there is no project checkout to write into | A - rendered page, B is unavailable |
 
-**The choice sticks for the whole session.** At every later gate, announce the mode in one line ("Variants in artifact.") and go. Do not reopen the menu. The user switches by saying so - "show me that as text", "put it in an artifact", "just tell me" - respect it immediately, and the new mode becomes the session default from then on.
+**The choice sticks for the whole session.** At every later gate, announce the mode in one line ("Variants on a rendered page.") and go. Do not reopen the menu. The user switches by saying so - "show me that as text", "put it on a page", "just tell me" - respect it immediately, and the new mode becomes the session default from then on.
 
 **Which host is this?** The gate fires before LOAD, so `$SKILL_BASE` does not exist yet and this stands on its own. Detect once, cheaply, then map:
 
@@ -89,14 +89,14 @@ Cowork is tested before Claude Code on purpose: both can have a `~/.claude` tree
 
 **Producing the preview** - resolve the host, degrade, never fail:
 
-| Host | A - artifact | C - inline |
+| Host | A - rendered page | C - inline |
 |---|---|---|
-| claude.ai | Rendered natively. Just produce one. | Written out in the conversation. |
+| claude.ai | Rendered natively as an artifact. Just produce one. | Written out in the conversation. |
 | Cowork | The host's persistent artifact. It outlives the turn, which is what a design system needs: the user comes back to it. | The host's inline widget, rendered in place. Right default for a short task. |
-| Claude Code | The `Artifact` tool, when it is available. | Written out in the conversation. |
-| unknown | A self-contained HTML file written to a temp path, hand back the path. | Written out in the conversation. |
+| Claude Code | The `Artifact` tool when the session has it, else the capability rule below. | Written out in the conversation. |
+| unknown (any other host) | The capability rule below. | Written out in the conversation. |
 
-Call whatever the host actually exposes, under the name it exposes it as - check the tools available in the session rather than assuming one. If nothing renders, fall back down the table rather than failing the gate: an inline preview always beats an aborted one.
+**A, by capability.** Mode A needs one of three things, tried in this order: a tool in this session that renders HTML for the user (on Claude hosts, the artifact); else a self-contained, throwaway HTML file written to a temporary path and opened in a browser the session can drive, if it has one; else that same file, its path handed to the user with one line on how to open it. Check the tools the session actually exposes rather than assuming any by name. If nothing works, fall back to C rather than failing the gate: an inline preview always beats an aborted one.
 
 **B - live preview needs a project to write into.** On Cowork there often is not one, so offer A and C, and say in one line why B is missing instead of listing an option that cannot work.
 
@@ -442,7 +442,7 @@ Otherwise stick to the base motion sub-skill.
 > **Variant C - [Name]** (impressive)
 > [One sentence: the feel + the technique]
 
-That's the inline form. If the session mode is **artifact** or **live preview**, render the three variants there instead - side by side, one global trigger so they fire together and stay comparable - and keep the text above as their captions. Announce the mode in one line; don't reopen the menu.
+That's the inline form. If the session mode is **rendered page** or **live preview**, render the three variants there instead - side by side, one global trigger so they fire together and stay comparable - and keep the text above as their captions. Announce the mode in one line; don't reopen the menu.
 
 Wait for the user to pick before implementing. Always respect the validated thesis.
 
