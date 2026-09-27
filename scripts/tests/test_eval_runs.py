@@ -276,5 +276,67 @@ class InspectTest(Base):
         self.assertIn("trace not found", out)
 
 
+class CollectTest(Base):
+    def kept_run(self, name, page, sealed=True) -> str:
+        root = self.tmp / name
+        (root / "config").mkdir(parents=True)
+        (root / "out").mkdir()
+        (root / "out" / "trace.jsonl").write_text("{}\n", encoding="utf-8")
+        home = root / ("sealed-x1" if sealed else "") / "home"
+        (home / "cwd" / "app").mkdir(parents=True)
+        (home / "cwd" / "app" / "page.tsx").write_text(page, encoding="utf-8")
+        (home / "cwd" / "node_modules" / "next").mkdir(parents=True)
+        if sealed:
+            os.chmod(root / "sealed-x1", 0)
+            os.chmod(root, 0o500)
+        return str(root / "out" / "trace.jsonl")
+
+    def test_first_guarded_run_of_each_arm_is_copied_from_sealed_dirs(self):
+        d = doc(case("studio-landing",
+                     [run(1.0, guard=False, trace=self.kept_run("w0", "")), run(0.9, trace=self.kept_run("w1", "WITH"))],
+                     [run(0.5, trace=self.kept_run("o0", "WITHOUT", sealed=False))]))
+        out = self.tmp / "pages"
+        code, log = self.cli("collect", self.write_json(d), "--case", "studio-landing", "--out", out)
+        self.assertEqual(code, 0, log)
+        self.assertEqual((out / "studio-landing" / "with" / "app" / "page.tsx").read_text(), "WITH")
+        self.assertEqual((out / "studio-landing" / "without" / "app" / "page.tsx").read_text(), "WITHOUT")
+        self.assertFalse((out / "studio-landing" / "with" / "node_modules").exists())
+        self.assertIn("run 2 (earlier runs failed the guard)", log)
+        manifest = json.loads((out / "manifest.json").read_text())
+        self.assertEqual([(m["arm"], m["runIndex"]) for m in manifest], [("with", 1), ("without", 0)])
+
+    def test_pick_overrides_the_choice(self):
+        d = doc(case("studio-landing", [run(0.9, trace=self.kept_run("w0", "A")), run(0.9, trace=self.kept_run("w1", "B"))]))
+        out = self.tmp / "pages"
+        code, log = self.cli("collect", self.write_json(d), "--case", "studio-landing", "--out", out, "--pick", "studio-landing:with:1")
+        self.assertEqual(code, 0, log)
+        self.assertEqual((out / "studio-landing" / "with" / "app" / "page.tsx").read_text(), "B")
+
+    def test_cleaned_tmp_is_reported(self):
+        d = doc(case("studio-landing", [run(0.9, trace=str(self.tmp / "gone" / "out" / "trace.jsonl"))]))
+        code, log = self.cli("collect", self.write_json(d), "--case", "studio-landing", "--out", self.tmp / "pages")
+        self.assertEqual(code, 2)
+        self.assertIn("is gone", log)
+
+
+class TellsTest(Base):
+    def test_tells_are_counted_per_arm_on_the_page_only(self):
+        pages = self.tmp / "pages" / "studio-landing"
+        for arm, body in (("without", "<h1>Elevate your brand \u2014 seamless design</h1>"), ("with", "<h1>Identity for producers</h1>")):
+            (pages / arm / "app").mkdir(parents=True)
+            (pages / arm / "app" / "page.tsx").write_text(
+                f"export default function Page() {{ return <main>{body}</main>; }}\n", encoding="utf-8")
+        # A stylesheet next to the page is not the page: it must not be counted.
+        (pages / "with" / "app" / "globals.css").write_text(".t { background-clip: text; }\n", encoding="utf-8")
+        code, out = self.cli("tells", self.tmp / "pages", "--format", "markdown")
+        self.assertEqual(code, 0, out)
+        rows = {line.split("|")[2].strip(): line for line in out.splitlines() if line.startswith("| studio-landing")}
+        self.assertIn("| 0 | - |", rows["with"])
+        without_count = int(rows["without"].split("|")[3])
+        self.assertGreaterEqual(without_count, 2)
+        self.assertIn("tell-em-dash", rows["without"])
+        self.assertIn("tell-filler-verb", rows["without"])
+
+
 if __name__ == "__main__":
     unittest.main()

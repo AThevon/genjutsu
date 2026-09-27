@@ -334,6 +334,115 @@ def cmd_inspect(args) -> int:
     return status
 
 
+def run_root(trace: str) -> Path:
+    p = Path(trace)
+    if p.name != "trace.jsonl" or p.parent.name != "out":
+        raise EvalError(f"unexpected trace path {trace}: expected <root>/out/trace.jsonl")
+    return p.parent.parent
+
+
+def workspace_of(trace: str) -> Path:
+    root = run_root(trace)
+    if not root.is_dir():
+        raise EvalError(f"{root} is gone: the kept dirs live under /tmp, collect them before they are cleaned")
+    direct = root / "home" / "cwd"
+    if direct.is_dir():
+        return direct
+    # --keep-temp seals home/ and tmp/ into one extra directory (mode 000) and
+    # leaves the root read-only. The harness itself says how to open them:
+    # chmod 700 on the root and on the sealed directory.
+    os.chmod(root, 0o700)
+    extra = [e for e in os.listdir(root) if e not in ("config", "out")]
+    if len(extra) != 1:
+        raise EvalError(f"{root}: expected config/, out/ and one sealed directory, found {sorted(os.listdir(root))}")
+    sealed = root / extra[0]
+    os.chmod(sealed, 0o700)
+    ws = sealed / "home" / "cwd"
+    if not ws.is_dir():
+        raise EvalError(f"{sealed}: no home/cwd inside")
+    return ws
+
+
+def cmd_collect(args) -> int:
+    _, cases = load_doc(Path(args.json))
+    picks = {}
+    for p in args.pick or []:
+        try:
+            case, arm, index = p.split(":")
+            picks[(case, arm)] = int(index)
+        except ValueError:
+            raise EvalError(f"--pick takes CASE:ARM:INDEX with a 0-based index, got {p!r}")
+    out = Path(args.out)
+    manifest = []
+    for c in selected(cases, args.case):
+        for arm in ARMS:
+            runs = c.arms[arm]
+            if not runs:
+                continue
+            if (c.name, arm) in picks:
+                run = runs[picks[(c.name, arm)]]
+            else:
+                run = next((r for r in runs if r.graders and r.guard() is not False), None)
+                if run is None:
+                    print(f"{c.name} [{arm}]: every run failed its guard, nothing to show")
+                    continue
+            dest = out / c.name / arm
+            if dest.exists():
+                shutil.rmtree(dest)
+            shutil.copytree(workspace_of(run.trace), dest, ignore=COPY_IGNORE)
+            manifest.append({"case": c.name, "arm": arm, "runIndex": run.index, "score": run.score,
+                             "guardPassed": run.guard(), "tracePath": run.trace})
+            if (c.name, arm) in picks:
+                note = " (picked)"
+            elif run.index:
+                note = " (earlier runs failed the guard)"
+            else:
+                note = ""
+            print(f"{c.name} [{arm}]: run {run.index + 1}{note} -> {dest}")
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    return 0
+
+
+def count_tells(page: Path) -> tuple[int, dict[str, int]]:
+    with tempfile.TemporaryDirectory() as tmp:
+        app = Path(tmp) / "app"
+        app.mkdir()
+        shutil.copy(page, app / "page.tsx")
+        r = subprocess.run([sys.executable, str(AUDIT), tmp, "--json", "--group", "tells"],
+                           capture_output=True, text=True)
+    if r.returncode != 0:
+        raise EvalError(f"audit.py failed on {page}: {r.stderr.strip()}")
+    per_check = {}
+    for res in json.loads(r.stdout)["results"]:
+        if res.get("group") == "tells" and res.get("findings"):
+            per_check[res["check"]] = len(res["findings"])
+    return sum(per_check.values()), per_check
+
+
+def cmd_tells(args) -> int:
+    base = Path(args.dir)
+    pages = sorted(base.glob("*/*/app/page.tsx"))
+    if not pages:
+        raise EvalError(f"no <case>/<arm>/app/page.tsx under {base}")
+    rows = []
+    for page in pages:
+        arm_dir = page.parent.parent
+        total, per_check = count_tells(page)
+        detail = ", ".join(f"{k} {v}" for k, v in sorted(per_check.items())) or "-"
+        rows.append((arm_dir.parent.name, arm_dir.name, str(total), detail))
+    head = ("case", "arm", "tells", "by check")
+    if args.format == "markdown":
+        print("| " + " | ".join(head) + " |")
+        print("|" + "---|" * len(head))
+        for r in rows:
+            print("| " + " | ".join(r) + " |")
+    else:
+        for r in (head, *rows):
+            print("  ".join(r))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -344,10 +453,18 @@ def build_parser() -> argparse.ArgumentParser:
     i = sub.add_parser("inspect")
     i.add_argument("json")
     i.add_argument("--case", action="append")
+    c = sub.add_parser("collect")
+    c.add_argument("json")
+    c.add_argument("--case", action="append", required=True)
+    c.add_argument("--out", required=True)
+    c.add_argument("--pick", action="append")
+    t = sub.add_parser("tells")
+    t.add_argument("dir")
+    t.add_argument("--format", choices=("text", "markdown"), default="text")
     return ap
 
 
-COMMANDS = {"delta": cmd_delta, "inspect": cmd_inspect}
+COMMANDS = {"delta": cmd_delta, "inspect": cmd_inspect, "collect": cmd_collect, "tells": cmd_tells}
 
 
 def main(argv: list[str]) -> int:
