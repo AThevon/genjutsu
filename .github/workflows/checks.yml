@@ -79,6 +79,11 @@ jobs:
         # or the eval sentinel copied into another file. Each one fails here.
         run: python3 scripts/check-tells.py
 
+      - name: The no-verbatim check can still fail
+        # The real run needs a taste-skill clone and happens by hand before a
+        # release. CI only proves the check has not gone inert.
+        run: ./scripts/check-no-verbatim.sh --self-test
+
       - name: Packaging produces the bundle and the individual ZIPs
         run: |
           ./package-for-claude-ai.sh
