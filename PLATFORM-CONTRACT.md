@@ -49,8 +49,9 @@ reference over the cap warns.
 
 Every module under `skills/_jutsu/` carries a `metadata:` block with `internal: true`, an
 unquoted YAML boolean, because the `npx skills` CLI tests it with `=== true`. It hides the modules
-from `npx skills add`, so the repository route offers only `cast` and `paint`. It does not hide
-them everywhere: uploaded one by one on claude.ai, each module still shows as a skill of its own.
+from `npx skills add`, so the repository route offers only `cast` and `paint`. genjutsu ships a
+single claude.ai bundle in which modules are `GUIDE.md` files, so they never show as skills there;
+`metadata.internal` is what hides them from `npx skills add AThevon/genjutsu`.
 
 ## The wiring: ten sites across two files
 

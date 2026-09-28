@@ -93,10 +93,18 @@ jobs:
         # release. CI only proves the check has not gone inert.
         run: ./scripts/check-no-verbatim.sh --self-test
 
-      - name: Packaging produces the bundle and the individual ZIPs
+      - name: Packaging produces the bundle
         run: |
           ./package-for-claude-ai.sh
           test -f dist/genjutsu.zip || { echo "dist/genjutsu.zip missing"; exit 1; }
+          # Only one artifact ships to claude.ai: a stray per-skill ZIP must
+          # fail here, not surface as a silent extra upload option.
+          n=$(ls dist | wc -l | tr -d ' ')
+          if [ "$n" -ne 1 ]; then
+            echo "dist/ contains $n files, expected exactly genjutsu.zip:"
+            ls dist
+            exit 1
+          fi
           # claude.ai rejects a skill ZIP holding more than one SKILL.md. The
           # bundle renames the inner ones to GUIDE.md; assert it actually did.
           n=$(unzip -Z1 dist/genjutsu.zip | grep -cE '(^|/)SKILL\.md$' || true)
