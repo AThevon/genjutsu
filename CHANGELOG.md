@@ -2,6 +2,195 @@
 
 All notable changes to this plugin are documented here. Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## v4.0.0 - 2026-09-28
+
+genjutsu names the slop instead of promising it, cleans it up before it reports, proves it, and
+installs anywhere.
+
+### Added
+
+- **`tells`, a module that names the slop.** v3 promised "anti-AI-slop" and never said what slop
+  was. `skills/_jutsu/tells/` writes it down: forty-two defaults a model produces when nobody
+  asked for them, in four families. Invented information: a weather-and-clock strip, a build
+  status such as `v0.6.2-rc.1`, `ESTD. 2018`, `John Doe`, `99.99%`, a product drawn in divs.
+  Decorative filler: `00 / INDEX` eyebrows, `Stage 1 / 2 / 3`, scroll cues, status dots that
+  report nothing, glass panels, glows and blurred blobs, animations that never stop. Reflex
+  convergence: three equal cards, a display serif taken as the creative default, gradient text,
+  U+2014 (em dash). Hollow copy: `Elevate`, `Seamless`, one intent under three CTA labels, a
+  register that changes from one section to the next.
+
+  Every entry has three fields and never a fourth: the marker, why a model produces it, and a
+  question that sends you back to the thesis. None names a replacement, because a replacement
+  would only be the next default: the validated thesis is the only authority. `cast` and `paint`
+  now write an `Allowed patterns:` line under every thesis, and a pattern is allowed only when
+  that line names it. A mood word such as "editorial" names nothing, since most tells are
+  exactly the clichés of an agency portfolio, and something the brief asks for has to be carried
+  onto that line by name. Each finding ends in one of three ways: allowed, with the line that
+  allows it; "not this tell", only when the match contradicts the entry's own condition and with
+  the `file:line` that proves it, never on taste; or a problem.
+
+  The web is covered in `references/web.md`, published entry by entry as the field guide at
+  genjutsu.athevon.dev/docs/tells. Compose and SwiftUI are declared not covered yet rather than
+  filled with invented material. `cast` loads the module after the thesis gate on a web stack at
+  medium or full scope; `paint` loads it in Phase 3, before the design intelligence runs, because
+  Phase 3 is where palette and type get fixed. Each time in a shell call of its own (see Fixed).
+
+- **The run cleans up before it reports.** Every tell the run wrote and the thesis does not allow
+  is fixed before the final report, in two passes at most, and only on the lines the run wrote,
+  read off `git diff` when the project has one. A tell that was in the project before the run is listed and never changed
+  by the audit, and nothing on the protected list below is ever changed automatically.
+
+- **`paint` inventories an existing project first.** On a web project that already has a look,
+  Phase 1 runs the tells audit over it and shows the result as one short block, **What this
+  project already does by reflex**, counted by family with two or three `file:line` examples
+  each, before it asks which mode you want. The mode settles every finding in the theses:
+  preserve keeps them by default, on the `Allowed patterns:` line as the brand's own; partial
+  takes them out by default inside the areas you named; redesign takes them out everywhere. Any
+  one of them can be kept or dropped by name at the thesis gate.
+
+- **The audit sees the text and the markup.** `audit.py` gains a `tells` group of eighteen
+  checks. Thirteen read the text a page actually displays (between tags, and in `alt`, `title`,
+  `aria-label` and `placeholder`, never in a class or a style object) and its markup; five read
+  the source for gradient text, glass panels, glows, blurred blobs and animations that never
+  stop. A capitalised JSX tag is a component, never a void element, and a TypeScript generic is
+  never read as a tag. `.html` files are scanned now. Three inventories join durations and
+  easings (distinct colours, radii and font families), and every value keeps a bounded list of
+  `file:line`. Tells are reported at `nice-to-have` in a section of their own, counted apart on
+  the summary line, and none counts until it has been confronted with the thesis. `--group
+  tells` runs them alone, with no model involved:
+  `python3 ~/.agents/skills/genjutsu/_jutsu/design-audit/scripts/audit.py . --group tells`.
+
+- **The audit holds the thesis against the code first.** For every promise of the thesis
+  (durations, easing, springs, palette, type, layout family): the `file:line` that keeps it, or
+  its absence. If the promised motion cannot ship working, the fallback is to ship it static and
+  say so, never half-broken. The report now ends with two required lines, `Modules loaded:` and
+  `Modules not loaded:`, because a module that failed to load used to leave no trace in the
+  result.
+
+- **`npx skills add https://genjutsu.athevon.dev -g`.** The site publishes a well-known index,
+  `/.well-known/agent-skills/index.json` (discovery schema 0.2.0), that points at this release's
+  `genjutsu.zip` with its sha256 digest, both taken from one download of the release at build
+  time. The install is recorded in the npx lock, so `npx skills update -g` sees each new release.
+  After an npx install the entry point is `/genjutsu`, the router.
+
+- **An eval suite, with and without genjutsu.** `evals/` holds four cases for
+  `claude plugin eval` with an ablation arm: two landings where the tells have to go, one where
+  the thesis asks for a tell and it has to stay (a studio genuinely split between Paris and Tokyo
+  keeps its two clocks), and a SwiftUI screen where `tells` must never be requested. Run by hand
+  before each major release and never in CI, since every run is a billed session. The numbers
+  are under Measured.
+
+- **Process grafts.** A declared read before the first question (what, for whom, heading where,
+  on which stack), so a wrong assumption gets corrected before it costs a question. A vague brief
+  gets options drawn from the product's own moments, never from a famous brand's site, and a
+  thesis that could have been written from the product category alone is rewritten. A display
+  face stays only when the visual thesis names it and says why that one; the thesis may leave it
+  undecided, and then the design-system gate settles it with its reason. Three dials in `paint`,
+  variance, motion and density, derived from the validated theses and passed to the design
+  intelligence, never read off the raw brief. An existing-project mode asked in Phase 1: preserve
+  the brand, change part of it, or redesign; public token names, URLs, navigation labels, form
+  field names, the logo and legal text never change without agreement, whatever the mode. And
+  the dataset's proposals now go through the thesis and `tells` before they reach you.
+
+- **Sessions with no human.** A sixth guarded region, `headless`, identical in both pipelines:
+  take the announced preview default, take the proposed thesis and mark it UNVALIDATED in the
+  report, and never install a dependency.
+
+- Checks and release helpers: `check-version.sh` (both manifests, the first entry of this file
+  and, under a release, the tag agree), `check-dashes.sh`, `check-no-verbatim.sh`,
+  `check-tells.py`, a test of the resolver as it ships inside the packaged bundle,
+  `release-notes.sh` and `wait-for-release.sh` with their tests, `showcase-section.py`, and
+  `verify-npx-install.sh`, which installs through the real `npx skills` in a throwaway HOME and
+  checks what the installed block resolves.
+
+### Changed
+
+- **The resolver looks in the skill's own directory first.** `GENJUTSU_SKILL_DIR`, defaulting to
+  `${CLAUDE_SKILL_DIR}`, then `${CLAUDE_PLUGIN_ROOT}`, then bounded probes: the working
+  directory's ancestors, `~/.agents/skills` (npx's global directory), `~/.claude/skills`,
+  `~/.codex/skills`, `~/.cursor/skills` and the Cowork roots. The Claude Code plugin cache comes
+  last, so an old plugin install never wins over a newer bundle. A `_jutsu` directory is accepted
+  only if it holds `motion-principles`: npx's shared directory serves dozens of agents, and a
+  folder called `cast` proves nothing. claude.ai keeps its priority, and the resolver and the
+  router now look under `/mnt/skills/plugins`, where claude.ai mounts uploaded skills since
+  September 2026 (v3 only probed `/mnt/skills/user`, and found nothing there any more). The
+  unconditional `/mnt/skills/user` fallback is gone: it accepted a directory without checking
+  what was in it.
+- **When the modules cannot be found, the pipeline stops**, printing the install commands and
+  every root it tried, instead of running on empty. A single missing module is still reported by
+  name and skipped.
+- **One claude.ai ZIP.** The release publishes a single `genjutsu.zip`: a router `SKILL.md`, and
+  the pipelines and modules as `GUIDE.md` files, so they never show as skills of their own. The
+  per-skill ZIPs are gone.
+- **The sixteen modules carry `metadata.internal: true`.** `npx skills add AThevon/genjutsu`
+  offers only `cast` and `paint`, and installed that way they stop and print the well-known
+  command.
+- **Host neutrality.** The preview gate describes its first mode by capability: an HTML rendering
+  tool if the session has one (Artifact on Claude), otherwise a throwaway HTML file. The skills say
+  "shell call" instead of naming a tool. Claude hosts are detected as before, and an unknown host
+  gets the generic behaviour.
+- **The preview message names the thesis in plain text**, whatever the mode, so a thesis shown
+  inside a rendered page is never mistaken for the page's own copy.
+- `ui-ux-pro-max` calls its search engine by absolute path, `$UIUX_DIR/scripts/search.py`, instead
+  of a path relative to a working directory nothing had set. The vendored files are untouched.
+- The release notes are this file's entry for the tag, not GitHub's list of PR titles. The release
+  workflow then waits until GitHub serves the new release and its `genjutsu.zip`, and only then
+  calls the site's deploy hook, so the install index always names the release just published.
+- U+2014 (em dash) is gone from every file genjutsu writes: 193 occurrences in 14 files, and
+  `check-dashes.sh` keeps it out.
+
+### Fixed
+
+- **A full web `cast` loaded more than the model could see.** Past about 30,000 characters, the
+  output of one shell call no longer arrives inline: the model gets a 2,000-character preview and
+  a file path. motion-principles, desktop-principles, design-audit and framer-motion come to about
+  34,500 characters together, so a full-scope web cast had been reading a preview of its own
+  modules since v3. Loading is now batched under 25,000 characters per call, one call per heavy
+  module, `validate-skills.py` flags any module over 25,000, and a load is never piped into
+  `head`, `tail`, `sed` or `grep`.
+- `load_skill` said "continuing without it" and carried on; a missing module is now named, and
+  the report's `Modules not loaded:` line keeps the list across shell calls.
+
+### Measured
+
+<!-- genjutsu:showcase:start -->
+| Brief | Tells, without genjutsu | Tells, with genjutsu | Grader score, with minus without |
+|---|---|---|---|
+| Independent design studio landing | 2 | 0 | +0.20 |
+| Invoicing SaaS landing | 2 | 0 | +0.10 |
+
+Tells are the findings of `audit.py --group tells` on the page of the first run of each arm. Scores come from `claude plugin eval --ablation with-without --runs 2` on genjutsu `ef31234`, over the suite in [`evals/`](https://github.com/AThevon/genjutsu/tree/v4.0.0/evals). The graders are ours: read this as genjutsu measured against what it set out to do, not as an independent benchmark.
+
+#### Invoicing SaaS landing
+
+| Without genjutsu | With genjutsu |
+|---|---|
+| <img src="https://raw.githubusercontent.com/AThevon/genjutsu/v4.0.0/assets/v4/saas-landing-without-desktop.png" alt="Invoicing SaaS landing, without genjutsu, desktop" width="400" /> | <img src="https://raw.githubusercontent.com/AThevon/genjutsu/v4.0.0/assets/v4/saas-landing-with-desktop.png" alt="Invoicing SaaS landing, with genjutsu, desktop" width="400" /> |
+| <img src="https://raw.githubusercontent.com/AThevon/genjutsu/v4.0.0/assets/v4/saas-landing-without-mobile.png" alt="Invoicing SaaS landing, without genjutsu, mobile" width="180" /> | <img src="https://raw.githubusercontent.com/AThevon/genjutsu/v4.0.0/assets/v4/saas-landing-with-mobile.png" alt="Invoicing SaaS landing, with genjutsu, mobile" width="180" /> |
+<!-- genjutsu:showcase:end -->
+
+What moved, over the runs kept in each arm: on both landings, the judge that fails a product
+screen faked in divs or a page stuck on one layout family (studio 0/2 to 2/2, SaaS 0/2 to 1/2),
+and the U+2014 (em dash) check (1/2 to 2/2 on each); on the studio page, the numbered eyebrow
+(1/2 to 2/2). The other checks already passed without genjutsu.
+
+The control cases held: in `thesis-allows` the two clocks the thesis names stayed on every run,
+and in `swiftui-skip`, measured on `5735e65`, `tells` was never requested or read.
+
+### Notes
+
+- Credit: tells catalogue inspired by taste-skill (MIT, Leonxlnx). What came from it is the idea of
+  writing a model's reflexes down, and a set of observed markers. Every entry is rewritten as
+  detection with no prescribed replacement, and nothing is copied: no passage, no asset, no module
+  named after it. `scripts/check-no-verbatim.sh` compares ten-word windows against the pinned
+  upstream commit.
+- npx installs genjutsu for Codex, Cursor and the other agents it knows, and it runs there. It is
+  not tested by the maintainer and not supported; a bug that does not reproduce under Claude Code
+  is labelled `community`.
+- Not in this release: behaviour written for one host, native Codex or Cursor plugin manifests,
+  tells for Compose and SwiftUI (they need observation first, not invention), and the
+  ui-ux-pro-max v2.15.0 sync.
+
 ## v3.6.0 - 2026-09-08
 
 The audit greps become a script with tests, and the resolver loses the cache that served the
