@@ -46,6 +46,7 @@ If at any point you see `genjutsu: could not find the genjutsu modules` (the pip
 
 | Date | Release commit | Upload | Mount (step 2) | cast (step 3) | paint (step 4) | Notes |
 |---|---|---|---|---|---|---|
+| 2026-09-28 | 4c651e7 | accepted: one skill `genjutsu`, 97 files | `/mnt/skills/plugins/genjutsu/` with `_jutsu` (17 entries, `tells` among them); no `/mnt/skills/user` | routed to cast, asked the preview mode, showed the thesis as an artifact plus a text summary, stopped for validation | not run | the same test on 3a5e3c0, before the `/mnt/skills/plugins` fix, skipped the pipeline and answered directly |
 
 ## Pass criteria
 - One upload, one skill.

@@ -111,6 +111,11 @@ Cowork is tested before Claude Code on purpose: both can have a `~/.claude` tree
 
 **Rules the preview obeys:**
 
+- **The message that carries it names the thesis in plain text.** Whatever the mode, it opens
+  with the thesis in one sentence, labelled (`Interaction thesis:` or `Visual thesis:`), says in
+  one line that the page is the proposal and not the build, and ends with the validation question.
+  It holds no implementation: code starts in a later turn, after a yes. Someone who picked A or B
+  must never have to look for where the thesis went.
 - **It is throwaway. It never becomes the implementation.** Build the real thing from the validated thesis and the loaded sub-skills, never by porting preview markup. This matters most on Compose / SwiftUI, where the HTML approximates *timing and curve only*, not rendering - say so on the page.
 - Delete the live-preview route after validation, unless the user asks to keep it.
 - Never install a dependency to build a preview.

@@ -197,12 +197,23 @@ the tells catalogue of taste-skill (Leonxlnx, MIT), rewritten here as evidence a
   measured.
 - **The question:** what was measured to produce these lengths, and against what maximum?
 
-### Display serif as the creative default
-- **Marker:** a display serif, Fraunces or Instrument Serif most often, on the headings of a page
-  whose thesis names no serif.
-- **Why it is a tell:** when a brief says creative, premium or editorial, models converge on the
-  same few free display serifs. The face signals "designed" without being decided.
-- **The question:** which sentence of the thesis names this typeface, and says why this one?
+### Display face by reflex
+- **Marker:** a display face the thesis never names: an editorial serif (Fraunces or Instrument
+  Serif most often), frequently with one italic accent word, or a heavy grotesque sans set tight
+  and large.
+- **Why it is a tell:** models map mood words to a face. Creative, premium or editorial calls up
+  the free display serifs; clean, modern or SaaS calls up the heavy grotesque. Either way the face
+  was summoned by adjectives, not decided, and removing one reflex tends to install the other.
+- **The question:** which sentence of the thesis names this typeface, and says why this one for
+  this product?
+
+### Warm paper ground
+- **Marker:** a faintly warm off-white background with near-black ink and a single red or rust
+  accent, on a brief that never mentions paper, print or ink.
+- **Why it is a tell:** it is the current default for "tasteful". It looks considered on every
+  brief, so it says nothing about this one.
+- **The question:** what in the product or the brief makes paper the right ground, and does the
+  thesis say so?
 
 ### Gradient text
 - **Marker:** headings filled with a gradient: `bg-clip-text text-transparent`, or
