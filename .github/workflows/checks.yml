@@ -54,6 +54,10 @@ jobs:
         # release.yml publishes this script's output as the release body.
         run: ./scripts/test-release-notes.sh
 
+      - name: The release waits for GitHub before rebuilding the site
+        # release.yml calls the site deploy hook only once this script returns 0.
+        run: ./scripts/test-wait-for-release.sh
+
       - name: Every SKILL.md is valid against the Agent Skills spec
         run: python3 scripts/validate-skills.py
 
