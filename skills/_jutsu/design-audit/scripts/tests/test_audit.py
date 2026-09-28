@@ -813,6 +813,9 @@ class TellsAreReportedApart(unittest.TestCase):
             self.assertIn("tell-invented-status", section(md, audit.TELLS_HEADING))
             self.assertNotIn("tell-", section(md, "### Findings"))
             self.assertIn("1 tell check(s) fired", md)
+            # The count line keeps tells out of the problems and still counts them, so
+            # the no-reduced-motion finding and the tell are counted apart, side by side.
+            self.assertRegex(md, r"\*\*\d+ checked, 1 with findings, 1 tell to confront, \d+ not applicable\.\*\*")
         finally:
             shutil.rmtree(root)
 
