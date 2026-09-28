@@ -79,6 +79,14 @@ class ShowcaseSectionTest(unittest.TestCase):
         r = self.run_gen(case=f"studio-landing|Studio|{self.tmp}/nope|{self.tmp}/pages/with|+0.43")
         self.assertNotEqual(r.returncode, 0)
 
+    def test_empty_page_dir_fails_instead_of_auditing_the_cwd(self):
+        for case in (f"studio-landing|Studio||{self.tmp}/pages/with|+0.43",
+                     f"studio-landing|Studio|{self.tmp}/pages/without||+0.43"):
+            with self.subTest(case=case):
+                r = self.run_gen(case=case)
+                self.assertNotEqual(r.returncode, 0)
+                self.assertIn("empty field", r.stderr)
+
     def test_empty_delta_fails(self):
         r = self.run_gen(case=f"studio-landing|Studio|{self.tmp}/pages/without|{self.tmp}/pages/with|")
         self.assertNotEqual(r.returncode, 0)

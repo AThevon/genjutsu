@@ -58,7 +58,7 @@ def parse_case(raw: str) -> tuple[str, str, Path, Path, str]:
     if len(parts) != 5:
         raise Fail(f"--case needs slug|label|without dir|with dir|delta, got: {raw}")
     slug, label, without, with_, delta = (p.strip() for p in parts)
-    if not slug or not label or not delta:
+    if not slug or not label or not without or not with_ or not delta:
         raise Fail(f"--case has an empty field: {raw}")
     return slug, label, Path(without), Path(with_), delta
 
