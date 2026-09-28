@@ -23,8 +23,33 @@ jobs:
       - name: Package skills as ZIPs
         run: ./package-for-claude-ai.sh
 
+      - name: Release notes from the CHANGELOG entry of this tag
+        # The body is the entry the maintainer wrote, not a list of PR titles.
+        # Fails when the tag has no `## vX.Y.Z - YYYY-MM-DD` entry.
+        run: ./scripts/release-notes.sh "$GITHUB_REF_NAME" > "$RUNNER_TEMP/release-notes.md"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
-          generate_release_notes: true
+          body_path: ${{ runner.temp }}/release-notes.md
           files: dist/genjutsu.zip
+
+      - name: Wait until GitHub serves this release
+        # The site's well-known index (npx skills add https://genjutsu.athevon.dev -g)
+        # takes its tag from releases/latest and its digest from this genjutsu.zip.
+        # Rebuilding before both are served would publish the previous release.
+        run: ./scripts/wait-for-release.sh "$GITHUB_REPOSITORY" "$GITHUB_REF_NAME"
+
+      - name: Rebuild the site on this release
+        # genjutsu.zip is not byte-reproducible, so any re-upload changes its
+        # digest and the index must be rebuilt: re-run this workflow rather than
+        # uploading an asset by hand, and the hook is called again.
+        env:
+          SITE_DEPLOY_HOOK: ${{ secrets.SITE_DEPLOY_HOOK }}
+        run: |
+          if [ -z "${SITE_DEPLOY_HOOK:-}" ]; then
+            echo "::warning::SITE_DEPLOY_HOOK is not set: the site was not rebuilt and its index still names the previous release."
+            exit 0
+          fi
+          curl -fsS -X POST "$SITE_DEPLOY_HOOK" >/dev/null
+          echo "Site deploy hook called."
