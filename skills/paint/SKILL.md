@@ -465,10 +465,10 @@ identity is at stake there, so it is preserve by definition.
 
 **The five domains to cover:**
 
-1. **Product** - What is it? (app, landing page, portfolio, SaaS, e-commerce, blog, dashboard...)
+1. **Product** - What is it (app, landing page, portfolio, SaaS, e-commerce, blog, dashboard...), and what is true of it that its closest neighbour, or a template, could not claim?
 2. **Audience** - Who uses it? (devs, designers, general public, enterprise, kids, luxury...)
 3. **Mood** - 3 to 5 adjectives that define the visual feel
-4. **References** - Sites, screenshots, mood boards, anything visual
+4. **References** - Sites, screenshots, mood boards the user brings. Never suggest famous ones yourself: that anchors the thesis on someone else's look.
 5. **Tech stack** - What's already in place? Or starting from scratch?
 
 **How to ask:** One question at a time, starting with the least obvious domain. If you already know the tech stack from scanning `package.json`, don't ask - start with mood or audience instead. Each answer reshapes how you ask the next question.
@@ -478,7 +478,7 @@ identity is at stake there, so it is preserve by definition.
 When the user says "modern" or "clean" or "I don't know, just make it nice":
 
 1. **Validate** - "That's a starting point. Let's make it precise."
-2. **Offer concrete options** - "Clean like Stripe's editorial whitespace, clean like Linear's dense-but-organized, or clean like Apple's dramatic minimalism?"
+2. **Go back to the product** - "Clean compared to what? Tell me one thing that is true of this product and that its closest competitor could not say about itself." Answer a mood word with a fact about the product, never with another brand's look: "like Stripe, like Linear, like Apple" anchors the thesis on three famous defaults.
 3. **Reframe** - "What would feel *wrong*? What sites make you cringe? That's just as useful."
 4. **Name the consequence** - "This choice drives the entire color palette and typography. Worth spending a minute on."
 
@@ -514,6 +514,8 @@ A single sentence that captures the entire visual identity. **Must explicitly ad
 > Example: "Dark neo-brutalist interface with bold monospace type, fluorescent chartreuse accents, generous whitespace, raw-edged components with offset shadows."
 
 **Self-check:** read your thesis back. If any of the four areas is missing or vague ("nice typography"), rewrite it before presenting.
+
+**Guessability test:** could someone write this thesis from the product category alone (a fintech gets navy and a clean sans, a design studio gets an editorial serif on paper)? Then it is the category's default, not a decision: rewrite it from what is true of this product.
 
 #### Interaction Thesis
 

@@ -240,7 +240,7 @@ Ask about the least-understood aspect first. Common domains:
 
 When the user says "something modern" or "I'll know it when I see it":
 
-1. **Offer concrete options** - "Modern can mean a lot of things. More like Linear's clean transitions, Vercel's dramatic reveals, or Stripe's fluid gradients?"
+1. **Ask what the motion is for** - "Modern can mean a lot of things. At the moment this moves, what should someone feel or understand: that it is fast, that it is precise, that something was saved?" Draw the options from the product's own moments, never from another brand's site: "like Linear" anchors the thesis on a famous default.
 2. **Reframe** - "What would feel *wrong*? That helps me narrow it."
 3. **Name the consequence** - "This choice affects whether I go CSS-only or pull in GSAP. Worth pinning down."
 
@@ -277,6 +277,8 @@ Formulate a sentence that captures the interaction intent. Examples:
 - "This SwiftUI tab transition will use matchedGeometryEffect with a .smooth spring (response: 0.5, dampingFraction: 0.85) for a tactile, spatial feel."
 - "This macOS dashboard will use 100ms opacity hover states (no scale on hover, desktop subtlety) and a Cmd+1-9 keyboard shortcut to navigate panels."
 - "This Android header will use an AGSL shader bound to scrollOffset for a dynamic liquid-glass effect (Android 13+, with a static fallback below)."
+
+**Guessability test:** if this thesis could be written from the product category alone, it is the category's default motion, not a decision: rewrite it from this product's own moments.
 
 **Under the thesis, one line naming what it allows.** `Allowed patterns:` followed by every
 deliberate device the design relies on that a reader could take for decoration or habit: mono
