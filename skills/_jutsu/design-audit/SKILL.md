@@ -42,11 +42,13 @@ a clean bill of health and said so to the user right before delivery. The script
 roots, skips `node_modules` and build output, covers `.vue` / `.svelte` / `.astro` alongside JSX
 and CSS, and has a test per check asserting that the check can still fire.
 
-**Tells are reported apart.** The script also runs the `tells` group: thirteen checks for
+**Tells are reported apart.** The script also runs the `tells` group: eighteen checks for
 defaults a model reaches for when nothing asked for them, such as a numbered eyebrow, a weather
-strip, three equal cards or a U+2014 (em dash) in the copy. They read the displayed text of the
+strip, three equal cards or a U+2014 (em dash) in the copy. Most read the displayed text of the
 markup (text between tags, `alt`, `title`, `aria-label`, `placeholder`), never class names or
-style objects, so `width: "100%"` is never taken for a claim of perfection. Copy held in
+style objects, so `width: "100%"` is never taken for a claim of perfection. Five read the source
+instead, because their tell is a class or a CSS rule: gradient text, glass, glow, blobs and
+perpetual motion. Copy held in
 JavaScript data (an array of features, a content file) is not displayed text to the script: read
 it by hand.
 

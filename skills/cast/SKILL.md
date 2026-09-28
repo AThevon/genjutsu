@@ -318,7 +318,7 @@ exists to prevent.
 GENJUTSU_SKILL_DIR="${GENJUTSU_SKILL_DIR:-${CLAUDE_SKILL_DIR}}"
 # Resolution order, first hit wins:
 #   0. claude.ai, /mnt/skills/plugins (or the older /mnt/skills/user): the
-#      genjutsu bundle, else legacy individual uploads.
+#      genjutsu bundle.
 #   1. This skill's own directory: its _jutsu, or the _jutsu next to it.
 #   2. ${CLAUDE_PLUGIN_ROOT}/skills/_jutsu, when Claude Code substituted it.
 #   3. Bounded probes: .claude/skills and .agents/skills from $PWD upward, then
@@ -353,16 +353,13 @@ SKILL_BASE=""
 # 0. claude.ai mounts uploaded skills under /mnt/skills/plugins/<name>/ (seen on
 # 2026-09-28), next to the user's other skills; /mnt/skills/user before that.
 # GENJUTSU_CLAUDE_AI_ROOT stands in for /mnt/skills in the test suite only.
-# Legacy individual uploads on /mnt/skills/user: the mount itself is the base,
-# even without motion-principles, so a partial upload still loads what it has.
+# Only a _jutsu holding motion-principles counts: a mount without genjutsu in it
+# must never pass for a resolved base.
 genjutsu_claude_ai="${GENJUTSU_CLAUDE_AI_ROOT:-/mnt/skills}"
 for claude_root in "$genjutsu_claude_ai/plugins" "$genjutsu_claude_ai/user"; do
   [ -z "$SKILL_BASE" ] && [ -d "$claude_root" ] || continue
   SKILL_BASE="$(find -L "$claude_root" -maxdepth 2 -type d -name _jutsu 2>/dev/null | genjutsu_first_jutsu)"
 done
-if [ -z "$SKILL_BASE" ] && [ -d "$genjutsu_claude_ai/user" ]; then
-  SKILL_BASE="$genjutsu_claude_ai/user"
-fi
 # 1. This skill's own directory. Empty means unknown: never probe "/_jutsu".
 if [ -z "$SKILL_BASE" ] && [ -n "$GENJUTSU_SKILL_DIR" ]; then
   SKILL_BASE="$(printf '%s\n' "$GENJUTSU_SKILL_DIR/_jutsu" "$GENJUTSU_SKILL_DIR/../_jutsu" | genjutsu_first_jutsu)"
@@ -584,11 +581,17 @@ finding, and an item you could not check is reported as **not checked** rather t
       that entry quoted, and is not a problem. The manual reads `tells` lists (fake product in
       divs, repeated layout family, floating corner paragraph, copy register, copy held in
       JavaScript data) are reported the same way.
-      Fix before you report: every kept tell in a file this run wrote or changed is removed or
-      rewritten, then this check runs again, two passes at most. What still fails after the
-      second pass is reported as a problem, with its `file:line`. In an existing project, tells in
-      code this run did not touch follow the chosen mode: redesign removes them, partial removes
-      them in the areas the user named, preserve lists them for the user and changes nothing.
+      Each finding has one of three outcomes, never a fourth: **allowed by the thesis**, its
+      `Allowed patterns:` entry quoted; **not this tell**, only when the detection contradicts the
+      entry's own marker (the loop reports a real loading state, the blur is a modal backdrop, the
+      matched line is not displayed text), with the `file:line` that proves it and never on a matter
+      of taste; or **a problem**. Fix before you report, and only what this run introduced: a problem
+      on a line this run wrote (read `git diff` when the project has one) is removed or rewritten,
+      then this check runs again, two passes at most, and what still fails is reported with its
+      `file:line`. A tell that was already in the project, on a line this run did not write, is
+      never changed here: it is listed for the user. Nothing on the protected list of an existing
+      project (public token names, URLs, navigation labels, form field names, logo, legal mentions)
+      is changed by this step.
 
 ### You must run these - not verified here
 

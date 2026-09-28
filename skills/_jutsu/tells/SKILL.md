@@ -84,8 +84,12 @@ the thesis before it counts:
 
 1. Look for the pattern in the validated thesis's `Allowed patterns:` line.
 2. Found: list the finding as **allowed by the thesis**, with that entry quoted.
-3. Not found: it is a problem. Fix it in the files this run wrote or changed, run the check again
-   (two passes at most), and count what remains with the other problems.
+3. The detection contradicts the entry's own marker (a loop that reports a real loading state, a
+   modal backdrop, a matched line that is not displayed text): list it as **not this tell**, with the
+   `file:line` that proves it. Never on a matter of taste.
+4. Otherwise it is a problem. Fix it only on the lines this run wrote, run the check again (two
+   passes at most), and count what remains with the other problems. A tell that was already in the
+   project is listed for the user, never changed at audit.
 
 The script never makes this call. It files every tell at `nice-to-have` and leaves them out of its
 own problem count, because it cannot read the thesis. You can.

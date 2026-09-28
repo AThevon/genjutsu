@@ -40,7 +40,7 @@ Confirm the assistant: routes to the **cast** pipeline, resolves sub-skills with
 Confirm it routes to **paint** (brainstorm first), and that `ui-ux-pro-max` loads (e.g. it runs `scripts/search.py ... --design-system`).
 
 ## 5. Resolution failure signals
-If at any point you see `genjutsu: could not find the genjutsu modules` (the pipeline must then stop) or `sub-skill '<name>' NOT LOADED`, path detection failed. Capture the `/mnt/skills/user` layout from step 2 and open an issue.
+If at any point you see `genjutsu: could not find the genjutsu modules` (the pipeline must then stop) or `sub-skill '<name>' NOT LOADED`, path detection failed. Capture the `/mnt/skills/` layout from step 2 and open an issue.
 
 ## 6. Log
 

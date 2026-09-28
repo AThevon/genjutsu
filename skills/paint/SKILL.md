@@ -225,7 +225,7 @@ exists to prevent.
 GENJUTSU_SKILL_DIR="${GENJUTSU_SKILL_DIR:-${CLAUDE_SKILL_DIR}}"
 # Resolution order, first hit wins:
 #   0. claude.ai, /mnt/skills/plugins (or the older /mnt/skills/user): the
-#      genjutsu bundle, else legacy individual uploads.
+#      genjutsu bundle.
 #   1. This skill's own directory: its _jutsu, or the _jutsu next to it.
 #   2. ${CLAUDE_PLUGIN_ROOT}/skills/_jutsu, when Claude Code substituted it.
 #   3. Bounded probes: .claude/skills and .agents/skills from $PWD upward, then
@@ -260,16 +260,13 @@ SKILL_BASE=""
 # 0. claude.ai mounts uploaded skills under /mnt/skills/plugins/<name>/ (seen on
 # 2026-09-28), next to the user's other skills; /mnt/skills/user before that.
 # GENJUTSU_CLAUDE_AI_ROOT stands in for /mnt/skills in the test suite only.
-# Legacy individual uploads on /mnt/skills/user: the mount itself is the base,
-# even without motion-principles, so a partial upload still loads what it has.
+# Only a _jutsu holding motion-principles counts: a mount without genjutsu in it
+# must never pass for a resolved base.
 genjutsu_claude_ai="${GENJUTSU_CLAUDE_AI_ROOT:-/mnt/skills}"
 for claude_root in "$genjutsu_claude_ai/plugins" "$genjutsu_claude_ai/user"; do
   [ -z "$SKILL_BASE" ] && [ -d "$claude_root" ] || continue
   SKILL_BASE="$(find -L "$claude_root" -maxdepth 2 -type d -name _jutsu 2>/dev/null | genjutsu_first_jutsu)"
 done
-if [ -z "$SKILL_BASE" ] && [ -d "$genjutsu_claude_ai/user" ]; then
-  SKILL_BASE="$genjutsu_claude_ai/user"
-fi
 # 1. This skill's own directory. Empty means unknown: never probe "/_jutsu".
 if [ -z "$SKILL_BASE" ] && [ -n "$GENJUTSU_SKILL_DIR" ]; then
   SKILL_BASE="$(printf '%s\n' "$GENJUTSU_SKILL_DIR/_jutsu" "$GENJUTSU_SKILL_DIR/../_jutsu" | genjutsu_first_jutsu)"
@@ -444,9 +441,11 @@ If the user picks legacy integration: write the bridge (`AndroidView` for Compos
 **First, take the inventory of what is already there.** On a web stack, in one shell call,
 re-emit the skill-base block and run `python3 "$SKILL_BASE/design-audit/scripts/audit.py" . --group tells`.
 Show the result as one short block, **What this project already does by reflex**, counted by
-family, with two or three `file:line` examples each. Each of them is settled in the theses:
-gone by default, or kept by name in the `Allowed patterns:` line. The mode question below sets
-what happens to the code this run will not touch.
+family, with two or three `file:line` examples each. Each of them is settled in the theses,
+according to the mode the question below sets: in preserve mode they stay by default and go into
+the `Allowed patterns:` line as the brand's own; in partial mode they go by default inside the
+areas the user named; in redesign mode they go by default everywhere. The user can keep or drop
+any one of them by name at the thesis gate.
 
 Ask exactly one mode question during brainstorm, right after the legacy question when both apply:
 
@@ -507,7 +506,7 @@ From the brainstorm, produce two theses:
 A single sentence that captures the entire visual identity. **Must explicitly address all four:**
 
 - **Color direction** - dark/light, palette family, accent color
-- **Typography spirit** - serif/sans/mono, weight usage, size contrast
+- **Typography spirit** - the display face by name and why this one, or `display face: undecided, chosen at the design-system gate`; serif/sans/mono, weight usage, size contrast
 - **Spacing philosophy** - dense/airy, base unit feel
 - **Component style** - rounded/sharp, bordered/filled, elevated/flat
 
@@ -631,6 +630,9 @@ describes:
   that face: what it carries for this product that another would not. "Creative", "premium" and
   "editorial" summon an editorial serif; "clean", "modern" and "SaaS" summon a heavy grotesque.
   Neither set of words is a reason, and trading one reflex for the other is not a decision.
+  When the thesis left the face undecided, choose it here: name it and say why in one line. That
+  line amends the visual thesis when the design system is validated, and Phase 4 and the audit
+  read the amended sentence, never the original gap.
 - **A warm paper ground** (a faintly warm off-white behind near-black ink and one red accent) is
   the palette the model reaches for on almost any brief. It stays only when the thesis says why
   this product belongs on paper.
@@ -685,7 +687,7 @@ If MCPs are not available, skip gracefully - the design system + code implementa
 
 #### Show it before Phase 4
 
-Present the design system in the session's preview mode - announce the mode in one line, don't reopen the menu - and get validation before implementing anything. A palette and a type scale listed as hex codes and pixel values in a transcript are precise and completely unreviewable; every token in MASTER.md is about to be applied everywhere, so this is the cheapest place to catch a wrong one.
+Present the design system in the session's preview mode - announce the mode in one line, don't reopen the menu - and get validation before implementing anything. If Phase 3 chose the display face, show its one-line reason with it: validating the design system validates that amendment to the visual thesis. A palette and a type scale listed as hex codes and pixel values in a transcript are precise and completely unreviewable; every token in MASTER.md is about to be applied everywhere, so this is the cheapest place to catch a wrong one.
 
 Show the dials beside it: each value sent to `search.py` with the thesis clause it came from,
 and each dial left out with the reason.
@@ -836,11 +838,17 @@ finding, and an item you could not check is reported as **not checked** rather t
       that entry quoted, and is not a problem. The manual reads `tells` lists (fake product in
       divs, repeated layout family, floating corner paragraph, copy register, copy held in
       JavaScript data) are reported the same way.
-      Fix before you report: every kept tell in a file this run wrote or changed is removed or
-      rewritten, then this check runs again, two passes at most. What still fails after the
-      second pass is reported as a problem, with its `file:line`. In an existing project, tells in
-      code this run did not touch follow the chosen mode: redesign removes them, partial removes
-      them in the areas the user named, preserve lists them for the user and changes nothing.
+      Each finding has one of three outcomes, never a fourth: **allowed by the thesis**, its
+      `Allowed patterns:` entry quoted; **not this tell**, only when the detection contradicts the
+      entry's own marker (the loop reports a real loading state, the blur is a modal backdrop, the
+      matched line is not displayed text), with the `file:line` that proves it and never on a matter
+      of taste; or **a problem**. Fix before you report, and only what this run introduced: a problem
+      on a line this run wrote (read `git diff` when the project has one) is removed or rewritten,
+      then this check runs again, two passes at most, and what still fails is reported with its
+      `file:line`. A tell that was already in the project, on a line this run did not write, is
+      never changed here: it is listed for the user. Nothing on the protected list of an existing
+      project (public token names, URLs, navigation labels, form field names, logo, legal mentions)
+      is changed by this step.
 
 ### You must run these - not verified here
 

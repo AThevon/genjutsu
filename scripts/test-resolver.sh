@@ -561,6 +561,13 @@ export GENJUTSU_CLAUDE_AI_ROOT="$M"
 run_router "$ROUTER_CAST" "$H" "$WORK/c4/cwd" "" ""
 check_grep "router on claude.ai: finds its bundle under /mnt/skills/plugins" "GENJUTSU_SKILL_DIR=$M/plugins/genjutsu/cast" "$WORK/out"
 check "router on claude.ai: a foreign cast is never printed" "0" "$(grep -c 'FOREIGN CAST' "$WORK/out")"
+M="$WORK/c5/mnt-skills"; H="$WORK/c5/home"; B="$WORK/c5/bundle/genjutsu"
+mkdir -p "$H" "$WORK/c5/cwd" "$M/user/add-theme"; mkbundle "$B"
+export GENJUTSU_CLAUDE_AI_ROOT="$M"
+check "claude.ai: an old /mnt/skills/user without genjutsu never wins over path 1" \
+  "$B/_jutsu" "$(resolve "$H" "$WORK/c5/cwd" "" "" "$B/cast")"
+run_block "$H" "$WORK/c5/cwd" "" "" ""; rc=$?
+check "claude.ai: /mnt/skills/user without genjutsu and nothing else stops the pipeline" "1" "$([ "$rc" -ne 0 ] && echo 1 || echo 0)"
 unset GENJUTSU_CLAUDE_AI_ROOT
 
 # --- summary ---

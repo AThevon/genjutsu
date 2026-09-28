@@ -120,7 +120,7 @@ again each time and every command names the script by its full path. The block t
 `$SKILL_BASE/ui-ux-pro-max` when an orchestrator's skill-base block ran earlier in the same call;
 a directory you name yourself by putting `UIUX_DIR='/absolute/path/to/ui-ux-pro-max'` in front of
 the block; this skill's own directory when the host substitutes `CLAUDE_SKILL_DIR` (a standalone
-install, such as the individual ZIP on claude.ai); then a bounded search of the usual skills
+install); then a bounded search of the usual skills
 directories. When you already know the absolute path, you may write it in place of `$UIUX_DIR`.
 
 <!-- genjutsu:uiux-dir:start -->
