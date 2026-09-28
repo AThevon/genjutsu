@@ -1,6 +1,8 @@
 ---
 name: threejs-r3f
 description: "Three.js and React Three Fiber sub-skill - 3D scenes, shaders, postprocessing."
+metadata:
+  internal: true
 ---
 
 > **Version-sensitive.** Every API name, SDK gate and browser-support claim below was
@@ -13,7 +15,7 @@ description: "Three.js and React Three Fiber sub-skill - 3D scenes, shaders, pos
 > Concise rules here. Deep-dive in `references/`.
 >
 > **Versions:** `three` r185 (`0.185.x`) · `@react-three/fiber` 9.x · `@react-three/drei` 10.x · `@react-three/postprocessing` 3.x.
-> **R3F 9 is React 19 only** — its declared peer range is `react` / `react-dom` `>=19 <19.3` (drei 10 asks `^19`). React 18 projects must stay on R3F 8 + drei 9. Check the installed React major before scaffolding.
+> **R3F 9 is React 19 only** - its declared peer range is `react` / `react-dom` `>=19 <19.3` (drei 10 asks `^19`). React 18 projects must stay on R3F 8 + drei 9. Check the installed React major before scaffolding.
 > **Renderers:** `WebGLRenderer` is still R3F's default. `WebGPURenderer` + TSL is shipped (not flagged) and self-falls-back to WebGL 2, but three's docs call it "the new alternative of `WebGLRenderer`", not the default. Opt in with an async `gl` callback:
 > ```tsx
 > import * as THREE from 'three/webgpu'

@@ -29,6 +29,8 @@ IOSKeyboardEventListener	no such type in Compose Multiplatform; the real knob is
 no-op on macOS	something was documented as harmless on macOS when it is a compile error. `.hoverEffect` is @available(macOS, unavailable): gate it with #if os(macOS), never call it in a macOS path.
 Firefox | 128+ | Supported (shipped July 2024)	no stable Firefox ships scroll-driven animations; claiming it makes the agent drop the @supports fallback.
 staggerChildren:	deprecated in Motion 12.22 in favour of delayChildren: stagger(...). Fine to mention, not to teach.	DEPRECATED|deprecated
+Bash call	name the action, not the tool: write "shell call". The skills run on hosts whose shell tool has another name.
+Bash invocation	name the action, not the tool: write "shell call".
 ENTRIES
 )
 

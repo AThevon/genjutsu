@@ -1,6 +1,8 @@
 ---
 name: mobile-principles
 description: "Mobile-specific UX principles - touch targets, hover-less doctrine, thumb zones, safe areas, gestures, mobile perf budgets. Cross-platform (web mobile, iOS, Android)."
+metadata:
+  internal: true
 ---
 
 > **Version-sensitive.** Every API name, SDK gate and browser-support claim below was

@@ -1,6 +1,8 @@
 ---
 name: compose-multiplatform
 description: "Compose Multiplatform / KMP patterns - expect/actual composables, platform-specific code, density and font handling cross-target, iOS/Android/Desktop interop."
+metadata:
+  internal: true
 ---
 
 > **Version-sensitive.** Every API name, SDK gate and browser-support claim below was

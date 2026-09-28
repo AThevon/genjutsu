@@ -54,11 +54,11 @@ SplitText.create(".text", {
 Always revert after animation to clean up the DOM.
 
 ```js
-// BAD — spans remain in the DOM indefinitely
+// BAD - spans remain in the DOM indefinitely
 const split = SplitText.create(".text", { type: "chars" });
 gsap.from(split.chars, { opacity: 0 });
 
-// GOOD — revert when the animation is finished
+// GOOD - revert when the animation is finished
 const split = SplitText.create(".text", { type: "chars" });
 gsap.from(split.chars, {
   opacity: 0,
@@ -111,11 +111,11 @@ Flip.fit(".box", ".target", {
 ### Flip pitfall
 
 ```js
-// BAD — getState AFTER the DOM change = no reference
+// BAD - getState AFTER the DOM change = no reference
 container.appendChild(element);
 const state = Flip.getState(".items"); // TOO LATE
 
-// GOOD — getState BEFORE the change
+// GOOD - getState BEFORE the change
 const state = Flip.getState(".items");
 container.appendChild(element);
 Flip.from(state, { duration: 0.6 });
@@ -149,7 +149,7 @@ gsap.to("#shape", {
 Interactive tool to find the best starting point for the morph.
 
 ```js
-// Dev only — opens an interactive tool
+// Dev only - opens an interactive tool
 MorphSVGPlugin.findShapeIndex("#circle", "#star");
 ```
 
@@ -163,10 +163,10 @@ MorphSVGPlugin.convertToPath("circle, rect, ellipse");
 ### MorphSVG pitfall
 
 ```js
-// BAD — morph between shapes with very different point counts = chaotic result
+// BAD - morph between shapes with very different point counts = chaotic result
 gsap.to("#simple-circle", { morphSVG: "#complex-illustration" });
 
-// GOOD — use shapes with similar complexity, or shapeIndex to optimize
+// GOOD - use shapes with similar complexity, or shapeIndex to optimize
 gsap.to("#simple-circle", {
   morphSVG: { shape: "#complex-shape", shapeIndex: 2 }, // test with findShapeIndex
 });
@@ -207,10 +207,10 @@ tl.fromTo(".path",
 ### DrawSVG pitfall
 
 ```js
-// BAD — the element has no stroke defined in CSS/SVG
+// BAD - the element has no stroke defined in CSS/SVG
 gsap.from(".path", { drawSVG: 0 }); // nothing happens
 
-// GOOD — always define a visible stroke
+// GOOD - always define a visible stroke
 // CSS: .path { stroke: #fff; stroke-width: 2; fill: none; }
 gsap.from(".path", { drawSVG: 0, duration: 2 });
 ```
@@ -260,12 +260,12 @@ gsap.to(".ball", {
 ### MotionPath pitfall
 
 ```js
-// BAD — autoRotate without alignOrigin = the element rotates around its corner
+// BAD - autoRotate without alignOrigin = the element rotates around its corner
 gsap.to(".el", {
   motionPath: { path: "#path", autoRotate: true },
 });
 
-// GOOD — always define align + alignOrigin with autoRotate
+// GOOD - always define align + alignOrigin with autoRotate
 gsap.to(".el", {
   motionPath: {
     path: "#path",
@@ -339,11 +339,11 @@ Observer.create({
 ### Observer pitfall
 
 ```js
-// BAD — no debounce/lock = animations stacking up
+// BAD - no debounce/lock = animations stacking up
 Observer.create({
   onDown: () => gsap.to(".box", { y: "+=100" }), // each scroll adds 100px
 
-// GOOD — lock during animation
+// GOOD - lock during animation
 let animating = false;
 Observer.create({
   onDown: () => {

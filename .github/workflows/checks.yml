@@ -21,8 +21,23 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Versions agree (plugin.json, marketplace.json, CHANGELOG, and the tag on a release)
+        # v3.6.0 was published with both manifests still reading 3.5.0 and no
+        # CHANGELOG entry. release.yml calls this workflow on a tag push, where
+        # GITHUB_REF_TYPE is "tag" and the tag is compared too.
+        run: |
+          ./scripts/test-check-version.sh
+          ./scripts/check-version.sh
+
+      - name: No U+2014 (em dash) in a tracked file
+        run: |
+          ./scripts/test-check-dashes.sh
+          ./scripts/check-dashes.sh
+
       - name: Shared blocks are in sync between cast and paint
-        run: ./scripts/check-shared-blocks.sh
+        run: |
+          ./scripts/test-shared-blocks.sh
+          ./scripts/check-shared-blocks.sh
 
       - name: No banned symbol has come back
         run: ./scripts/check-denylist.sh
@@ -35,8 +50,25 @@ jobs:
         # against fixture layouts.
         run: ./scripts/test-resolver.sh
 
+      - name: Release notes come from the CHANGELOG entry of the tag
+        # release.yml publishes this script's output as the release body.
+        run: ./scripts/test-release-notes.sh
+
+      - name: The release waits for GitHub before rebuilding the site
+        # release.yml calls the site deploy hook only once this script returns 0.
+        run: ./scripts/test-wait-for-release.sh
+
       - name: Every SKILL.md is valid against the Agent Skills spec
         run: python3 scripts/validate-skills.py
+
+      - name: Script tests (validate-skills, the eval suite and its graders)
+        # claude plugin eval is billed per run and never runs here. What runs here
+        # is free: the suite parses, every grader has a known type, and the free
+        # graders are pinned against known pages so that none of them goes inert.
+        working-directory: scripts
+        run: |
+          python3 -m unittest discover -s tests
+          python3 check-evals.py
 
       - name: ui-ux-pro-max dataset is well formed
         run: python3 skills/_jutsu/ui-ux-pro-max/scripts/validate_data.py
@@ -45,6 +77,12 @@ jobs:
         working-directory: skills/_jutsu/ui-ux-pro-max/scripts
         run: python3 -m unittest discover -s tests
 
+      - name: paint's claims about the ui-ux-pro-max dials still hold
+        # paint says --variance and --motion change the markdown design system and
+        # --density only labels it. That is a fact about the vendored engine; an
+        # upstream sync can break it, and this step makes that break visible.
+        run: python3 scripts/check-paint-dials.py
+
       - name: design-audit tests
         # The load-bearing case in here is that every check can still fire. The
         # greps this replaced had been reporting clean on projects they never
@@ -52,10 +90,29 @@ jobs:
         working-directory: skills/_jutsu/design-audit/scripts
         run: python3 -m unittest discover -s tests
 
-      - name: Packaging produces the bundle and the individual ZIPs
+      - name: The tells module keeps its contract
+        # Markdown drifts silently: a fourth field in an entry, a question that
+        # became a recommendation, a module too long for its dedicated load call,
+        # or the eval sentinel copied into another file. Each one fails here.
+        run: python3 scripts/check-tells.py
+
+      - name: The no-verbatim check can still fail
+        # The real run needs a taste-skill clone and happens by hand before a
+        # release. CI only proves the check has not gone inert.
+        run: ./scripts/check-no-verbatim.sh --self-test
+
+      - name: Packaging produces the bundle
         run: |
           ./package-for-claude-ai.sh
           test -f dist/genjutsu.zip || { echo "dist/genjutsu.zip missing"; exit 1; }
+          # Only one artifact ships to claude.ai: a stray per-skill ZIP must
+          # fail here, not surface as a silent extra upload option.
+          n=$(ls dist | wc -l | tr -d ' ')
+          if [ "$n" -ne 1 ]; then
+            echo "dist/ contains $n files, expected exactly genjutsu.zip:"
+            ls dist
+            exit 1
+          fi
           # claude.ai rejects a skill ZIP holding more than one SKILL.md. The
           # bundle renames the inner ones to GUIDE.md; assert it actually did.
           n=$(unzip -Z1 dist/genjutsu.zip | grep -cE '(^|/)SKILL\.md$' || true)
@@ -65,3 +122,6 @@ jobs:
             exit 1
           fi
           echo "genjutsu.zip: exactly 1 SKILL.md, $(unzip -Z1 dist/genjutsu.zip | grep -c 'GUIDE\.md$' || true) GUIDE.md"
+          # The resolver, the router and ui-ux-pro-max as they ship: packaging
+          # rewrites file names inside the bundle, which the repository run cannot see.
+          ./scripts/test-resolver.sh --bundle dist/genjutsu.zip

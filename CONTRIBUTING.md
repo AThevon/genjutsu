@@ -69,26 +69,44 @@ at v2.11.1, MIT. Hand-edits there are lost on the next sync and make the mirror 
 those upstream. The exception is `SKILL.md` and `UPSTREAM.md` in that directory, which are ours.
 See [`UPSTREAM.md`](./skills/_jutsu/ui-ux-pro-max/UPSTREAM.md).
 
-**`skills/cast/SKILL.md` and `skills/paint/SKILL.md`** share five regions that must stay
+**`skills/cast/SKILL.md` and `skills/paint/SKILL.md`** share six regions that must stay
 byte-identical, marked `<!-- genjutsu:shared:<name>:start -->`. Editing one without the other
 fails CI. They are duplicated rather than shared because each orchestrator ships as a
 self-contained skill and these blocks bootstrap sub-skill loading before anything can be read.
+The bundle's router, `packaging/genjutsu-router.md`, carries its search twice, once per
+pipeline, between `<!-- genjutsu:router:<pipeline>:start -->` markers: the two blocks must
+match line for line except their `p=cast` / `p=paint` line.
 
 **A new platform family** is not a pull request, it is a conversation. Read
 [`PLATFORM-CONTRACT.md`](./PLATFORM-CONTRACT.md) first: adding one touches eight sites across two
 files, four of them inside byte-identical regions, and commits somebody to keeping it accurate.
+
+## Hosts
+
+Claude Code, claude.ai and Cowork are the supported hosts. genjutsu also installs in other agents
+through `npx skills` (Codex, Cursor and others), untested and unsupported. The Hosts section of
+[`PLATFORM-CONTRACT.md`](./PLATFORM-CONTRACT.md) says what a host has to provide.
+
+**Triage rule:** a bug that does not reproduce under Claude Code is labelled `community`. It stays
+open, and a fix is welcome as long as it changes nothing for the supported hosts. The bug form
+asks which surface you used; for another agent, name it and the install command.
 
 ## Running the checks
 
 All of these run in CI. Run them before opening the PR and you will not be surprised.
 
 ```bash
-./scripts/check-shared-blocks.sh        # the five regions are identical in cast and paint
+./scripts/test-check-version.sh && ./scripts/check-version.sh   # manifests, CHANGELOG and tag agree
+./scripts/test-check-dashes.sh && ./scripts/check-dashes.sh     # no U+2014 in a tracked file
+./scripts/test-shared-blocks.sh && ./scripts/check-shared-blocks.sh   # shared regions and router blocks match
 ./scripts/check-denylist.sh             # no string that was wrong once has come back
+./scripts/test-resolver.sh              # the resolver, one fixture per install layout
 python3 scripts/validate-skills.py      # every SKILL.md against the Agent Skills spec
+( cd scripts && python3 -m unittest discover -s tests )
 python3 skills/_jutsu/ui-ux-pro-max/scripts/validate_data.py
 ( cd skills/_jutsu/ui-ux-pro-max/scripts && python3 -m unittest discover -s tests )
 ./package-for-claude-ai.sh              # the claude.ai bundle still has exactly one SKILL.md
+./scripts/test-resolver.sh --bundle dist/genjutsu.zip   # the same fixtures, on the packaged bundle
 ```
 
 `validate-skills.py` warns when a `SKILL.md` body goes over 500 lines and still exits 0. Three

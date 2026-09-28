@@ -19,13 +19,55 @@
 <p align="center">
   <a href="https://github.com/AThevon/genjutsu/releases/latest"><img src="https://img.shields.io/github/v/release/AThevon/genjutsu?style=flat-square&color=b11523&label=release" alt="Latest release" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-b11523?style=flat-square" alt="MIT license" /></a>
-  <img src="https://img.shields.io/badge/works%20with-Claude%20Code%20%2B%20claude.ai%20%2B%20Cowork-b11523?style=flat-square" alt="Works with Claude Code, claude.ai and Cowork" />
+  <img src="https://img.shields.io/badge/works%20with-Claude%20Code%20%2B%20claude.ai%20%2B%20Cowork%20%2B%20npx-b11523?style=flat-square" alt="Works with Claude Code, claude.ai, Cowork and npx" />
   <a href="https://github.com/sponsors/AThevon"><img src="https://img.shields.io/badge/sponsor-b11523?style=flat-square&logo=githubsponsors&logoColor=white" alt="Sponsor on GitHub" /></a>
 </p>
 
 Creative coding skills for [Claude Code](https://claude.ai/code), [claude.ai](https://claude.ai) and [Cowork](https://claude.com/plugins-for/cowork) - transforms any interface from functional to exceptional through motion design, interaction patterns, and visual systems. Covers Web (React, Vue, Svelte, vanilla CSS, Three.js, Canvas), Android (Jetpack Compose, Compose Multiplatform), and Apple (SwiftUI iOS + macOS).
 
 > **v3.0 - rebrand**: this plugin used to be called `creative-excellence`. The skills `/creative-excellence:creative-excellence` and `/creative-excellence:design-excellence` are now `/genjutsu:cast` and `/genjutsu:paint`. See [CHANGELOG.md](./CHANGELOG.md) for the migration steps if you had v2.x installed.
+
+---
+
+## What v4 changes
+
+genjutsu names the slop instead of promising it, cleans it up before it reports, proves it, and installs anywhere.
+
+**It names the slop.** v3 said "anti-AI-slop" and never said what slop was. The new `tells` module writes it down: forty-two defaults a model produces when nobody asked for them, in four families. An invented weather-and-clock strip, a build status such as `v0.6.2-rc.1`, `ESTD. 2018` on a studio founded last year, `00 / INDEX` eyebrows, three equal cards, glass panels and glowing blobs, `Elevate` and `Seamless`, one sign-up under three button labels. Each entry gives the marker, why a model produces it, and a question that sends you back to the thesis. None of them tells you what to use instead, because a replacement would only be the next default. The validated thesis is the only authority: a pattern stays when the thesis lists it on its `Allowed patterns:` line, and a mood word such as "editorial" names nothing. The whole catalogue is on the site, entry by entry: [the tells field guide](https://genjutsu.athevon.dev/docs/tells).
+
+**It cleans up before it reports.** Every tell the run wrote and the thesis does not allow is fixed before the final report, in two passes at most, and only on the lines the run wrote. On a project that already has a design, `paint` starts by showing what the project already does by reflex, counted by family with `file:line`, and the mode you pick settles each finding: preserve keeps them as the brand's own, partial takes them out inside the areas you named, redesign everywhere. A tell that was there before the run and sits outside that scope is listed, never changed behind your back.
+
+**It proves it.** The audit script now reads what a page displays and how it is marked up, and runs eighteen tells checks, reported apart from the other findings and each confronted with the thesis before it counts. The audit opens by holding the thesis against the code: every promised duration, easing, colour and typeface, with the `file:line` that keeps it or the admission that nothing does. The script is plain Python with no model involved, so you can run it on any project once genjutsu is installed:
+
+```bash
+python3 ~/.agents/skills/genjutsu/_jutsu/design-audit/scripts/audit.py . --group tells
+```
+
+An eval suite runs the same briefs with and without genjutsu:
+
+<!-- genjutsu:showcase:start -->
+| Brief | Tells, without genjutsu | Tells, with genjutsu | Grader score, with minus without |
+|---|---|---|---|
+| Independent design studio landing | 2 | 0 | +0.20 |
+| Invoicing SaaS landing | 2 | 0 | +0.10 |
+
+Tells are the findings of `audit.py --group tells` on the page of the first run of each arm. Scores come from `claude plugin eval --ablation with-without --runs 2` on genjutsu `ef31234`, over the suite in [`evals/`](./evals). The graders are ours: read this as genjutsu measured against what it set out to do, not as an independent benchmark.
+
+#### Invoicing SaaS landing
+
+| Without genjutsu | With genjutsu |
+|---|---|
+| <img src="./assets/v4/saas-landing-without-desktop.png" alt="Invoicing SaaS landing, without genjutsu, desktop" width="400" /> | <img src="./assets/v4/saas-landing-with-desktop.png" alt="Invoicing SaaS landing, with genjutsu, desktop" width="400" /> |
+| <img src="./assets/v4/saas-landing-without-mobile.png" alt="Invoicing SaaS landing, without genjutsu, mobile" width="180" /> | <img src="./assets/v4/saas-landing-with-mobile.png" alt="Invoicing SaaS landing, with genjutsu, mobile" width="180" /> |
+<!-- genjutsu:showcase:end -->
+
+What moved, over the runs kept in each arm: on both landings, the judge that fails a product screen faked in divs or a page stuck on one layout family (studio 0/2 to 2/2, SaaS 0/2 to 1/2), and the U+2014 (em dash) check (1/2 to 2/2 on each); on the studio page, the numbered eyebrow (1/2 to 2/2). The other checks already passed without genjutsu: today's models rarely write an invented build status or an `ESTD. 2018` on their own, so those graders guard against a regression more than they measure a gain.
+
+The two control cases held. In `thesis-allows`, a studio genuinely split between Paris and Tokyo asks for its two clocks, the thesis names them, and both stay on every run: the module does not over-correct. In `swiftui-skip`, measured on the run before (`5735e65`), `tells` is never requested or read, because it only covers the web so far.
+
+**It installs anywhere.** `npx skills add https://genjutsu.athevon.dev -g` installs the whole bundle in one command, and `npx skills update -g` follows each release. One resolver serves Claude Code, claude.ai, Cowork and npx installs; when it cannot find its modules it stops and prints the install command instead of running on empty, and the final report lists which modules were loaded and which were not.
+
+Also new: a declared read of your project before the first question; vague briefs answered from the product's own moments rather than from a famous brand, and a thesis rejected when it could have been written from the product category alone; a display face that has to be named and justified at the gate; an existing-project mode in `paint` (preserve the brand, change part of it, or redesign); and a defined behaviour for sessions with no human to answer the gates. The full list is in [CHANGELOG.md](./CHANGELOG.md).
 
 ---
 
@@ -36,10 +78,10 @@ Creative coding skills for [Claude Code](https://claude.ai/code), [claude.ai](ht
 | Page | What is in it |
 |---|---|
 | [Overview](https://genjutsu.athevon.dev/docs) | What genjutsu is, how the pieces fit, the shortest path to seeing something move |
-| [Install](https://genjutsu.athevon.dev/docs/install) | Both surfaces, verifying the install, updating, uninstalling |
+| [Install](https://genjutsu.athevon.dev/docs/install) | npx, the Claude Code plugin, claude.ai, verifying the install, updating, uninstalling |
 | [`cast`](https://genjutsu.athevon.dev/docs/cast) | The seven-stage pipeline, its two validation gates, how to write a good request |
 | [`paint`](https://genjutsu.athevon.dev/docs/paint) | The five phases, the two theses, what lands in your repo |
-| [Modules](https://genjutsu.athevon.dev/docs/jutsu) | All fifteen, by family: [foundations](https://genjutsu.athevon.dev/docs/jutsu/foundations), [web](https://genjutsu.athevon.dev/docs/jutsu/web), [Apple](https://genjutsu.athevon.dev/docs/jutsu/apple), [Android](https://genjutsu.athevon.dev/docs/jutsu/android) |
+| [Modules](https://genjutsu.athevon.dev/docs/jutsu) | All sixteen, by family: [foundations](https://genjutsu.athevon.dev/docs/jutsu/foundations), [web](https://genjutsu.athevon.dev/docs/jutsu/web), [Apple](https://genjutsu.athevon.dev/docs/jutsu/apple), [Android](https://genjutsu.athevon.dev/docs/jutsu/android) |
 | [Principles](https://genjutsu.athevon.dev/docs/principles) | The rules the skills enforce, and why each one exists |
 | [FAQ](https://genjutsu.athevon.dev/docs/faq) | Plans, dependencies, cast against paint, what to check when output feels generic |
 
@@ -56,7 +98,7 @@ Takes any creative request and makes it exceptional. Adapts to your stack and sc
 - Detects your dependencies automatically across web (GSAP, Motion / Framer Motion, Three.js, CSS), Android (Jetpack Compose, Compose Multiplatform) and Apple (SwiftUI iOS / macOS)
 - Proposes an **interaction thesis** before writing a single line of code, and asks **how you want to see it** first
 - Scales from a single hover effect to a full scroll-driven page or a Compose `SharedTransitionLayout` flow
-- Runs a quick audit on exit: reduced-motion, exit animations, recomposition, hitches, layout performance
+- Runs a quick audit on exit: reduced-motion, exit animations, recomposition, hitches, layout performance, and on the web every tell it wrote, held against the thesis and fixed before the report
 
 ### `/genjutsu:paint` - The Master Painter
 
@@ -67,7 +109,8 @@ Builds a complete visual universe from scratch. Brainstorm first, implement seco
 - Mandatory creative direction session before any code
 - Shows the theses and the design system in the format you pick, instead of asking you to approve a palette as a list of hex codes
 - Generates a persistent stack-aware `MASTER.md` design system (Tailwind/CSS for web, `Theme.kt` for Compose, `Color+App.swift` for SwiftUI, `commonMain` for CMP)
-- Full audit at the end: motion gaps, accessibility, color consistency, responsive, performance, native hitches
+- On a project that already has a design, shows what it already does by reflex, then asks whether to preserve the brand, change part of it, or redesign
+- Full audit at the end: the thesis held against the code, motion gaps, accessibility, color consistency, responsive, performance, native hitches, and the tells
 - Optional MCP integration (Stitch, Nano Banana, 21st.dev Magic)
 
 ### When to use which
@@ -89,7 +132,7 @@ Both skills stop and wait for your approval at a handful of points: the interact
 
 | Mode | What you get |
 |---|---|
-| **Artifact** | A live page. The easing curve plotted with its exact value, an element actually performing the motion with a replay button, the raw numbers, a reduced-motion toggle. For a design system: swatches with their contrast ratios, a real type specimen, the five states of every component. |
+| **Rendered page** | A live page (an Artifact on Claude, a throwaway HTML file elsewhere). The easing curve plotted with its exact value, an element actually performing the motion with a replay button, the raw numbers, a reduced-motion toggle. For a design system: swatches with their contrast ratios, a real type specimen, the five states of every component. |
 | **Live preview** | A throwaway route in your own project - real stack, real tokens, real components. On Compose or SwiftUI, a `@Preview` / `#Preview` scratch file. Deleted once you have approved. |
 | **Inline** | The sentence, in the conversation. Still the right answer for a 150ms hover. |
 
@@ -99,7 +142,7 @@ You are asked once. The choice holds for the rest of the session, later gates ju
 
 ## Sub-skills
 
-Internal modules loaded dynamically by the orchestrators. Not invocable directly.
+Internal modules loaded dynamically by the orchestrators. Not invocable directly: each one carries `metadata.internal: true`, so `npx skills` never offers them on their own.
 
 ### Foundation (always loaded)
 
@@ -113,7 +156,8 @@ Internal modules loaded dynamically by the orchestrators. Not invocable directly
 |---|---|---|
 | mobile-principles | Touch targets, no-hover doctrine, thumb zones, safe areas, gestures, mobile perf budgets | SKILL + 2 references |
 | desktop-principles | Hover-mandatory, pointer precision, keyboard shortcuts, multi-window, focus management | SKILL + 2 references |
-| design-audit | Multi-stack greps (web/Compose/SwiftUI), bundle size, Layout Inspector, Instruments Hitches | SKILL |
+| design-audit | `audit.py`: motion and accessibility checks, the tells group, inventories of durations, easings, colours, radii and fonts with `file:line`; what needs a profiler or a device is handed over with the exact command | SKILL + 1 script |
+| tells | The defaults a model produces by reflex, in four families (invented information, decorative filler, reflex convergence, hollow copy), each with the question that sends it back to the thesis. Detects, never prescribes. Web covered; Compose and SwiftUI declared not covered yet | SKILL + 1 reference |
 | ui-ux-pro-max | Design system intelligence (84 styles, 192 palettes, 74 font pairings, 25 charts, 22 stacks) | SKILL + data + scripts |
 
 ### Web stack
@@ -145,47 +189,39 @@ Internal modules loaded dynamically by the orchestrators. Not invocable directly
 
 ## Installation
 
-The short version is on the site: [genjutsu.athevon.dev/docs/install](https://genjutsu.athevon.dev/docs/install). The long version, including partial installs, is below.
+The short version is on the site: [genjutsu.athevon.dev/docs/install](https://genjutsu.athevon.dev/docs/install). Every route is below, the recommended one first.
 
-### claude.ai (web/app)
+### npx skills (recommended)
 
-**Prerequisites:** Plan Pro, Max, Team or Enterprise with "Code execution" enabled.
-
-**Option A - single bundle (recommended):**
-
-One upload, everything included (router + `cast` + `paint` + all sub-skills).
-
-1. Download **[`genjutsu.zip`](https://github.com/AThevon/genjutsu/releases/latest/download/genjutsu.zip)**. That link always serves the newest release, so it never goes stale.
-2. On claude.ai, go to **Customize > Skills > Upload skill** and upload `genjutsu.zip`.
-3. Enable the toggle. Done - one skill, both `cast` and `paint` pipelines, all sub-skills bundled.
-
-> Want to confirm it mounted correctly? Follow the 2-minute smoke test in [docs/claude-ai-testing.md](./docs/claude-ai-testing.md).
-
-**How it shows up.** The bundle installs as a **single skill named `genjutsu`**. In a normal chat it appears as one entry - invoke `/genjutsu` (or just describe your task) and it routes to the `cast` or `paint` pipeline internally. Surfaces that expose skills as individual commands (e.g. a code workspace) show `/cast` and `/paint` directly. Either way the pipelines need **code execution** enabled to load their sub-skills. Prefer `/cast` and `/paint` as separate entries everywhere? Use Option B.
-
-**Option B - individual skills:**
-
-Prefer separate skills, or only part of the stack? Upload the individual ZIPs (one per skill). Baseline for everyone: `cast`, `paint`, `motion-principles`, `design-audit`, `ui-ux-pro-max`. Then add per stack:
-
-| Your stack | ZIPs to upload (in addition to baseline) |
-|---|---|
-| Web only | mobile-principles, desktop-principles, gsap, framer-motion, css-native, threejs-r3f, canvas-generative |
-| Android Compose only | mobile-principles, compose-motion, compose-graphics |
-| iOS SwiftUI only | mobile-principles, swiftui-motion, swiftui-graphics |
-| macOS SwiftUI only | desktop-principles, swiftui-motion, swiftui-graphics |
-| Multi-target Apple (iOS + macOS) | mobile-principles, desktop-principles, swiftui-motion, swiftui-graphics |
-| Compose Multiplatform | mobile-principles, compose-motion, compose-graphics, compose-multiplatform, swiftui-motion (if iOS target) |
-
-**Build from source:**
+One command, from any terminal:
 
 ```bash
-git clone https://github.com/AThevon/genjutsu.git
-cd genjutsu
-./package-for-claude-ai.sh
-# dist/ has genjutsu.zip (the bundle) + 17 individual skill ZIPs
+npx skills add https://genjutsu.athevon.dev -g
 ```
 
-### Claude Code (CLI)
+It installs the whole bundle as one skill named `genjutsu` (a router, both pipelines and all sixteen modules) in `~/.agents/skills/genjutsu`, linked into the skills directory of each agent it finds: `~/.claude/skills/genjutsu` for Claude Code. Then type `/genjutsu` in Claude Code, or just describe the task: the router runs the `cast` or the `paint` pipeline. The `/genjutsu:cast` and `/genjutsu:paint` names belong to the plugin install below.
+
+To update:
+
+```bash
+npx skills update -g
+```
+
+Keep the `-g` on both commands. The site publishes an index that points at the latest GitHub release with its digest, so `update -g` sees a new release as soon as the site has rebuilt. Without `-g`, `update` picks its scope from the directory you run it in.
+
+**Project scope.** Leave out `-g` and npx installs into the current repository instead: `.agents/skills/genjutsu`, a `.claude/skills/genjutsu` symlink, and a `skills-lock.json` that records the source. That pins genjutsu to the project for everyone who clones it. If you would rather not commit it, add this to the project's `.gitignore`:
+
+```gitignore
+.agents/skills/genjutsu
+.claude/skills/genjutsu
+skills-lock.json
+```
+
+**Use the URL, not the repository.** `npx skills add AThevon/genjutsu` reads this repository instead of the site and offers `cast` and `paint` without their modules, which are marked internal. Installed that way, they stop at their first step and print the command above.
+
+**Other agents.** npx also installs genjutsu for Codex, Cursor and the other agents it knows, and it runs there: nothing in the skills is written for one host. It is not tested by the maintainer and not supported. A bug that does not reproduce under Claude Code is labelled `community`.
+
+### Claude Code plugin (marketplace)
 
 Two slash commands, typed inside a Claude Code session:
 
@@ -198,6 +234,8 @@ Then run `/genjutsu:cast` or `/genjutsu:paint`. You can pass the request on the 
 
 The marketplace also accepts the full git URL if you prefer it: `/plugin marketplace add git@github.com:AThevon/genjutsu.git`.
 
+Installed both ways, you have two entry points, `/genjutsu` and `/genjutsu:cast`. Each one loads the modules of its own copy, so the two never mix versions.
+
 Or as a git submodule in your dotfiles:
 
 ```bash
@@ -205,7 +243,28 @@ git submodule add git@github.com:AThevon/genjutsu.git claude/plugins/genjutsu
 ln -sf ~/.dotfiles/claude/plugins/genjutsu ~/.claude/plugins/genjutsu
 ```
 
----
+### claude.ai (web/app)
+
+**Prerequisites:** Plan Pro, Max, Team or Enterprise with "Code execution" enabled.
+
+One upload, everything included (router + `cast` + `paint` + all sub-skills).
+
+1. Download **[`genjutsu.zip`](https://github.com/AThevon/genjutsu/releases/latest/download/genjutsu.zip)**. That link always serves the newest release, so it never goes stale.
+2. On claude.ai, go to **Customize > Skills > Upload skill** and upload `genjutsu.zip`.
+3. Enable the toggle. Done - one skill, both `cast` and `paint` pipelines, all sub-skills bundled.
+
+> Want to confirm it mounted correctly? Follow the 2-minute smoke test in [docs/claude-ai-testing.md](./docs/claude-ai-testing.md).
+
+**How it shows up.** The bundle installs as a **single skill named `genjutsu`**: invoke `/genjutsu` (or just describe your task) and it routes to the `cast` or `paint` pipeline. Inside the bundle the pipelines and modules are `GUIDE.md` files, so they never show up as skills of their own. The pipelines need **code execution** enabled to load their modules.
+
+**Build from source:**
+
+```bash
+git clone https://github.com/AThevon/genjutsu.git
+cd genjutsu
+./package-for-claude-ai.sh
+# dist/ has exactly one file: genjutsu.zip
+```
 
 ### Cowork
 
@@ -216,7 +275,7 @@ Install it from the plugin panel, the same way as any other plugin, then invoke 
 /plugin install genjutsu
 ```
 
-Cowork mounts skills under a per-session root rather than a fixed path, so sub-skill resolution probes for it - see [Cowork compatibility](#cowork-compatibility) for the resolution order, what the preview gate maps to on this surface, and why `paint` shortens itself for one-component requests here.
+Cowork mounts skills under a per-session root rather than a fixed path, so sub-skill resolution probes for it - see [How it finds its modules](#how-it-finds-its-modules) for the resolution order, what the preview gate maps to on this surface, and why `paint` shortens itself for one-component requests here.
 
 ---
 
@@ -235,7 +294,8 @@ genjutsu/
 │       ├── motion-principles/              <- foundation, always loaded
 │       ├── mobile-principles/              <- shared (touch contexts)
 │       ├── desktop-principles/             <- shared (pointer/keyboard contexts)
-│       ├── design-audit/                   <- shared (audit pipeline)
+│       ├── design-audit/                   <- shared (audit pipeline, audit.py)
+│       ├── tells/                          <- shared (the slop, named; web)
 │       ├── ui-ux-pro-max/                  <- shared (design intel)
 │       ├── gsap/                           <- web stack
 │       ├── framer-motion/                  <- web stack
@@ -247,42 +307,46 @@ genjutsu/
 │       ├── compose-multiplatform/          <- KMP/CMP
 │       ├── swiftui-motion/                 <- Apple
 │       └── swiftui-graphics/               <- Apple (Metal, Liquid Glass, Canvas)
+├── packaging/genjutsu-router.md            <- the bundle's router (npx and claude.ai)
+├── evals/                                  <- with / without genjutsu, run by hand
+├── scripts/                                <- the checks CI runs, and the release helpers
 ├── package-for-claude-ai.sh
 ├── CHANGELOG.md
 └── README.md
 ```
 
-Orchestrators detect the environment at runtime (Claude Code plugin directory, claude.ai `/mnt/skills/user/`, or a session-rooted Cowork mount - see [Cowork compatibility](#cowork-compatibility)) and pick what to load based on the SCAN phase. Sub-skills in `_jutsu/` are loaded by orchestrator according to detected stack and selected scope - `mobile-principles` and `desktop-principles` are auto-loaded when context matches (touch target vs pointer/keyboard target). The underscore prefix keeps sub-skills internal so they never get invoked directly.
+Orchestrators find their modules at runtime (their own directory, the Claude Code plugin directory, claude.ai `/mnt/skills/plugins/`, an npx install, or a session-rooted Cowork mount - see [How it finds its modules](#how-it-finds-its-modules)) and pick what to load based on the SCAN phase. Sub-skills in `_jutsu/` are loaded by orchestrator according to detected stack and selected scope - `mobile-principles` and `desktop-principles` are auto-loaded when context matches (touch target vs pointer/keyboard target). The underscore prefix keeps sub-skills internal so they never get invoked directly.
 
 ---
 
-## Cowork compatibility
+## How it finds its modules
 
-genjutsu runs on three surfaces, and they mount the skill tree in three different places. Claude Code and claude.ai both have a fixed path. Cowork does not: it mounts under a per-session root that changes every run, for example `/sessions/<session-id>/mnt/.claude/skills/genjutsu/_jutsu`.
+genjutsu runs on Claude Code, claude.ai, Cowork and anywhere `npx skills` installs it, and each of those puts the skill tree somewhere else. Cowork has no fixed path at all: it mounts under a per-session root that changes every run, for example `/sessions/<session-id>/mnt/.claude/skills/genjutsu/_jutsu`.
 
 **Path detection.** The `genjutsu:shared:skill-base` block resolves `$SKILL_BASE` in this order, and stops at the first hit:
 
-| Order | Host | How it resolves |
+| Order | Where | How it resolves |
 |---|---|---|
-| 1 | claude.ai, single bundle | `_jutsu` found directly under `/mnt/skills/user` |
-| 2 | claude.ai, individual skills | the `/mnt/skills/user` mount itself |
-| 3 | Claude Code | `${CLAUDE_PLUGIN_ROOT}/skills/_jutsu`, then the newest numbered version under `~/.claude/plugins/cache` |
-| 4 | Cowork, skills-directory installs | probed: `$PWD` and its ancestors, then `~/.claude/skills`, `/mnt/.claude/skills`, `/sessions`, matching `*/.claude/skills/*/_jutsu` |
+| 0 | claude.ai | `_jutsu` of the bundle under `/mnt/skills/plugins` (the current mount), else under `/mnt/skills/user` (the older one); only a `_jutsu` holding `motion-principles` counts |
+| 1 | The skill's own directory | `GENJUTSU_SKILL_DIR`, which defaults to `${CLAUDE_SKILL_DIR}`: `_jutsu` next to it or one level up. After an npx install the router passes its own directory down |
+| 2 | Claude Code plugin | `${CLAUDE_PLUGIN_ROOT}/skills/_jutsu` |
+| 3 | Probed, bounded | `$PWD` and its ancestors (`.claude/skills`, `.agents/skills`), then `~/.agents/skills` (npx, global), `~/.claude/skills`, `~/.codex/skills`, `~/.cursor/skills`, `/mnt/.claude/skills`, `/sessions` (Cowork) |
+| 4 | Claude Code plugin cache | the newest numbered version under `~/.claude/plugins/cache`, last, so an old plugin install never wins over a newer bundle |
 
-Step 4 is new and runs **last**, so steps 1 to 3 behave exactly as they did before. Every probe is depth-capped, so none of them can walk the filesystem. When all four miss, the failure is now explicit: the error names each root that was tried instead of letting a `cat` fail silently.
+A `_jutsu` directory only counts if it holds `motion-principles`: npx's shared directory serves dozens of agents, and a folder that merely happens to be called `cast` proves nothing. Every probe is depth-capped, so none of them can walk the filesystem. When all of them miss, the block prints the install commands and every root it tried, and the pipeline stops rather than running without its modules.
 
-**Preview mapping.** The preview gate offers artifact, live preview or inline. What each one means depends on the host:
+**Preview mapping.** The preview gate offers a rendered preview, a live preview or inline. The first is described by capability: an HTML rendering tool if the session has one, otherwise a self-contained HTML file. What each one means on a known host:
 
-| Host | A - artifact | B - live preview | C - inline |
+| Host | A - rendered | B - live preview | C - inline |
 |---|---|---|---|
 | claude.ai | native artifact | throwaway route in your project | conversation text |
 | Cowork | the host's persistent artifact | usually unavailable, no project checkout | the host's inline widget |
 | Claude Code | the `Artifact` tool | throwaway route, or a `@Preview` / `#Preview` scratch file | conversation text |
-| unknown | self-contained HTML at a temp path | not offered | conversation text |
+| any other host | its HTML rendering tool if it has one, else a throwaway HTML file, opened in a built-in browser or given as a path | throwaway route | conversation text |
 
 The gate detects the host itself, before `LOAD` runs. Cowork is tested before Claude Code because both can have a `~/.claude` tree and only Cowork has the session-rooted mount, so the more specific signal has to win.
 
-**Pipeline weight.** `cast` is the default entry point on every surface. `paint` is a five-phase pipeline and is disproportionate for the short requests that dominate on Cowork ("animate this word", "polish this hover"), so it now recognises **light scope** - one isolated component, no visual identity at stake, nothing downstream depending on it - and shortens to a single brainstorm question with no `MASTER.md` written. The gates stay; only their number goes down.
+**Pipeline weight.** `cast` is the default entry point on every surface. `paint` is a five-phase pipeline and is disproportionate for the short requests that dominate on Cowork ("animate this word", "polish this hover"), so it recognises **light scope** - one isolated component, no visual identity at stake, nothing downstream depending on it - and shortens to a single brainstorm question with no `MASTER.md` written. The gates stay; only their number goes down.
 
 ---
 
@@ -318,6 +382,10 @@ Built by studying the best creative coding resources available.
 ### Design intelligence
 
 - [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) (MIT) - the `ui-ux-pro-max` sub-skill vendors this project's design dataset (styles, palettes, font pairings, UX guidelines, chart and stack guidance) and its Python search engine. See [skills/_jutsu/ui-ux-pro-max/UPSTREAM.md](./skills/_jutsu/ui-ux-pro-max/UPSTREAM.md) for the vendoring notes and divergences.
+
+### Tells
+
+- [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) - tells catalogue inspired by taste-skill (MIT, Leonxlnx). The idea of writing down the defaults a model reaches for comes from there. The catalogue is rewritten as detection in genjutsu's voice, with no prescribed replacement, and `scripts/check-no-verbatim.sh` checks that no passage was copied.
 
 ### Web foundation
 

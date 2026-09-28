@@ -41,9 +41,17 @@ it is dead weight for most requests, not to hit a count.
 directory, the Agent Skills six-field allowlist (`name`, `description`, `license`,
 `compatibility`, `metadata`, `allowed-tools` - only the first two are required, and no module in
 the tree uses more than three), length limits, no duplicate names. A body over 500 lines warns
-and still passes; three files are already over it.
+and still passes; three files are already over it. It also requires `metadata.internal` on
+every module and forbids it on `cast` and `paint`, and it caps at 25,000 characters every module
+entry file and every reference an orchestrator prints with `load_ref`: one shell call prints
+each of them whole, and past about 30,000 characters that output stops arriving inline. Any other
+reference over the cap warns.
 
-Internal modules carry `metadata.internal` so they do not surface as separately invocable skills.
+Every module under `skills/_jutsu/` carries a `metadata:` block with `internal: true`, an
+unquoted YAML boolean, because the `npx skills` CLI tests it with `=== true`. It hides the modules
+from `npx skills add`, so the repository route offers only `cast` and `paint`. genjutsu ships a
+single claude.ai bundle in which modules are `GUIDE.md` files, so they never show as skills there;
+`metadata.internal` is what hides them from `npx skills add AThevon/genjutsu`.
 
 ## The wiring: ten sites across two files
 
@@ -65,11 +73,40 @@ file without the other and CI rejects the PR.
 | Stack-aware token generation | `paint` Phase 3 only | n/a |
 
 The `skill-base` region is the exception: it resolves paths and knows nothing about families.
-Do not touch it.
+Any change to it needs a fixture per install layout in `scripts/test-resolver.sh`, and no new
+layout ships without its own fixture. The suite also runs against the packaged bundle, because
+packaging rewrites file names inside it.
 
 Three of these sites are duplicated across the two orchestrators with no CI guard. That is a
 known weakness, not a design: the audit checklist was in the same state until v3.4.0 and had
 already drifted.
+
+## Hosts
+
+genjutsu is written against capabilities, not against a product. A host runs it when it gives the
+model three things:
+
+- **The skill's own directory, known to the model.** Claude Code substitutes
+  `${CLAUDE_SKILL_DIR}` by itself. Anywhere else the model passes the directory it read the file
+  from, as `GENJUTSU_SKILL_DIR` for `cast` and `paint`, or `GENJUTSU_BUNDLE_DIR` for the router.
+  When neither is available, the resolver falls back to bounded probes.
+- **A shell**, to run the resolver and print the modules. Every shell call is assumed to start
+  from nothing: no variable, function or working directory carries over.
+- **File writes**, for the code, the tokens and `MASTER.md`.
+
+Optional: a tool that renders HTML for the user. Without one, the preview gate writes a throwaway
+HTML file and hands over its path, or falls back to inline.
+
+**What is supported.** Claude Code (plugin or `npx skills`), claude.ai and Cowork are tested by the
+maintainer before a release. genjutsu also installs and runs in other agents through
+`npx skills add https://genjutsu.athevon.dev -g` (Codex, Cursor and others): not tested by the
+maintainer, not supported. Nothing in the skills behaves differently per agent, and nothing will.
+Knowing which directories an installer writes to is infrastructure; a code path per agent is
+not.
+
+**Triage.** A bug report is reproduced under Claude Code first. One that reproduces there is a
+genjutsu bug. One that does not is labelled `community`: it stays open for someone who uses that
+agent, and a fix is welcome as long as it changes nothing for the supported hosts.
 
 ## Detection has to be conservative
 

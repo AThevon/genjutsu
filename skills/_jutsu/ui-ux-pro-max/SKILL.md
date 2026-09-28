@@ -1,6 +1,8 @@
 ---
 name: ui-ux-pro-max
 description: "UI/UX design-system intelligence - 84 styles, 192 palettes, 74 font pairings, 25 charts, 99 UX guidelines across 22 stacks (searchable dataset + CLI). Internal genjutsu module: loaded by /genjutsu:cast and /genjutsu:paint, not invoked directly."
+metadata:
+  internal: true
 ---
 
 > **Version-sensitive.** Every API name, SDK gate and browser-support claim below was
@@ -112,16 +114,35 @@ this skill.
 
 When user requests UI/UX work (design, build, create, implement, review, fix, improve), follow this workflow:
 
-**First, enter this skill's directory** so the `scripts/` and `data/` paths below resolve (the working directory persists across the subsequent commands):
+**Every command below runs in the same shell call as this block.** Shell state does not survive
+between calls, and the working directory is not guaranteed to either, so `UIUX_DIR` is derived
+again each time and every command names the script by its full path. The block tries, in order:
+`$SKILL_BASE/ui-ux-pro-max` when an orchestrator's skill-base block ran earlier in the same call;
+a directory you name yourself by putting `UIUX_DIR='/absolute/path/to/ui-ux-pro-max'` in front of
+the block; this skill's own directory when the host substitutes `CLAUDE_SKILL_DIR` (a standalone
+install); then a bounded search of the usual skills
+directories. When you already know the absolute path, you may write it in place of `$UIUX_DIR`.
 
+<!-- genjutsu:uiux-dir:start -->
 ```bash
-# Reads run from the skill dir; --persist writes to the project root.
+# Commands run from the project, so --persist writes to the project root and
+# never into the skill directory.
 PROJECT_ROOT="$PWD"
-# Use the base path the orchestrator already resolved, else locate this skill.
-UIUX_DIR="${SKILL_BASE:+$SKILL_BASE/ui-ux-pro-max}"
-[ -d "$UIUX_DIR" ] || UIUX_DIR="$(find "$HOME/.claude/plugins" /mnt/skills -type d -name ui-ux-pro-max 2>/dev/null | sort -V | tail -1)"
-cd "$UIUX_DIR"
+uiux_given="${UIUX_DIR:-}"
+UIUX_DIR=""
+for uiux_c in "${SKILL_BASE:+$SKILL_BASE/ui-ux-pro-max}" "$uiux_given" "${CLAUDE_SKILL_DIR}"; do
+  [ -n "$uiux_c" ] && [ -f "$uiux_c/scripts/search.py" ] && { UIUX_DIR="$uiux_c"; break; }
+done
+if [ -z "$UIUX_DIR" ]; then
+  for uiux_root in "$HOME/.agents/skills" "$HOME/.claude/skills" "$HOME/.claude/plugins" /mnt/skills; do
+    [ -d "$uiux_root" ] || continue
+    uiux_hit="$(find -L "$uiux_root" -maxdepth 9 -type f -path '*/ui-ux-pro-max/scripts/search.py' 2>/dev/null | sort -V | tail -1)"
+    [ -n "$uiux_hit" ] && { UIUX_DIR="${uiux_hit%/scripts/search.py}"; break; }
+  done
+fi
+[ -n "$UIUX_DIR" ] || echo "genjutsu: ui-ux-pro-max not found. Say so in one line and derive the design system from the thesis by hand." >&2
 ```
+<!-- genjutsu:uiux-dir:end -->
 
 ### Step 1: Analyze User Requirements
 
@@ -136,7 +157,7 @@ Extract key information from user request:
 **Always start with `--design-system`** to get comprehensive recommendations with reasoning:
 
 ```bash
-python3 scripts/search.py "<product_type> <industry> <keywords>" --design-system [-p "Project Name"] -f markdown
+python3 "$UIUX_DIR/scripts/search.py" "<product_type> <industry> <keywords>" --design-system [-p "Project Name"] -f markdown
 ```
 
 This command:
@@ -147,7 +168,7 @@ This command:
 
 **Example:**
 ```bash
-python3 scripts/search.py "beauty spa wellness service" --design-system -p "Serenity Spa" -f markdown
+python3 "$UIUX_DIR/scripts/search.py" "beauty spa wellness service" --design-system -p "Serenity Spa" -f markdown
 ```
 
 ### Step 2b: Persist Design System (Master + Overrides Pattern)
@@ -155,22 +176,22 @@ python3 scripts/search.py "beauty spa wellness service" --design-system -p "Sere
 To save the design system for **hierarchical retrieval across sessions**, add `--persist` (point `--output-dir` at the project root so files land there, not in the skill dir):
 
 ```bash
-python3 scripts/search.py "<query>" --design-system --persist -p "Project Name" --output-dir "$PROJECT_ROOT" -f markdown
+python3 "$UIUX_DIR/scripts/search.py" "<query>" --design-system --persist -p "Project Name" --output-dir "$PROJECT_ROOT" -f markdown
 ```
 
 This creates:
-- `design-system/<project-slug>/MASTER.md` — Global Source of Truth with all design rules
-- `design-system/<project-slug>/pages/` — Folder for page-specific overrides
+- `design-system/<project-slug>/MASTER.md` - Global Source of Truth with all design rules
+- `design-system/<project-slug>/pages/` - Folder for page-specific overrides
 
 `--persist` skips writing if `MASTER.md` already exists; add `--force` to overwrite.
 
 **With page-specific override:**
 ```bash
-python3 scripts/search.py "<query>" --design-system --persist -p "Project Name" --page "dashboard" --output-dir "$PROJECT_ROOT" -f markdown
+python3 "$UIUX_DIR/scripts/search.py" "<query>" --design-system --persist -p "Project Name" --page "dashboard" --output-dir "$PROJECT_ROOT" -f markdown
 ```
 
 This also creates:
-- `design-system/<project-slug>/pages/dashboard.md` — Page-specific deviations from Master
+- `design-system/<project-slug>/pages/dashboard.md` - Page-specific deviations from Master
 
 **How hierarchical retrieval works:**
 1. When building a specific page (e.g., "Checkout"), first check `design-system/<project-slug>/pages/checkout.md`
@@ -191,7 +212,7 @@ Now, generate the code...
 After getting the design system, use domain searches to get additional details:
 
 ```bash
-python3 scripts/search.py "<keyword>" --domain <domain> [-n <max_results>]
+python3 "$UIUX_DIR/scripts/search.py" "<keyword>" --domain <domain> [-n <max_results>]
 ```
 
 **When to use detailed searches:**
@@ -209,7 +230,7 @@ python3 scripts/search.py "<keyword>" --domain <domain> [-n <max_results>]
 Get implementation-specific best practices. If user doesn't specify a stack, **default to `html-tailwind`**.
 
 ```bash
-python3 scripts/search.py "<keyword>" --stack html-tailwind
+python3 "$UIUX_DIR/scripts/search.py" "<keyword>" --stack html-tailwind
 ```
 
 Available stacks: `html-tailwind`, `react`, `nextjs`, `astro`, `vue`, `nuxtjs`, `nuxt-ui`, `svelte`, `swiftui`, `react-native`, `flutter`, `shadcn`, `jetpack-compose`, `threejs`, `angular`, `laravel`, `javafx`, `wpf`, `winui`, `avalonia`, `uno`, `uwp`
@@ -277,7 +298,7 @@ Available stacks: `html-tailwind`, `react`, `nextjs`, `astro`, `vue`, `nuxtjs`, 
 ### Step 2: Generate Design System (REQUIRED)
 
 ```bash
-python3 scripts/search.py "beauty spa wellness service elegant" --design-system -p "Serenity Spa" -f markdown
+python3 "$UIUX_DIR/scripts/search.py" "beauty spa wellness service elegant" --design-system -p "Serenity Spa" -f markdown
 ```
 
 **Output:** Complete design system with pattern, style, colors, typography, effects, and anti-patterns.
@@ -286,16 +307,16 @@ python3 scripts/search.py "beauty spa wellness service elegant" --design-system 
 
 ```bash
 # Get UX guidelines for animation and accessibility
-python3 scripts/search.py "animation accessibility" --domain ux
+python3 "$UIUX_DIR/scripts/search.py" "animation accessibility" --domain ux
 
 # Get alternative typography options if needed
-python3 scripts/search.py "elegant luxury serif" --domain typography
+python3 "$UIUX_DIR/scripts/search.py" "elegant luxury serif" --domain typography
 ```
 
 ### Step 4: Stack Guidelines
 
 ```bash
-python3 scripts/search.py "layout responsive form" --stack html-tailwind
+python3 "$UIUX_DIR/scripts/search.py" "layout responsive form" --stack html-tailwind
 ```
 
 **Then:** Synthesize design system + detailed searches and implement the design.
@@ -308,10 +329,10 @@ The `--design-system` flag supports two output formats:
 
 ```bash
 # ASCII box (default) - best for terminal display
-python3 scripts/search.py "fintech crypto" --design-system -f markdown
+python3 "$UIUX_DIR/scripts/search.py" "fintech crypto" --design-system -f markdown
 
 # Markdown - best for documentation
-python3 scripts/search.py "fintech crypto" --design-system -f markdown
+python3 "$UIUX_DIR/scripts/search.py" "fintech crypto" --design-system -f markdown
 ```
 
 ---

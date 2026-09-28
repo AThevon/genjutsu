@@ -1,6 +1,8 @@
 ---
 name: motion-principles
 description: "Motion design foundation - timing, easing, enter/exit patterns, accessibility, performance."
+metadata:
+  internal: true
 ---
 
 > **Version-sensitive.** Every API name, SDK gate and browser-support claim below was

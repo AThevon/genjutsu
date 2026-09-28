@@ -29,10 +29,10 @@ The flair lives at the intro and during work narration. The moment a result land
 
 ## Iron Rules
 
-1. **Never code without a validated interaction thesis.** The thesis frames everything.
+1. **Never code without a validated interaction thesis.** The thesis frames everything. With nobody answering, see "When nobody is answering".
 2. **One question at a time during discovery.** Never bundle. Not even "just two quick ones."
 3. **Reject generic/AI slop.** No rainbow gradients, no gratuitous glassmorphism, no "modern and sleek."
-4. **Never install a dependency without asking.** Propose, explain why, wait for the green light.
+4. **Never install a dependency without asking.** Propose, explain why, wait for the green light. With nobody answering, never install one (see "When nobody is answering").
 5. **Match complexity to scope.** A hover effect doesn't justify a GSAP + ScrollTrigger pipeline.
 6. **Always prioritize performance.** 60fps or nothing.
 7. **Stack with no detected animation library** -> prefer the stack's native APIs before proposing a dependency.
@@ -52,7 +52,7 @@ So before the first gate of that kind, ask how they want to see it. Then never a
 
 > Before I show you this - how do you want to see it?
 >
-> **A. Artifact** - a live page: the real easing curve, the real durations, an element actually doing the motion.
+> **A. Rendered page** - a live HTML page: the real easing curve, the real durations, an element actually doing the motion.
 > **B. Live preview** - a throwaway route in your project, real stack, real tokens. Native: a `@Preview` / `#Preview` scratch file.
 > **C. Inline** - written out here in the conversation.
 
@@ -61,18 +61,18 @@ So before the first gate of that kind, ask how they want to see it. Then never a
 | Situation | Default |
 |---|---|
 | Scope is light (a hover, one transition) | C - inline |
-| Scope is medium or full, web stack | A - artifact |
+| Scope is medium or full, web stack | A - rendered page |
 | Scope is medium or full, Compose / SwiftUI | B - live preview, A as second choice |
-| A full visual identity or design system is on the table | A - artifact |
-| No dev server, or the repo must not be written to | A - artifact |
-| Host is Cowork and there is no project checkout to write into | A - artifact, B is unavailable |
+| A full visual identity or design system is on the table | A - rendered page |
+| No dev server, or the repo must not be written to | A - rendered page |
+| Host is Cowork and there is no project checkout to write into | A - rendered page, B is unavailable |
 
-**The choice sticks for the whole session.** At every later gate, announce the mode in one line ("Variants in artifact.") and go. Do not reopen the menu. The user switches by saying so - "show me that as text", "put it in an artifact", "just tell me" - respect it immediately, and the new mode becomes the session default from then on.
+**The choice sticks for the whole session.** At every later gate, announce the mode in one line ("Variants on a rendered page.") and go. Do not reopen the menu. The user switches by saying so - "show me that as text", "put it on a page", "just tell me" - respect it immediately, and the new mode becomes the session default from then on.
 
 **Which host is this?** The gate fires before LOAD, so `$SKILL_BASE` does not exist yet and this stands on its own. Detect once, cheaply, then map:
 
 ```bash
-if [ -d /mnt/skills/user ]; then
+if [ -d /mnt/skills/plugins ] || [ -d /mnt/skills/user ]; then
   GENJUTSU_HOST=claude-ai
 elif [ -d /mnt/.claude/skills ] \
   || [ -n "$(find /sessions -maxdepth 6 -type d -path '*/.claude/skills' 2>/dev/null | head -1)" ]; then
@@ -89,14 +89,14 @@ Cowork is tested before Claude Code on purpose: both can have a `~/.claude` tree
 
 **Producing the preview** - resolve the host, degrade, never fail:
 
-| Host | A - artifact | C - inline |
+| Host | A - rendered page | C - inline |
 |---|---|---|
-| claude.ai | Rendered natively. Just produce one. | Written out in the conversation. |
+| claude.ai | Rendered natively as an artifact. Just produce one. | Written out in the conversation. |
 | Cowork | The host's persistent artifact. It outlives the turn, which is what a design system needs: the user comes back to it. | The host's inline widget, rendered in place. Right default for a short task. |
-| Claude Code | The `Artifact` tool, when it is available. | Written out in the conversation. |
-| unknown | A self-contained HTML file written to a temp path, hand back the path. | Written out in the conversation. |
+| Claude Code | The `Artifact` tool when the session has it, else the capability rule below. | Written out in the conversation. |
+| unknown (any other host) | The capability rule below. | Written out in the conversation. |
 
-Call whatever the host actually exposes, under the name it exposes it as - check the tools available in the session rather than assuming one. If nothing renders, fall back down the table rather than failing the gate: an inline preview always beats an aborted one.
+**A, by capability.** Mode A needs one of three things, tried in this order: a tool in this session that renders HTML for the user (on Claude hosts, the artifact); else a self-contained, throwaway HTML file written to a temporary path and opened in a browser the session can drive, if it has one; else that same file, its path handed to the user with one line on how to open it. Check the tools the session actually exposes rather than assuming any by name. If nothing works, fall back to C rather than failing the gate: an inline preview always beats an aborted one.
 
 **B - live preview needs a project to write into.** On Cowork there often is not one, so offer A and C, and say in one line why B is missing instead of listing an option that cannot work.
 
@@ -111,6 +111,12 @@ Call whatever the host actually exposes, under the name it exposes it as - check
 
 **Rules the preview obeys:**
 
+- **The message that carries it names the thesis in plain text.** Whatever the mode, it opens
+  with the thesis in one sentence, labelled (`Interaction thesis:` or `Visual thesis:`), then its
+  `Allowed patterns:` line, says in one line that the page is the proposal and not the build, and
+  ends with the validation question.
+  It holds no implementation: code starts in a later turn, after a yes. Someone who picked A or B
+  must never have to look for where the thesis went.
 - **It is throwaway. It never becomes the implementation.** Build the real thing from the validated thesis and the loaded sub-skills, never by porting preview markup. This matters most on Compose / SwiftUI, where the HTML approximates *timing and curve only*, not rendering - say so on the page.
 - Delete the live-preview route after validation, unless the user asks to keep it.
 - Never install a dependency to build a preview.
@@ -118,11 +124,35 @@ Call whatever the host actually exposes, under the name it exposes it as - check
 - Only show values that are in the thesis. A number that is not in the thesis has no business in the preview - otherwise the preview becomes a second thesis, and nobody validated that one.
 <!-- genjutsu:shared:preview:end -->
 
+<!-- genjutsu:shared:headless:start -->
+## When nobody is answering
+
+Some sessions have no human on the other end: an eval harness, a CI job, another agent driving
+this skill. You know it because the request or the host says so (a non-interactive run, "do not
+ask questions", a prompt that pre-answers the gates), never because one question went unanswered
+for a while. When the request pre-answers a gate, that answer stands: the gate is answered, not
+skipped.
+
+In such a session every gate still produces its output. What changes is that nobody validates it:
+
+- **Discovery and brainstorm questions:** do not ask them. Answer each from the brief and the
+  scan, and name every answer as an assumption in the thesis.
+- **Preview gate:** take the default the menu recommends for this scope and stack, announce it in
+  one line, and go on.
+- **Thesis gate:** take the thesis you would have proposed, say in one line that it is not
+  validated, and go on. The final report prints it, marked **UNVALIDATED**.
+- **Dependencies:** never install one. Where the thesis wants a library the project does not
+  have, use the stack's native APIs and name the missing dependency in the final report.
+
+Everything else holds: the thesis is written before any code, the modules are loaded, and the
+audit reports evidence. A headless run skips the waiting, never the work.
+<!-- genjutsu:shared:headless:end -->
+
 ---
 
 ## Pipeline
 
-### 1. SCAN — Detect the stack
+### 1. SCAN - Detect the stack
 
 Before anything else, scan the project:
 
@@ -176,7 +206,7 @@ Map the results:
 - **Legacy mixed**: presence of `.xib`, `.storyboard`, layout XML, `setContentView(R.layout.*)`. Mention only, no auto-load.
 <!-- genjutsu:shared:scan:end -->
 
-### 2. DISCOVER — Understand the intent (when needed)
+### 2. DISCOVER - Understand the intent (when needed)
 
 **Skip this step if** the request is specific and self-contained ("add a hover scale on this button", "animate this list entry"). Go straight to SCOPE.
 
@@ -184,22 +214,35 @@ Map the results:
 
 The goal is to understand what the user actually wants before proposing anything. One question at a time, never bundle.
 
+**Declare your read before the first question.** The scan and the request already say a lot. Put
+it in one line, so a wrong premise dies before it shapes every question after it:
+
+> "My read so far: <what> for <whom>, heading toward <direction>, on <stack>. Correct me before I ask anything."
+
+Fill each slot from what you actually have: `<what>` and `<whom>` from the request, `<direction>`
+from the request or the existing code, `<stack>` from SCAN. A slot you cannot fill is said as
+unknown ("for an audience I can't tell yet"), never guessed, and it becomes your first question.
+The line is its own message: send it and wait. A correction replaces the slot it names; a
+go-ahead means the read stands. It is not a question and does not count as one, and it is not a
+thesis: nothing in it is validated until THESIS. When no human is in the session to answer,
+state the read and carry on with it as written.
+
 **How to ask:**
 
 Ask about the least-understood aspect first. Common domains:
 
-- **Mood/feel** — What emotion should this evoke? (snappy, cinematic, playful, serious, raw...)
-- **References** — Any sites/pages/components they've seen that feel right?
-- **Constraints** — Performance budget? Accessibility requirements? Browser support?
-- **Scope boundaries** — What's in, what's explicitly out?
+- **Mood/feel** - What emotion should this evoke? (snappy, cinematic, playful, serious, raw...)
+- **References** - Any sites/pages/components they've seen that feel right?
+- **Constraints** - Performance budget? Accessibility requirements? Browser support?
+- **Scope boundaries** - What's in, what's explicitly out?
 
 **How to handle vague answers:**
 
 When the user says "something modern" or "I'll know it when I see it":
 
-1. **Offer concrete options** — "Modern can mean a lot of things. More like Linear's clean transitions, Vercel's dramatic reveals, or Stripe's fluid gradients?"
-2. **Reframe** — "What would feel *wrong*? That helps me narrow it."
-3. **Name the consequence** — "This choice affects whether I go CSS-only or pull in GSAP. Worth pinning down."
+1. **Ask what the motion is for** - "Modern can mean a lot of things. At the moment this moves, what should someone feel or understand: that it is fast, that it is precise, that something was saved?" Draw the options from the product's own moments, never from another brand's site: "like Linear" anchors the thesis on a famous default.
+2. **Reframe** - "What would feel *wrong*? That helps me narrow it."
+3. **Name the consequence** - "This choice affects whether I go CSS-only or pull in GSAP. Worth pinning down."
 
 **Never** silently interpret a vague answer as confirmation. If you're not sure what they meant, say so.
 
@@ -213,7 +256,7 @@ Ask exactly one question:
 
 If the user picks legacy integration: write the bridge (`AndroidView` for Compose, `UIViewControllerRepresentable` for SwiftUI) to expose the modern code inside the legacy screen. Never generate new legacy code (no XML, no XIB, no setContentView).
 
-### 3. SCOPE — Evaluate the request
+### 3. SCOPE - Evaluate the request
 
 | Scope | Description | Sub-skills | Variants |
 |-------|-------------|------------|----------|
@@ -223,7 +266,7 @@ If the user picks legacy integration: write the bridge (`AndroidView` for Compos
 
 Rule: never bring out the heavy artillery for a hover effect.
 
-### 4. THESIS — One sentence before coding
+### 4. THESIS - One sentence before coding
 
 Formulate a sentence that captures the interaction intent. Examples:
 
@@ -235,139 +278,203 @@ Formulate a sentence that captures the interaction intent. Examples:
 - "This macOS dashboard will use 100ms opacity hover states (no scale on hover, desktop subtlety) and a Cmd+1-9 keyboard shortcut to navigate panels."
 - "This Android header will use an AGSL shader bound to scrollOffset for a dynamic liquid-glass effect (Android 13+, with a static fallback below)."
 
+**Guessability test:** if this thesis could be written from the product category alone, it is the category's default motion, not a decision: rewrite it from this product's own moments.
+
+**Under the thesis, one line naming what it allows.** `Allowed patterns:` followed by every
+deliberate device the design relies on that a reader could take for decoration or habit: mono
+labels, hairline rules, a paper ground, grain, a glow, a looping animation, a code label, a live
+clock. Write `Allowed patterns: none` when there are none. The audit reads this line: a tell
+counts as allowed only when it is listed here, so a mood word never lets one through, and the
+user sees the list before saying yes.
+
 **This is the first visual gate.** Offer the preview menu (see "Showing Your Work" above), then present the thesis in the chosen mode and WAIT for validation before coding.
 
-If rejected, don't start over — ask what feels wrong about it and adjust.
+If rejected, don't start over - ask what feels wrong about it and adjust.
 
-### 5. LOAD — Load the relevant sub-skills
+### 5. LOAD - Load the relevant sub-skills
 
-Detect the environment and resolve the sub-skills base path:
+Detect the environment and resolve the sub-skills base path.
+
+**Tell the block where this skill lives.** The block's first line reads `GENJUTSU_SKILL_DIR`.
+Claude Code fills it in by itself. On any other host, put one line in front of the block, in the
+same shell call, naming the directory you read this file from:
+`GENJUTSU_SKILL_DIR='/absolute/path/to/cast'`. When the genjutsu router printed a
+`GENJUTSU_SKILL_DIR=` line, use that value as it is.
 
 <!-- genjutsu:shared:skill-base:start -->
-**This block defines shell state, and shell state does not survive between Bash calls.**
-`$SKILL_BASE` and `load_skill` exist only inside the single Bash invocation that ran this
-block. Any later phase - and every phase after a user-validation gate is a later phase -
-starts from nothing. So: **re-emit this whole block in the same Bash call as the
+**This block defines shell state, and shell state does not survive between shell calls.**
+`$SKILL_BASE`, `load_skill` and `load_ref` exist only inside the single shell call that ran
+this block. Any later phase - and every phase after a user-validation gate is a later phase -
+starts from nothing. So: **re-emit this whole block in the same shell call as the
 `load_skill` lines you are about to run.** Never `cat "$SKILL_BASE/..."` in a call that did
-not define it; the path resolves to `/<name>/SKILL.md`, the `cat` fails, and the pipeline
-carries on without the sub-skill. Re-emitting costs a handful of depth-capped `find` calls,
-which is cheaper than being wrong about which version you loaded.
+not define it: the path resolves to `/<name>/...`, the `cat` fails, and the module is lost.
+
+**If the block prints `could not find the genjutsu modules`, stop the pipeline.** Show the
+user the message, install command included, and do nothing else: every later step depends
+on the modules, and running without them produces exactly the generic output this skill
+exists to prevent.
 
 ```bash
-# Environment detection, most specific first:
-# - claude.ai: skills are uploaded individually to /mnt/skills/user/<name>/
-# - Claude Code: ${CLAUDE_PLUGIN_ROOT} resolves to THIS plugin version's
-#   install directory. Claude Code substitutes it anywhere in skill content.
-# - Cowork and skills-directory installs: no fixed path exists. The tree is
-#   mounted under a session root that changes every run, e.g.
-#   /sessions/<id>/mnt/.claude/skills/genjutsu/_jutsu. Probed last, so the two
-#   environments above keep resolving exactly as they did before.
-# Single-bundle upload (genjutsu.zip) first: sub-skills live under this skill's
-# own dir, e.g. /mnt/skills/user/genjutsu/_jutsu/<name>/.
+GENJUTSU_SKILL_DIR="${GENJUTSU_SKILL_DIR:-${CLAUDE_SKILL_DIR}}"
+# Resolution order, first hit wins:
+#   0. claude.ai, /mnt/skills/plugins (or the older /mnt/skills/user): the
+#      genjutsu bundle.
+#   1. This skill's own directory: its _jutsu, or the _jutsu next to it.
+#   2. ${CLAUDE_PLUGIN_ROOT}/skills/_jutsu, when Claude Code substituted it.
+#   3. Bounded probes: .claude/skills and .agents/skills from $PWD upward, then
+#      the skills directories installers write to, then /sessions (Cowork).
+#   4. The Claude Code plugin cache, newest version. Last on purpose: an old
+#      plugin install must never win over a newer bundle.
+# Resolved from scratch every time. A cache was tried here and removed: after a
+# plugin update the old version directory is still on disk, so a cached path
+# passes an "is it a directory" check and serves the previous release.
 
-# Probe for a mounted _jutsu when no fixed path applies. Bounded on purpose:
-# every root is either shallow or depth-capped, so this never walks the disk.
-genjutsu_probe_jutsu() {
-  probe_hit=""
-  # Walk up from the working directory first: cheapest, and correct whenever
-  # the session root is an ancestor of wherever the pipeline is running. Hard
-  # bounded, and the case guard catches "." and "": an empty or relative PWD
-  # would otherwise never reach "/" and the loop would spin forever.
-  probe_dir="${PWD:-$(pwd)}"
-  probe_n=0
-  while [ "$probe_n" -lt 24 ]; do
-    probe_n=$((probe_n + 1))
-    probe_hit="$(find "$probe_dir/.claude/skills" -maxdepth 2 -type d -name _jutsu 2>/dev/null | head -1)"
-    [ -n "$probe_hit" ] && { printf '%s\n' "$probe_hit"; return 0; }
-    case "$probe_dir" in /|.|"") break ;; esac
-    probe_dir="$(dirname "$probe_dir")"
+# A _jutsu directory counts only if it holds motion-principles. The shared
+# skills directory of npx serves about 80 agents, so a directory name proves
+# nothing. The entry file is named SKILL or GUIDE depending on the artifact
+# (the bundle renames it at packaging time), so the name is assembled from
+# parts: spelled out in full, the packaging step would rewrite it too.
+genjutsu_is_jutsu() {
+  for d in SKILL GUIDE; do
+    [ -f "$1/motion-principles/$d.md" ] && return 0
   done
-  # Then the fixed roots. A skills directory holds _jutsu two levels down, so
-  # that is all they get: no reason to traverse a populated one any deeper.
-  for probe_root in "$HOME/.claude/skills" /mnt/.claude/skills; do
-    [ -d "$probe_root" ] || continue
-    probe_hit="$(find "$probe_root" -maxdepth 2 -type d -name _jutsu 2>/dev/null | head -1)"
-    [ -n "$probe_hit" ] && { printf '%s\n' "$probe_hit"; return 0; }
-  done
-  # A session root is the one layout that needs more, for the session id and
-  # its mnt/ wrapper. Still capped, and skipped entirely when absent.
-  if [ -d /sessions ]; then
-    probe_hit="$(find /sessions -maxdepth 8 -type d -path '*/.claude/skills/*/_jutsu' 2>/dev/null | head -1)"
-    [ -n "$probe_hit" ] && { printf '%s\n' "$probe_hit"; return 0; }
-  fi
   return 1
 }
 
-# Resolve from scratch every time. A cache was tried here and removed: after a plugin
-# update the old version directory is still on disk, so a cached path passes an
-# "is it a directory" check and silently serves the previous release's sub-skills to
-# the current orchestrator. Being right costs a few depth-capped finds.
+# Print the first genjutsu _jutsu among the candidate paths read on stdin.
+genjutsu_first_jutsu() {
+  while read -r jutsu_c; do
+    genjutsu_is_jutsu "$jutsu_c" && { printf '%s\n' "$jutsu_c"; return 0; }
+  done
+  return 1
+}
+
 SKILL_BASE=""
-BUNDLE_JUTSU="$(find /mnt/skills/user -maxdepth 2 -type d -name _jutsu 2>/dev/null | head -1)"
-if [ -n "$BUNDLE_JUTSU" ]; then
-  # claude.ai - single self-contained genjutsu bundle
-  SKILL_BASE="$BUNDLE_JUTSU"
-elif [ -d "/mnt/skills/user" ]; then
-  # claude.ai - each sub-skill is its own uploaded skill (detect the mount, not
-  # one specific sub-skill, so a partial upload still resolves the base).
-  SKILL_BASE="/mnt/skills/user"
-else
-  # Claude Code plugin
-  SKILL_BASE="${CLAUDE_PLUGIN_ROOT}/skills/_jutsu"
-  # Fallback if the placeholder was not substituted: newest installed version.
-  # Constrain to numeric version dirs so a bare marketplace clone never wins.
-  if [ ! -d "$SKILL_BASE" ]; then
-    SKILL_BASE=$(find ~/.claude/plugins/cache -type d -path '*/genjutsu/[0-9]*/skills/_jutsu' 2>/dev/null | sort -V | tail -1)
-  fi
-  # Cowork / skills-directory install: session-rooted mount, nothing fixed to
-  # match, so probe for it only once the two fixed layouts have both missed.
-  if [ -z "$SKILL_BASE" ] || [ ! -d "$SKILL_BASE" ]; then
-    SKILL_BASE="$(genjutsu_probe_jutsu)"
-  fi
+# 0. claude.ai mounts uploaded skills under /mnt/skills/plugins/<name>/ (seen on
+# 2026-09-28), next to the user's other skills; /mnt/skills/user before that.
+# GENJUTSU_CLAUDE_AI_ROOT stands in for /mnt/skills in the test suite only.
+# Only a _jutsu holding motion-principles counts: a mount without genjutsu in it
+# must never pass for a resolved base.
+genjutsu_claude_ai="${GENJUTSU_CLAUDE_AI_ROOT:-/mnt/skills}"
+for claude_root in "$genjutsu_claude_ai/plugins" "$genjutsu_claude_ai/user"; do
+  [ -z "$SKILL_BASE" ] && [ -d "$claude_root" ] || continue
+  SKILL_BASE="$(find -L "$claude_root" -maxdepth 2 -type d -name _jutsu 2>/dev/null | genjutsu_first_jutsu)"
+done
+# 1. This skill's own directory. Empty means unknown: never probe "/_jutsu".
+if [ -z "$SKILL_BASE" ] && [ -n "$GENJUTSU_SKILL_DIR" ]; then
+  SKILL_BASE="$(printf '%s\n' "$GENJUTSU_SKILL_DIR/_jutsu" "$GENJUTSU_SKILL_DIR/../_jutsu" | genjutsu_first_jutsu)"
 fi
-
-
-# Abort clearly instead of cat-ing bogus paths if resolution failed. Name every
-# root that was tried, so a new host layout can be reported instead of guessed.
-if [ -z "$SKILL_BASE" ] || [ ! -d "$SKILL_BASE" ]; then
-  echo "genjutsu: could not resolve the sub-skills directory." >&2
-  echo "  claude.ai   - upload the genjutsu skill ZIP(s) via Customize > Skills." >&2
-  echo "  Claude Code - reinstall the plugin, then run /reload-plugins." >&2
-  echo "  Cowork      - expected a _jutsu directory under a */.claude/skills/<name>/ mount." >&2
-  echo "  Tried: /mnt/skills/user, \$CLAUDE_PLUGIN_ROOT, ~/.claude/plugins/cache," >&2
-  echo "         \$PWD ancestors, ~/.claude/skills, /mnt/.claude/skills, /sessions." >&2
+# 2. Claude Code plugin root.
+if [ -z "$SKILL_BASE" ] && [ -n "${CLAUDE_PLUGIN_ROOT}" ]; then
+  SKILL_BASE="$(printf '%s\n' "${CLAUDE_PLUGIN_ROOT}/skills/_jutsu" | genjutsu_first_jutsu)"
 fi
+# 3. Bounded probes, following symlinks (npx links .claude/skills/<name> to
+# .agents/skills/<name>). The case guard stops the walk at "/", "." or "".
+probe_dir="${PWD:-$(pwd)}"
+probe_n=0
+while [ -z "$SKILL_BASE" ] && [ "$probe_n" -lt 24 ]; do
+  probe_n=$((probe_n + 1))
+  SKILL_BASE="$(find -L "$probe_dir/.claude/skills" "$probe_dir/.agents/skills" -maxdepth 2 -type d -name _jutsu 2>/dev/null | genjutsu_first_jutsu)"
+  case "$probe_dir" in /|.|"") break ;; esac
+  probe_dir="$(dirname "$probe_dir")"
+done
+for probe_root in "$HOME/.agents/skills" "$HOME/.claude/skills" "$HOME/.codex/skills" \
+    "$HOME/.cursor/skills" /mnt/.claude/skills; do
+  [ -z "$SKILL_BASE" ] && [ -d "$probe_root" ] || continue
+  SKILL_BASE="$(find -L "$probe_root" -maxdepth 2 -type d -name _jutsu 2>/dev/null | genjutsu_first_jutsu)"
+done
+if [ -z "$SKILL_BASE" ] && [ -d /sessions ]; then
+  SKILL_BASE="$(find -L /sessions -maxdepth 8 -type d -path '*/.claude/skills/*/_jutsu' 2>/dev/null | genjutsu_first_jutsu)"
+fi
+# 4. Claude Code plugin cache, newest version first. Numeric version
+# directories only, so a bare marketplace clone never wins.
+if [ -z "$SKILL_BASE" ] && [ -d "$HOME/.claude/plugins/cache" ]; then
+  SKILL_BASE="$(find "$HOME/.claude/plugins/cache" -maxdepth 6 -type d -path '*/genjutsu/[0-9]*/skills/_jutsu' 2>/dev/null | sort -V -r | genjutsu_first_jutsu)"
+fi
+[ -n "$SKILL_BASE" ] && SKILL_BASE="$(cd "$SKILL_BASE" 2>/dev/null && pwd -P)"
 
-# Load a sub-skill, warning (not failing) if its ZIP was not uploaded / is missing.
-# The entry filename depends on the artifact, not on the host: a plugin install
-# ships SKILL.md, while the claude.ai bundle renames every inner one to GUIDE.md
-# at packaging time. Either can end up mounted under a Cowork session root, so
-# try both. The name is assembled from parts on purpose - spelled out in full it
-# would be rewritten by the same packaging step, defeating the fallback.
+# Stop instead of running the pipeline without its modules. Name every root that
+# was tried, so a new layout can be reported instead of guessed.
+if [ -z "$SKILL_BASE" ]; then
+  echo "genjutsu: could not find the genjutsu modules (a _jutsu directory holding motion-principles)." >&2
+  echo "  cast and paint do not work without them. Install the full bundle:" >&2
+  echo "    any agent    npx skills add https://genjutsu.athevon.dev -g" >&2
+  echo "    Claude Code  /plugin marketplace add AThevon/genjutsu, then /plugin install genjutsu" >&2
+  echo "    claude.ai    upload genjutsu.zip in Customize > Skills" >&2
+  echo "  npx skills add AThevon/genjutsu installs cast and paint without their modules." >&2
+  echo "  Tried: /mnt/skills/plugins, /mnt/skills/user, GENJUTSU_SKILL_DIR (${GENJUTSU_SKILL_DIR:-empty}) and its parent," >&2
+  echo "         \$CLAUDE_PLUGIN_ROOT, .claude/skills and .agents/skills from \$PWD upward," >&2
+  echo "         ~/.agents/skills, ~/.claude/skills, ~/.codex/skills, ~/.cursor/skills," >&2
+  echo "         /mnt/.claude/skills, /sessions, ~/.claude/plugins/cache." >&2
+  echo "genjutsu: stop the pipeline here and show this message to the user." >&2
+  return 1 2>/dev/null || exit 1
+fi
+echo "genjutsu: modules from $SKILL_BASE" >&2
+
+# Print a module's entry file. A missing module does not stop the pipeline (a
+# partial claude.ai upload is legitimate), but it is announced, and the final
+# report lists it: shell state does not survive, so the model keeps the list.
 load_skill() {
-  for jutsu_doc in SKILL GUIDE; do
-    if [ -f "$SKILL_BASE/$1/$jutsu_doc.md" ]; then
-      cat "$SKILL_BASE/$1/$jutsu_doc.md"
+  for d in SKILL GUIDE; do
+    if [ -f "$SKILL_BASE/$1/$d.md" ]; then
+      cat "$SKILL_BASE/$1/$d.md"
       return 0
     fi
   done
-  echo "genjutsu: sub-skill '$1' not found - upload its ZIP (claude.ai) or reinstall the plugin; continuing without it." >&2
+  echo "genjutsu: sub-skill '$1' NOT LOADED - not found under $SKILL_BASE. Carry on, and list it under 'Modules not loaded' in the final report." >&2
+  return 1
+}
+
+# Print one reference file of a module: load_ref <module> <path inside it>.
+load_ref() {
+  if [ -f "$SKILL_BASE/$1/$2" ]; then
+    cat "$SKILL_BASE/$1/$2"
+    return 0
+  fi
+  echo "genjutsu: reference '$1/$2' NOT LOADED - not found under $SKILL_BASE. Carry on, and say so in the final report." >&2
+  return 1
 }
 ```
 <!-- genjutsu:shared:skill-base:end -->
 
-**Always load** (load every sub-skill below via `load_skill <name>`, defined above - it warns instead of failing silently if a ZIP is missing):
+**Always load** (via `load_skill <name>`, defined above: a missing module prints `NOT LOADED` and the pipeline carries on, so keep the list for the final report):
 - `load_skill motion-principles` - the foundation
 
 <!-- genjutsu:shared:load:start -->
+**One module per shell call.** The output of a shell call over about 30,000 characters does not
+arrive inline: you get a 2,000-character preview and a file path, and a module you could not
+read is a module you did not load. So each loading call re-emits the skill-base block and loads
+one module, which keeps its output under 25,000 characters: no module entry file is over that
+cap, and `validate-skills.py` keeps it that way. Keep the tally as you go: `load_skill` prints
+`NOT LOADED` for a missing module and carries on, and the final report lists both. Load each
+module whole: never pipe `load_skill` or `load_ref` into `head`, `tail`, `sed`, or `grep`, since
+the batching rule above already keeps each call under the limit, and a truncated module is a
+module not loaded.
+
 **Context layers** (load when applicable):
 
 | Detected | Load |
 |---|---|
+| Web stack and scope is medium or full | `load_skill tells` (dedicated call, with `references/web.md`, see below) |
 | Mobile context (web mobile OR native iOS / Android) | `load_skill mobile-principles` |
 | Desktop context (macOS OR web desktop with no mobile indicators) | `load_skill desktop-principles` |
 | Audit explicitly requested OR scope=full | `load_skill design-audit` |
 | Advanced UI/UX questions | `load_skill ui-ux-pro-max` |
+
+**`tells` gets a shell call of its own.** With its web reference it weighs about 20,000
+characters, too close to the point where a shell call's output stops arriving inline to share a
+call with any other module. Re-emit the skill-base block in that call, then:
+
+```bash
+# (skill-base block re-emitted above this line)
+load_skill tells
+load_ref tells references/web.md
+```
+
+It loads after the thesis gate and before any visual choice is frozen: the validated thesis says
+which patterns are wanted, and `tells` names the reflexes nobody asked for. Never on a Compose or
+SwiftUI stack, never on light scope. In paint this row is already met: Phase 3 loads `tells`
+before the design-system query.
 
 **Stack-specific** (load by SCAN):
 
@@ -395,27 +502,27 @@ The thesis is "advanced" (and triggers loading the graphics sub-skill) if it con
 Otherwise stick to the base motion sub-skill.
 <!-- genjutsu:shared:load:end -->
 
-### 6. IMPLEMENT — Code while respecting the loaded principles
+### 6. IMPLEMENT - Code while respecting the loaded principles
 
 - **Light scope**: direct implementation, no variants
 - **Medium/full scope**: propose 2-3 variants before coding
 
 **Variant presentation format (medium/full):**
 
-> **Variant A — [Name]** (subtle)
+> **Variant A - [Name]** (subtle)
 > [One sentence: the feel + the technique]
 >
-> **Variant B — [Name]** (balanced)
+> **Variant B - [Name]** (balanced)
 > [One sentence: the feel + the technique]
 >
-> **Variant C — [Name]** (impressive)
+> **Variant C - [Name]** (impressive)
 > [One sentence: the feel + the technique]
 
-That's the inline form. If the session mode is **artifact** or **live preview**, render the three variants there instead - side by side, one global trigger so they fire together and stay comparable - and keep the text above as their captions. Announce the mode in one line; don't reopen the menu.
+That's the inline form. If the session mode is **rendered page** or **live preview**, render the three variants there instead - side by side, one global trigger so they fire together and stay comparable - and keep the text above as their captions. Announce the mode in one line; don't reopen the menu.
 
 Wait for the user to pick before implementing. Always respect the validated thesis.
 
-### 7. AUDIT — Verification before delivery
+### 7. AUDIT - Verification before delivery
 
 Before delivering, run the checks matching the detected stack. Iron rule 6 says 60fps or nothing, and an audit that asserts it without measuring is how that rule gets quietly broken.
 
@@ -433,6 +540,15 @@ Each line is reported as `check - verdict - the evidence`. The evidence is the g
 value you computed, or the `file:line` you read. A verdict with no evidence beside it is not a
 finding, and an item you could not check is reported as **not checked** rather than passed.
 
+- [ ] **Thesis against code.** First, because every check below assumes the code is the thesis
+      that was validated. For each promise the validated thesis actually makes (durations,
+      easing, springs, palette, type, layout family) give the `file:line` that holds it, or
+      "not found". A thesis that makes no palette or type promise, an interaction thesis alone,
+      gets no palette or type line. A promise with no `file:line` is a problem found, not a
+      pass. Honest downgrade: when promised motion cannot be shipped working, ship the
+      static version, say so here, and name the promise that was dropped; it counts as a
+      problem found. Never ship motion that is half broken to keep a promise on paper.
+      Evidence: one line per promise, e.g. `hover 180ms ease-out - src/Card.tsx:42`.
 - [ ] **Reduced motion** honoured. Web: a `prefers-reduced-motion` block that actually degrades
       the animation, not an empty one. SwiftUI: `accessibilityReduceMotion`. Compose: a helper
       on `ValueAnimator.areAnimatorsEnabled()` / `Settings.Global.ANIMATOR_DURATION_SCALE`.
@@ -456,6 +572,26 @@ finding, and an item you could not check is reported as **not checked** rather t
       `.accessibilityLabel` on controls that have no text. Evidence: the grep.
 - [ ] **Web only.** Conditional renders wrapped in `AnimatePresence` or the framework's
       equivalent; `will-change` used sparingly and removed after the animation. Evidence: the grep.
+- [ ] **Tells confronted with the thesis.** Only when `tells` was loaded. In one shell call,
+      re-emit the skill-base block and run
+      `python3 "$SKILL_BASE/design-audit/scripts/audit.py" . --group tells`, whether or not
+      `design-audit` was loaded. Evidence, for each finding: either the problem you kept, with its
+      `file:line`, or the entry of the thesis's `Allowed patterns:` line that names it. A kept tell
+      counts among the problems found. An allowed one is listed as "allowed by the thesis", with
+      that entry quoted, and is not a problem. The manual reads `tells` lists (fake product in
+      divs, repeated layout family, floating corner paragraph, copy register, copy held in
+      JavaScript data) are reported the same way.
+      Each finding has one of three outcomes, never a fourth: **allowed by the thesis**, its
+      `Allowed patterns:` entry quoted; **not this tell**, only when the detection contradicts the
+      entry's own marker (the loop reports a real loading state, the blur is a modal backdrop, the
+      matched line is not displayed text), with the `file:line` that proves it and never on a matter
+      of taste; or **a problem**. Fix before you report, and only what this run introduced: a problem
+      on a line this run wrote (read `git diff` when the project has one) is removed or rewritten,
+      then this check runs again, two passes at most, and what still fails is reported with its
+      `file:line`. A tell that was already in the project, on a line this run did not write, is
+      never changed here: it is listed for the user. Nothing on the protected list of an existing
+      project (public token names, URLs, navigation labels, form field names, logo, legal mentions)
+      is changed by this step.
 
 ### You must run these - not verified here
 
@@ -478,13 +614,25 @@ If a preview or a dev server is already running and the user agrees, driving the
 collect the web rows is better than handing them over. Never start one just for the audit, and
 never install anything for it.
 
-**Report the two groups separately**, with the counts. "9 checked, 2 problems found, 8 handed
+**Report the two groups separately**, with the counts. "11 checked, 2 problems found, 8 handed
 over" is an honest audit. A single list of ticks is not.
+
+**Close the report with the modules**, always, as two lines of their own:
+
+```
+Modules loaded: motion-principles, framer-motion, design-audit
+Modules not loaded: none
+```
+
+`Modules not loaded` names every module a `load_skill` call reported as `NOT LOADED`, and every
+module the load tables called for that was never requested. Write `none` only when both are
+empty. Shell state does not survive between calls, so this list is yours to keep from the first
+load to the last: nothing in the shell remembers it for you.
 <!-- genjutsu:shared:audit:end -->
 
 ---
 
-## Red Flags — You're About to Violate This Skill
+## Red Flags - You're About to Violate This Skill
 
 | Thought | Reality |
 |---------|---------|

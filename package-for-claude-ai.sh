@@ -32,26 +32,7 @@ mkdir -p "$DIST"
 echo "=== genjutsu - Packaging pour claude.ai ==="
 echo ""
 
-# --- Individual ZIPs per skill ---
-
-# Orchestrators (skills/<name>/ -> <name>.zip, skip _jutsu/)
-for dir in "$SKILLS_DIR"/*/; do
-  name=$(basename "$dir")
-  [[ "$name" == _* ]] && continue
-  zip_path="$(pwd)/${DIST}/${name}.zip"
-  make_zip "$dir" "$zip_path"
-  echo "  + ${name}.zip"
-done
-
-# Sub-skills (_jutsu/<name>/ -> <name>.zip)
-for dir in "$SKILLS_DIR"/_jutsu/*/; do
-  name=$(basename "$dir")
-  zip_path="$(pwd)/${DIST}/${name}.zip"
-  make_zip "$dir" "$zip_path"
-  echo "  + ${name}.zip"
-done
-
-# --- Single-upload bundle (recommended) ---
+# --- Single-upload bundle ---
 # One self-contained "genjutsu" skill: a thin router SKILL.md + cast/ + paint/
 # + all _jutsu/ sub-skills. Uploaded once, it resolves sub-skills from its own
 # bundled _jutsu/ (the orchestrators' path detection prefers the bundle).
@@ -94,5 +75,4 @@ echo "=== Résumé ==="
 echo ""
 ls -lh "$DIST"/*.zip | awk '{print "  " $NF " (" $5 ")"}'
 echo ""
-echo "claude.ai: upload genjutsu.zip once (Customize > Skills), or the individual"
-echo "skill ZIPs (cast + paint + the sub-skills you need)."
+echo "claude.ai: upload genjutsu.zip once (Customize > Skills)."

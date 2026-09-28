@@ -17,20 +17,22 @@ Start a chat and paste:
 
 > Run this and paste the output:
 > ```bash
-> ls -d /mnt/skills/user/*/ ; echo "---" ; find /mnt/skills/user -maxdepth 2 -type d -name _jutsu ; echo "---" ; ls /mnt/skills/user/genjutsu/ 2>/dev/null
+> ls /mnt/skills/ ; echo "---" ; find /mnt/skills -maxdepth 3 -type d -name _jutsu ; echo "---" ; ls /mnt/skills/plugins/genjutsu/ /mnt/skills/user/genjutsu/ 2>/dev/null
 > ```
 
 Expect:
-- a `genjutsu` directory under `/mnt/skills/user/`,
-- a `_jutsu` directory found (e.g. `/mnt/skills/user/genjutsu/_jutsu`),
+- `plugins` among the entries of `/mnt/skills/` (claude.ai mounts uploaded skills under
+  `/mnt/skills/plugins/<name>/` since 2026-09; accounts on the older layout show
+  `/mnt/skills/user/<name>/` instead, and genjutsu resolves both),
+- a `_jutsu` directory found (e.g. `/mnt/skills/plugins/genjutsu/_jutsu`),
 - `SKILL.md  cast  paint  _jutsu` inside `genjutsu/`.
 
-If the `find` prints nothing, the bundle's files did not mount (the #26254 regression). Fall back to uploading the individual skill ZIPs for now and report it.
+If the `find` prints nothing, the bundle's files did not mount (the #26254 regression). Stop and open an issue with the step 2 output.
 
 ## 3. Functional test - cast (enhance existing UI)
 > "Add a subtle scroll-reveal animation to a hero section in plain HTML/CSS."
 
-Confirm the assistant: routes to the **cast** pipeline, resolves sub-skills with no `genjutsu: sub-skill '<name>' not found` warning, and proposes an interaction thesis before writing code.
+Confirm the assistant: routes to the **cast** pipeline, resolves sub-skills with no `genjutsu: sub-skill '<name>' NOT LOADED` line, and proposes an interaction thesis before writing code.
 
 ## 4. Functional test - paint (build from scratch)
 > "Design a visual identity for a fintech landing page from scratch."
@@ -38,7 +40,13 @@ Confirm the assistant: routes to the **cast** pipeline, resolves sub-skills with
 Confirm it routes to **paint** (brainstorm first), and that `ui-ux-pro-max` loads (e.g. it runs `scripts/search.py ... --design-system`).
 
 ## 5. Resolution failure signals
-If at any point you see `genjutsu: could not resolve the sub-skills directory` or `sub-skill '…' not found`, path detection failed. Capture the `/mnt/skills/user` layout from step 2 and open an issue.
+If at any point you see `genjutsu: could not find the genjutsu modules` (the pipeline must then stop) or `sub-skill '<name>' NOT LOADED`, path detection failed. Capture the `/mnt/skills/` layout from step 2 and open an issue.
+
+## 6. Log
+
+| Date | Release commit | Upload | Mount (step 2) | cast (step 3) | paint (step 4) | Notes |
+|---|---|---|---|---|---|---|
+| 2026-09-28 | 4c651e7 | accepted: one skill `genjutsu`, 97 files | `/mnt/skills/plugins/genjutsu/` with `_jutsu` (17 entries, `tells` among them); no `/mnt/skills/user` | routed to cast, asked the preview mode, showed the thesis as an artifact plus a text summary, stopped for validation | not run | the same test on 3a5e3c0, before the `/mnt/skills/plugins` fix, skipped the pipeline and answered directly |
 
 ## Pass criteria
 - One upload, one skill.

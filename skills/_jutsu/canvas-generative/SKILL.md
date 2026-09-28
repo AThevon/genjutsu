@@ -1,6 +1,8 @@
 ---
 name: canvas-generative
 description: "Algorithmic and generative art with Canvas 2D - particles, flow fields, noise, fractals, L-systems."
+metadata:
+  internal: true
 ---
 
 > **Version-sensitive.** Every API name, SDK gate and browser-support claim below was

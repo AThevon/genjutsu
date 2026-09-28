@@ -1,13 +1,15 @@
 ---
 name: framer-motion
 description: "Framer Motion / Motion sub-skill - AnimatePresence, layout animations, gestures, motion values."
+metadata:
+  internal: true
 ---
 
 > **Version-sensitive.** Every API name, SDK gate and browser-support claim below was
 > verified on **2026-09-08** against primary sources. What against, and when, is in
 > `_jutsu/VERSIONS.md`. If that date is old, re-verify before acting on a version number.
 
-# Framer Motion — Sub-skill
+# Framer Motion - Sub-skill
 
 > **Two package names, one library.** Framer Motion was renamed to Motion. `motion` and
 > `framer-motion` both publish the same version (13.2.0 as of 2026-09-08): `motion` declares
@@ -40,13 +42,13 @@ description: "Framer Motion / Motion sub-skill - AnimatePresence, layout animati
 
 **Rule**: Framer Motion for React UI interactions (modals, toasts, reorder, shared layout). GSAP for complex timelines, cinematic scroll-driven, SVG morphing.
 
-## AnimatePresence — Exit animations
+## AnimatePresence - Exit animations
 
 ```tsx
 <AnimatePresence mode="wait">
   {isVisible && (
     <motion.div
-      key="unique-key"        // REQUIRED — identifies the component
+      key="unique-key"        // REQUIRED - identifies the component
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -55,28 +57,28 @@ description: "Framer Motion / Motion sub-skill - AnimatePresence, layout animati
 </AnimatePresence>
 ```
 
-- `mode="wait"` — waits for exit to finish before enter (page transitions)
-- `mode="sync"` — exit and enter simultaneously
-- `mode="popLayout"` — removes from flow immediately (good for lists)
-- `onExitComplete` — callback when all exit animations are finished
+- `mode="wait"` - waits for exit to finish before enter (page transitions)
+- `mode="sync"` - exit and enter simultaneously
+- `mode="popLayout"` - removes from flow immediately (good for lists)
+- `onExitComplete` - callback when all exit animations are finished
 
 ## Layout animations
 
 ```tsx
-// Shared layout — the element "slides" between two positions
+// Shared layout - the element "slides" between two positions
 <motion.div layoutId="highlight" className={activeTab === id ? "active" : ""} />
 
-// Auto layout — animates position/size when layout changes
+// Auto layout - animates position/size when layout changes
 <motion.div layout>
   {isExpanded && <motion.p layout>Additional content</motion.p>}
 </motion.div>
 
-// layout="position" — animates position only (not size)
-// layout="size" — animates size only
-// layout="preserve-aspect" — preserves the ratio during the transition
+// layout="position" - animates position only (not size)
+// layout="size" - animates size only
+// layout="preserve-aspect" - preserves the ratio during the transition
 ```
 
-## Variants — Propagation and orchestration
+## Variants - Propagation and orchestration
 
 ```tsx
 import { stagger } from "motion/react";
@@ -107,7 +109,7 @@ const item = {
 </motion.ul>
 ```
 
-Variants **automatically propagate** to motion children — no need for `initial`/`animate` on children.
+Variants **automatically propagate** to motion children - no need for `initial`/`animate` on children.
 
 ## Gestures
 
@@ -127,7 +129,7 @@ Variants **automatically propagate** to motion children — no need for `initial
 />
 ```
 
-## Motion values — Reactive without re-render
+## Motion values - Reactive without re-render
 
 ```tsx
 const x = useMotionValue(0);
@@ -149,7 +151,7 @@ const { scrollYProgress } = useScroll({
 });
 ```
 
-**Motion values do NOT trigger React re-renders** — they update the DOM directly via `style`.
+**Motion values do NOT trigger React re-renders** - they update the DOM directly via `style`.
 
 ## Do Not
 
@@ -171,10 +173,10 @@ Or reverse the composition so the styling library owns prop forwarding: `const M
 ### Do not setState in callbacks without a guard
 
 ```tsx
-// BAD — infinite re-render if animate depends on state
+// BAD - infinite re-render if animate depends on state
 onUpdate={(latest) => setPosition(latest.x)}
 
-// GOOD — guard or useMotionValueEvent
+// GOOD - guard or useMotionValueEvent
 const x = useMotionValue(0);
 useMotionValueEvent(x, "change", (latest) => {
   if (latest > threshold) onThresholdReached();
@@ -184,22 +186,22 @@ useMotionValueEvent(x, "change", (latest) => {
 ### Do not use layout animation without a stable key
 
 ```tsx
-// BAD — key changes every render, breaks layout tracking
+// BAD - key changes every render, breaks layout tracking
 <motion.div layout key={Math.random()} />
 
-// GOOD — stable key derived from data
+// GOOD - stable key derived from data
 <motion.div layout key={item.id} />
 ```
 
 ### Do not forget the unique key on AnimatePresence
 
 ```tsx
-// BAD — no key, exit animation does not trigger
+// BAD - no key, exit animation does not trigger
 <AnimatePresence>
   {isOpen && <motion.div exit={{ opacity: 0 }} />}
 </AnimatePresence>
 
-// GOOD — unique key for each conditional child
+// GOOD - unique key for each conditional child
 <AnimatePresence>
   {isOpen && <motion.div key="modal" exit={{ opacity: 0 }} />}
 </AnimatePresence>
@@ -208,17 +210,17 @@ useMotionValueEvent(x, "change", (latest) => {
 ### Do not wrap an already animated component with motion.div
 
 ```tsx
-// BAD — double animation, transform conflicts
+// BAD - double animation, transform conflicts
 <motion.div animate={{ x: 100 }}>
   <motion.div animate={{ x: -50 }}>Content</motion.div>
 </motion.div>
 
-// GOOD — single animation level per transform axis
+// GOOD - single animation level per transform axis
 <motion.div animate={{ x: 100 }}>
   <motion.div animate={{ opacity: 0.5 }}>Content</motion.div>
 </motion.div>
 
-// GOOD — use variants to coordinate parent/child
+// GOOD - use variants to coordinate parent/child
 <motion.div variants={parent} animate="active">
   <motion.div variants={child} />
 </motion.div>

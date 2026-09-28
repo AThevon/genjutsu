@@ -1,8 +1,8 @@
-# Framer Motion — API Reference
+# Framer Motion - API Reference
 
-> `motion` v13 (formerly `framer-motion`) — `npm install motion`, then `import { motion, AnimatePresence, ... } from "motion/react"`
+> `motion` v13 (formerly `framer-motion`) - `npm install motion`, then `import { motion, AnimatePresence, ... } from "motion/react"`
 
-## motion component — Props
+## motion component - Props
 
 ### Animation
 
@@ -45,7 +45,7 @@
 | Prop | Type | Description |
 |------|------|-------------|
 | `layout` | `boolean \| "position" \| "size" \| "preserve-aspect"` | Automatically animates layout changes |
-| `layoutId` | `string` | Shared layout — animates between components sharing the same layoutId |
+| `layoutId` | `string` | Shared layout - animates between components sharing the same layoutId |
 | `layoutDependency` | `any` | Forces a layout recalculation when this value changes |
 | `layoutScroll` | `boolean` | Compensates scroll offset in layout calculations |
 | `onLayoutAnimationStart` | `() => void` | Callback at layout animation start |
@@ -72,7 +72,7 @@ const x = useMotionValue(0);
 
 **Independent transforms** supported in `style`: `x`, `y`, `z`, `rotateX`, `rotateY`, `rotateZ`, `scale`, `scaleX`, `scaleY`, `skewX`, `skewY`.
 
-## AnimatePresence — Props
+## AnimatePresence - Props
 
 | Prop | Type | Description |
 |------|------|-------------|
@@ -84,11 +84,11 @@ const x = useMotionValue(0);
 
 ### Mode details
 
-- **`sync`** (default) — enter and exit simultaneously
-- **`wait`** — waits for exit to finish before starting enter (page transitions)
-- **`popLayout`** — removes the element from flow immediately via `position: absolute`, starts enter during exit
+- **`sync`** (default) - enter and exit simultaneously
+- **`wait`** - waits for exit to finish before starting enter (page transitions)
+- **`popLayout`** - removes the element from flow immediately via `position: absolute`, starts enter during exit
 
-## Transition — Configuration
+## Transition - Configuration
 
 ```tsx
 // Spring (default for physical values)

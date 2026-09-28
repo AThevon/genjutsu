@@ -12,7 +12,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CAST="$ROOT/skills/cast/SKILL.md"
 PAINT="$ROOT/skills/paint/SKILL.md"
-REGIONS=(scan skill-base load preview audit)
+REGIONS=(scan skill-base load preview audit headless)
 
 extract() { # <file> <region>
   awk -v s="<!-- genjutsu:shared:$2:start -->" -v e="<!-- genjutsu:shared:$2:end -->" '
@@ -53,6 +53,39 @@ if [ "$found" != "$declared" ]; then
   status=1
 else
   echo "OK   [markers]: REGIONS matches the markers found in cast and paint"
+fi
+
+# The bundle's router carries the same search twice, once per pipeline, and a
+# fix applied to one block and not the other is exactly the drift this file
+# exists to catch. The two blocks must match line for line once their own
+# `p=cast` / `p=paint` line is normalised to `p=X`.
+ROUTER="$ROOT/packaging/genjutsu-router.md"
+extract_router() { # <pipeline>
+  awk -v s="<!-- genjutsu:router:$1:start -->" -v e="<!-- genjutsu:router:$1:end -->" '
+    $0 == s { f = 1; next }
+    $0 == e { f = 0 }
+    f { print }
+  ' "$ROUTER"
+}
+router_cast="$(extract_router cast)"
+router_paint="$(extract_router paint)"
+if [ -z "$router_cast" ] || [ -z "$router_paint" ]; then
+  echo "FAIL [router]: router markers missing in packaging/genjutsu-router.md"
+  status=1
+elif ! printf '%s\n' "$router_cast" | grep -qx 'p=cast' \
+  || ! printf '%s\n' "$router_paint" | grep -qx 'p=paint'; then
+  echo "FAIL [router]: each router block must name its own pipeline on a line of its own (p=cast, p=paint)"
+  status=1
+else
+  norm_cast="$(printf '%s\n' "$router_cast" | sed 's/^p=cast$/p=X/')"
+  norm_paint="$(printf '%s\n' "$router_paint" | sed 's/^p=paint$/p=X/')"
+  if [ "$norm_cast" != "$norm_paint" ]; then
+    echo "FAIL [router]: the cast and paint blocks of the router drifted apart:"
+    diff <(printf '%s\n' "$norm_cast") <(printf '%s\n' "$norm_paint") || true
+    status=1
+  else
+    echo "OK   [router]: the cast and paint router blocks match, p= line aside"
+  fi
 fi
 
 if [ "$status" -ne 0 ]; then
