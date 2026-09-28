@@ -441,6 +441,13 @@ If the user picks legacy integration: write the bridge (`AndroidView` for Compos
 **If the project already has a visual identity** (CSS variables or a Tailwind theme, `Theme.kt` /
 `Color.kt`, `Color+App.swift` or an asset catalog, a logo, a live brand):
 
+**First, take the inventory of what is already there.** On a web stack, in one shell call,
+re-emit the skill-base block and run `python3 "$SKILL_BASE/design-audit/scripts/audit.py" . --group tells`.
+Show the result as one short block, **What this project already does by reflex**, counted by
+family, with two or three `file:line` examples each. Each of them is settled in the theses:
+gone by default, or kept by name in the `Allowed patterns:` line. The mode question below sets
+what happens to the code this run will not touch.
+
 Ask exactly one mode question during brainstorm, right after the legacy question when both apply:
 
 > "This project already has a look. Should I preserve the brand and build within it, change part of it, or redesign it?"
@@ -827,6 +834,11 @@ finding, and an item you could not check is reported as **not checked** rather t
       that entry quoted, and is not a problem. The manual reads `tells` lists (fake product in
       divs, repeated layout family, floating corner paragraph, copy register, copy held in
       JavaScript data) are reported the same way.
+      Fix before you report: every kept tell in a file this run wrote or changed is removed or
+      rewritten, then this check runs again, two passes at most. What still fails after the
+      second pass is reported as a problem, with its `file:line`. In an existing project, tells in
+      code this run did not touch follow the chosen mode: redesign removes them, partial removes
+      them in the areas the user named, preserve lists them for the user and changes nothing.
 
 ### You must run these - not verified here
 

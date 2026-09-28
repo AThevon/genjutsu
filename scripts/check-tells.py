@@ -139,6 +139,13 @@ def main() -> int:
         for block in re.findall(r"```bash\n(.*?)```", text, re.S):
             if "load_skill tells" in block and len(re.findall(r"^load_skill ", block, re.M)) != 1:
                 errors.append(f"{name}: the tells call also loads another module")
+        if "`Allowed patterns:`" not in text:
+            errors.append(f"{name}: the thesis has no `Allowed patterns:` line to write")
+        if "two passes at most" not in audit_region:
+            errors.append(f"{name}: the shared audit region does not fix kept tells before reporting")
+    identity = texts["paint"].split("**If the project already has a visual identity**", 1)[-1].split("**The five domains to cover:**", 1)[0]
+    if audit_cmd not in identity or "What this project already does by reflex" not in identity:
+        errors.append("paint: an existing web project gets no tells inventory before the mode question")
     phase3 = texts["paint"].split("### Phase 3", 1)[-1].split("### Phase 4", 1)[0]
     at, search = phase3.find(load_lines), phase3.find("scripts/search.py")
     if not 0 <= at < search:

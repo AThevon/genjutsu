@@ -582,6 +582,11 @@ finding, and an item you could not check is reported as **not checked** rather t
       that entry quoted, and is not a problem. The manual reads `tells` lists (fake product in
       divs, repeated layout family, floating corner paragraph, copy register, copy held in
       JavaScript data) are reported the same way.
+      Fix before you report: every kept tell in a file this run wrote or changed is removed or
+      rewritten, then this check runs again, two passes at most. What still fails after the
+      second pass is reported as a problem, with its `file:line`. In an existing project, tells in
+      code this run did not touch follow the chosen mode: redesign removes them, partial removes
+      them in the areas the user named, preserve lists them for the user and changes nothing.
 
 ### You must run these - not verified here
 

@@ -84,7 +84,8 @@ the thesis before it counts:
 
 1. Look for the pattern in the validated thesis's `Allowed patterns:` line.
 2. Found: list the finding as **allowed by the thesis**, with that entry quoted.
-3. Not found: it is a problem, and it counts with the other problems.
+3. Not found: it is a problem. Fix it in the files this run wrote or changed, run the check again
+   (two passes at most), and count what remains with the other problems.
 
 The script never makes this call. It files every tell at `nice-to-have` and leaves them out of its
 own problem count, because it cannot read the thesis. You can.
