@@ -50,6 +50,10 @@ jobs:
         # against fixture layouts.
         run: ./scripts/test-resolver.sh
 
+      - name: Release notes come from the CHANGELOG entry of the tag
+        # release.yml publishes this script's output as the release body.
+        run: ./scripts/test-release-notes.sh
+
       - name: Every SKILL.md is valid against the Agent Skills spec
         run: python3 scripts/validate-skills.py
 
