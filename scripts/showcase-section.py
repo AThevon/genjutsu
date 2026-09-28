@@ -13,9 +13,12 @@ it replaces that region of the file, which must hold exactly one.
 Usage:
     python3 scripts/showcase-section.py \\
         --local-images assets/v4 --images ./assets/v4 \\
-        --evals-link ./evals \\
+        --evals-link ./evals --runs 2 --revision ef31234 \\
         --case "studio-landing|Independent design studio landing|<without dir>|<with dir>|<delta>" \\
-        [--case ...] [--write README.md]
+        [--case ...] [--captures saas-landing | --captures none] [--write README.md]
+
+Every case gets its row. --captures picks the cases whose before / after pair
+is shown (repeatable, "none" for no image); without it every case shows its pair.
 
 Stdlib only, like every script here.
 """
@@ -63,11 +66,28 @@ def parse_case(raw: str) -> tuple[str, str, Path, Path, str]:
     return slug, label, Path(without), Path(with_), delta
 
 
+def shown(args, cases) -> list[str]:
+    slugs = [c[0] for c in cases]
+    if not args.captures:
+        return slugs
+    if args.captures == ["none"]:
+        return []
+    unknown = [s for s in args.captures if s not in slugs]
+    if unknown:
+        raise Fail("--captures names no --case: " + ", ".join(unknown))
+    return [s for s in slugs if s in args.captures]
+
+
 def build(args) -> str:
+    if args.runs < 1:
+        raise Fail(f"--runs must be at least 1, got {args.runs}")
+    if not args.revision.strip():
+        raise Fail("--revision is empty: name the commit the eval ran on")
     cases = [parse_case(c) for c in args.case]
+    pairs = shown(args, cases)
     local = Path(args.local_images)
     missing = []
-    for slug, *_ in cases:
+    for slug in pairs:
         for arm, _ in ARMS:
             for vp, _ in VIEWPORTS:
                 name = f"{slug}-{arm}-{vp}.png"
@@ -88,11 +108,14 @@ def build(args) -> str:
     lines += [
         "",
         "Tells are the findings of `audit.py --group tells` on the page of the first run of each arm. "
-        "Scores come from `claude plugin eval --ablation with-without --runs 3` over the suite in "
+        f"Scores come from `claude plugin eval --ablation with-without --runs {args.runs}` on genjutsu "
+        f"`{args.revision.strip()}`, over the suite in "
         f"[`evals/`]({args.evals_link}). The graders are ours: read this as genjutsu measured against "
         "what it set out to do, not as an independent benchmark.",
     ]
     for slug, label, *_ in cases:
+        if slug not in pairs:
+            continue
         lines += ["", f"#### {label}", "", "| " + " | ".join(t for _, t in ARMS) + " |", "|---|---|"]
         for vp, width in VIEWPORTS:
             cells = [
@@ -119,6 +142,9 @@ def main() -> int:
     ap.add_argument("--local-images", required=True, help="directory holding the captures, checked to exist")
     ap.add_argument("--images", required=True, help="base the published block uses for the captures")
     ap.add_argument("--evals-link", required=True)
+    ap.add_argument("--runs", type=int, required=True, help="runs per arm the eval was given")
+    ap.add_argument("--revision", required=True, help="the genjutsu commit the eval ran on")
+    ap.add_argument("--captures", action="append", help="a case whose pair is shown; repeatable; none for no image")
     ap.add_argument("--audit", default=str(DEFAULT_AUDIT))
     ap.add_argument("--write", help="replace the showcase region of this file instead of printing")
     args = ap.parse_args()
