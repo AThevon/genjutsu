@@ -17,12 +17,14 @@ Start a chat and paste:
 
 > Run this and paste the output:
 > ```bash
-> ls -d /mnt/skills/user/*/ ; echo "---" ; find /mnt/skills/user -maxdepth 2 -type d -name _jutsu ; echo "---" ; ls /mnt/skills/user/genjutsu/ 2>/dev/null
+> ls /mnt/skills/ ; echo "---" ; find /mnt/skills -maxdepth 3 -type d -name _jutsu ; echo "---" ; ls /mnt/skills/plugins/genjutsu/ /mnt/skills/user/genjutsu/ 2>/dev/null
 > ```
 
 Expect:
-- a `genjutsu` directory under `/mnt/skills/user/`,
-- a `_jutsu` directory found (e.g. `/mnt/skills/user/genjutsu/_jutsu`),
+- `plugins` among the entries of `/mnt/skills/` (claude.ai mounts uploaded skills under
+  `/mnt/skills/plugins/<name>/` since 2026-09; accounts on the older layout show
+  `/mnt/skills/user/<name>/` instead, and genjutsu resolves both),
+- a `_jutsu` directory found (e.g. `/mnt/skills/plugins/genjutsu/_jutsu`),
 - `SKILL.md  cast  paint  _jutsu` inside `genjutsu/`.
 
 If the `find` prints nothing, the bundle's files did not mount (the #26254 regression). Stop and open an issue with the step 2 output.

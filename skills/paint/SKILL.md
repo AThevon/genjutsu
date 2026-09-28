@@ -122,7 +122,7 @@ So before the first gate of that kind, ask how they want to see it. Then never a
 **Which host is this?** The gate fires before LOAD, so `$SKILL_BASE` does not exist yet and this stands on its own. Detect once, cheaply, then map:
 
 ```bash
-if [ -d /mnt/skills/user ]; then
+if [ -d /mnt/skills/plugins ] || [ -d /mnt/skills/user ]; then
   GENJUTSU_HOST=claude-ai
 elif [ -d /mnt/.claude/skills ] \
   || [ -n "$(find /sessions -maxdepth 6 -type d -path '*/.claude/skills' 2>/dev/null | head -1)" ]; then
@@ -218,7 +218,8 @@ exists to prevent.
 ```bash
 GENJUTSU_SKILL_DIR="${GENJUTSU_SKILL_DIR:-${CLAUDE_SKILL_DIR}}"
 # Resolution order, first hit wins:
-#   0. claude.ai, /mnt/skills/user: the genjutsu bundle, else individual uploads.
+#   0. claude.ai, /mnt/skills/plugins (or the older /mnt/skills/user): the
+#      genjutsu bundle, else legacy individual uploads.
 #   1. This skill's own directory: its _jutsu, or the _jutsu next to it.
 #   2. ${CLAUDE_PLUGIN_ROOT}/skills/_jutsu, when Claude Code substituted it.
 #   3. Bounded probes: .claude/skills and .agents/skills from $PWD upward, then
@@ -250,11 +251,18 @@ genjutsu_first_jutsu() {
 }
 
 SKILL_BASE=""
-# 0. claude.ai. Individual uploads: the mount itself is the base, even without
-# motion-principles, so a partial upload still loads what it has.
-if [ -d /mnt/skills/user ]; then
-  SKILL_BASE="$(find -L /mnt/skills/user -maxdepth 2 -type d -name _jutsu 2>/dev/null | genjutsu_first_jutsu)"
-  [ -n "$SKILL_BASE" ] || SKILL_BASE="/mnt/skills/user"
+# 0. claude.ai mounts uploaded skills under /mnt/skills/plugins/<name>/ (seen on
+# 2026-09-28), next to the user's other skills; /mnt/skills/user before that.
+# GENJUTSU_CLAUDE_AI_ROOT stands in for /mnt/skills in the test suite only.
+# Legacy individual uploads on /mnt/skills/user: the mount itself is the base,
+# even without motion-principles, so a partial upload still loads what it has.
+genjutsu_claude_ai="${GENJUTSU_CLAUDE_AI_ROOT:-/mnt/skills}"
+for claude_root in "$genjutsu_claude_ai/plugins" "$genjutsu_claude_ai/user"; do
+  [ -z "$SKILL_BASE" ] && [ -d "$claude_root" ] || continue
+  SKILL_BASE="$(find -L "$claude_root" -maxdepth 2 -type d -name _jutsu 2>/dev/null | genjutsu_first_jutsu)"
+done
+if [ -z "$SKILL_BASE" ] && [ -d "$genjutsu_claude_ai/user" ]; then
+  SKILL_BASE="$genjutsu_claude_ai/user"
 fi
 # 1. This skill's own directory. Empty means unknown: never probe "/_jutsu".
 if [ -z "$SKILL_BASE" ] && [ -n "$GENJUTSU_SKILL_DIR" ]; then
@@ -298,7 +306,7 @@ if [ -z "$SKILL_BASE" ]; then
   echo "    Claude Code  /plugin marketplace add AThevon/genjutsu, then /plugin install genjutsu" >&2
   echo "    claude.ai    upload genjutsu.zip in Customize > Skills" >&2
   echo "  npx skills add AThevon/genjutsu installs cast and paint without their modules." >&2
-  echo "  Tried: /mnt/skills/user, GENJUTSU_SKILL_DIR (${GENJUTSU_SKILL_DIR:-empty}) and its parent," >&2
+  echo "  Tried: /mnt/skills/plugins, /mnt/skills/user, GENJUTSU_SKILL_DIR (${GENJUTSU_SKILL_DIR:-empty}) and its parent," >&2
   echo "         \$CLAUDE_PLUGIN_ROOT, .claude/skills and .agents/skills from \$PWD upward," >&2
   echo "         ~/.agents/skills, ~/.claude/skills, ~/.codex/skills, ~/.cursor/skills," >&2
   echo "         /mnt/.claude/skills, /sessions, ~/.claude/plugins/cache." >&2

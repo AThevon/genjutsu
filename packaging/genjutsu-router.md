@@ -60,8 +60,12 @@ genjutsu_first_bundle() { # candidate bundle directories on stdin
   return 1
 }
 [ -n "$g" ] && f="$(genjutsu_bundle_entry "$g")"
-[ -z "$f" ] && [ -d /mnt/skills/user ] && \
-  f="$(find -L /mnt/skills/user -mindepth 1 -maxdepth 1 -type d 2>/dev/null | genjutsu_first_bundle)"
+# claude.ai: /mnt/skills/plugins (seen on 2026-09-28), /mnt/skills/user before.
+# GENJUTSU_CLAUDE_AI_ROOT stands in for /mnt/skills in the test suite only.
+for r in "${GENJUTSU_CLAUDE_AI_ROOT:-/mnt/skills}/plugins" "${GENJUTSU_CLAUDE_AI_ROOT:-/mnt/skills}/user"; do
+  [ -z "$f" ] && [ -d "$r" ] || continue
+  f="$(find -L "$r" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | genjutsu_first_bundle)"
+done
 w="${PWD:-$(pwd)}"; n=0
 while [ -z "$f" ] && [ "$n" -lt 24 ]; do
   n=$((n + 1))
@@ -88,7 +92,7 @@ else
   echo "  any agent    npx skills add https://genjutsu.athevon.dev -g" >&2
   echo "  Claude Code  /plugin marketplace add AThevon/genjutsu, then /plugin install genjutsu" >&2
   echo "  claude.ai    upload genjutsu.zip in Customize > Skills" >&2
-  echo "  Tried: GENJUTSU_BUNDLE_DIR or CLAUDE_SKILL_DIR (${g:-empty}), /mnt/skills/user," >&2
+  echo "  Tried: GENJUTSU_BUNDLE_DIR or CLAUDE_SKILL_DIR (${g:-empty}), /mnt/skills/plugins, /mnt/skills/user," >&2
   echo "         .claude/skills and .agents/skills from \$PWD upward, ~/.agents/skills," >&2
   echo "         ~/.claude/skills, ~/.codex/skills, ~/.cursor/skills, /mnt/.claude/skills, /sessions." >&2
   echo "genjutsu: stop here and show this message to the user." >&2
@@ -128,8 +132,12 @@ genjutsu_first_bundle() { # candidate bundle directories on stdin
   return 1
 }
 [ -n "$g" ] && f="$(genjutsu_bundle_entry "$g")"
-[ -z "$f" ] && [ -d /mnt/skills/user ] && \
-  f="$(find -L /mnt/skills/user -mindepth 1 -maxdepth 1 -type d 2>/dev/null | genjutsu_first_bundle)"
+# claude.ai: /mnt/skills/plugins (seen on 2026-09-28), /mnt/skills/user before.
+# GENJUTSU_CLAUDE_AI_ROOT stands in for /mnt/skills in the test suite only.
+for r in "${GENJUTSU_CLAUDE_AI_ROOT:-/mnt/skills}/plugins" "${GENJUTSU_CLAUDE_AI_ROOT:-/mnt/skills}/user"; do
+  [ -z "$f" ] && [ -d "$r" ] || continue
+  f="$(find -L "$r" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | genjutsu_first_bundle)"
+done
 w="${PWD:-$(pwd)}"; n=0
 while [ -z "$f" ] && [ "$n" -lt 24 ]; do
   n=$((n + 1))
@@ -156,7 +164,7 @@ else
   echo "  any agent    npx skills add https://genjutsu.athevon.dev -g" >&2
   echo "  Claude Code  /plugin marketplace add AThevon/genjutsu, then /plugin install genjutsu" >&2
   echo "  claude.ai    upload genjutsu.zip in Customize > Skills" >&2
-  echo "  Tried: GENJUTSU_BUNDLE_DIR or CLAUDE_SKILL_DIR (${g:-empty}), /mnt/skills/user," >&2
+  echo "  Tried: GENJUTSU_BUNDLE_DIR or CLAUDE_SKILL_DIR (${g:-empty}), /mnt/skills/plugins, /mnt/skills/user," >&2
   echo "         .claude/skills and .agents/skills from \$PWD upward, ~/.agents/skills," >&2
   echo "         ~/.claude/skills, ~/.codex/skills, ~/.cursor/skills, /mnt/.claude/skills, /sessions." >&2
   echo "genjutsu: stop here and show this message to the user." >&2

@@ -12,9 +12,11 @@
 # extract it and run it against fixture layouts rather than to leave it untested.
 # Rule: no new install layout ships without a fixture here.
 #
-# What this cannot cover: the claude.ai layouts probe /mnt/skills/user, and
-# Cowork probes /sessions. Neither is creatable outside a container, so those
-# branches are exercised only by the negative case (they must not match here).
+# The claude.ai layouts live under /mnt/skills, which cannot be created outside a
+# container: the blocks read GENJUTSU_CLAUDE_AI_ROOT in its place, and section 21
+# builds both layouts under that root. What this cannot cover: Cowork probes
+# /sessions, so that branch is exercised only by the negative case (it must not
+# match here).
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -518,6 +520,48 @@ got="$(
   python3 "$UIUX_DIR/scripts/search.py" "fintech dashboard" --design-system -f markdown 2>&1 | grep -c '^#'
 )"
 check "ui-ux-pro-max: the real search.py runs from a project directory" "1" "$([ "${got:-0}" -gt 0 ] && echo 1 || echo 0)"
+
+# --- 21. claude.ai: uploaded skills under /mnt/skills ----------------------
+# claude.ai moved uploaded skills from /mnt/skills/user/<name>/ to
+# /mnt/skills/plugins/<name>/ (seen on 2026-09-28), next to the user's other
+# skills. v3 only probed /mnt/skills/user and found nothing there. The resolver
+# and the router read GENJUTSU_CLAUDE_AI_ROOT in place of /mnt/skills, for
+# this suite only, so both layouts can be built as fixtures.
+M="$WORK/c1/mnt-skills"; H="$WORK/c1/home"
+mkdir -p "$H" "$WORK/c1/cwd" "$M/plugins/add-theme" "$M/plugins/ps5-config"
+printf 'FOREIGN SKILL\n' > "$M/plugins/add-theme/SKILL.md"
+mkbundle "$M/plugins/genjutsu"
+export GENJUTSU_CLAUDE_AI_ROOT="$M"
+check "claude.ai: the bundle under /mnt/skills/plugins, next to other skills" \
+  "$M/plugins/genjutsu/_jutsu" "$(resolve "$H" "$WORK/c1/cwd" "")"
+
+C="$H/.claude/plugins/cache/genjutsu/genjutsu"; mkplugin "$C/3.6.0"
+check "claude.ai: /mnt/skills/plugins wins over a stale plugin cache" \
+  "$M/plugins/genjutsu/_jutsu" "$(resolve "$H" "$WORK/c1/cwd" "")"
+
+M="$WORK/c2/mnt-skills"; H="$WORK/c2/home"
+mkdir -p "$H" "$WORK/c2/cwd"; mkbundle "$M/user/genjutsu"
+export GENJUTSU_CLAUDE_AI_ROOT="$M"
+check "claude.ai: the older /mnt/skills/user layout still resolves" \
+  "$M/user/genjutsu/_jutsu" "$(resolve "$H" "$WORK/c2/cwd" "")"
+
+M="$WORK/c3/mnt-skills"; H="$WORK/c3/home"
+mkdir -p "$H" "$WORK/c3/cwd" "$M/plugins/add-theme/_jutsu/gsap"
+printf 'FOREIGN SKILL\n' > "$M/plugins/add-theme/SKILL.md"
+export GENJUTSU_CLAUDE_AI_ROOT="$M"
+run_block "$H" "$WORK/c3/cwd" "" "" ""; rc=$?
+check "claude.ai: a foreign _jutsu without motion-principles is not genjutsu" "1" "$([ "$rc" -ne 0 ] && echo 1 || echo 0)"
+check_grep "claude.ai: the failure names /mnt/skills/plugins among the roots tried" "/mnt/skills/plugins" "$WORK/err"
+
+M="$WORK/c4/mnt-skills"; H="$WORK/c4/home"
+mkdir -p "$H" "$WORK/c4/cwd" "$M/plugins/aaa-kit/cast"
+printf 'FOREIGN CAST\n' > "$M/plugins/aaa-kit/cast/SKILL.md"
+mkbundle "$M/plugins/genjutsu"
+export GENJUTSU_CLAUDE_AI_ROOT="$M"
+run_router "$ROUTER_CAST" "$H" "$WORK/c4/cwd" "" ""
+check_grep "router on claude.ai: finds its bundle under /mnt/skills/plugins" "GENJUTSU_SKILL_DIR=$M/plugins/genjutsu/cast" "$WORK/out"
+check "router on claude.ai: a foreign cast is never printed" "0" "$(grep -c 'FOREIGN CAST' "$WORK/out")"
+unset GENJUTSU_CLAUDE_AI_ROOT
 
 # --- summary ---
 echo
