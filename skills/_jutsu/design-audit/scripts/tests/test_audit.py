@@ -134,6 +134,26 @@ CASES = {
         {"app/page.tsx": "export default () => <p>Brand · Motion · Spatial</p>\n"},
         {"app/page.tsx": "export default () => <p>Lyon · since 2011</p>\n"},
     ),
+    "tell-fake-code": (
+        {"app/page.tsx": 'export default () => <p className="text-xs">SEC-01 Capabilities</p>\n'},
+        {"app/page.tsx": 'export default () => <p>Certified to ISO 9001 since 2011</p>\n'},
+    ),
+    "tell-glass": (
+        {"app/page.tsx": 'export default () => <nav className="bg-white/10 backdrop-blur-md">Menu</nav>\n'},
+        {"app/page.tsx": 'export default () => <nav className="bg-white border-b">Menu</nav>\n'},
+    ),
+    "tell-glow": (
+        {"app/globals.css": ".cta { box-shadow: 0 0 40px rgba(255, 0, 128, 0.6); }\n"},
+        {"app/globals.css": ".cta { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); outline-offset: 2px; }\n"},
+    ),
+    "tell-blob": (
+        {"app/page.tsx": 'export default () => <div className="absolute -z-10 h-96 w-96 rounded-full bg-pink-400 blur-3xl" />\n'},
+        {"app/page.tsx": 'export default () => <div className="absolute -z-10 h-96 w-96 bg-stone-100 backdrop-blur-3xl" />\n'},
+    ),
+    "tell-perpetual-motion": (
+        {"app/globals.css": ".dot { animation: pulse 2s ease-in-out infinite; }\n"},
+        {"app/globals.css": ".dot { animation: fade-in 200ms ease-out 1; }\n"},
+    ),
     "tell-gradient-text": (
         {"app/page.tsx": 'export default () => <h1 className="bg-gradient-to-r from-amber-500 to-rose-500 bg-clip-text text-transparent">Hi</h1>\n'},
         {"app/page.tsx": 'export default () => <h1 className="text-zinc-900">Hi</h1>\n'},
@@ -583,6 +603,7 @@ TELL_IDS = {
     "tell-invented-status", "tell-locale-strip", "tell-numbered-eyebrow", "tell-generic-step",
     "tell-scroll-cue", "tell-placeholder-identity", "tell-round-number", "tell-filler-verb",
     "tell-em-dash", "tell-dot-run", "tell-duplicate-cta", "tell-equal-cards", "tell-gradient-text",
+    "tell-fake-code", "tell-glass", "tell-glow", "tell-blob", "tell-perpetual-motion",
 }
 
 # Three whole pages. The first is the landing a model writes when nothing stops it,
@@ -594,17 +615,19 @@ TELLS_PAGE = {
         "export default function Page() {\n"
         "  return (\n"
         '    <main className="bg-stone-50">\n'
-        '      <nav className="flex justify-between">\n'
+        '      <div className="absolute -z-10 h-96 w-96 rounded-full bg-pink-400 blur-3xl" />\n'
+        '      <nav className="flex justify-between backdrop-blur-md">\n'
         "        <span>LIS 14:23 · 18°C</span>\n"
         '        <a href="/signup">Get started</a>\n'
         "      </nav>\n"
         "      <section>\n"
         '        <p className="text-xs uppercase tracking-widest">00 / INDEX</p>\n'
+        '        <span className="animate-pulse">SEC-01</span>\n'
         '        <h1 className="bg-gradient-to-r from-amber-500 to-rose-500 bg-clip-text text-transparent">\n'
         "          Elevate your workflow &mdash; seamlessly\n"
         "        </h1>\n"
         "        <p>Trusted by 10,000+ teams with 99.99% uptime.</p>\n"
-        "        <button>Start free trial</button>\n"
+        '        <button className="shadow-[0_0_40px_rgba(255,0,128,0.6)]">Start free trial</button>\n'
         "        <span>Scroll to explore</span>\n"
         "      </section>\n"
         '      <section className="grid md:grid-cols-3 gap-6">\n'
@@ -679,7 +702,7 @@ NON_WEB = {
 
 
 class TellsGroup(unittest.TestCase):
-    def test_the_thirteen_tells_exist(self):
+    def test_every_tell_exists(self):
         self.assertEqual({c.id for c in audit.CHECKS if c.group == "tells"}, TELL_IDS)
 
     def test_json_carries_the_group(self):

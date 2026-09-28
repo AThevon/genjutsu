@@ -20,7 +20,9 @@ A pattern is a tell when the validated thesis does not name it. Nothing else dec
 - **Named means named.** The thesis has to name the pattern itself: "the header shows the Paris
   and Tokyo clocks, because the studio works across both". A mood word unlocks nothing.
   "Editorial", "agency", "premium" or "bold" do not name a numbered eyebrow or a display serif,
-  and most tells are precisely the clichés those words summon.
+  and most tells are precisely the clichés those words summon. In practice the pattern is named
+  in the thesis's `Allowed patterns:` line, which cast and paint write under the thesis before the
+  user validates it.
 - **An explicit request goes through the thesis.** When the brief asks for something specific (a
   weather strip, a version badge, a live counter), write it into the thesis by name before you
   build it. The thesis is what allows it, not the brief. A request that never reached the thesis
@@ -67,6 +69,12 @@ LOAD step. In paint it is Phase 3, before the design-system query, so that the d
 passes through it. It gets a shell call of its own: with `references/web.md` it is too long to
 share a call with another module without the output being cut.
 
+**Right after it loads,** read the thesis's `Allowed patterns:` line against this catalogue. When
+it allows entries catalogued here, say so to the user in one line at the next gate (paint: with
+the design system; cast: with the variants, or before implementing when there are none), naming
+them: "This thesis allows three known reflexes: mono labels, hairline rules, a paper ground."
+A validated thesis may keep a reflex. It never keeps one unnoticed.
+
 **While writing.** Read a family's test before writing what it governs: the copy against Hollow
 copy, every number and name against Invented information, the layout pass against Reflex
 convergence, each ornament against Decorative filler. The cheapest tell is the one never written.
@@ -74,8 +82,8 @@ convergence, each ornament against Decorative filler. The cheapest tell is the o
 **At audit.** `audit.py --group tells` reports what it can see, and each finding is confronted with
 the thesis before it counts:
 
-1. Look for the sentence of the validated thesis that names the pattern.
-2. Found: list the finding as **allowed by the thesis**, with that sentence quoted.
+1. Look for the pattern in the validated thesis's `Allowed patterns:` line.
+2. Found: list the finding as **allowed by the thesis**, with that entry quoted.
 3. Not found: it is a problem, and it counts with the other problems.
 
 The script never makes this call. It files every tell at `nice-to-have` and leaves them out of its
@@ -85,7 +93,8 @@ own problem count, because it cannot read the thesis. You can.
 
 `audit.py` reads the displayed text of JSX, Vue, Svelte, Astro and HTML files: the text between
 tags, plus `alt`, `title`, `aria-label` and `placeholder`. It never reads class names or style
-objects as text. The gradient check is the one exception, since that tell is a class or a CSS rule.
+objects as text. The gradient, glass, glow, blob and perpetual-motion checks are the exceptions:
+those tells are classes or CSS rules, so they read the source.
 It does not read strings held in JavaScript either: copy kept in an array or an object
 (`const features = [{ title: "..." }]`) and rendered through `{...}`, or kept in a `.ts` or `.js`
 content file, is invisible to it. A clean text check means the markup is clean, not the page.
@@ -95,13 +104,18 @@ content file, is invisible to it. A clean text check means the markup is clean, 
 | `tell-invented-status` | Invented information |
 | `tell-locale-strip` | Invented information |
 | `tell-placeholder-identity` | Invented information |
+| `tell-fake-code` | Invented information |
 | `tell-round-number` | Invented information |
 | `tell-numbered-eyebrow` | Decorative filler |
 | `tell-generic-step` | Decorative filler |
 | `tell-scroll-cue` | Decorative filler |
 | `tell-dot-run` | Decorative filler |
+| `tell-glow` | Decorative filler |
+| `tell-blob` | Decorative filler |
+| `tell-perpetual-motion` | Decorative filler |
 | `tell-equal-cards` | Reflex convergence |
 | `tell-gradient-text` | Reflex convergence |
+| `tell-glass` | Reflex convergence |
 | `tell-em-dash` | Reflex convergence |
 | `tell-filler-verb` | Hollow copy |
 | `tell-duplicate-cta` | Hollow copy |
@@ -112,8 +126,9 @@ What stays a manual read, because no pattern can judge it:
 - one layout family repeated from section to section;
 - a headline on one side with a small paragraph floating in the opposite corner;
 - the copy register drifting between sections;
+- monospace spread across labels, navigation and captions, well beyond code and tabular figures;
 - copy held in JavaScript data (arrays, objects, content files) and rendered through expressions:
   read it against every family.
 
-Read the finished page once for those five, and report what you find in the same three fields.
+Read the finished page once for those six, and report what you find in the same three fields.
 Every other entry of `references/web.md` that has no check above is a manual read too.

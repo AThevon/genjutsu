@@ -162,8 +162,9 @@ Cowork is tested before Claude Code on purpose: both can have a `~/.claude` tree
 **Rules the preview obeys:**
 
 - **The message that carries it names the thesis in plain text.** Whatever the mode, it opens
-  with the thesis in one sentence, labelled (`Interaction thesis:` or `Visual thesis:`), says in
-  one line that the page is the proposal and not the build, and ends with the validation question.
+  with the thesis in one sentence, labelled (`Interaction thesis:` or `Visual thesis:`), then its
+  `Allowed patterns:` line, says in one line that the page is the proposal and not the build, and
+  ends with the validation question.
   It holds no implementation: code starts in a later turn, after a yes. Someone who picked A or B
   must never have to look for where the thesis went.
 - **It is throwaway. It never becomes the implementation.** Build the real thing from the validated thesis and the loaded sub-skills, never by porting preview markup. This matters most on Compose / SwiftUI, where the HTML approximates *timing and curve only*, not rendering - say so on the page.
@@ -527,6 +528,13 @@ A single sentence that captures the motion and interaction language. **Must expl
 
 **Self-check:** read your thesis back. If you can't immediately derive the CSS/JS properties from it, it's too vague. Rewrite.
 
+**Under the two theses, one line naming what it allows.** `Allowed patterns:` followed by every
+deliberate device the design relies on that a reader could take for decoration or habit: mono
+labels, hairline rules, a paper ground, grain, a glow, a looping animation, a code label, a live
+clock. Write `Allowed patterns: none` when there are none. The audit reads this line: a tell
+counts as allowed only when it is listed here, so a mood word never lets one through, and the
+user sees the list before saying yes.
+
 **This is the first visual gate.** Offer the preview menu (see "Showing Your Work" above), then present both theses in the chosen mode. The visual thesis in particular is worth far more shown than described - "fluorescent chartreuse accents" is a guess until it sits next to the neutrals.
 
 **Wait for explicit user validation of BOTH theses before moving on.** If the user pushes back, don't start over - ask what feels wrong and adjust.
@@ -814,9 +822,9 @@ finding, and an item you could not check is reported as **not checked** rather t
       re-emit the skill-base block and run
       `python3 "$SKILL_BASE/design-audit/scripts/audit.py" . --group tells`, whether or not
       `design-audit` was loaded. Evidence, for each finding: either the problem you kept, with its
-      `file:line`, or the sentence of the validated thesis that names the pattern. A kept tell
+      `file:line`, or the entry of the thesis's `Allowed patterns:` line that names it. A kept tell
       counts among the problems found. An allowed one is listed as "allowed by the thesis", with
-      the sentence quoted, and is not a problem. The manual reads `tells` lists (fake product in
+      that entry quoted, and is not a problem. The manual reads `tells` lists (fake product in
       divs, repeated layout family, floating corner paragraph, copy register, copy held in
       JavaScript data) are reported the same way.
 

@@ -515,6 +515,13 @@ CHECKS += [
         zero_means="No zero-padded section number and no `01 / 4` counter in the displayed text.",
     ),
     Check(
+        id="tell-fake-code",
+        title="Part number or section code that points to nothing",
+        exts=MARKUP_EXTS, surface="text", **TELL,
+        pattern=r"(?:^|[\s(\[])(?:[A-Z]{2,4}-\d{2,3}|MK[.\s-]?[IVX]{1,4})(?=$|[\s.,;:)\]])",
+        zero_means="No code like SEC-01, REF-204 or MK.I in the displayed text.",
+    ),
+    Check(
         id="tell-generic-step",
         title="Generic step label",
         exts=MARKUP_EXTS, surface="text", **TELL,
@@ -575,6 +582,40 @@ CHECKS += [
         pattern=(r"bg-clip-text[^\"'`\n]*text-transparent|text-transparent[^\"'`\n]*bg-clip-text"
                  r"|(?:-webkit-)?background-clip\s*:\s*text"),
         zero_means="No text is clipped to a background, in classes or in CSS.",
+    ),
+    Check(
+        id="tell-glass",
+        title="Glassmorphism panel",
+        # Source, not text: the tell is a class list or a CSS rule.
+        exts=STYLE | JSX | SFC | HTML, **TELL,
+        pattern=r"(?<![\w-])backdrop-blur|backdrop-filter\s*:\s*blur",
+        zero_means="No panel blurs what sits behind it, in classes or in CSS.",
+    ),
+    Check(
+        id="tell-glow",
+        title="Glow or neon shadow",
+        exts=STYLE | JSX | SFC | HTML, **TELL,
+        # An outer shadow with no offset and a blur of 20px or more is a glow; a
+        # focus ring (0 0 0 3px) and a soft drop shadow (0 1px 2px) are not.
+        pattern=(r"(?:box|text)-shadow\s*:\s*0(?:px)?\s+0(?:px)?\s+(?:[2-9]\d|\d{3,})px"
+                 r"|(?<![\w-])(?:drop-)?shadow-\[0_0_(?:[2-9]\d|\d{3,})px"),
+        zero_means="No shadow with zero offset and a blur of 20px or more.",
+    ),
+    Check(
+        id="tell-blob",
+        title="Blurred background blob",
+        exts=STYLE | JSX | SFC | HTML, **TELL,
+        # backdrop-blur and backdrop-filter are glass, not blobs.
+        pattern=r"(?<![\w-])blur-(?:2xl|3xl)\b|(?<![\w-])filter\s*:\s*blur\(\s*(?:[4-9]\d|\d{3,})px",
+        zero_means="No element blurred by 40px or more (blur-2xl, blur-3xl, filter: blur).",
+    ),
+    Check(
+        id="tell-perpetual-motion",
+        title="Animation that never stops",
+        exts=STYLE | JSX | SFC | HTML, **TELL,
+        pattern=(r"animation[^;{}\n]*\binfinite\b|(?<![\w-])animate-(?:pulse|ping|bounce|spin)\b"
+                 r"|repeat\s*:\s*Infinity"),
+        zero_means="No infinite animation: no infinite iteration, no animate-pulse/ping/bounce/spin, no repeat: Infinity.",
     ),
 ]
 

@@ -30,6 +30,14 @@ the tells catalogue of taste-skill (Leonxlnx, MIT), rewritten here as evidence a
   invent one when the brief gives none.
 - **The question:** is this the project's actual founding year, and does the visitor need it?
 
+### Fake part numbers and section codes
+- **Marker:** codes stamped on sections, products or panels that point to no catalogue: `SEC-01`,
+  `MK.I`, `REF-204`, `UNIT 07`.
+- **Why it is a tell:** a code makes a page look engineered, so models stamp them on to borrow the
+  authority of a spec sheet.
+- **The question:** which real catalogue, part list or document does this code point to, and does
+  the thesis name that system?
+
 ### Fake stock counter
 - **Marker:** a live-looking scarcity count: `Reservation 412 of 800`, `Only 3 left`,
   `27 people viewing`.
@@ -145,6 +153,29 @@ the tells catalogue of taste-skill (Leonxlnx, MIT), rewritten here as evidence a
   their training looks framed.
 - **The question:** if this sentence were removed, would the visitor lose a fact?
 
+### Glow and neon
+- **Marker:** coloured outer glows on buttons, text or borders: `box-shadow: 0 0 40px ...`,
+  `shadow-[0_0_40px_...]`, a neon `text-shadow`.
+- **Why it is a tell:** glow reads as energy or technology without saying anything, so models add
+  it whenever a brief sounds futuristic, playful or AI.
+- **The question:** what state or emphasis does this glow mark that the layout does not already
+  mark?
+
+### Blurred blobs
+- **Marker:** large blurred colour shapes behind the content: `blur-3xl` or `filter: blur(80px)`
+  on an absolutely positioned element.
+- **Why it is a tell:** they fill an empty background with colour, so the page looks warm without
+  a single decision being made.
+- **The question:** what would this section lose without the blob, and does the thesis name it?
+
+### Perpetual motion
+- **Marker:** animations that never stop: `animation: ... infinite`, `animate-pulse`,
+  `animate-ping`, `repeat: Infinity`, on elements that report no live state.
+- **Why it is a tell:** a loop makes a static page look alive, so models add pulsing dots and
+  floating shapes to signal activity.
+- **The question:** what real, ongoing state does this loop report, and would a still frame say
+  the same?
+
 ## Reflex convergence
 
 ### Three equal cards
@@ -214,6 +245,22 @@ the tells catalogue of taste-skill (Leonxlnx, MIT), rewritten here as evidence a
   brief, so it says nothing about this one.
 - **The question:** what in the product or the brief makes paper the right ground, and does the
   thesis say so?
+
+### Glassmorphism
+- **Marker:** translucent panels blurring what sits behind them: `backdrop-blur`,
+  `backdrop-filter: blur(...)` on cards, navigation or modals.
+- **Why it is a tell:** it is the quickest way to make a panel look current, so it lands on cards
+  and navigation whatever the product.
+- **The question:** what does seeing through this panel show the user, and does the thesis name
+  it?
+
+### Monospace everywhere
+- **Marker:** a monospace face on labels, navigation, captions and body numbers across the page,
+  far beyond code and tabular figures.
+- **Why it is a tell:** mono reads as technical and precise, so models spread it to look
+  engineered.
+- **The question:** which content on this page is code or tabular data, and does the mono stop
+  there?
 
 ### Gradient text
 - **Marker:** headings filled with a gradient: `bg-clip-text text-transparent`, or
