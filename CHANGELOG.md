@@ -2,28 +2,30 @@
 
 All notable changes to this plugin are documented here. Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
-## v5.0.0 - 2026-09-30
+## v4.1.0 - 2026-09-30
 
 genjutsu gets a third pipeline: `bunshin` builds a whole website or web app with a team of
 subagents under one art director, asks the human twice, and loops fixes and verdicts until
 nothing above minor is left, the round cap of the tier picked at the start is reached, or a round
-fixes nothing.
+fixes nothing. Run `/genjutsu:bunshin`, or ask `cast` or `paint` for a whole site: they propose
+it, with its cost, and switch only on a yes.
 
 ### Added
 
 - **`bunshin`, the shadow clones.** A third orchestrator, `skills/bunshin/SKILL.md`
   (`/genjutsu:bunshin`), for one job: a whole site, first version, from the client's real
   material. Twelve phases: read the project and the host; summon (the first gate); harvest the
-  material; research with four clones and a synthesis; the direction (the second gate); type and assets by
-  evidence; the foundation, every route and the signature surface, built by the main agent
-  itself; one clone per page on files no other clone touches, each capturing its own page;
+  material; research with four clones and a synthesis; the direction (the second gate); type and
+  assets by evidence; the foundation, every route and the signature surface, built by the main
+  agent itself; one clone per page on files no other clone touches, each capturing its own page;
   captures and scripted tests; independent review lenses and a fix plan; refine rounds with a
   verdict and a cold-eyes art director; then DESIGN.md, an AGENTS.md for the AI that will
   maintain the site, a launch guard for the facts still missing, the audit and the report.
 
-  The human is asked twice, and once more only to go past the tier's round cap. The summoning gate carries the read of the project, what the host can
-  do, whether Impeccable is installed, the stack and the scaffold it installs, the cost of each
-  tier and the product questions, in one call. The direction gate validates the visual and the
+  The human is asked twice, and once more only to go past the tier's round cap. The summoning
+  gate carries the read of the project, what the host can do, whether Impeccable is installed,
+  the stack and the scaffold it installs, the cost of each tier and the product questions, in one
+  call. The direction gate validates the visual and the
   interaction thesis together: every direction card carries genjutsu's interaction thesis and its
   `Allowed patterns:` line. bunshin never opens the preview menu: that would be a third question.
   Everything else is decided from evidence and written in the report.
@@ -89,11 +91,10 @@ fixes nothing.
 
 - **cast and paint propose bunshin.** A seventh guarded region, `escalate`, identical in both:
   right after the stack scan, when the target is a whole site, the stack is web or there is no
-  project yet, and the session
-  can spawn subagents, plus one of real material to harvest, two audiences or languages, a first
-  version for a client, or a request for the full treatment, they propose bunshin once with its
-  cost and switch only on a yes. With nobody answering they name it in one line and in the report,
-  and carry on.
+  project yet, and the session can spawn subagents, plus one of real material to harvest, two
+  audiences or languages, a first version for a client, or a request for the full treatment, they
+  propose bunshin once with its cost and switch only on a yes. With nobody answering they name it
+  in one line and in the report, and carry on.
 
 - **Two eval cases for the routing.** `bunshin-escalates` runs paint headless on a whole-site
   brief: bunshin must be named in the last message, and no subagent may be spawned, no bunshin
@@ -126,7 +127,7 @@ fixes nothing.
   `tool_used` grader on a tool the run is never given (a `max: 0` on it would always pass) and a
   `file_exists` path that could never match.
 - The resolver's failure message names genjutsu's pipelines instead of two of them.
-- Both manifests and this file move to 5.0.0.
+- Both manifests and this file move to 4.1.0.
 
 ### Not covered yet
 

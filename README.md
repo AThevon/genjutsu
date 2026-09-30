@@ -29,7 +29,7 @@ Creative coding skills for [Claude Code](https://claude.ai/code), [claude.ai](ht
 
 ---
 
-## What v5 changes: bunshin
+## What v4.1 changes: bunshin
 
 `cast` and `paint` are one agent doing careful work. `bunshin` (影分身, the shadow clones) is what happens when the job is a whole site and one agent is not enough: **one art director, many clones**. You answer two rounds of questions, plus a yes if the run should go past the tier's round cap. Everything else, from harvesting the client's real material to the last refine round, runs on its own; the decisions it takes are written in the report, and every finding cites a capture region or a `file:line`.
 
@@ -174,7 +174,7 @@ Builds a complete visual universe from scratch. Brainstorm first, implement seco
 
 ### `/genjutsu:bunshin` - The Shadow Clones
 
-Builds a whole website or web app, first version, with a team of subagents under one art director. See [What v5 changes](#what-v5-changes-bunshin).
+Builds a whole website or web app, first version, with a team of subagents under one art director. See [What v4.1 changes](#what-v41-changes-bunshin).
 
 **Pipeline:** Read -> Summon (tier + product questions) -> Harvest -> Research (clones) -> Direction (you choose) -> Material -> Foundation -> Pages (clones) -> Prove -> Review (lenses) -> Refine and verdict, looped -> Seal
 
