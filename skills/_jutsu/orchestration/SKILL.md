@@ -287,8 +287,10 @@ review, two from decisions files), two verdicts with cold eyes; about 10.5M toke
 eight hours, with two human touches. The main session's own tokens were not measured. Per unit:
 research about 0.6M; about 0.4M per page clone (2.3M for six); a five-lens review with its plan
 about 1.6M; a refine round from a plan about 1.6M with eight owners; a refine round that applies a
-decisions file about 1.75M; a verdict about 0.35M with cold eyes, half that without; the
-documenter about 0.2M. The tiers bunshin offers are estimates built from these units.
+decisions file about 1.75M; a verdict with cold eyes about 0.35M; the documenter about 0.2M. Two
+units were not measured and are estimated from these: a three-lens review with its plan, about
+1.1M, and a verdict without cold eyes, about half of one with them. The tiers bunshin offers are
+estimates built from these units.
 
 Announce the estimate before the first clone, from the page count and the tier, and say where
 the figures come from. After each workflow, note the agent count and, when the host reports it,
