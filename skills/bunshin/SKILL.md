@@ -163,10 +163,11 @@ from that run**, and they scale with the page count. Say so every time you quote
 | **full** | up to 4 | 5 | every verdict | about 12 to 13M, 6 to 10 hours |
 
 What the measured run spent, per unit, to scale an estimate: research about 0.6M; about 0.4M per
-page clone (2.3M for six); a five-lens review with its plan about 1.6M (a three-lens one about
-1.1M); a refine round from a plan about 1.6M with eight owners; a refine round that applies a
-decisions file about 1.75M; a verdict about 0.35M with cold eyes, half that without; the
-documenter about 0.2M.
+page clone (2.3M for six); a five-lens review with its plan about 1.6M; a refine round from a plan
+about 1.6M with eight owners; a refine round that applies a decisions file about 1.75M; a verdict
+with cold eyes about 0.35M; the documenter about 0.2M. Two units were not measured and are
+estimated from these: a three-lens review with its plan, about 1.1M, and a verdict without cold
+eyes, about half of one with them.
 
 <!-- genjutsu:shared:preview:start -->
 ## Showing Your Work - The Preview Gate
