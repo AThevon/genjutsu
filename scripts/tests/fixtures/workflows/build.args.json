@@ -1,0 +1,40 @@
+{
+  "root": "/tmp/project",
+  "packet": "Read first, in order: /tmp/project/PRODUCT.md, /tmp/project/.impeccable/surfaces/home.md, the design system in /tmp/project/src/styles. Rules: the validated theses, the voice, mobile first.",
+  "owners": [
+    {
+      "key": "about",
+      "mission": "The about page, both languages.",
+      "files": [
+        "src/views/AboutView.astro",
+        "src/content/pages/about.ts",
+        "src/components/about/*"
+      ]
+    },
+    {
+      "key": "contact",
+      "mission": "The request page and its form.",
+      "files": [
+        "src/views/ContactView.astro",
+        "src/content/pages/contact.ts",
+        "src/components/contact/*"
+      ]
+    }
+  ],
+  "build": {
+    "cmd": "./node_modules/.bin/astro build",
+    "check": "./node_modules/.bin/astro check",
+    "scratch": "/tmp/bunshin-scratch",
+    "static": "dist",
+    "shoot": "/tmp/jutsu/orchestration/scripts/shoot.mjs",
+    "routes": {
+      "about": [
+        "/about",
+        "/fr/a-propos"
+      ],
+      "contact": [
+        "/contact"
+      ]
+    }
+  }
+}

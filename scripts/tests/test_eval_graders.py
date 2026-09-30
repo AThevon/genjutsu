@@ -21,6 +21,8 @@ check_evals = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(check_evals)
 
 WEB_CASES = ["studio-landing", "saas-landing", "thesis-allows"]
+# The two cases that grade genjutsu's routing to and from bunshin, not the code it writes.
+ROUTING_CASES = ["bunshin-escalates", "bunshin-steps-down"]
 
 # One line of page source per not_contains grader, each one the tell it exists to catch.
 TELL_LINES = {
@@ -73,6 +75,44 @@ def regex_of(fm: dict):
 def tool_input(**kwargs) -> str:
     # tool_used matches input_match against the JSON-encoded tool input.
     return json.dumps(kwargs)
+
+
+def prompt_body(case: str) -> str:
+    return check_evals.split_frontmatter((EVALS / case / "prompt.md").read_text(encoding="utf-8"))[1]
+
+
+def written_by(case: str) -> dict[str, str]:
+    """The files a case's fixture.sh writes with `cat > path <<'TAG'`, by path: what the run sees."""
+    files, path, tag, lines = {}, None, None, []
+    for line in (EVALS / case / "fixture.sh").read_text(encoding="utf-8").splitlines():
+        if path is None:
+            m = re.match(r"cat > (\S+) <<'(\w+)'$", line)
+            if m:
+                path, tag, lines = m.group(1), m.group(2), []
+        elif line == tag:
+            files[path], path = "\n".join(lines) + "\n", None
+        else:
+            lines.append(line)
+    return files
+
+
+def runner_glob(path: str):
+    """A file_exists path as the runner matches it (Claude Code 2.1.285), against each relative
+    path the run created: `**/` is any directory prefix, `**` any string, `*` any string
+    without a slash, `?` one character, everything else literal."""
+    out, i = "^", 0
+    while i < len(path):
+        if path.startswith("**/", i):
+            out, i = out + "(?:.*/)?", i + 3
+        elif path.startswith("**", i):
+            out, i = out + ".*", i + 2
+        elif path[i] == "*":
+            out, i = out + "[^/]*", i + 1
+        elif path[i] == "?":
+            out, i = out + ".", i + 1
+        else:
+            out, i = out + re.escape(path[i]), i + 1
+    return re.compile(out + "$")
 
 
 class WebGraderTest(unittest.TestCase):
@@ -184,6 +224,139 @@ class SwiftUISkipTest(unittest.TestCase):
         placeholder = (EVALS / "swiftui-skip" / "fixture.sh").read_text(encoding="utf-8")
         self.assertIsNone(rx.search(placeholder.split("TodayView.swift <<'SWIFT'", 1)[1]))
         self.assertIsNotNone(rx.search("var body: some View { ScrollView { LazyVStack(spacing: 12) { } } }"))
+
+
+class RoutingTest(unittest.TestCase):
+    """What the two bunshin cases share: a session that could spawn clones, and never does."""
+
+    def test_every_routing_case_exists(self):
+        for case in ROUTING_CASES:
+            self.assertTrue((EVALS / case / "prompt.md").is_file(), f"{case} is missing")
+
+    def test_agent_is_granted_and_never_called(self):
+        # Granted, so that not calling it is the run's decision: a withheld tool passes max 0 for free.
+        for case in ROUTING_CASES:
+            with self.subTest(case=case):
+                fm = check_evals.split_frontmatter((EVALS / case / "prompt.md").read_text(encoding="utf-8"))[0]
+                self.assertIn("Agent", fm["allowed_tools"])
+                g = graders_of(case)["agent-never-called"][0]
+                self.assertEqual((g["tool"], g.get("min"), g.get("max"), g.get("arm")), ("Agent", 0, 0, "both"))
+
+    def test_shared_graders_are_identical_across_routing_cases(self):
+        reference = graders_of(ROUTING_CASES[0])
+        for name in ("agent-never-called", "no-bunshin-run", "gitignore-has-no-bunshin"):
+            with self.subTest(grader=name):
+                self.assertEqual(graders_of(ROUTING_CASES[1])[name][0], reference[name][0])
+
+    def test_no_bunshin_run_catches_any_file_under_bunshin(self):
+        fm = graders_of(ROUTING_CASES[0])["no-bunshin-run"][0]
+        self.assertEqual((fm["exists"], fm["arm"]), (False, "both"))
+        rx = runner_glob(fm["path"])
+        for created in (".bunshin/run.json", ".bunshin/harvest/contact-sheet-01.jpg", ".bunshin/report.md"):
+            self.assertIsNotNone(rx.search(created), created)
+        for created in ("app/page.tsx", "MASTER.md", "bunshin/run.json", "docs/.bunshin/run.json"):
+            self.assertIsNone(rx.search(created), created)
+
+    def test_gitignore_grader_reads_a_file_the_scaffold_writes(self):
+        rx = regex_of(graders_of(ROUTING_CASES[0])["gitignore-has-no-bunshin"][0])
+        for case in ROUTING_CASES:
+            with self.subTest(case=case):
+                scaffold = written_by(case)[".gitignore"]
+                self.assertIsNone(rx.search(scaffold))
+                self.assertIsNotNone(rx.search(scaffold + ".bunshin/\n"))
+
+
+class BunshinEscalatesTest(unittest.TestCase):
+    def test_nothing_the_run_reads_names_bunshin(self):
+        # bunshin-named reads the final report: the word has to come from paint's escalate region.
+        body = prompt_body("bunshin-escalates")
+        self.assertIn("/genjutsu:paint", body)
+        self.assertNotRegex(body, r"(?i)bunshin")
+        files = written_by("bunshin-escalates")
+        self.assertIn("material/profile.md", files)
+        for path, text in files.items():
+            self.assertNotRegex(text, r"(?i)bunshin", path)
+
+    def test_guard_and_paint_indicator_match_the_landing_cases(self):
+        reference, g = graders_of("studio-landing"), graders_of("bunshin-escalates")
+        for name in ("page-has-content", "paint-fired"):
+            with self.subTest(grader=name):
+                self.assertEqual(g[name][0], reference[name][0])
+        self.assertIn(": > app/page.tsx", (EVALS / "bunshin-escalates" / "fixture.sh").read_text(encoding="utf-8"))
+
+    def test_bunshin_named_reads_the_report(self):
+        fm = graders_of("bunshin-escalates")["bunshin-named"][0]
+        self.assertEqual((fm["target"], fm["arm"]), ("last_message", "with-only"))
+        rx = regex_of(fm)
+        self.assertIsNotNone(rx.search("Pipeline: paint. This brief is a whole site: Bunshin would fit it (nobody to ask)."))
+        self.assertIsNotNone(rx.search("For the five other pages, /genjutsu:bunshin is the pipeline built for it."))
+        self.assertIsNone(rx.search("Built: the home page in app/page.tsx.\nModules loaded: motion-principles, tells"))
+
+    def test_bunshin_never_invoked_catches_the_skill_call(self):
+        fm = graders_of("bunshin-escalates")["bunshin-never-invoked"][0]
+        self.assertEqual((fm["tool"], fm.get("min"), fm.get("max"), fm.get("arm")), ("Skill", 0, 0, "both"))
+        rx = check_evals.compile_js_regex(fm["input_match"], None)
+        self.assertIsNotNone(rx.search(tool_input(skill="genjutsu:bunshin")))
+        self.assertIsNotNone(rx.search(tool_input(skill="bunshin", args="lean")))
+        self.assertIsNone(rx.search(tool_input(skill="genjutsu:paint")))
+
+
+class BunshinStepsDownTest(unittest.TestCase):
+    def test_nothing_the_run_reads_names_cast(self):
+        # stepped-down-to-cast reads the final report: cast has to come from bunshin's step down.
+        body = prompt_body("bunshin-steps-down")
+        self.assertIn("/genjutsu:bunshin", body)
+        self.assertNotRegex(body, r"(?i)\bcast\b|\bstep(ped|s)?\s+down\b")
+        for path, text in written_by("bunshin-steps-down").items():
+            self.assertNotRegex(text, r"(?i)\bcast\b|bunshin|\bstep(ped|s)?\s+down\b", path)
+
+    def test_guard_rejects_the_scaffold_button_and_accepts_an_interaction(self):
+        self.assertIn("button-has-interaction", check_evals.GUARDS)
+        fm = graders_of("bunshin-steps-down")["button-has-interaction"][0]
+        self.assertEqual(fm["target"], {"source": "file", "path": "components/waitlist-button.tsx"})
+        rx = regex_of(fm)
+        self.assertIsNone(rx.search(written_by("bunshin-steps-down")["components/waitlist-button.tsx"]))
+        for version in (
+            '<button type="submit" className="transition-transform duration-150 hover:-translate-y-px active:scale-[0.97]">',
+            '"use client";\nimport { motion } from "motion/react";\n<motion.button type="submit" whileTap={{ scale: 0.97 }}>',
+            '<button className="cta">Join</button>\n<style>{`.cta:active { transform: scale(0.97); }`}</style>',
+            '<button type="submit" onPointerDown={() => setPressed(true)} data-pressed={pressed}>',
+        ):
+            self.assertIsNotNone(rx.search(version), version)
+        self.assertIsNone(rx.search('<a href="#join" className="hover:underline">Join the waitlist</a>'))
+        self.assertIsNone(rx.search('<button className="transition-transform duration-150">Join</button>'))
+
+    def test_step_down_report_names_cast(self):
+        fm = graders_of("bunshin-steps-down")["stepped-down-to-cast"][0]
+        self.assertEqual((fm["target"], fm["arm"]), ("last_message", "with-only"))
+        rx = regex_of(fm)
+        for report in (
+            "Pipeline: cast. bunshin stepped down: this is one component, not a site.",
+            "bunshin stepped down to cast (one button).",
+            "Ran `/genjutsu:cast` after the step down.",
+            "The pipeline that did the work: Cast.",
+        ):
+            self.assertIsNotNone(rx.search(report), report)
+        for report in (
+            "Pipeline: bunshin, lean tier, UNVALIDATED.",
+            "bunshin stepped down to paint.",
+            "On press the button drops onto the shadow it casts.",
+            "A soft shadow is cast under the button on hover.",
+        ):
+            self.assertIsNone(rx.search(report), report)
+
+    def test_skill_indicators_tell_bunshin_from_cast(self):
+        g = graders_of("bunshin-steps-down")
+        bunshin = check_evals.compile_js_regex(g["bunshin-fired"][0]["input_match"], None)
+        cast = check_evals.compile_js_regex(g["cast-fired"][0]["input_match"], None)
+        self.assertIsNotNone(bunshin.search(tool_input(skill="genjutsu:bunshin")))
+        self.assertIsNone(bunshin.search(tool_input(skill="genjutsu:cast")))
+        self.assertIsNotNone(cast.search(tool_input(skill="genjutsu:cast")))
+        self.assertIsNotNone(cast.search(tool_input(skill="cast")))
+        for other in ("genjutsu:bunshin", "genjutsu:paint", "broadcast"):
+            self.assertIsNone(cast.search(tool_input(skill=other)), other)
+        for name in ("bunshin-fired", "cast-fired", "stepped-down-to-cast"):
+            self.assertEqual(g[name][0].get("arm"), "with-only", f"{name} must not count in the score")
 
 
 if __name__ == "__main__":

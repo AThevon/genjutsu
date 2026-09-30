@@ -14,8 +14,16 @@ thing a paid run discovers. This checks, offline and with the stdlib only:
   compiles, and double-quoted YAML values with valid escapes (a regex like
   "\\s" in double quotes is a YAML error the runner would only report at run
   time);
-- every case invokes /genjutsu:paint explicitly and has exactly one positive
-  guard grader, the one the delta reading depends on;
+- every file_exists grader names a path relative to the workspace, with no
+  leading / or ./ (the runner matches it against the relative paths of the
+  files the run created, so such a path never matches) and a boolean exists;
+- every case invokes exactly one genjutsu pipeline explicitly
+  (/genjutsu:paint, /genjutsu:cast or /genjutsu:bunshin) and has exactly one
+  positive guard grader, the one the delta reading depends on;
+- every tool_used grader counts a tool the run can call: one of the case's
+  allowed_tools, or Bash, Write and Edit, granted on the command line. The
+  runner withholds every other tool, so a max: 0 grader on one would pass
+  whatever the run did, and a min: 1 grader would fail;
 - no file of the suite contains U+2014 (em dash) or the tells sentinel phrase,
   which must exist in exactly one file of the repo.
 
@@ -35,12 +43,22 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# Cases the release gate reads. Each one is added by the task that writes it.
-EXPECTED_CASES: tuple[str, ...] = ("studio-landing", "saas-landing", "thesis-allows", "swiftui-skip")
+# Cases the suite must hold, the ones the release gate reads among them. Each one
+# is added by the task that writes it.
+EXPECTED_CASES: tuple[str, ...] = (
+    "studio-landing", "saas-landing", "thesis-allows", "swiftui-skip", "bunshin-escalates", "bunshin-steps-down",
+)
 
 # Positive guards: a run that fails its case's guard produced nothing to grade,
 # and the delta reading (scripts/eval-runs.py) leaves it out of both arms.
-GUARDS = ("page-has-content", "swift-screen-written")
+GUARDS = ("page-has-content", "swift-screen-written", "button-has-interaction")
+# The orchestrators a prompt may invoke. One per prompt: the routing cases start
+# from one pipeline and grade whether it hands over to another, which a prompt
+# naming both would decide for the model.
+PIPELINES = ("paint", "cast", "bunshin")
+PIPELINE_CALL = re.compile(r"/genjutsu:(" + "|".join(PIPELINES) + r")(?![\w-])")
+# Granted by every documented run with --allow-tools, never by a case.
+COMMAND_LINE_TOOLS = {"Bash", "Write", "Edit"}
 EM_DASH = "\u2014"
 # Assembled from parts so that this file never contains the sentence itself.
 SENTINEL = " ".join(["A", "tell", "is", "a", "default", "the", "thesis", "never", "asked", "for."])
@@ -278,6 +296,17 @@ def check_grader(path: Path, errors: list[str]) -> dict | None:
             errors.append(f"{where}: min and max must be integers")
         elif hi is not None and lo > hi:
             errors.append(f"{where}: min {lo} is greater than max {hi}")
+    elif gtype == "file_exists":
+        path_glob = fm.get("path")
+        if not isinstance(path_glob, str) or not path_glob:
+            errors.append(f"{where}: file_exists grader needs a path")
+        elif path_glob.startswith(("/", "./")):
+            errors.append(
+                f"{where}: file_exists path {path_glob} must be relative to the workspace, without a leading / or ./: "
+                "the runner matches it against the relative paths of the files the run created"
+            )
+        if "exists" in fm and not isinstance(fm["exists"], bool):
+            errors.append(f"{where}: exists must be true or false, got {fm['exists']!r}")
     elif gtype == "llm":
         criteria = fm.get("criteria") or body.strip()
         if not criteria:
@@ -293,12 +322,13 @@ def check_grader(path: Path, errors: list[str]) -> dict | None:
     return {"name": path.stem, **fm}
 
 
-def check_prompt(path: Path, errors: list[str]) -> str:
+def check_prompt(path: Path, errors: list[str]) -> tuple[str, list | None]:
+    """Check prompt.md; return its body and its allowed_tools (None when either is unusable)."""
     try:
         fm, body = split_frontmatter(path.read_text(encoding="utf-8"))
     except (ParseError, UnicodeDecodeError) as e:
         errors.append(f"{path}: {e}")
-        return ""
+        return "", None
     unknown = set(fm) - PROMPT_KEYS
     if unknown:
         errors.append(f"{path}: unknown frontmatter key(s): {', '.join(sorted(unknown))}")
@@ -319,7 +349,7 @@ def check_prompt(path: Path, errors: list[str]) -> str:
             )
     if not body.strip():
         errors.append(f"{path}: the prompt body is empty")
-    return body
+    return body, tools if isinstance(tools, list) and tools else None
 
 
 def check_case_yaml(path: Path, case: str, errors: list[str]) -> None:
@@ -374,7 +404,7 @@ def check_suite(evals_dir: Path, expected: tuple[str, ...] = ()) -> list[str]:
         grader_files = sorted(graders_dir.glob("*.md")) if graders_dir.is_dir() else []
         if not grader_files:
             errors.append(f"{case}: no grader in graders/*.md")
-        body = check_prompt(case / "prompt.md", errors) if "prompt.md" not in missing else ""
+        body, tools = check_prompt(case / "prompt.md", errors) if "prompt.md" not in missing else ("", None)
         if "case.yaml" not in missing:
             check_case_yaml(case / "case.yaml", case.name, errors)
         graders = [g for g in (check_grader(f, errors) for f in grader_files) if g]
@@ -394,8 +424,29 @@ def check_suite(evals_dir: Path, expected: tuple[str, ...] = ()) -> list[str]:
                     f"{case}: guard {guard['name']} must be a regex, match contains, on a file target, "
                     "scored in both arms"
                 )
-        if "/genjutsu:paint" not in body and "prompt.md" not in missing:
-            errors.append(f"{case}: the prompt must invoke /genjutsu:paint explicitly")
+        if "prompt.md" not in missing:
+            called = sorted(set(PIPELINE_CALL.findall(body)))
+            if not called:
+                errors.append(
+                    f"{case}: the prompt must invoke one genjutsu pipeline explicitly "
+                    f"({', '.join('/genjutsu:' + p for p in PIPELINES)})"
+                )
+            elif len(called) > 1:
+                errors.append(
+                    f"{case}: the prompt invokes {', '.join('/genjutsu:' + p for p in called)}; "
+                    "name exactly one, the pipeline the case measures"
+                )
+        # Without a usable allowed_tools the prompt is already reported; checking
+        # the graders against nothing would only repeat that error once per grader.
+        if tools is not None:
+            can_call = set(tools) | COMMAND_LINE_TOOLS
+            for g in graders:
+                if g.get("type") == "tool_used" and g.get("tool") and g["tool"] not in can_call:
+                    errors.append(
+                        f"{case}: grader {g['name']} counts {g['tool']} calls, but the run is never given "
+                        f"{g['tool']} (not in allowed_tools, not granted on the command line), so its result "
+                        "is fixed before the run starts"
+                    )
     for f in sorted(evals_dir.rglob("*")):
         if not f.is_file() or "results" in f.relative_to(evals_dir).parts[:1]:
             continue

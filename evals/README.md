@@ -11,20 +11,34 @@ that matters is the delta between the two arms, read from the JSON result with
 | `saas-landing` | Landing page of an invoicing SaaS | The tells are gone: positive delta |
 | `thesis-allows` | A studio really split between Paris and Tokyo that asks for a two-city time bar | The bar stays: over-correction control. A pattern the brief asks for, carried into the thesis, is not a tell |
 | `swiftui-skip` | A SwiftUI screen | `tells` is a web module and is never requested |
+| `bunshin-escalates` | A whole site for an independent frame builder with two kinds of client, her Instagram profile as the only material, asked of `/genjutsu:paint` | Routing: paint names bunshin in its last message and carries on with the home page; no subagent, no bunshin run |
+| `bunshin-steps-down` | A hover and a press state on one existing button, asked of `/genjutsu:bunshin` | Routing: bunshin steps down to cast; no subagent, no `.bunshin/`, and the button gets its interaction |
 
 Each case holds `prompt.md` (the brief and the pre-answered gates), `case.yaml`, `fixture.sh` (the
-workspace the run starts from) and `graders/*.md`. The three web prompts invoke `/genjutsu:paint`
-explicitly and answer its gates up front (inline preview, theses and design system validated as
-proposed, the whole page in `app/page.tsx`), so the suite measures the implementation and the
+workspace the run starts from) and `graders/*.md`. Every prompt invokes one genjutsu pipeline by
+name (`/genjutsu:paint`, except `bunshin-steps-down`, which invokes `/genjutsu:bunshin`) and
+answers its gates up front (inline preview, theses and design system validated as proposed, the
+files the work may touch named one by one), so the suite measures the implementation and the
 audit, not the brainstorm.
+
+bunshin itself is never run end to end by this suite: a full run costs millions of tokens (about
+10.5M subagent tokens on one measured run: a seven-page site in two languages). The two `bunshin-`
+cases measure only its routing: the proposal paint makes, with nobody answering, when a brief is a
+whole site, and bunshin's step down when the job is one component. Both grant `Agent`, so that a
+run that spawns no subagent has decided not to, rather than been unable to.
 
 ## Cost: read this first
 
 Every run is a real, billed `claude` session, and so is every `llm` grader vote. The full suite is
-4 cases x 3 runs x 2 arms = 24 agent runs, each allowed up to 150 turns and 40 minutes, plus three
+6 cases x 3 runs x 2 arms = 36 agent runs, each allowed up to 150 turns and 40 minutes, plus three
 judge calls per `llm` grader per run. It runs by hand before a major release, never in CI. Always
 pass `--max-cost-usd`; the smoke test tells you what one web run costs, so set the ceiling from
-that figure (about 12 times the cost of one with-arm web run, plus 12 without-arm runs).
+that figure (about 18 times the cost of one with-arm web run, plus 18 without-arm runs).
+
+The ceiling matters most for `bunshin-steps-down`: a with-arm run in which bunshin fails to step
+down spawns clones, and can cost many times a web run before its limits stop it. Those limits are
+lower than the web cases' (100 turns, 30 minutes) for that reason, and `--max-cost-usd` is what
+stops the suite.
 
 What does run in CI is free and offline:
 
@@ -79,11 +93,23 @@ python3 scripts/eval-runs.py inspect evals/results/smoke-studio-landing/aggregat
 
 Read `turns` and `durationSeconds` of that run in `aggregate-result.json`. If the run hit its turn
 cap or its timeout (`error` is not null), raise `max_turns` (at most 200) or `timeout_seconds` (at
-most 3600) in the three web `prompt.md` files to about 1.5 times what the run used, and run the
-smoke test again. The four indicators `paint-fired`, `tells-requested`, `tells-reported-loaded`
-and `tells-read-sentinel` must pass; if only `tells-read-sentinel` fails while `tells-requested`
-passes, the trace does not carry tool output on this runner version: delete
-`graders/tells-read-sentinel.md` from the three web cases and note it in the release notes.
+most 3600) in the four `prompt.md` files that run paint on the web (`studio-landing`,
+`saas-landing`, `thesis-allows`, `bunshin-escalates`) to about 1.5 times what the run used, and
+run the smoke test again. The four indicators `paint-fired`, `tells-requested`,
+`tells-reported-loaded` and `tells-read-sentinel` must pass; if only `tells-read-sentinel` fails
+while `tells-requested` passes, the trace does not carry tool output on this runner version:
+delete `graders/tells-read-sentinel.md` from the three web cases and note it in the release notes.
+
+A third smoke run covers the case that costs the most when it fails, with its own ceiling:
+
+```bash
+claude plugin eval . --case bunshin-steps-down --runs 1 --ablation none --scaffold --allow-tools Bash Write Edit --keep-temp --max-cost-usd <budget> --no-publish --output-dir evals/results/smoke-bunshin-steps-down
+```
+
+In its `aggregate-result.json` every grader must pass: `bunshin-fired` and `cast-fired` show that
+bunshin ran and handed over, `button-has-interaction` that the work was done, and the rest that
+nothing heavier happened. If the run hit its turn cap or its timeout, raise the limits of
+`bunshin-steps-down/prompt.md` the same way.
 
 ## 2. Fallback: run from a copy outside $HOME
 
@@ -128,10 +154,11 @@ python3 scripts/eval-runs.py delta evals/results/run.json
 The table gives, per case, the mean score of each arm, the delta, and how many runs were kept. The
 runner's own summary averages every run; this does not, for two reasons:
 
-- **A run that failed its positive guard is left out of its arm.** `page-has-content` (web) and
-  `swift-screen-written` (SwiftUI) check that the run produced a real page or screen. An empty
-  `app/page.tsx` passes every `not_contains` grader, so without this rule a with-arm that crashed
-  would look cleaner than a baseline that wrote a real page.
+- **A run that failed its positive guard is left out of its arm.** `page-has-content` (web),
+  `swift-screen-written` (SwiftUI) and `button-has-interaction` (the one-button case) check that
+  the run produced a real page, screen or interaction. An empty `app/page.tsx` passes every
+  `not_contains` grader, and a run that did nothing spawns no subagent, so without this rule a
+  with-arm that crashed would look cleaner than a baseline that did the work.
 - **A run no grader scored is left out.** A run that failed in the harness (the scaffold exited
   non-zero, a setup step threw) comes back with score 0, an `error` and an empty `graders[]`. Kept,
   one such crash in the without arm would fake a positive delta, and one in the with arm would
@@ -140,7 +167,15 @@ runner's own summary averages every run; this does not, for two reasons:
   because its score is not comparable.
 
 The with-only indicators (`paint-fired`, `tells-requested`, `tells-reported-loaded`,
-`tells-read-sentinel`) are listed beside the scores, never inside them.
+`tells-read-sentinel`, and for the routing cases `bunshin-named`, `bunshin-fired`, `cast-fired`,
+`stepped-down-to-cast`) are listed beside the scores, never inside them.
+
+For the two routing cases the delta says little: without genjutsu there is no bunshin to switch
+to, so most of their scored checks pass in the without arm by construction. Read them on the with
+arm instead: the release gate below does. `no-bunshin-run` is a `file_exists` grader,
+matched against the files the runner lists as created by the run; `gitignore-has-no-bunshin`
+reads the `.gitignore` the scaffold wrote, where bunshin adds `.bunshin/` once its first gate is
+passed, so it holds whether or not that listing reaches into dot directories.
 
 Then it applies the release gate and exits 0 only when every line passes:
 
@@ -149,6 +184,10 @@ Then it applies the release gate and exits 0 only when every line passes:
   (the module is requested and read on a web stack).
 - `thesis-allows`: `keeps-both-cities` and `keeps-time-bar` pass on every kept with-arm run.
 - `swiftui-skip`: `tells-never-requested` and `tells-never-read` pass on every kept with-arm run.
+- `bunshin-escalates`: `bunshin-named`, `agent-never-called`, `bunshin-never-invoked`,
+  `no-bunshin-run` and `gitignore-has-no-bunshin` pass on every kept with-arm run.
+- `bunshin-steps-down`: `bunshin-fired`, `stepped-down-to-cast`, `agent-never-called`,
+  `no-bunshin-run` and `gitignore-has-no-bunshin` pass on every kept with-arm run.
 - The result is not partial.
 
 To look at the JSON by hand: each case is `cases[]` with `name`, `aggregates.score`,
@@ -157,7 +196,7 @@ To look at the JSON by hand: each case is `cases[]` with `name`, `aggregates.sco
 `scored` (false for the with-only indicators). The runs the delta leaves out are:
 
 ```bash
-python3 -c "import json,sys; d=json.load(open(sys.argv[1])); [print(c['name'], arm, i + 1) for c in d['cases'] for arm in ('with', 'without') for i, r in enumerate(c['arms'].get(arm) or []) if not r.get('graders') or r.get('skippedPaidGraders') or any(g['name'] in ('page-has-content', 'swift-screen-written') and not g['passed'] for g in r['graders'])]" evals/results/run.json
+python3 -c "import json,sys; d=json.load(open(sys.argv[1])); [print(c['name'], arm, i + 1) for c in d['cases'] for arm in ('with', 'without') for i, r in enumerate(c['arms'].get(arm) or []) if not r.get('graders') or r.get('skippedPaidGraders') or any(g['name'] in ('page-has-content', 'swift-screen-written', 'button-has-interaction') and not g['passed'] for g in r['graders'])]" evals/results/run.json
 ```
 
 ## 5. When the gate fails
@@ -167,7 +206,9 @@ it. Iterate on `skills/_jutsu/tells/`, never on the graders to make them pass, t
 case concerned (`--case studio-landing`), and the full suite before publishing. A failing
 `thesis-allows` means the module over-corrects: the rule that the thesis is the only authority
 (an element the brief asks for, carried into the thesis by name, is allowed) is not reaching the
-model.
+model. A failing `bunshin-escalates` points at the `escalate` region of `skills/paint/SKILL.md`
+(and its twin in cast), a failing `bunshin-steps-down` at "Step down" in
+`skills/bunshin/SKILL.md`; there too, the fix goes in the skill, not in the graders.
 
 ## 6. Bonus: against taste-skill
 

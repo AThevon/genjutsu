@@ -2,6 +2,142 @@
 
 All notable changes to this plugin are documented here. Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## v4.1.0 - 2026-09-30
+
+genjutsu gets a third pipeline: `bunshin` builds a whole website or web app with a team of
+subagents under one art director, asks the human twice, and loops fixes and verdicts until
+nothing above minor is left, the round cap of the tier picked at the start is reached, or a round
+fixes nothing. Run `/genjutsu:bunshin`, or ask `cast` or `paint` for a whole site: they propose
+it, with its cost, and switch only on a yes.
+
+### Added
+
+- **`bunshin`, the shadow clones.** A third orchestrator, `skills/bunshin/SKILL.md`
+  (`/genjutsu:bunshin`), for one job: a whole site, first version, from the client's real
+  material. Twelve phases: read the project and the host; summon (the first gate); harvest the
+  material; research with four clones and a synthesis; the direction (the second gate); type and
+  assets by evidence; the foundation, every route and the signature surface, built by the main
+  agent itself; one clone per page on files no other clone touches, each capturing its own page;
+  captures and scripted tests; independent review lenses and a fix plan; refine rounds with a
+  verdict and a cold-eyes art director; then DESIGN.md, an AGENTS.md for the AI that will
+  maintain the site, a launch guard for the facts still missing, the audit and the report.
+
+  The human is asked twice, and once more only to go past the tier's round cap. The summoning
+  gate carries the read of the project, what the host can do, whether Impeccable is installed,
+  the stack and the scaffold it installs, the cost of each tier and the product questions, in one
+  call. The direction gate validates the visual and the
+  interaction thesis together: every direction card carries genjutsu's interaction thesis and its
+  `Allowed patterns:` line. bunshin never opens the preview menu: that would be a third question.
+  Everything else is decided from evidence and written in the report.
+
+  When [Impeccable](https://impeccable.style) is installed, it leads the product interview and
+  draws the visual direction (seven worlds ordered before the draw, challengers, its decision
+  page), and brings its quality floor, its detector, image provenance, its shipped finish
+  reviewer, spawned by agent type and answering in its own contract, and its documenter. bunshin
+  always builds code-led. genjutsu never bundles Impeccable and never installs it without a yes;
+  without it, bunshin runs its own direction round and says that it is the weaker path.
+
+  bunshin announces its cost before anything heavier than reading runs. It has been measured on
+  one run, a seven-page site in two languages built from a professional's social profile with
+  two human touches: about 10.5M subagent tokens over six to eight hours, with one review, three
+  refine rounds and two verdicts. The three tiers (lean, standard, full: at most one, two or four
+  refine rounds; about 6M, 8 to 9M and 12 to 13M subagent tokens) are estimates built from that
+  run's per-unit costs, and the skill says so every time it quotes them. A headless run spends
+  nothing unless the request names a tier.
+
+  It steps down on its own: to `cast` or `paint` when the request is smaller than a site, to
+  `paint` when the host can spawn no subagent (claude.ai, as far as the repository knows; not
+  verified there yet), and to `paint` on Compose and SwiftUI, which it declares not covered yet.
+  It never starts a dev server, and never commits, pushes or deploys without being asked.
+
+- **`orchestration`, the seventeenth module.** `skills/_jutsu/orchestration/` holds what bunshin
+  needs to make ten agents produce one site instead of ten opinions: the six parts of a clone
+  brief, one owner per file with shared needs sent back as requests, builds in isolated copies
+  with the framework's own binary (never the package manager) and `node_modules` linked entry by
+  entry so parallel builds never write into the project's own caches, the evidence packet, the
+  five review lenses, a plan clone that verifies and rejects with reasons, the verdict and the
+  cold eyes, and the stop rule, dispositions first. Its references cover the harvest, images and
+  type (`material.md`: a logged-out social profile, contact sheets, palette sampling, circle
+  cutouts fitted to the object's own edge, grain), the captures and tests (`evidence.md`, with
+  the traps the measured run hit), and the Impeccable verbs bunshin relies on (`impeccable.md`).
+
+- **Five workflow templates, run by CI.** `research.js`, `build.js`, `review.js`, `refine.js` and
+  `verdict.js` are the fan-outs, parameterised by `args` and passed to a host's workflow tool by
+  path. Each returns what the next decision needs and writes the rest to disk: every lens writes
+  its own review, the plan file points to them, refine clones read their fixes from it, and from
+  round 2 `verdict.js` builds the next plan itself from the finish reviewer's remaining points.
+  The build and refine templates quote every path, print the build's real exit code, and refuse
+  a package manager as the build command, a scratch directory inside the project, or duplicate
+  owner keys. `scripts/check-workflows.mjs` holds every template to the host's contract (a pure
+  `meta` literal, declared phases, no `Date.now()`, `Math.random()` or argless `new Date()`,
+  satisfiable schemas) and runs it to the end against stubbed agents with its fixtures, then again
+  with every agent answering null; it fails on a prompt that received `undefined`, on a thunk or
+  a pipeline stage that throws, on a template that starts with empty `args`, and when the
+  isolated-build block of `build.js` and `refine.js` drifts. `--self-test` proves twenty-five of
+  those checks can still fail. The run bunshin comes from lost a whole fan-out to that class of
+  bug: a placeholder string where a script expected an array. On a host with a subagent tool and
+  no workflow tool, `orchestration/scripts/brief.mjs` prints the exact prompt, schema and agent
+  type of every clone a template would spawn, and the check runs it on every template.
+
+- **`shoot.mjs`, captures without a server.** A zero-dependency harness (Node 22 and a Chrome
+  binary) that opens headless Chrome over the DevTools protocol and answers every request to a
+  fake origin from the static build on disk. No dev server and no fixed port (the browser's
+  DevTools endpoint takes a free port the OS picks), so every clone can capture at once with its
+  own browser. First screens, full pages cut into readable segments, desktop scaled to 1000 px,
+  reduced motion, scripted `before` and `measure` expressions for functional tests, and per shot:
+  overflow, console errors, uncaught exceptions, every request the build could not answer, and
+  an `error` when that shot failed, without stopping the others. Nothing outside the build root
+  is served. `--self-test` serves a fixture and checks all of that; CI runs it.
+
+- **cast and paint propose bunshin.** A seventh guarded region, `escalate`, identical in both:
+  right after the stack scan, when the target is a whole site, the stack is web or there is no
+  project yet, and the session can spawn subagents, plus one of real material to harvest, two
+  audiences or languages, a first version for a client, or a request for the full treatment, they
+  propose bunshin once with its cost and switch only on a yes. With nobody answering they name it
+  in one line and in the report, and carry on.
+
+- **Two eval cases for the routing.** `bunshin-escalates` runs paint headless on a whole-site
+  brief: bunshin must be named in the last message, and no subagent may be spawned, no bunshin
+  invoked, no `.bunshin/` written. `bunshin-steps-down` runs bunshin on one button: it must step
+  down to cast, spawn nothing and write no `.bunshin/`, and the button must get its interaction.
+  Both are in the release gate. A full bunshin run is never part of the suite: it costs millions
+  of tokens.
+
+- **`VERSIONS.md` gains an "Orchestration" section**: the workflow and subagent tool contract,
+  the Impeccable verbs and versions, the DevTools protocol domains `shoot.mjs` uses, Node's
+  built-in WebSocket, and the traps of `evidence.md` with their sources or reproductions. Rows
+  nobody could check are marked `VERIFY-NEEDED`, among them whether claude.ai and Cowork give
+  skills a subagent tool.
+
+### Changed
+
+- **The router has three routes.** `cast` stays the default and `paint` keeps its signals.
+  `bunshin` is picked only when asked for by name or accepted from a proposal, never on a guess:
+  a whole-site request without the word goes to `paint`, which proposes it.
+- `check-shared-blocks.sh` guards three orchestrators: cast and paint share seven regions,
+  bunshin carries six of them byte-identical to cast (never `escalate`), and the router's three
+  blocks must match once their `p=` line is normalised. Its test covers each new way to drift.
+  `PLATFORM-CONTRACT.md` counts the wiring again: eleven sites across the three orchestrators,
+  seven of them inside four byte-identical regions.
+- `validate-skills.py` finds the orchestrators in the tree instead of a list, so bunshin's
+  `load_ref` calls are scanned; the bundle ships `bunshin/` and the seventeenth module; the
+  resolver and router fixtures learn the third pipeline and run on the packaged bundle too; CI
+  sets up Node 22 and runs the workflow templates and the capture harness.
+- `check-evals.py` accepts a case that invokes exactly one of the three pipelines, and rejects a
+  `tool_used` grader on a tool the run is never given (a `max: 0` on it would always pass) and a
+  `file_exists` path that could never match.
+- The resolver's failure message names genjutsu's pipelines instead of two of them.
+- Both manifests and this file move to 4.1.0.
+
+### Not covered yet
+
+- **Native stacks.** bunshin's evidence harness is web: on Compose and SwiftUI it steps down to
+  paint rather than review what it cannot capture.
+- **Hosts without subagents.** bunshin cannot run there, and says so instead of playing ten
+  clones in one context.
+- **A measured comparison.** The cost figures come from one run, and no ablation compares a
+  bunshin site with a paint site yet. The evals measure the routing only.
+
 ## v4.0.0 - 2026-09-28
 
 genjutsu names the slop instead of promising it, cleans it up before it reports, proves it, and

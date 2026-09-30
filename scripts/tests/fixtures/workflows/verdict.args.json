@@ -1,0 +1,25 @@
+{
+  "packet": "Project in /tmp/project. New captures in /tmp/project/.bunshin/captures/round-2.",
+  "history": "/tmp/project/.bunshin/reviews/round-1.json and the refine results in /tmp/project/.bunshin/reviews/round-1-refine.json",
+  "freshEyes": true,
+  "scenario": "The link arrives from a social profile on a phone, then the visitor opens it again on a laptop.",
+  "finishAgent": "impeccable-finish-reviewer",
+  "round": 1,
+  "owners": [
+    {
+      "key": "shared",
+      "files": [
+        "src/styles/*",
+        "src/layouts/*"
+      ]
+    },
+    {
+      "key": "home",
+      "files": [
+        "src/views/HomeView.astro",
+        "src/content/pages/home.ts"
+      ]
+    }
+  ],
+  "planOut": "/tmp/project/.bunshin/reviews/round-2.json"
+}

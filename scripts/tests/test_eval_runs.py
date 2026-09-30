@@ -55,7 +55,17 @@ def passing_suite():
         case("swiftui-skip",
              [run(1.0, {"tells-never-requested": (True, True), "tells-never-read": (True, True)}, guard_name="swift-screen-written")],
              [run(1.0, {"tells-never-requested": (True, True), "tells-never-read": (True, True)}, guard_name="swift-screen-written")]),
+        case("bunshin-escalates",
+             [run(1.0, {g: (True, True) for g in ESCALATES})],
+             [run(0.5, {g: (True, True) for g in ESCALATES})]),
+        case("bunshin-steps-down",
+             [run(1.0, {g: (True, True) for g in STEPS_DOWN}, guard_name="button-has-interaction")],
+             [run(0.5, {g: (True, True) for g in STEPS_DOWN}, guard_name="button-has-interaction")]),
     )
+
+
+ESCALATES = ("bunshin-named", "agent-never-called", "bunshin-never-invoked", "no-bunshin-run", "gitignore-has-no-bunshin")
+STEPS_DOWN = ("bunshin-fired", "stepped-down-to-cast", "agent-never-called", "no-bunshin-run", "gitignore-has-no-bunshin")
 
 
 class Base(unittest.TestCase):

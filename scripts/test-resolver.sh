@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Tests the $SKILL_BASE resolver that lives inside cast/SKILL.md.
+# Tests the $SKILL_BASE resolver that lives inside cast/SKILL.md, and byte for
+# byte inside paint and bunshin.
 #
 # That block has shipped two total failures. In v3.3.0 it resolved to nothing on
 # Cowork and the whole pipeline ran without a single one of its sub-skills. In
@@ -21,6 +22,8 @@ set -uo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SRC_CAST="$ROOT/skills/cast/SKILL.md"
+SRC_PAINT="$ROOT/skills/paint/SKILL.md"
+SRC_BUNSHIN="$ROOT/skills/bunshin/SKILL.md"
 SRC_ROUTER="$ROOT/packaging/genjutsu-router.md"
 SRC_UIUX="$ROOT/skills/_jutsu/ui-ux-pro-max/SKILL.md"
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/genjutsu-resolver.XXXXXX")"
@@ -40,7 +43,8 @@ if [ "${1:-}" = "--bundle" ]; then
     exit 1
   fi
   mkdir -p "$WORK/bundle"
-  for pair in cast/GUIDE.md:cast.md SKILL.md:router.md _jutsu/ui-ux-pro-max/GUIDE.md:uiux.md; do
+  for pair in cast/GUIDE.md:cast.md paint/GUIDE.md:paint.md bunshin/GUIDE.md:bunshin.md \
+      SKILL.md:router.md _jutsu/ui-ux-pro-max/GUIDE.md:uiux.md; do
     unzip -p "$ZIP" "${pair%%:*}" > "$WORK/bundle/${pair#*:}" 2>/dev/null
     if [ ! -s "$WORK/bundle/${pair#*:}" ]; then
       echo "FAIL: ${pair%%:*} is missing from $ZIP"
@@ -48,6 +52,8 @@ if [ "${1:-}" = "--bundle" ]; then
     fi
   done
   SRC_CAST="$WORK/bundle/cast.md"
+  SRC_PAINT="$WORK/bundle/paint.md"
+  SRC_BUNSHIN="$WORK/bundle/bunshin.md"
   SRC_ROUTER="$WORK/bundle/router.md"
   SRC_UIUX="$WORK/bundle/uiux.md"
   echo "source: bundle $ZIP"
@@ -101,6 +107,17 @@ check_grep() { # <name> <fixed string> <file>: the file must contain the string
   fi
 }
 
+# Every fixture below runs cast's block. paint and bunshin carry the same one:
+# check-shared-blocks.sh holds them to it in the repository, and this holds
+# them to it here too, which covers the bundle, where packaging rewrote all three.
+for pair in "paint:$SRC_PAINT" "bunshin:$SRC_BUNSHIN"; do
+  pipe="${pair%%:*}"
+  extract "${pair#*:}" '<!-- genjutsu:shared:skill-base:start -->' \
+    '<!-- genjutsu:shared:skill-base:end -->' "$WORK/resolver-$pipe.sh"
+  check "$pipe runs the same resolver block as cast" "same" \
+    "$(cmp -s "$BLOCK" "$WORK/resolver-$pipe.sh" && echo same || echo different)"
+done
+
 # Fixture builders. The membership rule only accepts a _jutsu that holds
 # motion-principles, with the entry file a plugin ships (SKILL) or the one the
 # bundle ships (GUIDE).
@@ -110,16 +127,18 @@ mkjutsu() { # <dir> <SKILL|GUIDE>
   printf 'GSAP MODULE\n' > "$1/gsap/$2.md"
 }
 mkplugin() { # <plugin root>: a Claude Code plugin checkout
-  mkdir -p "$1/skills/cast" "$1/skills/paint"
+  mkdir -p "$1/skills/cast" "$1/skills/paint" "$1/skills/bunshin"
   printf 'CAST PIPELINE\n' > "$1/skills/cast/SKILL.md"
   printf 'PAINT PIPELINE\n' > "$1/skills/paint/SKILL.md"
+  printf 'BUNSHIN PIPELINE\n' > "$1/skills/bunshin/SKILL.md"
   mkjutsu "$1/skills/_jutsu" SKILL
 }
 mkbundle() { # <dir>: the genjutsu.zip bundle, unpacked
-  mkdir -p "$1/cast" "$1/paint"
+  mkdir -p "$1/cast" "$1/paint" "$1/bunshin"
   printf 'ROUTER\n' > "$1/SKILL.md"
   printf 'CAST PIPELINE\n' > "$1/cast/GUIDE.md"
   printf 'PAINT PIPELINE\n' > "$1/paint/GUIDE.md"
+  printf 'BUNSHIN PIPELINE\n' > "$1/bunshin/GUIDE.md"
   mkjutsu "$1/_jutsu" GUIDE
 }
 
@@ -298,9 +317,10 @@ check "collision: a foreign cast and a foreign _jutsu are never taken" \
 
 # --- 14. cast alone: installed from the repo route, no _jutsu anywhere --------
 H="$WORK/t14/home"; A="$H/.agents/skills"
-mkdir -p "$WORK/t14/cwd" "$A/cast" "$A/paint"
+mkdir -p "$WORK/t14/cwd" "$A/cast" "$A/paint" "$A/bunshin"
 printf 'CAST PIPELINE\n' > "$A/cast/SKILL.md"
 printf 'PAINT PIPELINE\n' > "$A/paint/SKILL.md"
+printf 'BUNSHIN PIPELINE\n' > "$A/bunshin/SKILL.md"
 run_block "$H" "$WORK/t14/cwd" "" "" "$A/cast"; rc=$?
 check "cast alone: the block exits non-zero" "1" "$([ "$rc" -ne 0 ] && echo 1 || echo 0)"
 check_grep "cast alone: stderr names genjutsu.athevon.dev" "genjutsu.athevon.dev" "$WORK/err"
@@ -314,6 +334,8 @@ check "cast alone: load_skill is never defined, nothing runs on empty" "undefine
     command -v load_skill >/dev/null 2>&1 && echo defined || echo undefined
   )
 )"
+run_block "$H" "$WORK/t14/cwd" "" "" "$A/bunshin"; rc=$?
+check "bunshin alone: the block exits non-zero" "1" "$([ "$rc" -ne 0 ] && echo 1 || echo 0)"
 
 # --- 15. npx --copy mode into an agent's own directory ----------------------
 H="$WORK/t15/home"
@@ -387,14 +409,18 @@ else
 fi
 
 # --- 19. The router of the bundle -------------------------------------------
-# The router is the only file a host loads as a skill in the bundle: cast and
-# paint are read through it. It must find its own bundle, never another
-# package's cast, and hand the pipeline its directory as GENJUTSU_SKILL_DIR.
+# The router is the only file a host loads as a skill in the bundle: cast,
+# paint and bunshin are read through it. It must find its own bundle, never
+# another package's cast or bunshin, and hand the pipeline its directory as
+# GENJUTSU_SKILL_DIR.
 ROUTER_CAST="$WORK/router-cast.sh"; ROUTER_PAINT="$WORK/router-paint.sh"
+ROUTER_BUNSHIN="$WORK/router-bunshin.sh"
 extract "$SRC_ROUTER" '<!-- genjutsu:router:cast:start -->' \
   '<!-- genjutsu:router:cast:end -->' "$ROUTER_CAST"
 extract "$SRC_ROUTER" '<!-- genjutsu:router:paint:start -->' \
   '<!-- genjutsu:router:paint:end -->' "$ROUTER_PAINT"
+extract "$SRC_ROUTER" '<!-- genjutsu:router:bunshin:start -->' \
+  '<!-- genjutsu:router:bunshin:end -->' "$ROUTER_BUNSHIN"
 
 # run_router <block> <home> <pwd> <CLAUDE_SKILL_DIR> <GENJUTSU_BUNDLE_DIR>
 run_router() {
@@ -417,15 +443,39 @@ check_grep "router: then prints the cast pipeline" "CAST PIPELINE" "$WORK/out"
 run_router "$ROUTER_PAINT" "$H" "$WORK/r1/cwd" "" "$B"
 check_grep "router: GENJUTSU_BUNDLE_DIR set by the model, paint block" "GENJUTSU_SKILL_DIR=$B/paint" "$WORK/out"
 check_grep "router: the paint block prints the paint pipeline" "PAINT PIPELINE" "$WORK/out"
+run_router "$ROUTER_BUNSHIN" "$H" "$WORK/r1/cwd" "$B" ""
+check_grep "router: a substituted CLAUDE_SKILL_DIR prints the bunshin dir" "GENJUTSU_SKILL_DIR=$B/bunshin" "$WORK/out"
+check_grep "router: the bunshin block prints the bunshin pipeline" "BUNSHIN PIPELINE" "$WORK/out"
+run_router "$ROUTER_BUNSHIN" "$H" "$WORK/r1/cwd" "" "$B"
+check_grep "router: GENJUTSU_BUNDLE_DIR set by the model, bunshin block" "GENJUTSU_SKILL_DIR=$B/bunshin" "$WORK/out"
 
 H="$WORK/r2/home"; A="$H/.agents/skills"
-mkdir -p "$WORK/r2/cwd" "$A/cast" "$A/aaa-kit/cast"
+mkdir -p "$WORK/r2/cwd" "$A/cast" "$A/aaa-kit/cast" "$A/bunshin" "$A/aaa-kit/bunshin" "$A/aaa-kit/_jutsu/gsap"
 printf 'FOREIGN CAST\n' > "$A/cast/SKILL.md"
 printf 'FOREIGN CAST\n' > "$A/aaa-kit/cast/SKILL.md"
+printf 'FOREIGN BUNSHIN\n' > "$A/bunshin/SKILL.md"
+printf 'FOREIGN BUNSHIN\n' > "$A/aaa-kit/bunshin/SKILL.md"
 mkbundle "$A/genjutsu"
 run_router "$ROUTER_CAST" "$H" "$WORK/r2/cwd" "" ""
 check_grep "router: no substitution, finds ~/.agents/skills/genjutsu" "GENJUTSU_SKILL_DIR=$A/genjutsu/cast" "$WORK/out"
 check "router: a foreign cast is never printed" "0" "$(grep -c 'FOREIGN CAST' "$WORK/out")"
+run_router "$ROUTER_BUNSHIN" "$H" "$WORK/r2/cwd" "" ""
+check_grep "router: the bunshin block finds ~/.agents/skills/genjutsu" "GENJUTSU_SKILL_DIR=$A/genjutsu/bunshin" "$WORK/out"
+check "router: a foreign bunshin is never printed" "0" "$(grep -c 'FOREIGN BUNSHIN' "$WORK/out")"
+# bunshin is a word other packages use too. The model even points
+# GENJUTSU_BUNDLE_DIR at a kit that holds a bunshin and a _jutsu without
+# motion-principles: path 1 tries it first, so only the membership rule keeps it out.
+run_router "$ROUTER_BUNSHIN" "$H" "$WORK/r2/cwd" "" "$A/aaa-kit"
+check_grep "router: a foreign kit named by GENJUTSU_BUNDLE_DIR is skipped" "GENJUTSU_SKILL_DIR=$A/genjutsu/bunshin" "$WORK/out"
+check "router: the foreign kit's bunshin is never printed" "0" "$(grep -c 'FOREIGN BUNSHIN' "$WORK/out")"
+
+# A bundle from before bunshin (v4: cast, paint and _jutsu only) holds no
+# bunshin to run: named by GENJUTSU_BUNDLE_DIR, it is skipped, and the search
+# goes on to the bundle that has one.
+H="$WORK/r2b/home"; A="$H/.agents/skills"
+mkdir -p "$WORK/r2b/cwd"; mkbundle "$A/genjutsu-4"; rm -rf "$A/genjutsu-4/bunshin"; mkbundle "$A/genjutsu"
+run_router "$ROUTER_BUNSHIN" "$H" "$WORK/r2b/cwd" "" "$A/genjutsu-4"
+check_grep "router: a bundle without bunshin is skipped by the bunshin block" "GENJUTSU_SKILL_DIR=$A/genjutsu/bunshin" "$WORK/out"
 
 H="$WORK/r3/home"
 mkdir -p "$WORK/r3/cwd"; mkbundle "$H/.cursor/skills/genjutsu"
@@ -439,13 +489,17 @@ run_router "$ROUTER_CAST" "$H" "$PR/src" "" ""
 check_grep "router: npx project layout through the symlink" "GENJUTSU_SKILL_DIR=$PR/.agents/skills/genjutsu/cast" "$WORK/out"
 
 H="$WORK/r5/home"
-mkdir -p "$WORK/r5/cwd" "$H/.agents/skills/cast"
+mkdir -p "$WORK/r5/cwd" "$H/.agents/skills/cast" "$H/.agents/skills/bunshin"
 printf 'FOREIGN CAST\n' > "$H/.agents/skills/cast/SKILL.md"
+printf 'FOREIGN BUNSHIN\n' > "$H/.agents/skills/bunshin/SKILL.md"
 run_router "$ROUTER_CAST" "$H" "$WORK/r5/cwd" "" ""; rc=$?
 check "router: no bundle anywhere exits non-zero" "1" "$([ "$rc" -ne 0 ] && echo 1 || echo 0)"
 check_grep "router: no bundle gives the npx command" \
   "npx skills add https://genjutsu.athevon.dev -g" "$WORK/err"
 check "router: no bundle prints no pipeline" "0" "$(grep -c 'PIPELINE' "$WORK/out")"
+run_router "$ROUTER_BUNSHIN" "$H" "$WORK/r5/cwd" "" ""; rc=$?
+check "router: no bundle anywhere, the bunshin block exits non-zero" "1" "$([ "$rc" -ne 0 ] && echo 1 || echo 0)"
+check "router: no bundle, the bunshin block prints no foreign bunshin" "0" "$(grep -c 'BUNSHIN' "$WORK/out")"
 
 # The router hands the pipeline its GENJUTSU_SKILL_DIR; the pipeline's block
 # must then resolve the bundle's modules from it, end to end.
@@ -455,6 +509,10 @@ mkplugin "$H/.claude/plugins/cache/genjutsu/genjutsu/3.6.0"
 run_router "$ROUTER_CAST" "$H" "$WORK/r6/cwd" "$B" ""
 dir="$(sed -n 's/^GENJUTSU_SKILL_DIR=//p' "$WORK/out")"
 check "router to resolver: the printed dir resolves the bundle's modules" \
+  "$B/_jutsu" "$(resolve "$H" "$WORK/r6/cwd" "" "" "$dir")"
+run_router "$ROUTER_BUNSHIN" "$H" "$WORK/r6/cwd" "$B" ""
+dir="$(sed -n 's/^GENJUTSU_SKILL_DIR=//p' "$WORK/out")"
+check "router to resolver: the bunshin dir resolves the bundle's modules" \
   "$B/_jutsu" "$(resolve "$H" "$WORK/r6/cwd" "" "" "$dir")"
 
 # --- 20. ui-ux-pro-max finds its own scripts --------------------------------
@@ -561,6 +619,8 @@ export GENJUTSU_CLAUDE_AI_ROOT="$M"
 run_router "$ROUTER_CAST" "$H" "$WORK/c4/cwd" "" ""
 check_grep "router on claude.ai: finds its bundle under /mnt/skills/plugins" "GENJUTSU_SKILL_DIR=$M/plugins/genjutsu/cast" "$WORK/out"
 check "router on claude.ai: a foreign cast is never printed" "0" "$(grep -c 'FOREIGN CAST' "$WORK/out")"
+run_router "$ROUTER_BUNSHIN" "$H" "$WORK/c4/cwd" "" ""
+check_grep "router on claude.ai: the bunshin block finds the same bundle" "GENJUTSU_SKILL_DIR=$M/plugins/genjutsu/bunshin" "$WORK/out"
 M="$WORK/c5/mnt-skills"; H="$WORK/c5/home"; B="$WORK/c5/bundle/genjutsu"
 mkdir -p "$H" "$WORK/c5/cwd" "$M/user/add-theme"; mkbundle "$B"
 export GENJUTSU_CLAUDE_AI_ROOT="$M"

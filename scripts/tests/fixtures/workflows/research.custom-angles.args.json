@@ -1,0 +1,9 @@
+{
+  "brief": "Project: the web app of a small booking service for rehearsal rooms. Audience: bands booking on a phone. Main channel: search.",
+  "out": "/tmp/project/.bunshin/research/synthesis.md",
+  "language": "French",
+  "angles": [
+    { "key": "tools", "prompt": "Angle: the booking tools bands use today, and the flows they complain about." },
+    { "key": "flows", "prompt": "Angle: the task flows of the best booking apps, screen by screen." }
+  ]
+}

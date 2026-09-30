@@ -1,0 +1,16 @@
+{
+  "packet": "Project in /tmp/project. New captures in /tmp/project/.bunshin/captures/round-3.",
+  "history": "/tmp/project/.bunshin/reviews/round-2.json",
+  "finishRole": "/tmp/project/roles/finish-reviewer.md",
+  "round": 2,
+  "owners": [
+    {
+      "key": "home",
+      "files": [
+        "src/views/HomeView.astro",
+        "src/content/pages/home.ts"
+      ]
+    }
+  ],
+  "planOut": "/tmp/project/.bunshin/reviews/round-3.json"
+}

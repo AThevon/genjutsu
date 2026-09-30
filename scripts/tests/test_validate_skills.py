@@ -32,6 +32,7 @@ class ValidateSkillsTest(unittest.TestCase):
         self.root = Path(self._tmp.name)
         self.write("skills/cast/SKILL.md", ORCH_FRONT.format(name="cast") + "Body.\n")
         self.write("skills/paint/SKILL.md", ORCH_FRONT.format(name="paint") + "Body.\n")
+        self.write("skills/bunshin/SKILL.md", ORCH_FRONT.format(name="bunshin") + "Body.\n")
         self.write("skills/_jutsu/gsap/SKILL.md", MODULE_FRONT.format(name="gsap") + "Body.\n")
 
     def tearDown(self) -> None:
@@ -79,6 +80,11 @@ class ValidateSkillsTest(unittest.TestCase):
         self.write("skills/cast/SKILL.md", text + "Body.\n")
         self.assert_fails("orchestrator must not carry metadata.internal")
 
+    def test_bunshin_with_internal_fails(self) -> None:
+        text = ORCH_FRONT.format(name="bunshin").replace("\n---\n", "\nmetadata:\n  internal: true\n---\n", 1)
+        self.write("skills/bunshin/SKILL.md", text + "Body.\n")
+        self.assert_fails("orchestrator must not carry metadata.internal")
+
     def test_module_over_the_cap_fails(self) -> None:
         self.write("skills/_jutsu/gsap/SKILL.md", MODULE_FRONT.format(name="gsap") + "x" * 25_001 + "\n")
         self.assert_fails("25000")
@@ -109,6 +115,30 @@ class ValidateSkillsTest(unittest.TestCase):
             ORCH_FRONT.format(name="paint") + "```bash\nload_ref gsap references/gone.md\n```\n",
         )
         self.assert_fails("named by load_ref in an orchestrator, but missing")
+
+    def test_load_ref_in_bunshin_naming_a_missing_file_fails(self) -> None:
+        self.write(
+            "skills/bunshin/SKILL.md",
+            ORCH_FRONT.format(name="bunshin") + "```bash\nload_ref orchestration references/gone.md\n```\n",
+        )
+        self.assert_fails("skills/_jutsu/orchestration/references/gone.md: named by load_ref")
+
+    def test_reference_printed_by_bunshin_load_ref_over_the_cap_fails(self) -> None:
+        self.write("skills/_jutsu/gsap/references/big.md", "x" * 25_001)
+        self.write(
+            "skills/bunshin/SKILL.md",
+            ORCH_FRONT.format(name="bunshin") + "`load_ref gsap references/big.md`, then follow it.\n",
+        )
+        self.assert_fails("load_ref prints it in one call")
+
+    def test_a_new_orchestrator_is_scanned_without_being_listed(self) -> None:
+        # The orchestrators are read from the tree. A fourth one, named nowhere in
+        # the script, must still have its load_ref calls checked.
+        self.write(
+            "skills/kage/SKILL.md",
+            ORCH_FRONT.format(name="kage") + "```bash\nload_ref gsap references/gone.md\n```\n",
+        )
+        self.assert_fails("skills/_jutsu/gsap/references/gone.md: named by load_ref")
 
     def test_this_repository_passes(self) -> None:
         result = run(REPO)

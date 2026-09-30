@@ -69,17 +69,47 @@ at v2.11.1, MIT. Hand-edits there are lost on the next sync and make the mirror 
 those upstream. The exception is `SKILL.md` and `UPSTREAM.md` in that directory, which are ours.
 See [`UPSTREAM.md`](./skills/_jutsu/ui-ux-pro-max/UPSTREAM.md).
 
-**`skills/cast/SKILL.md` and `skills/paint/SKILL.md`** share six regions that must stay
-byte-identical, marked `<!-- genjutsu:shared:<name>:start -->`. Editing one without the other
-fails CI. They are duplicated rather than shared because each orchestrator ships as a
-self-contained skill and these blocks bootstrap sub-skill loading before anything can be read.
-The bundle's router, `packaging/genjutsu-router.md`, carries its search twice, once per
-pipeline, between `<!-- genjutsu:router:<pipeline>:start -->` markers: the two blocks must
-match line for line except their `p=cast` / `p=paint` line.
+**The three orchestrators share regions that must stay byte-identical**, marked
+`<!-- genjutsu:shared:<name>:start -->`. `skills/cast/SKILL.md` and `skills/paint/SKILL.md` carry
+seven: `scan`, `skill-base`, `load`, `preview`, `audit`, `headless` and `escalate`.
+`skills/bunshin/SKILL.md` carries the first six, byte-identical to cast's, and never `escalate`:
+that region is the proposal cast and paint make to switch to bunshin, and in bunshin it would
+propose bunshin to itself. Editing a region in one file without the others fails CI, and so does
+a region marker in a file that is not expected to carry it. They are duplicated rather than
+shared because each orchestrator ships as a self-contained skill and these blocks bootstrap
+sub-skill loading before anything can be read. The bundle's router,
+`packaging/genjutsu-router.md`, carries its search three times, once per pipeline, between
+`<!-- genjutsu:router:<pipeline>:start -->` markers: the three blocks must match line for line
+except their `p=cast` / `p=paint` / `p=bunshin` line.
+
+**The workflow templates** in `skills/_jutsu/orchestration/workflows/` are JavaScript that runs
+only inside a host's workflow tool, billed per agent, so a mistake in one is found hours into a
+paid run: the run bunshin comes from lost a whole fan-out to `fixes.some is not a function`,
+because a placeholder string reached a script that expected an array. Every template needs a
+fixture, `scripts/tests/fixtures/workflows/<name>.args.json` (further cases as
+`<name>.<case>.args.json`), holding the `args` a real call passes, and must pass
+`node scripts/check-workflows.mjs`: a pure `meta` literal first, no `Date.now()`, `Math.random()`
+or argless `new Date()`, every `phase()` declared in `meta.phases`, a run to the end against
+stubbed `agent()`, `parallel()` and `pipeline()` on each fixture, and a throw at once on empty
+args. It also runs each fixture with every `agent()` answering null, the way the host answers for
+a subagent that died, and fails on a crash; it fails on a thunk or a pipeline stage that throws,
+on an unsatisfiable schema, and when the isolated-build block of `build.js` and `refine.js`
+drifts. A template with no fixture fails the check. The stubs prove that the template runs, not
+that the host still accepts it: the host contract they mirror is dated in
+[`VERSIONS.md`](./skills/_jutsu/VERSIONS.md), section Orchestration.
+
+**`skills/_jutsu/orchestration/scripts/shoot.mjs`**, the capture harness, has no dependency and one
+test: `--self-test` serves a fixture build to a real headless Chrome and fails unless routes
+resolve from disk, a long page is cut into the right number of segments, desktop captures are
+scaled, reduced motion is emulated, overflow, console errors, uncaught exceptions and missing
+files are all reported, a failing shot fails alone, and nothing outside the build root is served.
+CI runs it on Node 22 with the runner's Chrome.
 
 **A new platform family** is not a pull request, it is a conversation. Read
-[`PLATFORM-CONTRACT.md`](./PLATFORM-CONTRACT.md) first: adding one touches eight sites across two
-files, four of them inside byte-identical regions, and commits somebody to keeping it accurate.
+[`PLATFORM-CONTRACT.md`](./PLATFORM-CONTRACT.md) first: adding one touches eleven sites across the
+three orchestrators, seven of them inside four byte-identical regions, and commits somebody to
+keeping it accurate. bunshin does not take a new family: it steps down to paint on it until the
+family has an evidence harness of its own.
 
 ## Hosts
 
@@ -90,6 +120,10 @@ through `npx skills` (Codex, Cursor and others), untested and unsupported. The H
 **Triage rule:** a bug that does not reproduce under Claude Code is labelled `community`. It stays
 open, and a fix is welcome as long as it changes nothing for the supported hosts. The bug form
 asks which surface you used; for another agent, name it and the install command.
+
+bunshin runs only on a host that can spawn subagents. On one that cannot, claude.ai included as
+far as this repo knows, it steps down to paint and says why: that is its supported behaviour
+there, not a bug. A bunshin that plays the clones itself in one context is the bug.
 
 ## Running the checks
 
@@ -102,6 +136,8 @@ All of these run in CI. Run them before opening the PR and you will not be surpr
 ./scripts/check-denylist.sh             # no string that was wrong once has come back
 ./scripts/test-resolver.sh              # the resolver, one fixture per install layout
 python3 scripts/validate-skills.py      # every SKILL.md against the Agent Skills spec
+node scripts/check-workflows.mjs --self-test && node scripts/check-workflows.mjs   # workflow templates run to the end on their fixtures
+node skills/_jutsu/orchestration/scripts/shoot.mjs --self-test   # the capture harness, in headless Chrome (Node 22+)
 ( cd scripts && python3 -m unittest discover -s tests )
 python3 skills/_jutsu/ui-ux-pro-max/scripts/validate_data.py
 ( cd skills/_jutsu/ui-ux-pro-max/scripts && python3 -m unittest discover -s tests )
@@ -109,7 +145,7 @@ python3 skills/_jutsu/ui-ux-pro-max/scripts/validate_data.py
 ./scripts/test-resolver.sh --bundle dist/genjutsu.zip   # the same fixtures, on the packaged bundle
 ```
 
-`validate-skills.py` warns when a `SKILL.md` body goes over 500 lines and still exits 0. Three
+`validate-skills.py` warns when a `SKILL.md` body goes over 500 lines and still exits 0. Four
 files are already over it. Treat it as a nudge toward `references/`, not a gate.
 
 If your PR is your first to this repo, GitHub holds the workflow runs until the maintainer
