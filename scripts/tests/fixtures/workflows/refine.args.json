@@ -1,0 +1,43 @@
+{
+  "root": "/tmp/project",
+  "packet": "Read first: /tmp/project/PRODUCT.md, the direction contract.",
+  "planPath": "/tmp/project/.bunshin/reviews/round-1.json",
+  "owners": [
+    {
+      "key": "shared",
+      "files": [
+        "src/styles/*",
+        "src/layouts/*"
+      ]
+    },
+    {
+      "key": "home",
+      "files": [
+        "src/views/HomeView.astro",
+        "src/content/pages/home.ts"
+      ]
+    },
+    {
+      "key": "contact",
+      "files": [
+        "src/views/ContactView.astro"
+      ]
+    }
+  ],
+  "shared": "shared",
+  "build": {
+    "cmd": "./node_modules/.bin/astro build",
+    "scratch": "/tmp/bunshin-scratch",
+    "static": ".vercel/output/static",
+    "shoot": "/tmp/jutsu/orchestration/scripts/shoot.mjs",
+    "routes": {
+      "home": [
+        "/"
+      ],
+      "contact": [
+        "/contact"
+      ]
+    }
+  },
+  "decisions": "/tmp/project/.bunshin/decisions/round-1.md"
+}

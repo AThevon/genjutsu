@@ -25,6 +25,12 @@ FULL_SUITE = (
 SMOKE = "claude plugin eval . --case swiftui-skip --runs 1 --ablation none --scaffold --allow-tools Bash Write Edit --keep-temp"
 
 
+def case_names() -> list[str]:
+    # The case directories check-evals.py validates: results/ and dot or underscore names are not cases.
+    return sorted(p.name for p in (ROOT / "evals").iterdir()
+                  if p.is_dir() and p.name != "results" and not p.name.startswith((".", "_")))
+
+
 class ReadmeTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -57,7 +63,8 @@ class ReadmeTest(unittest.TestCase):
 
     def test_named_files_exist(self):
         for rel in ("scripts/check-evals.py", "scripts/eval-runs.py", "evals/studio-landing/prompt.md",
-                    "evals/swiftui-skip/prompt.md"):
+                    "evals/swiftui-skip/prompt.md", "evals/bunshin-steps-down/prompt.md",
+                    "skills/paint/SKILL.md", "skills/bunshin/SKILL.md"):
             self.assertTrue((ROOT / rel).is_file(), rel)
         for rel in set(re.findall(r"`(scripts/[\w./-]+\.py)`", self.text)):
             self.assertTrue((ROOT / rel).is_file(), rel)
@@ -65,8 +72,34 @@ class ReadmeTest(unittest.TestCase):
     def test_cost_warning_and_exclusion_rule(self):
         for needle in ("## Cost: read this first", "never in CI", "--max-cost-usd",
                        "A run that failed its positive guard is left out of its arm",
-                       "page-has-content", "swift-screen-written", "skippedPaidGraders"):
+                       "page-has-content", "swift-screen-written", "button-has-interaction",
+                       "skippedPaidGraders"):
             self.assertIn(needle, self.text)
+
+    def test_every_case_is_in_the_table(self):
+        rows = set(re.findall(r"^\| `([\w-]+)` \|", self.text, re.M))
+        self.assertEqual(rows, set(case_names()))
+
+    def test_suite_size_matches_the_cases(self):
+        # The cost warning is only as good as its arithmetic: a case added without it
+        # makes the ceiling it tells you to set too low.
+        m = re.search(r"(\d+) cases x (\d+) runs x 2 arms = (\d+) agent runs", self.text)
+        self.assertIsNotNone(m)
+        cases, runs, total = map(int, m.groups())
+        self.assertEqual(cases, len(case_names()))
+        self.assertIn(f"--runs {runs} ", FULL_SUITE)
+        self.assertEqual(total, cases * runs * 2)
+        per_arm = cases * runs
+        self.assertIn(f"about {per_arm} times the cost of one with-arm web run, plus {per_arm} without-arm runs",
+                      " ".join(self.text.split()))
+
+    def test_bunshin_is_never_run_end_to_end(self):
+        flat = " ".join(self.text.split())
+        self.assertIn("bunshin itself is never run end to end by this suite", flat)
+        self.assertIn("one measured run: a seven-page site in two languages", flat)
+        for line in self.text.splitlines():
+            if "claude plugin eval " in line and "--case bunshin" in line:
+                self.assertIn("--max-cost-usd", line, f"a bunshin case without a cost ceiling: {line.strip()}")
 
     def test_no_em_dash(self):
         self.assertNotIn(chr(0x2014), self.text)

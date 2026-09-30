@@ -4,7 +4,7 @@
 
 <h1 align="center">genjutsu</h1>
 
-<p align="center"><em>The art of illusion. Cast motion. Paint signatures.</em></p>
+<p align="center"><em>The art of illusion. Cast motion. Paint signatures. Summon shadow clones.</em></p>
 
 <p align="center">
   <a href="https://genjutsu.athevon.dev"><strong>Website</strong></a>
@@ -23,13 +23,70 @@
   <a href="https://github.com/sponsors/AThevon"><img src="https://img.shields.io/badge/sponsor-b11523?style=flat-square&logo=githubsponsors&logoColor=white" alt="Sponsor on GitHub" /></a>
 </p>
 
-Creative coding skills for [Claude Code](https://claude.ai/code), [claude.ai](https://claude.ai) and [Cowork](https://claude.com/plugins-for/cowork) - transforms any interface from functional to exceptional through motion design, interaction patterns, and visual systems. Covers Web (React, Vue, Svelte, vanilla CSS, Three.js, Canvas), Android (Jetpack Compose, Compose Multiplatform), and Apple (SwiftUI iOS + macOS).
+Creative coding skills for [Claude Code](https://claude.ai/code), [claude.ai](https://claude.ai) and [Cowork](https://claude.com/plugins-for/cowork), at three scales: `cast` makes one interface move, `paint` gives a product its visual identity, and `bunshin` builds a whole website or web app with a team of agents under one art director. Covers Web (React, Vue, Svelte, Astro, vanilla CSS, Three.js, Canvas), Android (Jetpack Compose, Compose Multiplatform), and Apple (SwiftUI iOS + macOS); `bunshin` is web only for now.
 
 > **v3.0 - rebrand**: this plugin used to be called `creative-excellence`. The skills `/creative-excellence:creative-excellence` and `/creative-excellence:design-excellence` are now `/genjutsu:cast` and `/genjutsu:paint`. See [CHANGELOG.md](./CHANGELOG.md) for the migration steps if you had v2.x installed.
 
 ---
 
-## What v4 changes
+## What v5 changes: bunshin
+
+`cast` and `paint` are one agent doing careful work. `bunshin` (影分身, the shadow clones) is what happens when the job is a whole site and one agent is not enough: **one art director, many clones**. You answer two rounds of questions, plus a yes if the run should go past the tier's round cap. Everything else, from harvesting the client's real material to the last refine round, runs on its own; the decisions it takes are written in the report, and every finding cites a capture region or a `file:line`.
+
+```mermaid
+flowchart TD
+  R[0 · Read the project, the brief, the host] --> S{{1 · Summon: the tier and the product questions}}
+  S --> H[2 · Harvest the real material]
+  H --> Q[3 · Research: four clones in parallel, then a synthesis]
+  Q --> D{{4 · Direction: the draw, you choose}}
+  D --> M[5 · Type and assets by evidence]
+  M --> F[6 · Foundation and signature surface: the art director]
+  F --> C[7 · Pages: one clone each, disjoint files]
+  C --> P[8 · Prove: captures and scripted tests]
+  P --> V[9 · Review: independent lenses, then a plan]
+  V --> X[10 · Refine, prove, verdict, cold eyes, decisions]
+  X -->|above minor left, within the tier: next round| X
+  X -->|minor only, the round cap, or a round that fixed nothing| Z[11 · Seal: DESIGN.md, AGENTS.md, audit, report]
+```
+
+**Who does what.** bunshin does not replace the other pieces, it conducts them.
+
+| Piece | Its part in a bunshin run |
+|---|---|
+| **You** | Two answers: the tier (and so the budget) with the product questions, then the direction. |
+| **The art director** (the main agent) | Writes the direction contract, builds the foundation and the signature surface itself, reads the first screen of every page, turns the cold-eyes notes into rules, decides when to stop. |
+| **The clones** (subagents) | Research from four angles, build one page each on files no other clone touches, review through independent lenses, apply the plan owner by owner. Each one starts from a written brief and nothing else. |
+| **[Impeccable](https://impeccable.style)**, when installed | The product interview, a visual direction drawn instead of defaulted (seven worlds ordered before the draw, challengers, a decision page), its quality floor, its detector, image provenance, its finish reviewer and its documenter. genjutsu never bundles or installs it without asking. |
+| **genjutsu's modules** | The interaction thesis on every direction card, `tells`, motion, mobile and desktop principles, the platform APIs, and the audit that closes the run. |
+
+**What makes it hold.** The rules come from one measured run, and from what broke in it:
+
+- **Two human touches, and the cost first.** Nothing heavier than reading runs before you pick a tier. The first message says what the host can do, whether Impeccable is there, and what each tier is expected to cost.
+- **Disjoint ownership.** Every clone owns a declared list of files. A shared need goes back as a request, never as an edit; when a shared contract changes, the shared owner runs first and alone.
+- **Builds in copies, captures without a server.** Clones build in isolated copies with the framework's own binary. `shoot.mjs`, a zero-dependency harness, captures the static build in headless Chrome by answering every request to its fake origin from disk: no dev server and no fixed port (the browser's DevTools endpoint takes a free port the OS picks), so every clone can capture at once.
+- **Evidence or it did not happen.** Every finding cites a capture region or a `file:line`, every behaviour is reported with the value a scripted test measured.
+- **A cold-eyes art director.** After a round of fixes (at every verdict on the full tier, the first one on standard, never on lean), one reviewer sees the site for the first time, with no history. Its notes become rules in a decisions file, not a task list. In the measured run, its notes led to the two decision rounds that closed the build.
+- **The loop ends on a rule.** Nothing above minor left, the tier's round cap, or a round that fixed nothing. Never open-ended.
+
+**The workflows are code, and CI runs them.** The five fan-outs (research, build, review, refine, verdict) are workflow templates in `skills/_jutsu/orchestration/workflows/`, parameterised by `args`. `scripts/check-workflows.mjs` runs each one against stubbed agents on every PR: to the end on its fixtures with every agent answering, and again with every agent answering null, where it must end or stop on a deliberate error, never crash. The run bunshin comes from lost a whole fan-out to a placeholder string where a script expected an array; the plan now travels as a file, never through `args`, and the templates refuse a string where they expect a list. On a host with subagents but no workflow tool, `scripts/brief.mjs` prints the exact prompts the templates would send.
+
+**What it costs, honestly.** bunshin has been measured on one run: a seven-page site in two languages, built from a professional's social profile, with two human touches. It spent about 10.5M subagent tokens over six to eight hours, with one review, three refine rounds and two verdicts; the main session's own tokens were not measured. The tiers are estimates scaled from that run's per-unit costs, and the skill says so every time it quotes them:
+
+| Tier | Refine rounds | Lenses | Cold eyes | Estimate, subagent tokens |
+|---|---|---|---|---|
+| lean | 1 | 3 | no | about 6M, 3 to 4 hours |
+| standard (recommended) | up to 2 | 5 | in round 1's verdict | about 8 to 9M, 4 to 6 hours |
+| full | up to 4 | 5 | every verdict | about 12 to 13M, 6 to 10 hours |
+
+**How you get there.** Type `/genjutsu:bunshin`, or just ask `cast` or `paint` for a whole site: right after the stack scan they propose bunshin once, with its cost, when the brief is a whole site on a web stack (or with no project yet), the host can spawn subagents, and the brief has real material, two audiences or languages, a first version for a client, or a request for the full treatment; they switch only on a yes. bunshin steps down on its own to `paint` or `cast` when the request is smaller than a site, when the host cannot spawn subagents, or on a native stack.
+
+**What it needs.** A host that can spawn subagents (Claude Code; the full fan-out uses its workflow tool). Recommended: Impeccable (`npx impeccable install --project -y`), Node 22 and Chrome for the captures, ImageMagick and Python with Pillow and numpy for the material. bunshin installs none of them without asking, and says at the start what each missing one costs.
+
+**What it never does.** Invent a testimonial, a client, a figure or a price. Start a dev server. Commit, push, deploy or publish without being asked.
+
+---
+
+## What v4 changed
 
 genjutsu names the slop instead of promising it, cleans it up before it reports, proves it, and installs anywhere.
 
@@ -81,9 +138,10 @@ Also new: a declared read of your project before the first question; vague brief
 | [Install](https://genjutsu.athevon.dev/docs/install) | npx, the Claude Code plugin, claude.ai, verifying the install, updating, uninstalling |
 | [`cast`](https://genjutsu.athevon.dev/docs/cast) | The seven-stage pipeline, its two validation gates, how to write a good request |
 | [`paint`](https://genjutsu.athevon.dev/docs/paint) | The five phases, the two theses, what lands in your repo |
-| [Modules](https://genjutsu.athevon.dev/docs/jutsu) | All sixteen, by family: [foundations](https://genjutsu.athevon.dev/docs/jutsu/foundations), [web](https://genjutsu.athevon.dev/docs/jutsu/web), [Apple](https://genjutsu.athevon.dev/docs/jutsu/apple), [Android](https://genjutsu.athevon.dev/docs/jutsu/android) |
+| [`bunshin`](https://genjutsu.athevon.dev/docs/bunshin) | The twelve phases, the two gates, the tiers and their cost, what the host needs |
+| [Modules](https://genjutsu.athevon.dev/docs/jutsu) | All seventeen, by family: [foundations](https://genjutsu.athevon.dev/docs/jutsu/foundations), [web](https://genjutsu.athevon.dev/docs/jutsu/web), [Apple](https://genjutsu.athevon.dev/docs/jutsu/apple), [Android](https://genjutsu.athevon.dev/docs/jutsu/android) |
 | [Principles](https://genjutsu.athevon.dev/docs/principles) | The rules the skills enforce, and why each one exists |
-| [FAQ](https://genjutsu.athevon.dev/docs/faq) | Plans, dependencies, cast against paint, what to check when output feels generic |
+| [FAQ](https://genjutsu.athevon.dev/docs/faq) | Plans, dependencies, cast, paint or bunshin, what bunshin costs, what to check when output feels generic |
 
 ---
 
@@ -112,6 +170,21 @@ Builds a complete visual universe from scratch. Brainstorm first, implement seco
 - On a project that already has a design, shows what it already does by reflex, then asks whether to preserve the brand, change part of it, or redesign
 - Full audit at the end: the thesis held against the code, motion gaps, accessibility, color consistency, responsive, performance, native hitches, and the tells
 - Optional MCP integration (Stitch, Nano Banana, 21st.dev Magic)
+- Proposes `bunshin` once, right after the scan, when the brief is a whole site on a web stack or with no project yet, and the host can spawn subagents
+
+### `/genjutsu:bunshin` - The Shadow Clones
+
+Builds a whole website or web app, first version, with a team of subagents under one art director. See [What v5 changes](#what-v5-changes-bunshin).
+
+**Pipeline:** Read -> Summon (tier + product questions) -> Harvest -> Research (clones) -> Direction (you choose) -> Material -> Foundation -> Pages (clones) -> Prove -> Review (lenses) -> Refine and verdict, looped -> Seal
+
+- Announces its cost before anything runs, and asks you twice: the tier with the product questions, then the direction
+- Lets [Impeccable](https://impeccable.style) lead the interview and draw the direction when it is installed, with genjutsu's interaction thesis on every direction card
+- Builds the foundation and the signature surface itself; one clone per page, on files no other clone touches, each building in its own copy
+- Proves every page before anyone reviews it: captures at 390x664, 390x844, 1280x720 and 1440x900 without a dev server, and scripted tests of the paths that sell
+- Reviews through independent lenses (finish, mobile, desktop, truth, technical), plans the fixes by file owner, applies them in parallel, then scores the round and brings in a cold-eyes art director
+- Stops on a rule, then writes DESIGN.md, an AGENTS.md for the AI that will maintain the site, a launch guard for the facts still missing, and a report of what was verified and what was not
+- Steps down to `paint` or `cast` when the request is smaller than a site, when the host cannot spawn subagents, or on a native stack
 
 ### When to use which
 
@@ -125,10 +198,12 @@ Builds a complete visual universe from scratch. Brainstorm first, implement seco
 | "Build me a portfolio from scratch" | `/genjutsu:paint` |
 | "Build a SwiftUI iOS app design system from scratch" | `/genjutsu:paint` |
 | "Bootstrap a Compose Multiplatform design system" | `/genjutsu:paint` |
+| "Redesign our architecture practice's whole site from the current one and our project PDFs, the full treatment" | `/genjutsu:bunshin` |
+| "A first version of our booking app to show the client, all out" | `/genjutsu:bunshin` |
 
 ### Seeing what it proposes
 
-Both skills stop and wait for your approval at a handful of points: the interaction thesis, the variants, the visual identity, the design system. A sentence cannot carry an easing curve and a list of hex codes cannot carry a palette, so before the first of those gates the skill asks how you want to see it.
+`cast` and `paint` stop and wait for your approval at a handful of points: the interaction thesis, the variants, the visual identity, the design system. A sentence cannot carry an easing curve and a list of hex codes cannot carry a palette, so before the first of those gates they ask how you want to see it. `bunshin` stops twice and never asks this: its direction cards go on Impeccable's decision page when it is installed, and on a rendered page, announced in one line, otherwise.
 
 | Mode | What you get |
 |---|---|
@@ -159,6 +234,7 @@ Internal modules loaded dynamically by the orchestrators. Not invocable directly
 | design-audit | `audit.py`: motion and accessibility checks, the tells group, inventories of durations, easings, colours, radii and fonts with `file:line`; what needs a profiler or a device is handed over with the exact command | SKILL + 1 script |
 | tells | The defaults a model produces by reflex, in four families (invented information, decorative filler, reflex convergence, hollow copy), each with the question that sends it back to the thesis. Detects, never prescribes. Web covered; Compose and SwiftUI declared not covered yet | SKILL + 1 reference |
 | ui-ux-pro-max | Design system intelligence (84 styles, 192 palettes, 74 font pairings, 25 charts, 22 stacks) | SKILL + data + scripts |
+| orchestration | How bunshin runs its clones: the brief every clone gets, disjoint file ownership, isolated builds, the evidence packet, the review lenses, the plan, verdicts and cold eyes, the stop rule, the cost. Ships the five workflow templates, the `shoot.mjs` capture harness, `brief.mjs` for hosts without a workflow tool, and the harvest, image, type and Impeccable references. Loaded by bunshin only | SKILL + 3 references + 5 workflows + 2 scripts |
 
 ### Web stack
 
@@ -199,7 +275,7 @@ One command, from any terminal:
 npx skills add https://genjutsu.athevon.dev -g
 ```
 
-It installs the whole bundle as one skill named `genjutsu` (a router, both pipelines and all sixteen modules) in `~/.agents/skills/genjutsu`, linked into the skills directory of each agent it finds: `~/.claude/skills/genjutsu` for Claude Code. Then type `/genjutsu` in Claude Code, or just describe the task: the router runs the `cast` or the `paint` pipeline. The `/genjutsu:cast` and `/genjutsu:paint` names belong to the plugin install below.
+It installs the whole bundle as one skill named `genjutsu` (a router, the three pipelines and all seventeen modules) in `~/.agents/skills/genjutsu`, linked into the skills directory of each agent it finds: `~/.claude/skills/genjutsu` for Claude Code. Then type `/genjutsu` in Claude Code, or just describe the task: the router runs the `cast` or the `paint` pipeline, and `bunshin` when you ask for it by name or accept it when they propose it. The `/genjutsu:cast`, `/genjutsu:paint` and `/genjutsu:bunshin` names belong to the plugin install below.
 
 To update:
 
@@ -217,7 +293,7 @@ Keep the `-g` on both commands. The site publishes an index that points at the l
 skills-lock.json
 ```
 
-**Use the URL, not the repository.** `npx skills add AThevon/genjutsu` reads this repository instead of the site and offers `cast` and `paint` without their modules, which are marked internal. Installed that way, they stop at their first step and print the command above.
+**Use the URL, not the repository.** `npx skills add AThevon/genjutsu` reads this repository instead of the site and offers `cast`, `paint` and `bunshin` without their modules, which are marked internal. Installed that way, they stop at their first step and print the command above.
 
 **Other agents.** npx also installs genjutsu for Codex, Cursor and the other agents it knows, and it runs there: nothing in the skills is written for one host. It is not tested by the maintainer and not supported. A bug that does not reproduce under Claude Code is labelled `community`.
 
@@ -230,7 +306,9 @@ Two slash commands, typed inside a Claude Code session:
 /plugin install genjutsu
 ```
 
-Then run `/genjutsu:cast` or `/genjutsu:paint`. You can pass the request on the same line: `/genjutsu:cast make the pricing cards feel physical on hover`.
+Then run `/genjutsu:cast`, `/genjutsu:paint` or `/genjutsu:bunshin`. You can pass the request on the same line: `/genjutsu:cast make the pricing cards feel physical on hover`.
+
+**For bunshin**, the Claude Code plugin is the supported home: it needs a host that can spawn subagents, and the full fan-out uses the workflow tool. Recommended beside it: [Impeccable](https://impeccable.style) (`npx impeccable install --project -y`, or `--global`), Node 22 and Chrome for the captures, ImageMagick and Python with Pillow and numpy for the material. bunshin checks each one at its first step and says what a missing one costs; it installs nothing without asking.
 
 The marketplace also accepts the full git URL if you prefer it: `/plugin marketplace add git@github.com:AThevon/genjutsu.git`.
 
@@ -247,15 +325,15 @@ ln -sf ~/.dotfiles/claude/plugins/genjutsu ~/.claude/plugins/genjutsu
 
 **Prerequisites:** Plan Pro, Max, Team or Enterprise with "Code execution" enabled.
 
-One upload, everything included (router + `cast` + `paint` + all sub-skills).
+One upload, everything included (router + `cast` + `paint` + `bunshin` + all sub-skills).
 
 1. Download **[`genjutsu.zip`](https://github.com/AThevon/genjutsu/releases/latest/download/genjutsu.zip)**. That link always serves the newest release, so it never goes stale.
 2. On claude.ai, go to **Customize > Skills > Upload skill** and upload `genjutsu.zip`.
-3. Enable the toggle. Done - one skill, both `cast` and `paint` pipelines, all sub-skills bundled.
+3. Enable the toggle. Done - one skill, the three pipelines, all sub-skills bundled.
 
 > Want to confirm it mounted correctly? Follow the 2-minute smoke test in [docs/claude-ai-testing.md](./docs/claude-ai-testing.md).
 
-**How it shows up.** The bundle installs as a **single skill named `genjutsu`**: invoke `/genjutsu` (or just describe your task) and it routes to the `cast` or `paint` pipeline. Inside the bundle the pipelines and modules are `GUIDE.md` files, so they never show up as skills of their own. The pipelines need **code execution** enabled to load their modules.
+**How it shows up.** The bundle installs as a **single skill named `genjutsu`**: invoke `/genjutsu` (or just describe your task) and it routes to the `cast` or `paint` pipeline. `bunshin` needs a subagent tool, which claude.ai does not give skills as far as this repository knows: there it steps down to `paint` and says why. Inside the bundle the pipelines and modules are `GUIDE.md` files, so they never show up as skills of their own. The pipelines need **code execution** enabled to load their modules.
 
 **Build from source:**
 
@@ -268,7 +346,7 @@ cd genjutsu
 
 ### Cowork
 
-Install it from the plugin panel, the same way as any other plugin, then invoke `/genjutsu:cast` or `/genjutsu:paint`.
+Install it from the plugin panel, the same way as any other plugin, then invoke `/genjutsu:cast` or `/genjutsu:paint`. `bunshin` runs where the session can spawn subagents, and steps down to `paint` where it cannot.
 
 ```text
 /plugin marketplace add AThevon/genjutsu
@@ -289,6 +367,7 @@ genjutsu/
 ├── skills/
 │   ├── cast/SKILL.md                       <- orchestrator (Illusionist)
 │   ├── paint/SKILL.md                      <- orchestrator (Master Painter)
+│   ├── bunshin/SKILL.md                    <- orchestrator (Shadow Clones), whole sites with a team of agents
 │   └── _jutsu/                             <- internal sub-skills (never invoked directly)
 │       ├── VERSIONS.md                     <- what every version claim was verified against
 │       ├── motion-principles/              <- foundation, always loaded
@@ -297,6 +376,7 @@ genjutsu/
 │       ├── design-audit/                   <- shared (audit pipeline, audit.py)
 │       ├── tells/                          <- shared (the slop, named; web)
 │       ├── ui-ux-pro-max/                  <- shared (design intel)
+│       ├── orchestration/                  <- bunshin (clone doctrine, workflows/, scripts/shoot.mjs and brief.mjs)
 │       ├── gsap/                           <- web stack
 │       ├── framer-motion/                  <- web stack
 │       ├── css-native/                     <- web stack
@@ -309,7 +389,7 @@ genjutsu/
 │       └── swiftui-graphics/               <- Apple (Metal, Liquid Glass, Canvas)
 ├── packaging/genjutsu-router.md            <- the bundle's router (npx and claude.ai)
 ├── evals/                                  <- with / without genjutsu, run by hand
-├── scripts/                                <- the checks CI runs, and the release helpers
+├── scripts/                                <- the checks CI runs (check-workflows.mjs runs every template), and the release helpers
 ├── package-for-claude-ai.sh
 ├── CHANGELOG.md
 └── README.md
@@ -348,6 +428,8 @@ The gate detects the host itself, before `LOAD` runs. Cowork is tested before Cl
 
 **Pipeline weight.** `cast` is the default entry point on every surface. `paint` is a five-phase pipeline and is disproportionate for the short requests that dominate on Cowork ("animate this word", "polish this hover"), so it recognises **light scope** - one isolated component, no visual identity at stake, nothing downstream depending on it - and shortens to a single brainstorm question with no `MASTER.md` written. The gates stay; only their number goes down.
 
+`bunshin` sits at the other end. It runs only where the session can spawn subagents: Claude Code, as far as this repository has checked (claude.ai and Cowork are marked `VERIFY-NEEDED` in `skills/_jutsu/VERSIONS.md`, section Orchestration). Without a subagent tool it steps down to `paint`, and says so in one line. `cast` and `paint` propose it only on a host where it can run.
+
 ---
 
 ## Voice
@@ -382,6 +464,10 @@ Built by studying the best creative coding resources available.
 ### Design intelligence
 
 - [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) (MIT) - the `ui-ux-pro-max` sub-skill vendors this project's design dataset (styles, palettes, font pairings, UX guidelines, chart and stack guidance) and its Python search engine. See [skills/_jutsu/ui-ux-pro-max/UPSTREAM.md](./skills/_jutsu/ui-ux-pro-max/UPSTREAM.md) for the vendoring notes and divergences.
+
+### Direction and finish (bunshin)
+
+- [Impeccable](https://impeccable.style) ([pbakaus/impeccable](https://github.com/pbakaus/impeccable), Apache 2.0) - when it is installed, bunshin hands it the product interview, the drawn visual direction, the quality floor, the detector, image provenance, the finish reviewer and the documenter. It is not vendored: genjutsu calls the installed copy, and records the verbs it relies on in `skills/_jutsu/VERSIONS.md`.
 
 ### Tells
 

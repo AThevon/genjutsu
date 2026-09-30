@@ -21,6 +21,12 @@ jobs:
         with:
           python-version: "3.12"
 
+      # The capture harness needs Node 22 or later for its built-in WebSocket.
+      # Pinned here so it does not depend on whichever Node the runner image ships.
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22"
+
       - name: Versions agree (plugin.json, marketplace.json, CHANGELOG, and the tag on a release)
         # v3.6.0 was published with both manifests still reading 3.5.0 and no
         # CHANGELOG entry. release.yml calls this workflow on a tag push, where
@@ -34,7 +40,7 @@ jobs:
           ./scripts/test-check-dashes.sh
           ./scripts/check-dashes.sh
 
-      - name: Shared blocks are in sync between cast and paint
+      - name: Shared blocks are in sync between cast, paint and bunshin
         run: |
           ./scripts/test-shared-blocks.sh
           ./scripts/check-shared-blocks.sh
@@ -95,6 +101,26 @@ jobs:
         # became a recommendation, a module too long for its dedicated load call,
         # or the eval sentinel copied into another file. Each one fails here.
         run: python3 scripts/check-tells.py
+
+      - name: The workflow templates run to the end
+        # A template only runs inside the host's workflow tool, billed per agent,
+        # so a broken one is found by the run that pays for it, hours in. One
+        # measured run, a seven-page site in two languages, lost a whole fan-out
+        # to `fixes.some is not a function`. The check runs every template
+        # against stubbed agents with its fixture args; --self-test proves each
+        # of its checks can still fail.
+        run: |
+          node scripts/check-workflows.mjs
+          node scripts/check-workflows.mjs --self-test
+
+      - name: The capture harness renders a fixture
+        # Clones prove their pages with shoot.mjs, in headless Chrome with no
+        # server. The self-test serves a small fixture from disk and checks what
+        # comes back: the PNGs, the segments, the scaling, reduced motion, the
+        # sideways overflow, console errors, exceptions and missing files, a shot
+        # that fails alone, and nothing served from outside the build root.
+        # ubuntu-latest ships Google Chrome.
+        run: node skills/_jutsu/orchestration/scripts/shoot.mjs --self-test
 
       - name: The no-verbatim check can still fail
         # The real run needs a taste-skill clone and happens by hand before a

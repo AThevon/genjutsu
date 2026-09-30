@@ -1,0 +1,7 @@
+{
+  "root": "/tmp/project",
+  "packet": "Read first: /tmp/project/PRODUCT.md.",
+  "planPath": "/tmp/project/.bunshin/reviews/round-2.json",
+  "owners": [ { "key": "home", "files": ["src/views/HomeView.astro"] } ],
+  "build": { "cmd": "./node_modules/.bin/astro build", "scratch": "/tmp/bunshin-scratch", "exclude": ["node_modules", "dist"], "link": ["node_modules"] }
+}

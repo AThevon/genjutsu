@@ -41,45 +41,74 @@ it is dead weight for most requests, not to hit a count.
 directory, the Agent Skills six-field allowlist (`name`, `description`, `license`,
 `compatibility`, `metadata`, `allowed-tools` - only the first two are required, and no module in
 the tree uses more than three), length limits, no duplicate names. A body over 500 lines warns
-and still passes; three files are already over it. It also requires `metadata.internal` on
-every module and forbids it on `cast` and `paint`, and it caps at 25,000 characters every module
-entry file and every reference an orchestrator prints with `load_ref`: one shell call prints
-each of them whole, and past about 30,000 characters that output stops arriving inline. Any other
-reference over the cap warns.
+and still passes; four files are already over it. It also requires `metadata.internal` on
+every module and forbids it on the three orchestrators (`cast`, `paint`, `bunshin`), and it caps
+at 25,000 characters every module entry file and every reference an orchestrator prints with
+`load_ref`: one shell call prints each of them whole, and past about 30,000 characters that
+output stops arriving inline. Any other reference over the cap warns.
 
 Every module under `skills/_jutsu/` carries a `metadata:` block with `internal: true`, an
 unquoted YAML boolean, because the `npx skills` CLI tests it with `=== true`. It hides the modules
-from `npx skills add`, so the repository route offers only `cast` and `paint`. genjutsu ships a
-single claude.ai bundle in which modules are `GUIDE.md` files, so they never show as skills there;
-`metadata.internal` is what hides them from `npx skills add AThevon/genjutsu`.
+from `npx skills add`, so the repository route offers only `cast`, `paint` and `bunshin`.
+genjutsu ships a single claude.ai bundle in which modules are `GUIDE.md` files, so they never
+show as skills there; `metadata.internal` is what hides them from
+`npx skills add AThevon/genjutsu`.
 
-## The wiring: ten sites across two files
+## The wiring: eleven sites across three files
 
-Adding or renaming a family is not one edit. It is ten, and four of the regions they sit in are
-compared byte for byte between `cast` and `paint` by `scripts/check-shared-blocks.sh`. Edit one
-file without the other and CI rejects the PR.
+Adding or renaming a family is not one edit. It is eleven, and seven of them sit in four regions
+(`scan`, `load`, `audit`, `preview`) that `scripts/check-shared-blocks.sh` compares byte for
+byte across all three orchestrators: `cast` against `paint`, and `cast` against `bunshin`. Edit
+one file without the other two and CI rejects the PR.
 
 | Site | Where | Guarded |
 |---|---|---|
-| Detection commands | `scan` region | yes |
-| "Map the results" bullets | `scan` region | yes |
-| Context-layers table (mobile / desktop / audit) | `load` region | yes |
-| Stack-specific load table | `load` region | yes |
-| "Advanced thesis" trigger terms | `load` region | yes |
-| Stack-specific audit checklist | `audit` region | yes |
-| Preview-mode default for the stack | `preview` region | yes |
+| Detection commands | `scan` region | yes, in all three |
+| "Map the results" bullets | `scan` region | yes, in all three |
+| Context-layers table (mobile / desktop / audit) | `load` region | yes, in all three |
+| Stack-specific load table | `load` region | yes, in all three |
+| "Advanced thesis" trigger terms | `load` region | yes, in all three |
+| Stack-specific audit checklist | `audit` region | yes, in all three |
+| Preview-mode default for the stack | `preview` region | yes, in all three |
 | Interaction-thesis exemplars | `cast` step 4, `paint` Phase 2 | no, and they differ |
 | Legacy-bridge question | `cast` DISCOVER, `paint` Phase 1 | no |
 | Stack-aware token generation | `paint` Phase 3 only | n/a |
+| Declared not covered, with the step down to `paint` | `bunshin` Iron Rule 12 and its "Step down" table | n/a |
+
+The last row differs in kind. bunshin carries the four regions whole, so a new family's rows
+land in it by the same edit as in cast and paint, as the guard intends, and are never used
+there: its Compose and SwiftUI rows are in that state today. bunshin is web only. On any other
+stack it says so at READ and steps down to paint, and a new family joins that list until it is
+wired in.
+
+**Wiring a family into bunshin is a separate job, done later, and it starts with an evidence
+harness.** bunshin's review loop judges what renders: every lens and every verdict reads
+captures that `skills/_jutsu/orchestration/scripts/shoot.mjs` takes of a static web build, with
+no dev server, at fixed viewports, with the console errors, the overflow and the values scripted
+tests measured. A family gets the same before bunshin runs on it: captures from a build without
+a running dev environment, at the platform's real device sizes, scripted checks of the paths
+that matter, a `--self-test` that proves the harness can fail, and a `VERSIONS.md` row for what
+it rests on. Then come the isolated build recipe with the platform's own build tool, the lenses'
+module loads, the `escalate` region's stack condition (cast and paint propose bunshin only on a
+web stack or no project yet), and the step down removed. Without the harness, bunshin's
+reviewers read code instead of renders, and its own capability table says the review loop then
+loses most of its value. This is the rule `tells` already follows: Compose and SwiftUI are
+declared not covered yet, rather than filled with entries nobody observed.
 
 The `skill-base` region is the exception: it resolves paths and knows nothing about families.
-Any change to it needs a fixture per install layout in `scripts/test-resolver.sh`, and no new
-layout ships without its own fixture. The suite also runs against the packaged bundle, because
-packaging rewrites file names inside it.
+It is byte-identical in all three orchestrators. Any change to it needs a fixture per install
+layout in `scripts/test-resolver.sh`, and no new layout ships without its own fixture. The suite
+also runs against the packaged bundle, because packaging rewrites file names inside it.
 
-Three of these sites are duplicated across the two orchestrators with no CI guard. That is a
-known weakness, not a design: the audit checklist was in the same state until v3.4.0 and had
-already drifted.
+The bundle's router, `packaging/genjutsu-router.md`, knows nothing about families either. It
+carries one search block per pipeline, three today (`cast`, `paint`, `bunshin`), and
+`check-shared-blocks.sh` fails unless the three match line for line once their `p=` line is set
+aside. A family never touches them; a new install layout touches all three, with its resolver
+fixture.
+
+The four sites outside a guarded region have no CI guard. Two of them are duplicated between
+`cast` and `paint`. That is a known weakness, not a design: the audit checklist was in the same
+state until v3.4.0 and had already drifted.
 
 ## Hosts
 
@@ -88,8 +117,8 @@ model three things:
 
 - **The skill's own directory, known to the model.** Claude Code substitutes
   `${CLAUDE_SKILL_DIR}` by itself. Anywhere else the model passes the directory it read the file
-  from, as `GENJUTSU_SKILL_DIR` for `cast` and `paint`, or `GENJUTSU_BUNDLE_DIR` for the router.
-  When neither is available, the resolver falls back to bounded probes.
+  from, as `GENJUTSU_SKILL_DIR` for `cast`, `paint` and `bunshin`, or `GENJUTSU_BUNDLE_DIR` for
+  the router. When neither is available, the resolver falls back to bounded probes.
 - **A shell**, to run the resolver and print the modules. Every shell call is assumed to start
   from nothing: no variable, function or working directory carries over.
 - **File writes**, for the code, the tokens and `MASTER.md`.
@@ -97,8 +126,20 @@ model three things:
 Optional: a tool that renders HTML for the user. Without one, the preview gate writes a throwaway
 HTML file and hands over its path, or falls back to inline.
 
+`bunshin` needs a fourth: **a tool that spawns subagents**, directly (in Claude Code, `Agent`)
+or through a multi-agent workflow script (in Claude Code, `Workflow`). With the workflow tool the
+templates run as written; with the subagent tool alone they are read as the plan, and
+`orchestration/scripts/brief.mjs` prints the prompts to spawn, several in one message when the
+host runs them concurrently. With neither, bunshin does not run: it says so and steps down to `paint`, and `cast` and `paint` never
+propose it on that host. Playing the clones in one context is not a fallback, because a review
+written by the session that built the page is not an independent review. For its captures it
+also wants Node 22 or later and a Chrome or Chromium binary; without them it runs, and says that
+its reviewers read code instead of renders.
+
 **What is supported.** Claude Code (plugin or `npx skills`), claude.ai and Cowork are tested by the
-maintainer before a release. genjutsu also installs and runs in other agents through
+maintainer before a release. bunshin is the exception: its step down on claude.ai and its
+behaviour on Cowork are not tested yet, and `docs/claude-ai-testing.md` step 5 has no logged
+run. genjutsu also installs and runs in other agents through
 `npx skills add https://genjutsu.athevon.dev -g` (Codex, Cursor and others): not tested by the
 maintainer, not supported. Nothing in the skills behaves differently per agent, and nothing will.
 Knowing which directories an installer writes to is infrastructure; a code path per agent is
@@ -136,6 +177,8 @@ Per quarter, for one family:
 - **Re-derive every `VERSIONS.md` row for it against the primary source.** Today that is 20 rows
   for Web, 10 for Android, and 12 for Apple and cross-platform. Update the value and the date
   even when nothing changed, because an unchanged row with a fresh date is itself the finding.
+  The Orchestration section is in no family: its rows move with the host tools, Impeccable and
+  Chrome, and whoever changes bunshin re-reads them.
 - **Check what shipped.** One androidx release train, one Apple SDK cycle, or one quarter of
   browser releases. Browsers now ship every two weeks, so Web is the heaviest of the three.
 - **Open one PR** with what moved. If nothing moved, the PR is the date bumps, and that is a
@@ -153,7 +196,7 @@ Not a pull request. Open a discussion first, and answer four things:
 
 1. **Is a skill additive here?** If a strong model already writes idiomatic motion code for this
    platform without help, a skill adds tokens and risk and nothing else. Show the gap.
-2. **Who owns it?** Ten wiring sites and a quarterly re-derivation, with no owner, is a family
+2. **Who owns it?** Eleven wiring sites and a quarterly re-derivation, with no owner, is a family
    that is wrong within a year. The answer cannot be "the maintainer".
 3. **What is the primary source?** If there is no equivalent of `api/current.txt` or DocC, every
    claim is unverifiable and the family cannot meet the evidence standard.
@@ -161,7 +204,9 @@ Not a pull request. Open a discussion first, and answer four things:
    step cannot be run is a family that ships assertions.
 
 The cost, measured on the v2.0 expansion that added Android and Apple: four to five thousand
-lines across sixteen files, plus the ten wiring sites, plus the ongoing symbol count.
+lines across sixteen files, plus the wiring sites, plus the ongoing symbol count. That covered
+`cast` and `paint`. Covering a family in `bunshin` as well costs the evidence harness above, on
+top.
 
 ## Removing a family
 
@@ -171,7 +216,7 @@ the plugin that is stale about six.**
 A family is a candidate for removal when its `VERSIONS.md` dates are more than two quarters old
 with no owner, or when its content has produced a correctness issue that nobody could verify.
 
-Removal is the ten wiring sites in reverse, the module directories deleted, its `VERSIONS.md`
+Removal is the eleven wiring sites in reverse, the module directories deleted, its `VERSIONS.md`
 section moved to a "formerly covered" note with its last-verified date, and the README and the
 `plugin.json` keywords narrowed to match. The CHANGELOG entry says why, plainly. Someone
 arriving from a search engine deserves to know the coverage ended and when, rather than finding

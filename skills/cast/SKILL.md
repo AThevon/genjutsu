@@ -206,6 +206,63 @@ Map the results:
 - **Legacy mixed**: presence of `.xib`, `.storyboard`, layout XML, `setContentView(R.layout.*)`. Mention only, no auto-load.
 <!-- genjutsu:shared:scan:end -->
 
+<!-- genjutsu:shared:escalate:start -->
+**When the job is a whole site: propose bunshin.** genjutsu has a third pipeline for the one job
+this one is too small for. `bunshin` builds a whole website or web app with a team of subagents
+under one art director, with Impeccable drawing the direction when it is installed, and it loops
+independent reviews and fixes until only minor issues remain, the tier's round cap is reached, or
+a round fixes nothing. It is heavy, so it is proposed, never started on its own.
+
+Propose it once, right after the scan and before anything else you would ask, when **all three**
+of these hold:
+
+- the target is a whole site or web app: several pages or screens, from scratch or as a full
+  redesign;
+- the stack is web, or there is no project yet;
+- this session can spawn subagents: a subagent tool or a multi-agent workflow tool is among the
+  tools it exposes (in Claude Code, `Agent` or `Workflow`);
+
+and **at least one** of these:
+
+- there is real material to harvest: a social profile, a current site, brand assets, documents;
+- the site serves two audiences, or two languages;
+- it is a first version meant for a client or a stakeholder;
+- the request asks for the best possible, the full treatment, all out.
+
+Before writing the proposal, check whether Impeccable is installed:
+
+```bash
+for d in .claude/skills/impeccable .agents/skills/impeccable "$HOME/.claude/skills/impeccable" "$HOME/.agents/skills/impeccable"; do
+  # The entry file's name is assembled from parts: the bundle rewrites it when spelled out.
+  e="$d/SKILL"
+  if [ -f "$e.md" ]; then echo "impeccable: $d"; break; fi
+done
+```
+
+The proposal is one message, then wait:
+
+> "This is a whole site<, from scratch | , a full redesign>. genjutsu has a pipeline for exactly
+> that: `bunshin`. It
+> harvests your real material, researches with parallel agents, lets Impeccable draw the
+> direction (<installed here | not installed: bunshin runs without it, better with it>), builds
+> the pages with parallel agents, and reviews and refines them until only minor issues remain,
+> the round cap of the tier you pick is reached, or a round fixes nothing.
+> It asks you twice: once to start, with a budget, and once to choose the direction. One run has
+> been measured, a seven-page site: about 10.5 million subagent tokens over six to eight hours.
+> The tiers are estimated from it, from about 6 to about 13 million, and scale with the pages.
+> Say `bunshin` to switch, or I carry on with this pipeline."
+
+- **A yes**: stop this pipeline and load bunshin. Invoke it as a skill when the host lists
+  `genjutsu:bunshin`; otherwise read its entry file next to this one, in
+  `$GENJUTSU_SKILL_DIR/../bunshin/` (the one Markdown file at the top of that folder), and follow
+  it from its first step.
+- **Anything else**: carry on here, and do not propose it again in this session.
+- **Never** when one of the first three conditions fails: a host that cannot spawn subagents
+  cannot run bunshin, and a native stack is not covered by it yet.
+- **With nobody answering**: do not propose and wait. Say in one line that bunshin would fit this
+  brief, carry on with this pipeline, and name bunshin in the final report.
+<!-- genjutsu:shared:escalate:end -->
+
 ### 2. DISCOVER - Understand the intent (when needed)
 
 **Skip this step if** the request is specific and self-contained ("add a hover scale on this button", "animate this list entry"). Go straight to SCOPE.
@@ -264,7 +321,8 @@ If the user picks legacy integration: write the bridge (`AndroidView` for Compos
 | **Medium** | Page or section (hero, gallery, navigation) | 2-3 | 2-3 variants |
 | **Full** | Complete app or visual overhaul | Full pipeline | 2-3 variants |
 
-Rule: never bring out the heavy artillery for a hover effect.
+Rule: never bring out the heavy artillery for a hover effect. The other way round holds too: a whole site
+built from scratch is more than a Full cast, and the proposal right after SCAN offers `bunshin` for it.
 
 ### 4. THESIS - One sentence before coding
 
@@ -397,11 +455,11 @@ fi
 # was tried, so a new layout can be reported instead of guessed.
 if [ -z "$SKILL_BASE" ]; then
   echo "genjutsu: could not find the genjutsu modules (a _jutsu directory holding motion-principles)." >&2
-  echo "  cast and paint do not work without them. Install the full bundle:" >&2
+  echo "  genjutsu's pipelines do not work without them. Install the full bundle:" >&2
   echo "    any agent    npx skills add https://genjutsu.athevon.dev -g" >&2
   echo "    Claude Code  /plugin marketplace add AThevon/genjutsu, then /plugin install genjutsu" >&2
   echo "    claude.ai    upload genjutsu.zip in Customize > Skills" >&2
-  echo "  npx skills add AThevon/genjutsu installs cast and paint without their modules." >&2
+  echo "  npx skills add AThevon/genjutsu installs the pipelines without their modules." >&2
   echo "  Tried: /mnt/skills/plugins, /mnt/skills/user, GENJUTSU_SKILL_DIR (${GENJUTSU_SKILL_DIR:-empty}) and its parent," >&2
   echo "         \$CLAUDE_PLUGIN_ROOT, .claude/skills and .agents/skills from \$PWD upward," >&2
   echo "         ~/.agents/skills, ~/.claude/skills, ~/.codex/skills, ~/.cursor/skills," >&2
@@ -647,6 +705,7 @@ load to the last: nothing in the shell remembers it for you.
 | "The thesis sentence is clear, I'll just write it out" | A sentence can't carry an easing curve. Offer the preview menu first. |
 | "I'll ask again how they want to see the variants" | Asked once, sticks for the session. Announce the mode and go. |
 | "The preview looks great, I'll port it into the app" | The preview is throwaway. Build from the thesis and the loaded sub-skills. |
+| "This is a whole site, I'll switch to bunshin, it is clearly better" | Propose it once, with its cost, and switch only on a yes. It spends millions of tokens. |
 
 ---
 
@@ -656,6 +715,8 @@ load to the last: nothing in the shell remembers it for you.
 Creative request received
   |
   +- SCAN: what stack?
+  |
+  +- A whole site, web or no project, a host that spawns subagents, one of the four signals? → propose bunshin once, wait
   |
   +- DISCOVER: request vague? → ask (one at a time)
   |            request clear? → skip

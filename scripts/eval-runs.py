@@ -46,7 +46,7 @@ ROOT = Path(__file__).resolve().parent.parent
 AUDIT = ROOT / "skills" / "_jutsu" / "design-audit" / "scripts" / "audit.py"
 
 # Must match GUARDS in scripts/check-evals.py.
-GUARDS = ("page-has-content", "swift-screen-written")
+GUARDS = ("page-has-content", "swift-screen-written", "button-has-interaction")
 ARMS = ("with", "without")
 COPY_IGNORE = shutil.ignore_patterns("node_modules", ".next", ".git", ".turbo")
 
@@ -182,6 +182,11 @@ GATES = {
     "saas-landing": [delta_positive],
     "thesis-allows": [lambda c: all_pass(c, "keeps-both-cities"), lambda c: all_pass(c, "keeps-time-bar")],
     "swiftui-skip": [lambda c: all_pass(c, "tells-never-requested"), lambda c: all_pass(c, "tells-never-read")],
+    # The routing cases: bunshin is never run end to end here, only proposed or stepped down from.
+    "bunshin-escalates": [lambda c, g=g: all_pass(c, g) for g in (
+        "bunshin-named", "agent-never-called", "bunshin-never-invoked", "no-bunshin-run", "gitignore-has-no-bunshin")],
+    "bunshin-steps-down": [lambda c, g=g: all_pass(c, g) for g in (
+        "bunshin-fired", "stepped-down-to-cast", "agent-never-called", "no-bunshin-run", "gitignore-has-no-bunshin")],
 }
 
 

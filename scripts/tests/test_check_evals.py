@@ -127,9 +127,57 @@ class SuiteTest(unittest.TestCase):
         (self.case / "graders" / "page-has-content.md").unlink()
         self.assertOneError("needs exactly one positive guard grader")
 
-    def test_prompt_that_does_not_invoke_paint_is_reported(self):
+    def test_prompt_that_invokes_no_pipeline_is_reported(self):
         self.write("prompt.md", PROMPT.replace("/genjutsu:paint", "genjutsu"))
-        self.assertOneError("must invoke /genjutsu:paint explicitly")
+        self.assertOneError("must invoke one genjutsu pipeline explicitly")
+
+    def test_prompt_that_invokes_cast_or_bunshin_is_valid(self):
+        for pipeline in ("cast", "bunshin"):
+            with self.subTest(pipeline=pipeline):
+                self.write("prompt.md", PROMPT.replace("/genjutsu:paint", f"/genjutsu:{pipeline}"))
+                self.assertEqual(self.errors(), [])
+
+    def test_prompt_that_names_a_near_miss_is_reported(self):
+        # A longer name that starts like a pipeline is not that pipeline.
+        self.write("prompt.md", PROMPT.replace("/genjutsu:paint", "/genjutsu:paint-lite"))
+        self.assertOneError("must invoke one genjutsu pipeline explicitly")
+
+    def test_prompt_that_invokes_two_pipelines_is_reported(self):
+        self.write("prompt.md", PROMPT + "\nIf it proposes /genjutsu:bunshin, accept.\n")
+        self.assertOneError("invokes /genjutsu:bunshin, /genjutsu:paint; name exactly one")
+
+    def test_tool_used_on_a_tool_the_run_is_never_given_is_reported(self):
+        never = "---\ntype: tool_used\narm: both\ntool: Agent\nmin: 0\nmax: 0\n---\n"
+        self.write("graders/agent-never-called.md", never)
+        self.assertOneError("grader agent-never-called counts Agent calls, but the run is never given Agent")
+        self.write("prompt.md", PROMPT.replace("Skill]", "Skill, Agent]"))
+        self.assertEqual(self.errors(), [])
+
+    def test_tool_used_on_a_command_line_tool_is_valid(self):
+        self.write("graders/shell.md", "---\ntype: tool_used\ntool: Bash\nmin: 0\nmax: 0\n---\n")
+        self.assertEqual(self.errors(), [])
+
+    def test_file_exists_path_that_can_never_match_is_reported(self):
+        for path in ("/tmp/.bunshin/run.json", "./.bunshin/run.json"):
+            with self.subTest(path=path):
+                self.write("graders/no-run.md", f"---\ntype: file_exists\npath: '{path}'\nexists: false\n---\n")
+                self.assertOneError(f"file_exists path {path} must be relative to the workspace")
+        self.write("graders/no-run.md", "---\ntype: file_exists\npath: '.bunshin/**'\nexists: false\n---\n")
+        self.assertEqual(self.errors(), [])
+
+    def test_file_exists_without_path_or_boolean_is_reported(self):
+        self.write("graders/no-run.md", "---\ntype: file_exists\nexists: false\n---\n")
+        self.assertOneError("file_exists grader needs a path")
+        self.write("graders/no-run.md", "---\ntype: file_exists\npath: .bunshin/run.json\nexists: no\n---\n")
+        self.assertOneError("exists must be true or false, got 'no'")
+
+    def test_every_guard_name_is_accepted(self):
+        (self.case / "graders" / "page-has-content.md").unlink()
+        for name in check_evals.GUARDS:
+            with self.subTest(guard=name):
+                self.write(f"graders/{name}.md", GUARD)
+                self.assertEqual(self.errors(), [])
+                (self.case / "graders" / f"{name}.md").unlink()
 
     def test_guard_marked_with_only_is_reported(self):
         self.write("graders/page-has-content.md", GUARD.replace("match: contains", "match: contains\narm: with-only"))

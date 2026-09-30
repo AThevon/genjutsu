@@ -11,9 +11,11 @@ description too long to be indexed, a body past the recommended budget.
 
 Two genjutsu rules sit on top of the spec. Every module under skills/_jutsu/
 carries `metadata:` with `internal: true`, so `npx skills add` does not offer it
-as a skill of its own; cast and paint never carry it. And every file that one
-shell call prints in full stays under 25,000 characters: past about 30,000 the
-output of a shell call no longer arrives inline, and the model sees a preview.
+as a skill of its own; the orchestrators (cast, paint and bunshin) never carry
+it. And every file that one shell call prints in full stays under 25,000
+characters: a module's entry file, and every reference an orchestrator prints
+with load_ref. Past about 30,000 the output of a shell call no longer arrives
+inline, and the model sees a preview.
 
 Run: python3 scripts/validate-skills.py [--root <repo root>]
 """
@@ -99,6 +101,15 @@ def is_module(path: Path) -> bool:
     return path.parent.parent.name == "_jutsu"
 
 
+def orchestrators() -> list[Path]:
+    """The entry files one level under skills/: cast, paint and bunshin today.
+
+    Read from the tree rather than listed, so that a new orchestrator has its
+    load_ref calls scanned without anyone remembering to add it here.
+    """
+    return sorted(p for p in SKILLS.glob("*/SKILL.md") if p.parent.name != "_jutsu")
+
+
 def check_internal(path: Path, rel: Path, front: list[str]) -> None:
     metadata = parse_block(front, "metadata") or {}
     if is_module(path):
@@ -174,11 +185,9 @@ def check(path: Path) -> None:
 def check_references() -> None:
     """References over the cap: an error when load_ref prints them, a warning otherwise."""
     loaded: set[Path] = set()
-    for orchestrator in ("cast", "paint"):
-        entry = SKILLS / orchestrator / "SKILL.md"
-        if entry.is_file():
-            for module, rel_path in LOAD_REF_RE.findall(entry.read_text(encoding="utf-8")):
-                loaded.add(SKILLS / "_jutsu" / module / rel_path)
+    for entry in orchestrators():
+        for module, rel_path in LOAD_REF_RE.findall(entry.read_text(encoding="utf-8")):
+            loaded.add(SKILLS / "_jutsu" / module / rel_path)
     for ref in sorted(loaded):
         if not ref.is_file():
             errors.append(f"{ref.relative_to(ROOT)}: named by load_ref in an orchestrator, but missing")

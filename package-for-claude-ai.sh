@@ -34,7 +34,7 @@ echo ""
 
 # --- Single-upload bundle ---
 # One self-contained "genjutsu" skill: a thin router SKILL.md + cast/ + paint/
-# + all _jutsu/ sub-skills. Uploaded once, it resolves sub-skills from its own
+# + bunshin/ + all _jutsu/ sub-skills. Uploaded once, it resolves sub-skills from its own
 # bundled _jutsu/ (the orchestrators' path detection prefers the bundle).
 BUNDLE_SRC="${DIST}/.bundle"
 rm -rf "$BUNDLE_SRC"
@@ -42,6 +42,7 @@ mkdir -p "$BUNDLE_SRC"
 cp "packaging/genjutsu-router.md" "$BUNDLE_SRC/SKILL.md"
 cp -R "$SKILLS_DIR/cast" "$BUNDLE_SRC/cast"
 cp -R "$SKILLS_DIR/paint" "$BUNDLE_SRC/paint"
+cp -R "$SKILLS_DIR/bunshin" "$BUNDLE_SRC/bunshin"
 cp -R "$SKILLS_DIR/_jutsu" "$BUNDLE_SRC/_jutsu"
 
 # claude.ai rejects a skill ZIP that contains more than one SKILL.md. Keep only
@@ -68,7 +69,7 @@ PY
 
 make_zip "$BUNDLE_SRC" "$(pwd)/${DIST}/genjutsu.zip"
 rm -rf "$BUNDLE_SRC"
-echo "  + genjutsu.zip (single-upload bundle: 1 router SKILL.md + cast/paint/_jutsu as GUIDE.md)"
+echo "  + genjutsu.zip (single-upload bundle: 1 router SKILL.md + cast/paint/bunshin/_jutsu as GUIDE.md)"
 
 echo ""
 echo "=== Résumé ==="

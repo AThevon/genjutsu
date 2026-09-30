@@ -1,0 +1,28 @@
+{
+  "packet": "Project in /tmp/project. Captures in /tmp/project/.bunshin/captures/round-1. Already verified: build green, type check clean, tells audit clean.",
+  "round": 1,
+  "modules": {
+    "mobile": "/tmp/jutsu/mobile-principles",
+    "desktop": "/tmp/jutsu/desktop-principles",
+    "motion": "/tmp/jutsu/motion-principles"
+  },
+  "owners": [
+    {
+      "key": "shared",
+      "files": [
+        "src/styles/*",
+        "src/layouts/*",
+        "src/components/*.astro"
+      ]
+    },
+    {
+      "key": "home",
+      "files": [
+        "src/views/HomeView.astro",
+        "src/content/pages/home.ts"
+      ]
+    }
+  ],
+  "planOut": "/tmp/project/.bunshin/reviews/round-1.json",
+  "finishAgent": "impeccable-finish-reviewer"
+}
