@@ -45,8 +45,9 @@ flowchart TD
   C --> P[8 · Prove: captures and scripted tests]
   P --> V[9 · Review: independent lenses, then a plan]
   V --> X[10 · Refine, prove, verdict, cold eyes, decisions]
-  X -->|above minor left, within the tier: next round| X
-  X -->|minor only, the round cap, or a round that fixed nothing| Z[11 · Seal: DESIGN.md, AGENTS.md, audit, report]
+  X --> K([Stop rule: minor only, the round cap reached, or a round that fixed nothing?])
+  K -->|no: next round| X
+  K -->|yes| Z[11 · Seal: DESIGN.md, AGENTS.md, audit, report]
 ```
 
 **Who does what.** bunshin does not replace the other pieces, it conducts them.
