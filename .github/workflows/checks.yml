@@ -86,6 +86,15 @@ jobs:
           python3 -m unittest discover -s tests
           python3 check-evals.py
 
+      - name: The README examples gallery matches examples/manifest.json
+        # Each example's provenance (request, mode, version and commit, model,
+        # selection, cost) and its receipt come from the manifest. A hand edit
+        # of the gallery, a missing media file or receipt, or an entry missing
+        # a field fails here instead of shipping a broken or partial claim. A
+        # recorded run that is not featured is listed with its reason and its
+        # receipt, so a run left out of the gallery is still accounted for.
+        run: python3 scripts/examples-section.py --check README.md
+
       - name: ui-ux-pro-max dataset is well formed
         run: python3 skills/_jutsu/ui-ux-pro-max/scripts/validate_data.py
 

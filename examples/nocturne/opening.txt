@@ -1,0 +1,8 @@
+/genjutsu:paint build the landing page for Nocturne, the late program of a planetarium in Lisbon.
+
+The brief. The planetarium and its program are fictional, made up for this example: give the planetarium no name and do not name or suggest any real planetarium or venue. This is everything we have:
+
+- Nocturne is the planetarium's after-hours program. On Friday and Saturday nights the dome first shows the night sky above Lisbon as it is that evening, with a narrator, then a 40-minute show. Doors 21:30, first show 22:00, last show 23:30. Tickets 12 EUR, 8 EUR for students, booked at /tickets.
+- The hero is the sky over Lisbon as the dome will show it at 22:00 on Friday 9 October 2026. data/stars.json holds the brightest stars of the Yale Bright Star Catalogue (public domain) and the one bright planet above the horizon then, Saturn (from NASA JPL Horizons), with their altitude and azimuth already computed for that place and time, their magnitude and, for stars, their proper name when they have one. It also lists the Moon and the other planets, which are below the horizon or too faint at that time: do not draw them. Use it. Do not invent stars, constellation lines, events or claims that are not in the data or in this brief.
+- The page scrolls from dusk to the first show: the program, what is in tonight's sky, the practical information.
+- It is for adults in their 20s to 40s looking for an evening out, not school groups. There are no reviews and no attendance numbers yet: the program launches with this page.

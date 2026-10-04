@@ -257,6 +257,30 @@ directories kept by `--keep-temp` (it opens their sealed `home/` the way the run
 per arm. The copies stay under `evals/results/`: the pages of the arm without genjutsu are
 full of tells, U+2014 (em dash) included, and must never be committed.
 
+## The last published result
+
+The table in the root README and in the v4.0.0 CHANGELOG entry comes from `--runs 2` per arm on
+genjutsu `ef31234`: on both landings, 2 tells without genjutsu and 0 with it, and a grader delta of
++0.20 (studio) and +0.10 (SaaS).
+
+What moved, over the runs kept in each arm: on both landings, the judge that fails a product
+screen faked in divs or a page stuck on one layout family (studio 0/2 to 2/2, SaaS 0/2 to 1/2), and
+the U+2014 (em dash) check (1/2 to 2/2 on each); on the studio page, the numbered eyebrow (1/2 to
+2/2). The other checks already passed without genjutsu: today's models rarely write an invented
+build status or an `ESTD. 2018` on their own, so those graders guard against a regression more than
+they measure a gain.
+
+The two control cases held. In `thesis-allows`, a studio genuinely split between Paris and Tokyo
+asks for its two clocks, the thesis names them, and both stay on every run: the module does not
+over-correct. In `swiftui-skip`, measured on the run before (`5735e65`), `tells` is never requested
+or read, because it only covers the web so far.
+
+Read these numbers for what they count: tells and the checks our graders make. They are not a
+judgement of which page looks better, and the page of the arm without genjutsu can look as designed
+as the one with it. For that reason the README shows the table without the before / after captures
+(`showcase-section.py --captures none`); the v4.0.0 captures stay in `assets/v4/`, where the
+CHANGELOG entry still points.
+
 ## Results
 
 `evals/results/` is gitignored: runs, reports, `run.json` and the showcase notes stay local. The
