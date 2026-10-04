@@ -17,7 +17,8 @@
 # container: the blocks read GENJUTSU_CLAUDE_AI_ROOT in its place, and section 21
 # builds both layouts under that root. What this cannot cover: Cowork probes
 # /sessions, so that branch is exercised only by the negative case (it must not
-# match here).
+# match here). Section 22 runs the blocks again after the substitution Claude
+# Code applies to the words typed after the slash command.
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -629,6 +630,85 @@ check "claude.ai: an old /mnt/skills/user without genjutsu never wins over path 
 run_block "$H" "$WORK/c5/cwd" "" "" ""; rc=$?
 check "claude.ai: /mnt/skills/user without genjutsu and nothing else stops the pipeline" "1" "$([ "$rc" -ne 0 ] && echo 1 || echo 0)"
 unset GENJUTSU_CLAUDE_AI_ROOT
+
+# --- 22. Arguments typed after the slash command ---------------------------
+# Claude Code rewrites an invoked skill's text before the model reads it: the
+# words typed after "/genjutsu:cast" replace $ARGUMENTS, $ARGUMENTS[N] and $N
+# (https://code.claude.com/docs/en/skills). v4.1.0 read its function arguments
+# as positional parameters, so "/genjutsu:cast make the pricing cards feel
+# physical" made genjutsu_is_jutsu test "the/motion-principles/SKILL.md" and
+# nothing resolved. Every fixture above runs the files as written; this one runs
+# them as the model receives them, after the substitution.
+#
+# simulate_args <file> <out> <word>...: the substitution as documented and as
+# observed on Claude Code 2.1.289. $N is the word at 0-based index N and stays
+# literal when no word sits there or when a word character follows it; a single
+# backslash in front escapes the token and is dropped; when nothing received an
+# argument, the words are appended as "ARGUMENTS: <words>".
+simulate_args() {
+  python3 - "$@" <<'PY'
+import re
+import sys
+src, out, words = sys.argv[1], sys.argv[2], sys.argv[3:]
+text = open(src, encoding="utf-8").read()
+received = False
+def sub(m):
+    global received
+    slashes, token, indexed, digits = m.group(1), m.group(2), m.group(3), m.group(4)
+    if len(slashes) == 1:
+        return "$" + token
+    if token == "ARGUMENTS":
+        received = True
+        return slashes + " ".join(words)
+    i = int(indexed if indexed is not None else digits)
+    if i >= len(words):
+        return m.group(0)
+    received = True
+    return slashes + words[i]
+text = re.sub(r"(\\*)\$(ARGUMENTS\[(\d+)\]|ARGUMENTS(?![\w\[])|(\d+)(?!\w))", sub, text)
+if not received:
+    text += "\n\nARGUMENTS: " + " ".join(words)
+open(out, "w", encoding="utf-8").write(text)
+PY
+}
+TYPED="make the pricing cards feel physical"
+for pair in "cast:$SRC_CAST" "paint:$SRC_PAINT" "bunshin:$SRC_BUNSHIN" "router:$SRC_ROUTER"; do
+  # shellcheck disable=SC2086
+  simulate_args "${pair#*:}" "$WORK/typed-${pair%%:*}.md" $TYPED
+done
+
+# Three ways in: path 1 (CLAUDE_SKILL_DIR), path 2 (CLAUDE_PLUGIN_ROOT) and the
+# plugin cache, which is the one run_loader reaches. Each one goes through
+# genjutsu_is_jutsu; the loaders go through load_skill and load_ref.
+H="$WORK/a1/home"; P="$WORK/a1/plugin"; C="$H/.claude/plugins/cache/genjutsu/genjutsu/4.1.0"
+mkdir -p "$WORK/a1/cwd"; mkplugin "$P"; mkplugin "$C"
+mkdir -p "$C/skills/_jutsu/tells/references"
+printf 'WEB TELLS\n' > "$C/skills/_jutsu/tells/references/web.md"
+BLOCK_AS_WRITTEN="$BLOCK"
+for pipe in cast paint bunshin; do
+  BLOCK="$WORK/typed-resolver-$pipe.sh"
+  extract "$WORK/typed-$pipe.md" '<!-- genjutsu:shared:skill-base:start -->' \
+    '<!-- genjutsu:shared:skill-base:end -->' "$BLOCK"
+  check "typed arguments, $pipe: CLAUDE_SKILL_DIR still resolves the plugin's modules" \
+    "$P/skills/_jutsu" "$(resolve "$H" "$WORK/a1/cwd" "" "$P/skills/$pipe" "")"
+  check "typed arguments, $pipe: CLAUDE_PLUGIN_ROOT still resolves them" \
+    "$P/skills/_jutsu" "$(resolve "$H" "$WORK/a1/cwd" "$P" "" "")"
+  run_loader "$H" 'load_skill gsap'
+  check "typed arguments, $pipe: load_skill prints the module" "GSAP MODULE" "$(cat "$WORK/out")"
+  run_loader "$H" 'load_ref tells references/web.md'
+  check "typed arguments, $pipe: load_ref prints the reference" "WEB TELLS" "$(cat "$WORK/out")"
+done
+BLOCK="$BLOCK_AS_WRITTEN"
+
+B="$WORK/a2/skills/genjutsu"
+mkdir -p "$WORK/a2/home" "$WORK/a2/cwd"; mkbundle "$B"
+for pipe in cast paint bunshin; do
+  extract "$WORK/typed-router.md" "<!-- genjutsu:router:$pipe:start -->" \
+    "<!-- genjutsu:router:$pipe:end -->" "$WORK/typed-router-$pipe.sh"
+  run_router "$WORK/typed-router-$pipe.sh" "$WORK/a2/home" "$WORK/a2/cwd" "$B" ""
+  check_grep "typed arguments, router: the $pipe block still finds its bundle" \
+    "GENJUTSU_SKILL_DIR=$B/$pipe" "$WORK/out"
+done
 
 # --- summary ---
 echo
