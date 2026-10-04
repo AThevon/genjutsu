@@ -163,7 +163,8 @@ the tells catalogue of taste-skill (Leonxlnx, MIT), rewritten here as evidence a
 
 ### Blurred blobs
 - **Marker:** large blurred colour shapes behind the content: `blur-3xl` or `filter: blur(80px)`
-  on an absolutely positioned element.
+  on an absolutely positioned element, or the same disc drawn with no blur: a positioned
+  `radial-gradient` fading from a colour to transparent.
 - **Why it is a tell:** they fill an empty background with colour, so the page looks warm without
   a single decision being made.
 - **The question:** what would this section lose without the blob, and does the thesis name it?

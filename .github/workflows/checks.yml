@@ -45,6 +45,16 @@ jobs:
           ./scripts/test-shared-blocks.sh
           ./scripts/check-shared-blocks.sh
 
+      - name: No skill carries a token Claude Code would rewrite
+        # Claude Code replaces $ARGUMENTS, $ARGUMENTS[N] and $N in an invoked
+        # skill with the words typed after the slash command. v4.1.0 read its
+        # shell function arguments that way, so "/genjutsu:cast make the cards
+        # feel physical" made the resolver test "the/motion-principles" and
+        # nothing loaded. --self-test proves each rule can still fail.
+        run: |
+          ./scripts/check-skill-placeholders.sh --self-test
+          ./scripts/check-skill-placeholders.sh
+
       - name: No banned symbol has come back
         run: ./scripts/check-denylist.sh
 

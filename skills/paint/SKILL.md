@@ -178,6 +178,7 @@ Cowork is tested before Claude Code on purpose: both can have a `~/.claude` tree
 - Never install a dependency to build a preview.
 - Never start a dev server without asking.
 - Only show values that are in the thesis. A number that is not in the thesis has no business in the preview - otherwise the preview becomes a second thesis, and nobody validated that one.
+- A web face the preview cannot load in this session is still shown under its own name, set in its fallback stack and labelled `not rendered in this session`. Never swap it for a face the session can render: what the sandbox can fetch is not what the site will ship.
 <!-- genjutsu:shared:preview:end -->
 
 <!-- genjutsu:shared:headless:start -->
@@ -242,14 +243,24 @@ GENJUTSU_SKILL_DIR="${GENJUTSU_SKILL_DIR:-${CLAUDE_SKILL_DIR}}"
 # plugin update the old version directory is still on disk, so a cached path
 # passes an "is it a directory" check and serves the previous release.
 
+# No function below names a positional parameter (a dollar sign followed by a
+# digit, or the whole argument list). Claude Code replaces those tokens in a
+# skill's text with the words typed after the slash command, before the model
+# reads this block: after "/genjutsu:cast make the cards feel physical", a path
+# built from a function's first parameter would read "the/motion-principles/...",
+# the second word typed. Each function reads its arguments with a bare
+# `for name; do`, which walks the positional parameters without writing any out.
+
 # A _jutsu directory counts only if it holds motion-principles. The shared
 # skills directory of npx serves about 80 agents, so a directory name proves
 # nothing. The entry file is named SKILL or GUIDE depending on the artifact
 # (the bundle renames it at packaging time), so the name is assembled from
 # parts: spelled out in full, the packaging step would rewrite it too.
-genjutsu_is_jutsu() {
-  for d in SKILL GUIDE; do
-    [ -f "$1/motion-principles/$d.md" ] && return 0
+genjutsu_is_jutsu() { # <candidate _jutsu directory>
+  for jutsu_dir; do
+    for d in SKILL GUIDE; do
+      [ -f "$jutsu_dir/motion-principles/$d.md" ] && return 0
+    done
   done
   return 1
 }
@@ -327,24 +338,34 @@ echo "genjutsu: modules from $SKILL_BASE" >&2
 # Print a module's entry file. A missing module does not stop the pipeline (a
 # partial claude.ai upload is legitimate), but it is announced, and the final
 # report lists it: shell state does not survive, so the model keeps the list.
-load_skill() {
+load_skill() { # <module>
+  skill_name=""
+  for skill_arg; do skill_name="$skill_arg"; break; done
   for d in SKILL GUIDE; do
-    if [ -f "$SKILL_BASE/$1/$d.md" ]; then
-      cat "$SKILL_BASE/$1/$d.md"
+    if [ -n "$skill_name" ] && [ -f "$SKILL_BASE/$skill_name/$d.md" ]; then
+      cat "$SKILL_BASE/$skill_name/$d.md"
       return 0
     fi
   done
-  echo "genjutsu: sub-skill '$1' NOT LOADED - not found under $SKILL_BASE. Carry on, and list it under 'Modules not loaded' in the final report." >&2
+  echo "genjutsu: sub-skill '$skill_name' NOT LOADED - not found under $SKILL_BASE. Carry on, and list it under 'Modules not loaded' in the final report." >&2
   return 1
 }
 
 # Print one reference file of a module: load_ref <module> <path inside it>.
-load_ref() {
-  if [ -f "$SKILL_BASE/$1/$2" ]; then
-    cat "$SKILL_BASE/$1/$2"
+load_ref() { # <module> <path inside it>
+  ref_module=""; ref_path=""; ref_n=0
+  for ref_arg; do
+    ref_n=$((ref_n + 1))
+    case "$ref_n" in
+      1) ref_module="$ref_arg" ;;
+      2) ref_path="$ref_arg"; break ;;
+    esac
+  done
+  if [ -n "$ref_module" ] && [ -n "$ref_path" ] && [ -f "$SKILL_BASE/$ref_module/$ref_path" ]; then
+    cat "$SKILL_BASE/$ref_module/$ref_path"
     return 0
   fi
-  echo "genjutsu: reference '$1/$2' NOT LOADED - not found under $SKILL_BASE. Carry on, and say so in the final report." >&2
+  echo "genjutsu: reference '$ref_module/$ref_path' NOT LOADED - not found under $SKILL_BASE. Carry on, and say so in the final report." >&2
   return 1
 }
 ```
@@ -705,6 +726,27 @@ describes:
   the thesis, or dropped. The one line that says what you took and dropped also says what this
   filter removed.
 
+**A face this session cannot render is still the face.** A blocked font request or a sandbox
+with no network is a fact about this session, not about the site. When the user has approved a
+web face (by name, or by saying a Google Fonts link or a hosted file is fine) or the project
+already loads one, never trade it for a face you can render here: that is the system face
+winning by default, and the thesis loses a decision it made. Never add a third-party font
+request the user has not agreed to, either: ask once, as for any new request. Then use it:
+
+- Load it the way the stack loads fonts (the Google Fonts URL or `next/font` on web, the font
+  files bundled on Compose and SwiftUI), with `font-display: swap` on web, behind a fallback
+  stack matched to it in width, x-height and figure style, named in MASTER.md
+  (`"Fira Sans", "Segoe UI", Roboto, system-ui, sans-serif`), with `size-adjust` and the metric
+  overrides when the fallback shifts the layout.
+- Check what the thesis needs from it (tabular figures, a weight, a glyph such as the degree
+  sign) in its published data when this session can read it: its specimen page, its OpenType
+  feature list. When it cannot, say which feature is unchecked. An unchecked feature is a
+  reason to tell the user, never a reason to drop the face.
+- Say it where the user reads it: in the design-system message, the preview, and the final
+  report, as `Fira Sans: approved, loaded with a matched fallback, not rendered in this
+  session.` The audit hands the check over: the page online, the face loaded, the features
+  the thesis relies on in place.
+
 paint never passes `--persist`, so the component values hardcoded in the MASTER.md template of
 `design_system.py` never reach the project: MASTER.md is written here, from the validated theses
 and the tokens kept above. If paint ever persists, rewrite those component values from the
@@ -924,6 +966,7 @@ soften them, and do not omit the section because the rest looked clean.
 | Web | Chrome DevTools > Performance, record across the interaction | no frame over 16.7ms |
 | Web | The page at 375 / 768 / 1024 / 1440 | no horizontal scroll, no clipped content |
 | Web | The page with the OS "reduce motion" setting on | the degraded path actually runs |
+| Web | The page online, when a web face was not rendered in this session | the face loads instead of its fallback, with the figures and weights the thesis relies on |
 | Compose | Layout Inspector > Component Tree > View Options > **Show Recomposition Counts** | counts stable while scrolling |
 | Compose | `androidx.benchmark.macro` Macrobenchmark on a mid-range device | frame time under 16.67ms at 60fps, 8.33ms at 120fps |
 | SwiftUI | Instruments > Animation Hitches | no hitch during the transition |
@@ -996,4 +1039,5 @@ replacing it. `/genjutsu:cast` stays the entry point for one effect or one compo
 | "I'll list the palette as hex codes, that's precise" | Precise and unreviewable. Show it in the session's preview mode. |
 | "I'll ask again how they want to see the design system" | Asked once, sticks for the session. Announce the mode and go. |
 | "The preview page looks good, I'll build the app from it" | The preview is throwaway. Build from MASTER.md. |
+| "I can't render the approved font here, the system face is safer" | The sandbox is not the site. Load the approved face behind a matched fallback and say it was not rendered here. |
 | "This is a whole site, I'll switch to bunshin, it is clearly better" | Propose it once, with its cost, and switch only on a yes. It spends millions of tokens. |

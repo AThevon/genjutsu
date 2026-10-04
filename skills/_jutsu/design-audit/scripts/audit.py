@@ -479,6 +479,378 @@ SURFACES = {"text": displayed_text_lines, "markup": markup_class_lines}
 
 
 # ---------------------------------------------------------------------------
+# The blob drawn without a blur. A positioned element painted with a radial
+# gradient that starts on a colour and fades to transparent is the same soft
+# disc as `blur-3xl` on a coloured circle, and the line regex never saw it: a
+# paint run shipped one and its own audit reported zero tells. The gradient and
+# the position usually sit in two different rules (`.a, .b { position: absolute }`
+# then `.a { background: radial-gradient(...) }`), and the gradient spans several
+# lines, so this reads whole rules, not lines.
+#
+# Not a blob, and left alone: a vignette (transparent centre, colour at the
+# edge), a gradient on the page ground (html, body, :root) or on a button, a
+# hard-edged dot (the last stop starts where the one before it ends), a tiled
+# pattern (a background-size of 120px or less), an element of 120px or less, a
+# repeating-radial-gradient, a mask, and anything inside @keyframes.
+# ---------------------------------------------------------------------------
+
+# The quote lets `filter: "blur(80px)"` in a JSX style object through as well.
+BLOB_BLUR = re.compile(r"(?<![\w-])blur-(?:2xl|3xl)\b|(?<![\w-])filter\s*:\s*[\"'`]?blur\(\s*(?:[4-9]\d|\d{3,})px")
+RADIAL = re.compile(r"(?<![\w-])radial-gradient\(", re.I)
+GROUND_SELECTOR = re.compile(r"^(?:html|body|:root)$", re.I)
+BUTTON_SELECTOR = re.compile(r"(?i)(?:^|[\s>+~.#\[(-])(?:button|btn|input)(?=$|[\s>+~:.#\[)-])")
+SMALL_PX = 120
+SIZE_PROPS = ("width", "height", "inline-size", "block-size")
+_LENGTH = re.compile(r"(-?[\d.]+)(px|r?em|%|v[wh]|vmin|vmax|ch)?$", re.I)
+_STYLE_BLOCK = re.compile(r"<style\b[^>]*>(.*?)</style\s*>", re.I | re.S)
+RADIAL_CONFIG = re.compile(
+    r"^(?:circle|ellipse|closest-side|closest-corner|farthest-side|farthest-corner|at\b|in\s"
+    r"|-?[\d.]+(?:px|%|r?em|v[wh]|vmin|vmax|ch)\b)", re.I)
+
+
+def _split_top(text: str, sep: str) -> list[tuple[int, str]]:
+    """(offset, piece) for `text` split on `sep` outside parentheses and quotes."""
+    out, depth, quote, start = [], 0, "", 0
+    for idx, ch in enumerate(text):
+        if quote:
+            if ch == quote:
+                quote = ""
+        elif ch in "\"'":
+            quote = ch
+        elif ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth = max(0, depth - 1)
+        elif ch == sep and depth == 0:
+            out.append((start, text[start:idx]))
+            start = idx + 1
+    out.append((start, text[start:]))
+    return out
+
+
+def _paren_body(text: str, open_idx: int) -> str:
+    """What sits between the `(` at `open_idx` and its matching `)`."""
+    depth = 0
+    for idx in range(open_idx, len(text)):
+        if text[idx] == "(":
+            depth += 1
+        elif text[idx] == ")":
+            depth -= 1
+            if depth == 0:
+                return text[open_idx + 1:idx]
+    return text[open_idx + 1:]
+
+
+def _px(value: str) -> float | None:
+    """A length in px, None when it is relative, a keyword or a variable."""
+    m = _LENGTH.match(value.strip())
+    if not m:
+        return None
+    unit = (m.group(2) or "px").lower()
+    if unit == "px":
+        return float(m.group(1))
+    if unit in ("rem", "em"):
+        return float(m.group(1)) * 16
+    return None
+
+
+def _small(values: list[str]) -> bool:
+    """Every declared size is a length of SMALL_PX or less. Nothing declared is not small."""
+    sizes = [_px(v) for raw in values for v in raw.split()]
+    return bool(sizes) and all(s is not None and s <= SMALL_PX for s in sizes)
+
+
+def _alpha(args: str) -> float | None:
+    """The alpha of an rgb()/hsl()/oklch()-style argument list, None when opaque or unknown."""
+    if "/" in args:
+        raw = args.rsplit("/", 1)[1]
+    else:
+        parts = [p for _, p in _split_top(args, ",")]
+        if len(parts) != 4:
+            return None
+        raw = parts[3]
+    raw = raw.strip()
+    try:
+        return float(raw[:-1]) / 100 if raw.endswith("%") else float(raw)
+    except ValueError:
+        return None
+
+
+def _is_clear(stop: str) -> bool:
+    """A colour stop that paints nothing, or close to nothing (alpha of 5% or less)."""
+    s = stop.strip().lower()
+    if s.startswith("transparent"):
+        return True
+    m = re.match(r"#([0-9a-f]{8}|[0-9a-f]{4})\b", s)
+    if m:
+        hexa = m.group(1)
+        return int(hexa[-2:] if len(hexa) == 8 else hexa[-1] * 2, 16) <= 13
+    m = re.match(r"(?:rgba?|hsla?|hwb|oklch|oklab|lch|lab)\(", s)
+    if m:
+        a = _alpha(_paren_body(s, m.end() - 1))
+        return a is not None and a <= 0.05
+    if s.startswith("color-mix("):
+        parts = [p.strip() for _, p in _split_top(_paren_body(s, len("color-mix")), ",")]
+        clear = [p for p in parts[1:] if p.startswith("transparent")]
+        colour = [p for p in parts[1:] if not p.startswith("transparent")]
+        if len(parts) == 3 and clear and colour:
+            share = re.search(r"([\d.]+)%$", colour[0])
+            if share:
+                return float(share.group(1)) <= 5
+            share = re.search(r"([\d.]+)%$", clear[0])
+            return bool(share) and float(share.group(1)) >= 95
+    return False
+
+
+def _stop_position(stop: str) -> tuple[float, str] | None:
+    """The last position of a colour stop (`red 40%` -> (40, "%")), outside any parentheses."""
+    tail = stop.strip()
+    if tail.endswith(")"):
+        return None
+    m = re.search(r"\s(-?[\d.]+)(px|%|r?em)?$", tail, re.I)
+    return (float(m.group(1)), (m.group(2) or "").lower()) if m else None
+
+
+def radial_fades_out(args: str) -> bool:
+    """A radial gradient whose centre is a colour and whose last stop fades to transparent.
+
+    `args` is what sits inside `radial-gradient(...)` (Tailwind underscores are read as
+    spaces). A transparent centre is a vignette or a ring. A last stop that starts where
+    the one before it ends, or at 0, is a hard-edged dot, not a soft shape.
+    """
+    stops = [p.strip() for _, p in _split_top(args.replace("_", " "), ",") if p.strip()]
+    if stops and RADIAL_CONFIG.match(stops[0]):
+        stops = stops[1:]
+    if len(stops) < 2 or _is_clear(stops[0]) or not _is_clear(stops[-1]):
+        return False
+    last, prev = _stop_position(stops[-1]), _stop_position(stops[-2])
+    if last and last[0] == 0:
+        return False
+    if last and prev and last[1] == prev[1] and last[0] <= prev[0]:
+        return False
+    return True
+
+
+def _opaque_layer(layer: str) -> bool:
+    """The bottom layer of a background paints the element itself: a colour, an image or a
+    gradient other than a radial one. Radial layers over it shade a ground, they do not
+    float a shape over the page (`radial-gradient(...), #050505` is a lit room, not a blob)."""
+    s = layer.strip().lower()
+    if not s or RADIAL.search(s) or s.split()[0] in ("none", "transparent", "inherit", "initial", "unset"):
+        return False
+    return not _is_clear(s)
+
+
+def _css_blocks(src: str, base: int = 0) -> list[tuple[str, list[tuple[int, str, str]], bool]]:
+    """(selector, own declarations as (offset, property, value), inside @keyframes) per rule.
+
+    Comments are blanked first, offsets kept. A nested block's declarations belong to
+    it, not to its parent; a nested selector is resolved against the enclosing rule's
+    (`&` replaced, or a descendant otherwise). At-rules are not emitted themselves.
+    """
+    src = re.sub(r"/\*.*?\*/", lambda m: re.sub(r"[^\n]", " ", m.group(0)), src, flags=re.S)
+    out = []
+    stack: list[tuple[str, list[tuple[int, str]], bool]] = []
+    run = 0
+
+    def decls(chunks: list[tuple[int, str]]) -> list[tuple[int, str, str]]:
+        found = []
+        for off, text in chunks:
+            for start, piece in _split_top(text, ";"):
+                prop, colon, value = piece.partition(":")
+                if colon and prop.strip() and not prop.strip().startswith(("@", "&")):
+                    lead = len(piece) - len(piece.lstrip())
+                    found.append((base + off + start + lead, prop.strip().lower(), value.strip()))
+        return found
+
+    for idx, ch in enumerate(src):
+        if ch == "{":
+            text = src[run:idx]
+            cut = text.rfind(";") + 1
+            if stack and cut:
+                stack[-1][1].append((run, text[:cut]))
+            selector = " ".join(text[cut:].split())
+            in_frames = bool(stack) and (stack[-1][2] or stack[-1][0].lower().startswith("@keyframes"))
+            outer = next((f[0] for f in reversed(stack) if not f[0].startswith("@")), "")
+            if outer and not selector.startswith("@"):
+                if "&" in selector:
+                    selector = ", ".join(selector.replace("&", p.strip()) for p in outer.split(","))
+                else:
+                    selector = ", ".join(f"{p.strip()} {s.strip()}" for p in outer.split(",")
+                                         for s in selector.split(","))
+            stack.append((selector, [], in_frames))
+            run = idx + 1
+        elif ch == "}" and stack:
+            stack[-1][1].append((run, src[run:idx]))
+            selector, chunks, in_frames = stack.pop()
+            if not selector.startswith("@"):
+                out.append((selector, decls(chunks), in_frames))
+            run = idx + 1
+    return out
+
+
+def _subject(selector: str) -> str:
+    """The last compound selector: `.stage .spyhole-hot` -> `.spyhole-hot`."""
+    parts = re.split(r"[\s>+~]+", selector.strip())
+    return parts[-1] if parts else ""
+
+
+def _style_sources(f: Path, src: str) -> list[tuple[int, str]]:
+    """(offset, css) for a stylesheet, or for each <style> block of a markup file."""
+    if f.suffix in STYLE:
+        return [(0, src)]
+    return [(m.start(1), m.group(1)) for m in _STYLE_BLOCK.finditer(src)]
+
+
+def _radial_blob_in_css(files: list[Path], base: Path) -> list[Finding]:
+    rules = []
+    positioned: set[str] = set()
+    sized: dict[str, list[str]] = {}
+    for f in files:
+        lines = read(f)
+        if lines is None:
+            continue
+        src = "\n".join(lines)
+        for off, css in _style_sources(f, src):
+            for selector, decls, in_frames in _css_blocks(css, off):
+                rules.append((f, src, selector, decls, in_frames))
+                for _, prop, value in decls:
+                    for sel in selector.split(","):
+                        if prop == "position" and value.lower() in ("absolute", "fixed"):
+                            positioned.add(_subject(sel))
+                        elif prop in SIZE_PROPS:
+                            sized.setdefault(_subject(sel), []).append(value)
+    out = []
+    for f, src, selector, decls, in_frames in rules:
+        sels = [s.strip() for s in selector.split(",") if s.strip()]
+        keys = [_subject(s) for s in sels]
+        if (in_frames or not sels
+                or all(GROUND_SELECTOR.match(k) for k in keys)
+                or any(BUTTON_SELECTOR.search(s) for s in sels)
+                or not any(k in positioned for k in keys)
+                or all(_small(sized.get(k, [])) for k in keys)
+                or any(p == "background-size" and _small([v]) for _, p, v in decls)):
+            continue
+        if any(p == "background-color" and _opaque_layer(v) for _, p, v in decls):
+            continue
+        for off, prop, value in decls:
+            if prop not in ("background", "background-image") or _opaque_layer(_split_top(value, ",")[-1][1]):
+                continue
+            if any(radial_fades_out(_paren_body(value, m.end() - 1)) for m in RADIAL.finditer(value)):
+                snippet = " ".join(f"{selector} {{ {prop}: {value} }}".split())
+                out.append(Finding("", "", str(f.relative_to(base)), _line_index(src)(off), snippet[:200]))
+                break
+    return out
+
+
+TW_POSITIONED = re.compile(r"(?:^|\s)(?:[\w-]+:)*(?:absolute|fixed)(?=\s|$)")
+TW_RADIAL_ARBITRARY = re.compile(r"(?:^|\s)(?:[\w-]+:)*bg-\[(?:image:)?radial-gradient\((\S*)\)\](?=\s|$)")
+TW_RADIAL_UTILITY = re.compile(r"(?:^|\s)(?:[\w-]+:)*bg-(?:radial|gradient-radial)(?:-\[\S*\])?(?=\s|$)")
+TW_FROM = re.compile(r"(?:^|\s)(?:[\w-]+:)*from-(?!transparent(?:\s|$))\S+")
+TW_TO_CLEAR = re.compile(r"(?:^|\s)(?:[\w-]+:)*to-(?:transparent|[\w-]+/0)(?=\s|$)")
+TW_SIZE = re.compile(r"(?:^|\s)(?:[\w-]+:)*(?:w|h|size)-(\S+)")
+
+
+def _tw_small(classes: str) -> bool:
+    """Every Tailwind width, height or size class is SMALL_PX or less."""
+    sizes = []
+    for value in TW_SIZE.findall(classes):
+        if re.fullmatch(r"[\d.]+", value):
+            sizes.append(float(value) * 4)
+        elif value.startswith("[") and value.endswith("]"):
+            sizes.append(_px(value[1:-1]))
+        else:
+            sizes.append(None)
+    return bool(sizes) and all(s is not None and s <= SMALL_PX for s in sizes)
+
+
+JSX_STYLE = re.compile(r"(?<![\w:@.-])style\s*=\s*\{\{(.*)\}\}", re.S)
+JSX_STYLE_PROPS = {"background": "background", "backgroundImage": "background-image",
+                   "position": "position", "width": "width", "height": "height"}
+
+
+def _jsx_style(body: str) -> dict[str, str]:
+    """The literal values of a JSX style object that matter to a blob, as CSS properties.
+    A `${...}` hole in a template literal reads as an unknown colour, a bare number as px."""
+    m = JSX_STYLE.search(body)
+    if not m:
+        return {}
+    out = {}
+    for key, prop in JSX_STYLE_PROPS.items():
+        v = re.search(r"(?<![\w-])" + key + r"\s*:\s*(?:([\"'`])(.*?)\1|(\d+(?:\.\d+)?)\b)", m.group(1), re.S)
+        if v:
+            out[prop] = (re.sub(r"\$\{[^}]*\}", "var(--x)", v.group(2)) if v.group(1)
+                         else v.group(3) + "px")
+    return out
+
+
+def _radial_blob_in_markup(files: list[Path], base: Path) -> list[Finding]:
+    """The same disc written in a class list (`absolute ... bg-[radial-gradient(...)]`,
+    `bg-radial from-... to-transparent`), a literal `style` attribute or a JSX style object."""
+    out = []
+    for f in files:
+        if f.suffix not in MARKUP_EXTS:
+            continue
+        lines = read(f)
+        if lines is None:
+            continue
+        src = "\n".join(lines)
+        line_of = _line_index(src)
+        for tok in _tokens(src, html=f.suffix in HTML):
+            if tok.kind != "open" or tok.name.lower() in ("button", "input"):
+                continue
+            classes = " ".join(v for _, v in _attr_values(tok, CLASS_ATTRS))
+            style = " ".join(v for _, v in _attr_values(tok, ("style",)))
+            inline = {}
+            for _, decl in _split_top(style, ";"):
+                prop, colon, value = decl.partition(":")
+                if colon:
+                    inline[prop.strip().lower()] = value.strip()
+            inline.update(_jsx_style(tok.body))
+            if BUTTON_SELECTOR.search(" " + classes):
+                continue
+            if not (TW_POSITIONED.search(classes) or inline.get("position", "").lower() in ("absolute", "fixed")):
+                continue
+            if _tw_small(classes) or _small([inline[k] for k in SIZE_PROPS if k in inline]):
+                continue
+            hit = ""
+            m = TW_RADIAL_ARBITRARY.search(classes)
+            if m and radial_fades_out(m.group(1)):
+                hit = classes
+            elif TW_RADIAL_UTILITY.search(classes) and TW_FROM.search(classes) and TW_TO_CLEAR.search(classes):
+                hit = classes
+            else:
+                for key in ("background", "background-image"):
+                    value = inline.get(key, "")
+                    if any(radial_fades_out(_paren_body(value, r.end() - 1)) for r in RADIAL.finditer(value)):
+                        hit = f"style: {key}: {value}"
+                        break
+            if hit:
+                out.append(Finding("", "", str(f.relative_to(base)), line_of(tok.offset),
+                                   " ".join(hit.split())[:200]))
+    return out
+
+
+def find_blobs(files: list[Path], base: Path) -> list[Finding]:
+    """Large soft colour shapes: a blur of 40px or more, or the same disc painted with a
+    radial gradient that fades from a colour to transparent on a positioned element."""
+    out = []
+    for f in files:
+        lines = read(f)
+        if lines is None:
+            continue
+        for n, line in enumerate(lines, 1):
+            if BLOB_BLUR.search(line):
+                out.append(Finding("", "", str(f.relative_to(base)), n, line.strip()[:200]))
+    seen = {(fd.file, fd.line) for fd in out}
+    for fd in _radial_blob_in_css(files, base) + _radial_blob_in_markup(files, base):
+        if (fd.file, fd.line) not in seen:
+            seen.add((fd.file, fd.line))
+            out.append(fd)
+    return sorted(out, key=lambda fd: (fd.file, fd.line))
+
+
+# ---------------------------------------------------------------------------
 # Tells. Each is a default a model reaches for when nothing asked for it. The
 # script cannot know whether the validated thesis names the pattern, so every
 # tell is "nice-to-have" in the "tells" group and never counts as a problem on
@@ -605,9 +977,12 @@ CHECKS += [
         id="tell-blob",
         title="Blurred background blob",
         exts=STYLE | JSX | SFC | HTML, **TELL,
-        # backdrop-blur and backdrop-filter are glass, not blobs.
-        pattern=r"(?<![\w-])blur-(?:2xl|3xl)\b|(?<![\w-])filter\s*:\s*blur\(\s*(?:[4-9]\d|\d{3,})px",
-        zero_means="No element blurred by 40px or more (blur-2xl, blur-3xl, filter: blur).",
+        # backdrop-blur and backdrop-filter are glass, not blobs. A radial gradient
+        # that fades to transparent on a positioned element is the same blob drawn
+        # without a blur: see find_blobs for what it leaves alone.
+        fn=find_blobs,
+        zero_means=("No element blurred by 40px or more (blur-2xl, blur-3xl, filter: blur), and no "
+                    "positioned element painted with a radial gradient that fades from a colour to transparent."),
     ),
     Check(
         id="tell-perpetual-motion",
