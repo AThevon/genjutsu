@@ -82,6 +82,15 @@ sub-skill loading before anything can be read. The bundle's router,
 `<!-- genjutsu:router:<pipeline>:start -->` markers: the three blocks must match line for line
 except their `p=cast` / `p=paint` / `p=bunshin` line.
 
+**Shell in a skill never names a positional parameter.** Claude Code rewrites an invoked skill's
+text before the model reads it: the words typed after the slash command replace `$ARGUMENTS`,
+`$ARGUMENTS[N]` and `$N` ([docs](https://code.claude.com/docs/en/skills)). v4.1.0 read its
+function arguments that way, so `/genjutsu:cast make the pricing cards feel physical` handed the
+resolver `the` as its directory and no module loaded. A function reads its arguments with a bare
+`for name; do`, and `scripts/check-skill-placeholders.sh` fails on a positional token, a braced
+`CLAUDE_` variable other than `CLAUDE_SKILL_DIR` and `CLAUDE_PLUGIN_ROOT`, or a `!` and a backtick
+that would run a command when the skill loads, in `skills/*/SKILL.md` and the router.
+
 **The workflow templates** in `skills/_jutsu/orchestration/workflows/` are JavaScript that runs
 only inside a host's workflow tool, billed per agent, so a mistake in one is found hours into a
 paid run: the run bunshin comes from lost a whole fan-out to `fixes.some is not a function`,
@@ -133,6 +142,7 @@ All of these run in CI. Run them before opening the PR and you will not be surpr
 ./scripts/test-check-version.sh && ./scripts/check-version.sh   # manifests, CHANGELOG and tag agree
 ./scripts/test-check-dashes.sh && ./scripts/check-dashes.sh     # no U+2014 in a tracked file
 ./scripts/test-shared-blocks.sh && ./scripts/check-shared-blocks.sh   # shared regions and router blocks match
+./scripts/check-skill-placeholders.sh --self-test && ./scripts/check-skill-placeholders.sh   # no token Claude Code would rewrite in a skill
 ./scripts/check-denylist.sh             # no string that was wrong once has come back
 ./scripts/test-resolver.sh              # the resolver, one fixture per install layout
 python3 scripts/validate-skills.py      # every SKILL.md against the Agent Skills spec

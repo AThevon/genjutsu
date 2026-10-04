@@ -599,6 +599,152 @@ class StructuralTells(unittest.TestCase):
         self.assertEqual(audit.cta_labels(Path("src/A.tsx"), body.splitlines()), [(1, "Book a demo")])
 
 
+# The blob a paint run shipped while its own audit reported zero tells: two rules,
+# the position in one and a multi-line radial gradient in the other, fading through
+# color-mix() to transparent. Kept close to the original stylesheet.
+SPYHOLE_CSS = (
+    ".spyhole { position: relative; width: var(--spyhole-size); aspect-ratio: 1; }\n"
+    "\n"
+    ".spyhole-hot,\n"
+    ".spyhole-ember {\n"
+    "  position: absolute;\n"
+    "  inset: 0;\n"
+    "}\n"
+    "\n"
+    ".spyhole-hot {\n"
+    "  background: radial-gradient(\n"
+    "    circle closest-side,\n"
+    "    var(--color-glow-core) 0%,\n"
+    "    var(--color-glow-mid) 40%,\n"
+    "    color-mix(in srgb, var(--color-glow-mid) 0%, transparent) 100%\n"
+    "  );\n"
+    "}\n"
+)
+
+
+class RadialGradientBlobs(unittest.TestCase):
+    """tell-blob also reads the blob drawn without a blur: a positioned element painted
+    with a large radial gradient that fades from a colour to transparent."""
+
+    def blobs(self, files: dict[str, str]) -> list[tuple[str, int]]:
+        root = build(files)
+        try:
+            return [(f.file, f.line) for f in audit_it(root, only="tell-blob")["tell-blob"].findings]
+        finally:
+            shutil.rmtree(root)
+
+    def test_the_shipped_spyhole_is_found_across_two_rules(self):
+        self.assertEqual(self.blobs({"src/index.css": SPYHOLE_CSS}), [("src/index.css", 10)])
+
+    def test_every_way_of_writing_the_disc_is_found(self):
+        cases = {
+            "pseudo-element": {"src/a.css": (
+                '.hero::before { content: ""; position: absolute; inset: -20%;\n'
+                "  background: radial-gradient(circle at 30% 20%, rgba(236, 72, 153, 0.35), transparent 60%); }\n")},
+            "scss nesting": {"src/a.scss": (
+                ".hero {\n  position: relative;\n  &::after {\n    position: absolute;\n    inset: 0;\n"
+                "    background: radial-gradient(ellipse at top, #f0abfc, #f0abfc00 70%);\n  }\n}\n")},
+            "tailwind arbitrary value": {"app/page.tsx": (
+                'export default () => <div className="pointer-events-none absolute inset-0 -z-10 '
+                'bg-[radial-gradient(circle_at_30%_20%,rgba(236,72,153,0.35),transparent_60%)]" />\n')},
+            "tailwind v4 utility": {"app/page.tsx": (
+                'export default () => <div className="absolute -top-40 left-1/2 h-[40rem] w-[40rem] '
+                'bg-radial from-pink-400/40 to-transparent" />\n')},
+            "jsx style object": {"app/page.tsx": (
+                "export default ({ accent }) => (\n"
+                '  <div className="absolute inset-0 -z-10"\n'
+                "    style={{ background: `radial-gradient(circle, ${accent}22 0%, transparent 65%)` }} />\n"
+                ")\n")},
+            "html style attribute": {"index.html": (
+                '<div style="position: absolute; inset: 0; '
+                'background: radial-gradient(circle, hsl(280 80% 60% / 0.4), hsl(280 80% 60% / 0) 70%)"></div>\n')},
+            "vue style block": {"src/App.vue": (
+                '<template><div class="glow" /></template>\n'
+                "<style scoped>\n.glow { position: fixed; top: -10rem; right: -10rem; width: 40rem; height: 40rem;\n"
+                "  background: radial-gradient(circle, oklch(70% 0.2 300), oklch(70% 0.2 300 / 0) 70%); }\n</style>\n")},
+        }
+        for name, files in cases.items():
+            with self.subTest(case=name):
+                self.assertEqual(len(self.blobs(files)), 1, name)
+
+    def test_vignettes_grounds_buttons_patterns_and_masks_are_not_blobs(self):
+        cases = {
+            "vignette on the page ground": {"src/a.css": (
+                "body { background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.6)), #111; }\n")},
+            "vignette overlay": {"src/a.css": (
+                ".vignette { position: fixed; inset: 0;\n"
+                "  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%); }\n")},
+            "radial light over an opaque ground": {"src/a.css": (
+                ".room { position: absolute; inset: 0;\n"
+                "  background: radial-gradient(ellipse at 50% 30%, rgba(50, 30, 15, 0.18), transparent 50%), #050505; }\n")},
+            "gradient on a button": {"src/a.css": (
+                ".btn { position: relative; background: radial-gradient(circle at top, #fff, #ddd); }\n"
+                ".btn::after { position: absolute; inset: 0;\n"
+                "  background: radial-gradient(circle at var(--x) var(--y), rgba(255, 255, 255, 0.35), transparent 40%); }\n")},
+            "button element in markup": {"app/page.tsx": (
+                'export default () => <button className="absolute inset-0 '
+                'bg-[radial-gradient(circle,#fff,transparent_70%)]">Go</button>\n')},
+            "dot grid": {"src/a.css": (
+                ".dots { position: absolute; inset: 0;\n"
+                "  background-image: radial-gradient(circle, #d4d4d4 1px, transparent 1px); background-size: 16px 16px; }\n")},
+            "hard-edged disc": {"src/a.css": (
+                ".pip { position: absolute; inset: 0; background: radial-gradient(circle, #e11d48 50%, transparent 50%); }\n")},
+            "small status dot": {"src/a.css": (
+                ".status { position: absolute; width: 8px; height: 8px;\n"
+                "  background: radial-gradient(circle, #22c55e, transparent 70%); }\n")},
+            "unpositioned section": {"src/a.css": (
+                ".hero { background: radial-gradient(circle at top, #fde68a, transparent 60%); }\n")},
+            "mask": {"src/a.css": (
+                ".fade { position: absolute; inset: 0; mask-image: radial-gradient(circle, #000, transparent 70%); }\n")},
+            "repeating pattern": {"src/a.css": (
+                ".rings { position: absolute; inset: 0;\n"
+                "  background: repeating-radial-gradient(circle, #000 0 2px, transparent 2px 12px); }\n")},
+            "keyframes": {"src/a.css": (
+                ".pulse { position: absolute; }\n"
+                "@keyframes pulse { from { background: radial-gradient(circle, red, transparent); } }\n")},
+        }
+        for name, files in cases.items():
+            with self.subTest(case=name):
+                self.assertEqual(self.blobs(files), [], name)
+
+    def test_the_fade_reading(self):
+        fades = audit.radial_fades_out
+        self.assertTrue(fades("circle, rgba(236,72,153,0.35), transparent 60%"))
+        self.assertTrue(fades("circle_at_30%_20%,#ec4899,#ec489900_60%"))
+        self.assertTrue(fades("circle, red, color-mix(in srgb, red 0%, transparent)"))
+        self.assertFalse(fades("ellipse at center, transparent 60%, rgba(0,0,0,0.6)"))   # vignette
+        self.assertFalse(fades("circle, red 50%, transparent 50%"))                       # hard edge
+        self.assertFalse(fades("circle, red 40%, transparent 0"))                         # hard edge
+        self.assertFalse(fades("circle at top, #fff, #ddd"))                              # no fade
+        self.assertFalse(fades("circle, red, color-mix(in srgb, red 40%, transparent)"))  # still visible
+
+    def test_a_blur_in_a_jsx_style_object_is_found(self):
+        body = ('export default () => <div className="absolute w-[560px] h-[320px]"\n'
+                '  style={{ background: "#FFB347", filter: "blur(80px)" }} />\n')
+        self.assertEqual(self.blobs({"app/page.tsx": body}), [("app/page.tsx", 2)])
+
+    def test_allowed_by_the_thesis_is_the_runs_call_not_the_scripts(self):
+        """The paint run's thesis listed "the spy-hole glow" among its allowed patterns. The
+        script cannot read that line, so the disc is filed apart as a tell, at
+        nice-to-have, never among the problems, with the selector in the evidence so the
+        run can quote the thesis entry that allows it."""
+        root = build({"src/index.css": SPYHOLE_CSS})
+        try:
+            roots, how = audit.discover_roots(root)
+            files = audit.walk(roots, root)
+            results = [audit.run_check(c, files, root) for c in audit.CHECKS]
+            res = {r.check: r for r in results}["tell-blob"]
+            self.assertEqual((res.status, res.group, res.severity), ("findings", "tells", "nice-to-have"))
+            self.assertIn(".spyhole-hot", res.findings[0].text)
+            md = audit.as_markdown(root, how, files, results, audit.run_inventory(files, root))
+            tells = section(md, audit.TELLS_HEADING)
+            self.assertIn("`src/index.css:10` - `.spyhole-hot { background: radial-gradient(", tells)
+            self.assertIn("quote the", tells)
+            self.assertNotIn("tell-blob", section(md, "### Findings"))
+        finally:
+            shutil.rmtree(root)
+
+
 TELL_IDS = {
     "tell-invented-status", "tell-locale-strip", "tell-numbered-eyebrow", "tell-generic-step",
     "tell-scroll-cue", "tell-placeholder-identity", "tell-round-number", "tell-filler-verb",

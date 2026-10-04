@@ -2,6 +2,59 @@
 
 All notable changes to this plugin are documented here. Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## v4.1.1 - 2026-10-04
+
+Typing a request after the slash command broke module loading. `/genjutsu:cast make the pricing
+cards feel physical` now loads its modules like a bare `/genjutsu:cast` does. Two more fixes come
+from the runs behind the new examples: the tells audit now sees a glow drawn with a radial
+gradient, and paint keeps an approved web font it cannot render in its sandbox.
+
+### Fixed
+
+- **The words typed after `/genjutsu:cast`, `/genjutsu:paint` or `/genjutsu:bunshin` were
+  pasted into the resolver.** Claude Code replaces `$ARGUMENTS`, `$ARGUMENTS[N]` and `$N` in an
+  invoked skill with the arguments typed after the command, before the model reads the skill.
+  The shell functions of the resolver block (`genjutsu_is_jutsu`, `load_skill`, `load_ref`) and
+  of the bundle's router read their arguments as `$1` and `$2`, so with
+  `/genjutsu:cast make the pricing cards feel physical` the model received
+  `[ -f "the/motion-principles/$d.md" ]`: no install layout resolved, and the pipeline stopped
+  with "could not find the genjutsu modules", unless the model noticed and repaired the code
+  itself. A bare command, or a single word after it, was not affected. Every function now reads
+  its arguments with a bare `for name; do`, which never writes a positional parameter out, and
+  the block says why.
+- New check, `scripts/check-skill-placeholders.sh`, run in CI with a `--self-test`: it fails
+  when `skills/*/SKILL.md` or the router carries a positional token (`$N`, `${N}`,
+  `$ARGUMENTS`, `$@`, `$*`), a named argument declared in frontmatter, a braced `CLAUDE_`
+  variable other than `CLAUDE_SKILL_DIR` and `CLAUDE_PLUGIN_ROOT`, or a `!` and a backtick that
+  Claude Code would run as a command when the skill loads.
+- `scripts/test-resolver.sh` runs the resolver and the router again after simulating that
+  substitution with a six-word request, on the repository and on the packaged bundle. On the
+  v4.1.0 files those 15 cases fail; they pass now.
+- **The tells audit missed a blob drawn without a blur.** `tell-blob` matched `blur-2xl`,
+  `blur-3xl` and `filter: blur(40px)` and up, line by line. A paint run drew its glow as a
+  positioned element painted with a `radial-gradient` fading from a colour to transparent, the
+  position in one rule and a gradient spread over six lines in another, and its own audit
+  reported zero tells. The check now reads whole rules across the project's stylesheets,
+  `<style>` blocks, Tailwind class lists (`bg-[radial-gradient(...)]`, `bg-radial from-...
+  to-transparent`), `style` attributes and JSX style objects, and flags that disc on a
+  positioned element. It leaves alone a vignette (transparent centre), a radial light over an
+  opaque ground, the page ground itself, a button, a hard-edged dot, a tiled pattern, an element
+  of 120px or less, a mask and `repeating-radial-gradient`. A `filter: "blur(80px)"` in a JSX
+  style object is caught too. Like every tell it is filed at `nice-to-have` for the thesis to
+  confront: that run's thesis listed the glow among its allowed patterns. The tells reference
+  names the technique. Across nine local web projects (76 `radial-gradient` uses, some in files
+  the audit does not scan) it flagged 24, the shipped one included: each is a soft decorative
+  glow, halo, light or shade, and the lit grounds and dot grids among the rest were left alone.
+- **paint gave up an approved web font because the sandbox could not render it.** The client
+  agreed to a Google Fonts face; paint kept the system face because it could neither fetch nor
+  preview the font in its session. paint now keeps a face the user approved or the project
+  already loads: it loads it with a fallback stack matched in width, x-height and figure style,
+  checks the features the thesis needs from the face's published data or says which are
+  unchecked, and writes in the design-system message, the preview and the final report that the
+  face was not rendered in this session. The preview gate shared by cast, paint and bunshin
+  shows such a face in its fallback under its own name, labelled, and the handed-over audit rows
+  gain the check to run online.
+
 ## v4.1.0 - 2026-09-30
 
 genjutsu gets a third pipeline: `bunshin` builds a whole website or web app with a team of

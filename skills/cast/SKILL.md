@@ -122,6 +122,7 @@ Cowork is tested before Claude Code on purpose: both can have a `~/.claude` tree
 - Never install a dependency to build a preview.
 - Never start a dev server without asking.
 - Only show values that are in the thesis. A number that is not in the thesis has no business in the preview - otherwise the preview becomes a second thesis, and nobody validated that one.
+- A web face the preview cannot load in this session is still shown under its own name, set in its fallback stack and labelled `not rendered in this session`. Never swap it for a face the session can render: what the sandbox can fetch is not what the site will ship.
 <!-- genjutsu:shared:preview:end -->
 
 <!-- genjutsu:shared:headless:start -->
@@ -387,14 +388,24 @@ GENJUTSU_SKILL_DIR="${GENJUTSU_SKILL_DIR:-${CLAUDE_SKILL_DIR}}"
 # plugin update the old version directory is still on disk, so a cached path
 # passes an "is it a directory" check and serves the previous release.
 
+# No function below names a positional parameter (a dollar sign followed by a
+# digit, or the whole argument list). Claude Code replaces those tokens in a
+# skill's text with the words typed after the slash command, before the model
+# reads this block: after "/genjutsu:cast make the cards feel physical", a path
+# built from a function's first parameter would read "the/motion-principles/...",
+# the second word typed. Each function reads its arguments with a bare
+# `for name; do`, which walks the positional parameters without writing any out.
+
 # A _jutsu directory counts only if it holds motion-principles. The shared
 # skills directory of npx serves about 80 agents, so a directory name proves
 # nothing. The entry file is named SKILL or GUIDE depending on the artifact
 # (the bundle renames it at packaging time), so the name is assembled from
 # parts: spelled out in full, the packaging step would rewrite it too.
-genjutsu_is_jutsu() {
-  for d in SKILL GUIDE; do
-    [ -f "$1/motion-principles/$d.md" ] && return 0
+genjutsu_is_jutsu() { # <candidate _jutsu directory>
+  for jutsu_dir; do
+    for d in SKILL GUIDE; do
+      [ -f "$jutsu_dir/motion-principles/$d.md" ] && return 0
+    done
   done
   return 1
 }
@@ -472,24 +483,34 @@ echo "genjutsu: modules from $SKILL_BASE" >&2
 # Print a module's entry file. A missing module does not stop the pipeline (a
 # partial claude.ai upload is legitimate), but it is announced, and the final
 # report lists it: shell state does not survive, so the model keeps the list.
-load_skill() {
+load_skill() { # <module>
+  skill_name=""
+  for skill_arg; do skill_name="$skill_arg"; break; done
   for d in SKILL GUIDE; do
-    if [ -f "$SKILL_BASE/$1/$d.md" ]; then
-      cat "$SKILL_BASE/$1/$d.md"
+    if [ -n "$skill_name" ] && [ -f "$SKILL_BASE/$skill_name/$d.md" ]; then
+      cat "$SKILL_BASE/$skill_name/$d.md"
       return 0
     fi
   done
-  echo "genjutsu: sub-skill '$1' NOT LOADED - not found under $SKILL_BASE. Carry on, and list it under 'Modules not loaded' in the final report." >&2
+  echo "genjutsu: sub-skill '$skill_name' NOT LOADED - not found under $SKILL_BASE. Carry on, and list it under 'Modules not loaded' in the final report." >&2
   return 1
 }
 
 # Print one reference file of a module: load_ref <module> <path inside it>.
-load_ref() {
-  if [ -f "$SKILL_BASE/$1/$2" ]; then
-    cat "$SKILL_BASE/$1/$2"
+load_ref() { # <module> <path inside it>
+  ref_module=""; ref_path=""; ref_n=0
+  for ref_arg; do
+    ref_n=$((ref_n + 1))
+    case "$ref_n" in
+      1) ref_module="$ref_arg" ;;
+      2) ref_path="$ref_arg"; break ;;
+    esac
+  done
+  if [ -n "$ref_module" ] && [ -n "$ref_path" ] && [ -f "$SKILL_BASE/$ref_module/$ref_path" ]; then
+    cat "$SKILL_BASE/$ref_module/$ref_path"
     return 0
   fi
-  echo "genjutsu: reference '$1/$2' NOT LOADED - not found under $SKILL_BASE. Carry on, and say so in the final report." >&2
+  echo "genjutsu: reference '$ref_module/$ref_path' NOT LOADED - not found under $SKILL_BASE. Carry on, and say so in the final report." >&2
   return 1
 }
 ```
@@ -662,6 +683,7 @@ soften them, and do not omit the section because the rest looked clean.
 | Web | Chrome DevTools > Performance, record across the interaction | no frame over 16.7ms |
 | Web | The page at 375 / 768 / 1024 / 1440 | no horizontal scroll, no clipped content |
 | Web | The page with the OS "reduce motion" setting on | the degraded path actually runs |
+| Web | The page online, when a web face was not rendered in this session | the face loads instead of its fallback, with the figures and weights the thesis relies on |
 | Compose | Layout Inspector > Component Tree > View Options > **Show Recomposition Counts** | counts stable while scrolling |
 | Compose | `androidx.benchmark.macro` Macrobenchmark on a mid-range device | frame time under 16.67ms at 60fps, 8.33ms at 120fps |
 | SwiftUI | Instruments > Animation Hitches | no hitch during the transition |

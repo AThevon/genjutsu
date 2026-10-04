@@ -46,11 +46,16 @@ f=""
 # serves about 80 agents: a directory that is merely named cast or paint may
 # belong to anyone. Entry files are SKILL or GUIDE depending on the artifact,
 # so the name is assembled from parts and never spelled out in full.
-genjutsu_bundle_entry() {
-  for d in SKILL GUIDE; do
-    [ -f "$1/_jutsu/motion-principles/$d.md" ] || continue
-    for e in SKILL GUIDE; do
-      [ -f "$1/$p/$e.md" ] && { printf '%s\n' "$1/$p/$e.md"; return 0; }
+# The argument is read with a bare `for name; do`, never as a positional
+# parameter written out (a dollar sign and a digit): Claude Code replaces those
+# with the words typed after the slash command before the model reads this.
+genjutsu_bundle_entry() { # <candidate bundle directory>
+  for bundle_dir; do
+    for d in SKILL GUIDE; do
+      [ -f "$bundle_dir/_jutsu/motion-principles/$d.md" ] || continue
+      for e in SKILL GUIDE; do
+        [ -f "$bundle_dir/$p/$e.md" ] && { printf '%s\n' "$bundle_dir/$p/$e.md"; return 0; }
+      done
     done
   done
   return 1
@@ -118,11 +123,16 @@ f=""
 # serves about 80 agents: a directory that is merely named cast or paint may
 # belong to anyone. Entry files are SKILL or GUIDE depending on the artifact,
 # so the name is assembled from parts and never spelled out in full.
-genjutsu_bundle_entry() {
-  for d in SKILL GUIDE; do
-    [ -f "$1/_jutsu/motion-principles/$d.md" ] || continue
-    for e in SKILL GUIDE; do
-      [ -f "$1/$p/$e.md" ] && { printf '%s\n' "$1/$p/$e.md"; return 0; }
+# The argument is read with a bare `for name; do`, never as a positional
+# parameter written out (a dollar sign and a digit): Claude Code replaces those
+# with the words typed after the slash command before the model reads this.
+genjutsu_bundle_entry() { # <candidate bundle directory>
+  for bundle_dir; do
+    for d in SKILL GUIDE; do
+      [ -f "$bundle_dir/_jutsu/motion-principles/$d.md" ] || continue
+      for e in SKILL GUIDE; do
+        [ -f "$bundle_dir/$p/$e.md" ] && { printf '%s\n' "$bundle_dir/$p/$e.md"; return 0; }
+      done
     done
   done
   return 1
@@ -190,11 +200,16 @@ f=""
 # serves about 80 agents: a directory that is merely named cast or paint may
 # belong to anyone. Entry files are SKILL or GUIDE depending on the artifact,
 # so the name is assembled from parts and never spelled out in full.
-genjutsu_bundle_entry() {
-  for d in SKILL GUIDE; do
-    [ -f "$1/_jutsu/motion-principles/$d.md" ] || continue
-    for e in SKILL GUIDE; do
-      [ -f "$1/$p/$e.md" ] && { printf '%s\n' "$1/$p/$e.md"; return 0; }
+# The argument is read with a bare `for name; do`, never as a positional
+# parameter written out (a dollar sign and a digit): Claude Code replaces those
+# with the words typed after the slash command before the model reads this.
+genjutsu_bundle_entry() { # <candidate bundle directory>
+  for bundle_dir; do
+    for d in SKILL GUIDE; do
+      [ -f "$bundle_dir/_jutsu/motion-principles/$d.md" ] || continue
+      for e in SKILL GUIDE; do
+        [ -f "$bundle_dir/$p/$e.md" ] && { printf '%s\n' "$bundle_dir/$p/$e.md"; return 0; }
+      done
     done
   done
   return 1
