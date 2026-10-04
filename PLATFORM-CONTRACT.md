@@ -217,7 +217,7 @@ A family is a candidate for removal when its `VERSIONS.md` dates are more than t
 with no owner, or when its content has produced a correctness issue that nobody could verify.
 
 Removal is the eleven wiring sites in reverse, the module directories deleted, its `VERSIONS.md`
-section moved to a "formerly covered" note with its last-verified date, and the README and the
-`plugin.json` keywords narrowed to match. The CHANGELOG entry says why, plainly. Someone
-arriving from a search engine deserves to know the coverage ended and when, rather than finding
-advice that quietly stopped being checked.
+section moved to a "formerly covered" note with its last-verified date, and the README's platform
+line, the module pages of genjutsu.athevon.dev and the `plugin.json` keywords narrowed to match.
+The CHANGELOG entry says why, plainly. Someone arriving from a search engine deserves to know the
+coverage ended and when, rather than finding advice that quietly stopped being checked.

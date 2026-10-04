@@ -61,6 +61,77 @@ claims once a quarter, read [`PLATFORM-CONTRACT.md`](./PLATFORM-CONTRACT.md) and
 [Discussions](https://github.com/AThevon/genjutsu/discussions). It is not write access and it is
 not a title, it is a standing agreement to check one family and open the PR.
 
+## Repository layout
+
+```
+genjutsu/
+├── .claude-plugin/
+│   ├── plugin.json
+│   └── marketplace.json
+├── skills/
+│   ├── cast/SKILL.md                       <- orchestrator (Illusionist)
+│   ├── paint/SKILL.md                      <- orchestrator (Master Painter)
+│   ├── bunshin/SKILL.md                    <- orchestrator (Shadow Clones), whole sites with a team of agents
+│   └── _jutsu/                             <- internal sub-skills (never invoked directly)
+│       ├── VERSIONS.md                     <- what every version claim was verified against
+│       ├── motion-principles/              <- foundation, always loaded
+│       ├── mobile-principles/              <- shared (touch contexts)
+│       ├── desktop-principles/             <- shared (pointer/keyboard contexts)
+│       ├── design-audit/                   <- shared (audit pipeline, audit.py)
+│       ├── tells/                          <- shared (the slop, named; web)
+│       ├── ui-ux-pro-max/                  <- shared (design intel, vendored)
+│       ├── orchestration/                  <- bunshin (clone doctrine, workflows/, scripts/shoot.mjs and brief.mjs)
+│       ├── gsap/                           <- web stack
+│       ├── framer-motion/                  <- web stack
+│       ├── css-native/                     <- web stack
+│       ├── threejs-r3f/                    <- web stack
+│       ├── canvas-generative/              <- web stack
+│       ├── compose-motion/                 <- Android
+│       ├── compose-graphics/               <- Android (M3 Expressive, AGSL, Canvas)
+│       ├── compose-multiplatform/          <- KMP/CMP
+│       ├── swiftui-motion/                 <- Apple
+│       └── swiftui-graphics/               <- Apple (Metal, Liquid Glass, Canvas)
+├── packaging/genjutsu-router.md            <- the bundle's router (npx and claude.ai)
+├── evals/                                  <- with / without genjutsu, run by hand
+├── scripts/                                <- the checks CI runs (check-workflows.mjs runs every template), and the release helpers
+├── package-for-claude-ai.sh
+├── CHANGELOG.md
+└── README.md
+```
+
+The orchestrators find their modules at runtime (see [Hosts](#hosts) for the order) and pick what
+to load from what their SCAN phase detected: the stack decides the platform modules, the scope
+decides how many, and `mobile-principles` and `desktop-principles` load when the target is touch or
+pointer and keyboard. Each module carries `metadata.internal: true` and lives under the
+underscore-prefixed `_jutsu/`, so neither `npx skills` nor a host ever offers one on its own.
+
+## Installing from a checkout
+
+To work on genjutsu, install your clone rather than a release. As a git submodule in dotfiles:
+
+```bash
+git submodule add git@github.com:AThevon/genjutsu.git claude/plugins/genjutsu
+ln -sf ~/.dotfiles/claude/plugins/genjutsu ~/.claude/plugins/genjutsu
+```
+
+The marketplace also takes the full git URL: `/plugin marketplace add git@github.com:AThevon/genjutsu.git`.
+Installed both as a plugin and through npx, you have two entry points, `/genjutsu` and
+`/genjutsu:cast`; each loads the modules of its own copy, so the two never mix versions.
+
+The claude.ai bundle builds from source:
+
+```bash
+git clone https://github.com/AThevon/genjutsu.git
+cd genjutsu
+./package-for-claude-ai.sh
+# dist/ has exactly one file: genjutsu.zip
+```
+
+Upload it under **Customize > Skills > Upload skill** (Pro, Max, Team or Enterprise, with code
+execution on), then follow the two-minute smoke test in
+[`docs/claude-ai-testing.md`](./docs/claude-ai-testing.md) to confirm it mounted. Inside the bundle
+the pipelines and modules are `GUIDE.md` files, so claude.ai sees one skill, `genjutsu`.
+
 ## What not to touch
 
 **`skills/_jutsu/ui-ux-pro-max/`** is vendored from
@@ -123,7 +194,51 @@ asks which surface you used; for another agent, name it and the install command.
 
 bunshin runs only on a host that can spawn subagents. On one that cannot, claude.ai included as
 far as this repo knows, it steps down to paint and says why: that is its supported behaviour
-there, not a bug. A bunshin that plays the clones itself in one context is the bug.
+there, not a bug. A bunshin that plays the clones itself in one context is the bug. Claude Code is
+the one host checked so far; claude.ai and Cowork are marked `VERIFY-NEEDED` in
+[`VERSIONS.md`](./skills/_jutsu/VERSIONS.md), section Orchestration.
+
+**Where each host puts the skill tree.** Every host mounts genjutsu somewhere else, and Cowork has
+no fixed path at all: it mounts under a per-session root that changes every run, for example
+`/sessions/<session-id>/mnt/.claude/skills/genjutsu/_jutsu`. Cowork installs from its plugin panel
+like any other plugin (`/plugin marketplace add AThevon/genjutsu`, then `/plugin install genjutsu`).
+The `genjutsu:shared:skill-base` block resolves `$SKILL_BASE` in this order and stops at the first
+hit:
+
+| Order | Where | How it resolves |
+|---|---|---|
+| 0 | claude.ai | `_jutsu` of the bundle under `/mnt/skills/plugins` (the current mount), else under `/mnt/skills/user` (the older one) |
+| 1 | The skill's own directory | `GENJUTSU_SKILL_DIR`, which defaults to `${CLAUDE_SKILL_DIR}`: `_jutsu` next to it or one level up. After an npx install the router passes its own directory down |
+| 2 | Claude Code plugin | `${CLAUDE_PLUGIN_ROOT}/skills/_jutsu` |
+| 3 | Probed, bounded | `$PWD` and its ancestors (`.claude/skills`, `.agents/skills`), then `~/.agents/skills` (npx, global), `~/.claude/skills`, `~/.codex/skills`, `~/.cursor/skills`, `/mnt/.claude/skills`, `/sessions` (Cowork) |
+| 4 | Claude Code plugin cache | the newest numbered version under `~/.claude/plugins/cache`, last, so an old plugin install never wins over a newer bundle |
+
+A `_jutsu` directory only counts if it holds `motion-principles`: npx's shared directory serves
+dozens of agents, and a folder that merely happens to be called `cast` proves nothing. Every probe
+is depth-capped, so none of them can walk the filesystem. When all of them miss, the block prints
+the install commands and every root it tried, and the pipeline stops rather than running without
+its modules. `scripts/test-resolver.sh` runs the block against one fixture per layout.
+
+**What the preview gate maps to.** The gate offers a rendered preview, a live preview or inline.
+The first is described by capability: an HTML rendering tool if the session has one, otherwise a
+self-contained HTML file.
+
+| Host | A - rendered | B - live preview | C - inline |
+|---|---|---|---|
+| claude.ai | native artifact | throwaway route in your project | conversation text |
+| Cowork | the host's persistent artifact | usually unavailable, no project checkout | the host's inline widget |
+| Claude Code | the `Artifact` tool | throwaway route, or a `@Preview` / `#Preview` scratch file | conversation text |
+| any other host | its HTML rendering tool if it has one, else a throwaway HTML file, opened in a built-in browser or given as a path | throwaway route | conversation text |
+
+The gate detects the host itself, before `LOAD` runs. Cowork is tested before Claude Code because
+both can have a `~/.claude` tree and only Cowork has the session-rooted mount, so the more specific
+signal has to win.
+
+**Light scope.** `paint` is a five-phase pipeline, disproportionate for the short requests that
+dominate on Cowork ("animate this word", "polish this hover"). It recognises light scope (one
+isolated component, no visual identity at stake, nothing downstream depending on it) and shortens
+to a single brainstorm question with no `MASTER.md` written. The gates stay; only their number goes
+down.
 
 ## Running the checks
 

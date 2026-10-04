@@ -76,7 +76,8 @@ a functional test rather than a vibe check - run the smoke test below and read t
    to see the tree, then copy its `data/`, `scripts/` and `references/` over this folder.
 2. Copy its `LICENSE` to `LICENSE-upstream.txt` as well - it can change.
 3. Keep genjutsu's `SKILL.md`; update the dataset counts in its frontmatter and body
-   (plus the README and `motion-principles`) to match the new data.
+   (plus `motion-principles`, and the module pages of genjutsu.athevon.dev, which live in the
+   site's own repository) to match the new data.
 4. Verify the sync by hash rather than by tag name:
    `git hash-object scripts/core.py` against
    `gh api .../scripts/core.py?ref=<tag> --jq .sha`.
