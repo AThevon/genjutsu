@@ -12,10 +12,14 @@ it replaces that region of the file, which must hold exactly one.
 
 Usage:
     python3 scripts/showcase-section.py \\
-        --local-images assets/v4 --images ./assets/v4 \\
+        --local-images <captures dir> --images <captures URL or path> \\
         --evals-link ./evals --runs 2 --revision ef31234 \\
         --case "studio-landing|Independent design studio landing|<without dir>|<with dir>|<delta>" \\
         [--case ...] [--captures saas-landing | --captures none] [--write README.md]
+
+The v4.0.0 captures are no longer on main: they are kept at the v4.0.0 tag, in
+assets/v4/, and the CHANGELOG links to them there with raw URLs pinned to that
+tag. A new set of captures needs a home and a URL of its own.
 
 Every case gets its row. --captures picks the cases whose before / after pair
 is shown (repeatable, "none" for no image); without it every case shows its pair.

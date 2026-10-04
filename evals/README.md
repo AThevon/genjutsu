@@ -278,8 +278,8 @@ or read, because it only covers the web so far.
 Read these numbers for what they count: tells and the checks our graders make. They are not a
 judgement of which page looks better, and the page of the arm without genjutsu can look as designed
 as the one with it. For that reason the README shows the table without the before / after captures
-(`showcase-section.py --captures none`); the v4.0.0 captures stay in `assets/v4/`, where the
-CHANGELOG entry still points.
+(`showcase-section.py --captures none`); the v4.0.0 captures are kept at the `v4.0.0` tag, in
+`assets/v4/`, where the CHANGELOG entry still points.
 
 ## Results
 

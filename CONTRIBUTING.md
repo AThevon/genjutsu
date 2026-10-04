@@ -105,6 +105,14 @@ decides how many, and `mobile-principles` and `desktop-principles` load when the
 pointer and keyboard. Each module carries `metadata.internal: true` and lives under the
 underscore-prefixed `_jutsu/`, so neither `npx skills` nor a host ever offers one on its own.
 
+The examples are not in this repository. Each recorded run, with its receipt, its transcript, its
+media, the code it left and the headless case that replays it, lives in
+[AThevon/genjutsu-examples](https://github.com/AThevon/genjutsu-examples), and so does the script
+that writes the README gallery between `<!-- genjutsu:examples:start -->` and
+`<!-- genjutsu:examples:end -->`. Every image and link in that region points at one tag of that
+repository, so a hand edit here is lost at the next generation: add or correct an example there,
+then regenerate the region.
+
 ## Installing from a checkout
 
 To work on genjutsu, install your clone rather than a release. As a git submodule in dotfiles:
