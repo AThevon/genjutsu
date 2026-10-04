@@ -9,5 +9,6 @@ dist/
 docs/superpowers/
 # Eval runs: large, machine-specific, and billed sessions. Never committed.
 evals/results/
+examples/results/
 .claude/settings.local.json
 *.local.md
