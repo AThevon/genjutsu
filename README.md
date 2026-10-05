@@ -27,9 +27,9 @@ Claude Code skills that make an interface move, give a product its look, and bui
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-10-05/readme-media/hero-site.webp" alt="The genjutsu.athevon.dev homepage in dark mode: the character 幻 brushed in pale ink with a small crimson seal, and a hairline lens resting on its last stroke with a two-line readout. A crosshair pointer enters and carries the lens up that stroke, across to the second and onto the short third, where it stops; inside the lens the ink fades to a ghost and shows the centrelines, control points and brush footprints it is drawn from, and the readout changes with the footprint under it. The pointer leaves and the lens glides back to rest." width="800" />
+  <img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-10-05/readme-media/hero-site.webp" alt="The genjutsu.athevon.dev hero: the character 幻 brushed in ink under a crimson seal, and a lens that follows the pointer and reveals the curves and brush footprints the ink is drawn from." width="800" />
   <br />
-  <sub>genjutsu.athevon.dev, built with genjutsu, recorded from the real build: the lens resting on 幻 follows the pointer along three of its strokes and stops on the third. Wherever it passes, the ink gives way to what it is drawn from (centrelines, control points, brush footprints at their true size and angle) and a live readout of the footprint under it: stroke, position, pressure, radii, nib angle. The pointer leaves and the lens settles back to rest. The pointer is drawn in for the capture (a crosshair, like the site's own).</sub>
+  <sub>genjutsu.athevon.dev, built with genjutsu. Hover the 幻 and the lens shows the code its ink is drawn from.</sub>
 </p>
 
 Creative coding skills for [Claude Code](https://claude.ai/code), [claude.ai](https://claude.ai) and [Cowork](https://claude.com/product/cowork). Web (React, Vue, Svelte, Astro, vanilla CSS, Three.js, Canvas), Android (Jetpack Compose, Compose Multiplatform) and Apple (SwiftUI, iOS and macOS). `bunshin` is web only for now.
@@ -86,7 +86,7 @@ The client accepted both theses at the first showing and asked once for the four
 
 <a href="https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/chef-ovatio/receipt.md"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-10-05/readme-media/chef-ovatio/clip.webp" alt="Scrolling the Chef Ovatio home: the yellow sky turns orange as the plate sinks into the cobalt sea, the header shrinks to a bar, then &#x27;La même cuisine, deux façons de la partager&#x27;, the Recevoir and Conseiller doors, and the &#x27;Ce qui arrive à table&#x27; section with its first plates." width="720" /></a>
 
-<em>No slash command: bunshin did not exist yet. A short request, in French, for a polished first draft of a private chef&#x27;s site, made with Impeccable from his public Instagram profile.</em>
+<em>Made with bunshin: a short request, in French, for a polished first draft of a private chef&#x27;s site, built from his public Instagram profile.</em>
 
 A real client's site, from his public Instagram profile and two answers: the stack, the lead offer, the languages and the contact in one round of questions, then the direction, L'Affiche de la Riviera. Seven pages in French and English. Scrolling the home, the noon-yellow sky turns to sunset orange as the plate-sun sets behind the cobalt horizon, before the two doors, Recevoir and Conseiller, and the first plates. Filmed from the live site, 1440x900 viewport, scaled to 1200x750.
 
