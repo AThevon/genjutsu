@@ -27,7 +27,7 @@ Claude Code skills that make an interface move, give a product its look, and bui
 </p>
 
 <p align="center">
-  <img src="./assets/hero-site.webp" alt="The genjutsu.athevon.dev homepage in dark mode: the character 幻 brushed in pale ink with a small crimson seal, and a hairline lens resting on its last stroke with a two-line readout. A crosshair pointer enters and carries the lens up that stroke, across to the second and onto the short third, where it stops; inside the lens the ink fades to a ghost and shows the centrelines, control points and brush footprints it is drawn from, and the readout changes with the footprint under it. The pointer leaves and the lens glides back to rest." width="800" />
+  <img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-10-05/readme-media/hero-site.webp" alt="The genjutsu.athevon.dev homepage in dark mode: the character 幻 brushed in pale ink with a small crimson seal, and a hairline lens resting on its last stroke with a two-line readout. A crosshair pointer enters and carries the lens up that stroke, across to the second and onto the short third, where it stops; inside the lens the ink fades to a ghost and shows the centrelines, control points and brush footprints it is drawn from, and the readout changes with the footprint under it. The pointer leaves and the lens glides back to rest." width="800" />
   <br />
   <sub>genjutsu.athevon.dev, built with genjutsu, recorded from the real build: the lens resting on 幻 follows the pointer along three of its strokes and stops on the third. Wherever it passes, the ink gives way to what it is drawn from (centrelines, control points, brush footprints at their true size and angle) and a live readout of the footprint under it: stroke, position, pressure, radii, nib angle. The pointer leaves and the lens settles back to rest. The pointer is drawn in for the capture (a crosshair, like the site's own).</sub>
 </p>
@@ -66,11 +66,11 @@ Not sure which one? Ask for the result you want and the right skill is picked; `
 ## Examples
 
 <!-- genjutsu:examples:start -->
-Recorded runs on fictional clients, captured from a build of the code each run left. Each one gives the first line of the request, how it ran, what it cost, and a receipt with the full prompt, what the run checked, and what it left unverified or got wrong. A one-shot headless run is a single `claude plugin eval` session: the prompt answers the gates up front and nobody replies after that, so there is no conversation to publish. A conversation is a session in which an agent plays the client and answers the gates; its full transcript, the brief that agent was given and the first message it sent are linked. A run on a build that is not a release names the branch and commit it ran on instead of a version.
+Recorded runs on fictional clients and one real one, captured from the code each run left or, for the real client, from the live site. Each one gives the first line of the request, how it ran, what it cost, and a receipt with the full prompt, what the run checked, and what it left unverified or got wrong. Everything they link lives in [genjutsu-examples](https://github.com/AThevon/genjutsu-examples) at the tag `readme-2026-10-05`: the code each run wrote, its receipt, its conversation and its media. Each one also runs as a [live demo](https://genjutsu-examples.vercel.app/), built from that code as it stands. A one-shot headless run is a single `claude plugin eval` session: the prompt answers the gates up front and nobody replies after that, so there is no conversation to publish. A conversation is a session in which an agent plays the client and answers the gates; its full transcript, the brief that agent was given and the first message it sent are linked. The `bunshin` example is the run `bunshin` was extracted from, made before v4.1.0 shipped: its cost is in subagent tokens, as genjutsu publishes it, and its request and its client's material stay private. A run on a build that is not a release names the branch and commit it ran on instead of a version.
 
 ### Nocturne: a planetarium's late program, from dusk to the real 22:00 sky (plain CSS)
 
-<a href="./examples/nocturne/receipt.md"><img src="./assets/examples/nocturne/clip.webp" alt="Scrolling the Nocturne page from dusk to night: the ground deepens from dusk blue to near black, the amber glow at the dome&#x27;s rim fades, and the stars come up on the dome brightest first; near the end, the star list passes over the dome." width="720" /></a>
+<a href="https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/nocturne/receipt.md"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-10-05/readme-media/nocturne/clip.webp" alt="Scrolling the Nocturne page from dusk to night: the ground deepens from dusk blue to near black, the amber glow at the dome&#x27;s rim fades, and the stars come up on the dome brightest first; near the end, the star list passes over the dome." width="720" /></a>
 
 `/genjutsu:paint build the landing page for Nocturne, the late program of a planetarium in Lisbon.`
 
@@ -80,11 +80,25 @@ The client accepted both theses at the first showing and asked once for the four
 
 <sub>`paint` · conversation with an agent playing the client (Claude Code 2.1.289, one session resumed for each reply) · genjutsu fix/skill-arguments on 09c177b (4.1.1 candidate) · `claude-opus-5-5` · first pass · $5.93 (plus $0.86 for the agent playing the client) · 8 exchanges · 73 turns · 0 human edits · 2026-10-04</sub>
 
-[Receipt](./examples/nocturne/receipt.md) · [Transcript](./examples/nocturne/transcript.md) · [Client brief](./examples/nocturne/client.md) · [First message](./examples/nocturne/opening.txt)
+[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/nocturne/receipt.md) · [Transcript](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/nocturne/transcript.md) · [Client brief](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/nocturne/client.md) · [First message](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/nocturne/opening.txt) · [Source](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-10-05/nocturne/source) · [Live demo](https://genjutsu-examples.vercel.app/nocturne/)
+
+### Chef Ovatio: a private chef's seven-page site in French and English (Astro)
+
+<a href="https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/chef-ovatio/receipt.md"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-10-05/readme-media/chef-ovatio/clip.webp" alt="Scrolling the Chef Ovatio home: the yellow sky turns orange as the plate sinks into the cobalt sea, the header shrinks to a bar, then &#x27;La même cuisine, deux façons de la partager&#x27;, the Recevoir and Conseiller doors, and the &#x27;Ce qui arrive à table&#x27; section with its first plates." width="720" /></a>
+
+<em>No slash command: bunshin did not exist yet. A short request, in French, for a polished first draft of a private chef&#x27;s site, made with Impeccable from his public Instagram profile.</em>
+
+A real client's site, from his public Instagram profile and two answers: the stack, the lead offer, the languages and the contact in one round of questions, then the direction, L'Affiche de la Riviera. Seven pages in French and English. Scrolling the home, the noon-yellow sky turns to sunset orange as the plate-sun sets behind the cobalt horizon, before the two doors, Recevoir and Conseiller, and the first plates. Filmed from the live site, 1440x900 viewport, scaled to 1200x750.
+
+This is the run bunshin was extracted from, made with genjutsu 4.0.0's paint and Impeccable hours before bunshin shipped in 4.1.0; its cost is the figure genjutsu publishes for it. The second verdict still asked for fixes (five major points from the art director); the last round worked on them and no verdict read the site after it. The client's contact details and legal notice are still blanks marked for him to fill.
+
+<sub>`bunshin` · bunshin run, before v4.1.0 (Claude Code 2.1.284, one main session driving subagents through eight workflows) · genjutsu 4.0.0 at `a0f6e09` (`paint`, with Impeccable) · `claude-opus-5-5` · about 10.5M subagent tokens over six to eight hours (main session not measured) · one review, three refine rounds, two verdicts · 2 human answers · 0 human edits · 2026-09-29</sub>
+
+[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/chef-ovatio/receipt.md) · [Live demo](https://chef-ovatio.vercel.app) · Source: the client's private repository
 
 ### Atelier Grès: four firing stages pinned and scrubbed (GSAP ScrollTrigger)
 
-<a href="./examples/pottery-firing/receipt.md"><img src="./assets/examples/pottery-firing/clip.webp" alt="Scrolling through the pinned firing stages section of the Atelier Grès page: the firing curve draws from left to right while the Drying, Bisque firing, Glaze firing and Cooling texts take over from each other." width="720" /></a>
+<a href="https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/pottery-firing/receipt.md"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-10-05/readme-media/pottery-firing/clip.webp" alt="Scrolling through the pinned firing stages section of the Atelier Grès page: the firing curve draws from left to right while the Drying, Bisque firing, Glaze firing and Cooling texts take over from each other." width="720" /></a>
 
 `/genjutsu:cast pin our pottery studio's four firing stages and scrub them with the scroll`
 
@@ -94,11 +108,11 @@ Headless, so the run marked its own thesis UNVALIDATED. It could not build in it
 
 <sub>`cast` · one-shot headless run (claude plugin eval, Claude Code 2.1.289) · genjutsu 4.1.0 at `09c177b` · `claude-opus-5-5` · first pass · $1.53 · 23 turns · 0 human edits · 2026-10-04</sub>
 
-[Receipt](./examples/pottery-firing/receipt.md) · No transcript: a one-shot run has no conversation, the full prompt is in the receipt
+[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/pottery-firing/receipt.md) · No transcript: a one-shot run has no conversation, the full prompt is in the receipt · [Source](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-10-05/pottery-firing/runs/20261004T162515Z/workspace-1) · [Case](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-10-05/cases/pottery-firing) · [Live demo](https://genjutsu-examples.vercel.app/pottery-firing/)
 
 ### Étale: a slack-water app's beta page, from one real day of NOAA predictions (plain CSS)
 
-<a href="./examples/etale/receipt.md"><img src="./assets/examples/etale/clip.webp" alt="The Étale page loading: the headline, the slack card and the alert fade in, the first screen holds, then the page scrolls to the section that sets the slack times against high and low tide in two charts." width="720" /></a>
+<a href="https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/etale/receipt.md"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-10-05/readme-media/etale/clip.webp" alt="The Étale page loading: the headline, the slack card and the alert fade in, the first screen holds, then the page scrolls to the section that sets the slack times against high and low tide in two charts." width="720" /></a>
 
 `/genjutsu:paint build the landing page for Étale.`
 
@@ -108,11 +122,11 @@ A first conversation on the same brief ran just before this one and is not shown
 
 <sub>`paint` · conversation with an agent playing the client (Claude Code 2.1.289, one session resumed for each reply) · genjutsu fix/skill-arguments on 09c177b (4.1.1 candidate) · `claude-opus-5-5` · selected from 2 runs · $3.55 (plus $1.08 for the agent playing the client) · 10 exchanges · 54 turns · 0 human edits · 2026-10-04</sub>
 
-[Receipt](./examples/etale/receipt.md) · [Transcript](./examples/etale/transcript.md) · [Client brief](./examples/etale/client.md) · [First message](./examples/etale/opening.txt)
+[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/etale/receipt.md) · [Transcript](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/etale/transcript.md) · [Client brief](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/etale/client.md) · [First message](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/etale/opening.txt) · [Source](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-10-05/etale/source) · [Live demo](https://genjutsu-examples.vercel.app/etale/)
 
 ### Folio: the "Mark as paid" action (Motion)
 
-<a href="./examples/invoice-mark-paid/receipt.md"><img src="./assets/examples/invoice-mark-paid/clip.webp" alt="Two Mark as paid clicks on the Folio invoice list: each time the button slides out, the status pill stamps to Paid, and the Outstanding and Paid totals count by the invoice amount." width="720" /></a>
+<a href="https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/invoice-mark-paid/receipt.md"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-10-05/readme-media/invoice-mark-paid/clip.webp" alt="Two Mark as paid clicks on the Folio invoice list: each time the button slides out, the status pill stamps to Paid, and the Outstanding and Paid totals count by the invoice amount." width="720" /></a>
 
 `/genjutsu:cast the "Mark as paid" action in our invoice list is dead, make it feel like the money landed`
 
@@ -122,15 +136,15 @@ Headless, so the run marked its own thesis UNVALIDATED. It introduced one defect
 
 <sub>`cast` · one-shot headless run (claude plugin eval, Claude Code 2.1.289) · genjutsu 4.1.0 at `09c177b` · `claude-opus-5-5` · first pass · $1.88 · 45 turns · 0 human edits · 2026-10-04</sub>
 
-[Receipt](./examples/invoice-mark-paid/receipt.md) · No transcript: a one-shot run has no conversation, the full prompt is in the receipt
+[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/invoice-mark-paid/receipt.md) · No transcript: a one-shot run has no conversation, the full prompt is in the receipt · [Source](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-10-05/invoice-mark-paid/runs/20261004T162510Z/workspace-1) · [Case](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-10-05/cases/invoice-mark-paid) · [Live demo](https://genjutsu-examples.vercel.app/invoice-mark-paid/)
 
 ### Recorded, not featured
 
 These runs were recorded the same way and keep their receipts, but are not shown above, for the reason given on each line.
 
-- **Atelier Grès: the whole site redesigned**: `paint`, conversation with an agent playing the client, genjutsu fix/skill-arguments on 09c177b (4.1.1 candidate), 2026-10-04. Thin execution: the platform system font, kept after a web font could not be fetched in the sandbox, and a blurred glow standing in for the kiln. [Receipt](./examples/gres-redesign/receipt.md) · [Transcript](./examples/gres-redesign/transcript.md) · [Client brief](./examples/gres-redesign/client.md) · [First message](./examples/gres-redesign/opening.txt)
-- **Étale, first headless run**: `paint`, one-shot headless run, genjutsu 4.1.0 at `09c177b`, 2026-10-04. Plain: correct and sourced, but nothing on the page goes past a tidy default; the conversation above replaced it. [Receipt](./examples/etale-landing/receipt.md)
-- **Nocturne, first headless run**: `paint`, one-shot headless run, genjutsu 4.1.0 at `09c177b`, 2026-10-04. Plain: a correct sky chart on a flat blue page; the conversation above replaced it. [Receipt](./examples/nocturne-planetarium/receipt.md)
+- **Atelier Grès: the whole site redesigned**: `paint`, conversation with an agent playing the client, genjutsu fix/skill-arguments on 09c177b (4.1.1 candidate), 2026-10-04. Thin execution: the platform system font, kept after a web font could not be fetched in the sandbox, and a blurred glow standing in for the kiln. [Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/gres-redesign/receipt.md) · [Transcript](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/gres-redesign/transcript.md) · [Client brief](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/gres-redesign/client.md) · [First message](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/gres-redesign/opening.txt) · [Source](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-10-05/gres-redesign/source) · [Live demo](https://genjutsu-examples.vercel.app/gres-redesign/)
+- **Étale, first headless run**: `paint`, one-shot headless run, genjutsu 4.1.0 at `09c177b`, 2026-10-04. Plain: correct and sourced, but nothing on the page goes past a tidy default; the conversation above replaced it. [Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/etale-landing/receipt.md) · [Source](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-10-05/etale-landing/runs/20261004T162451Z) · [Case](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-10-05/cases/etale-landing)
+- **Nocturne, first headless run**: `paint`, one-shot headless run, genjutsu 4.1.0 at `09c177b`, 2026-10-04. Plain: a correct sky chart on a flat blue page; the conversation above replaced it. [Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-10-05/nocturne-planetarium/receipt.md) · [Source](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-10-05/nocturne-planetarium/runs/20261004T162505Z) · [Case](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-10-05/cases/nocturne-planetarium)
 <!-- genjutsu:examples:end -->
 
 ## It shows you before it writes
