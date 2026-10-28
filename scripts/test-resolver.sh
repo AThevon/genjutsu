@@ -193,10 +193,10 @@ check "version ordering is numeric, not lexical" \
 # file, a stale one pointing at the previous release will win here and this fails.
 H="$WORK/t3c/home"; C="$H/.claude/plugins/cache/genjutsu/genjutsu"
 mkdir -p "$WORK/t3c/cwd"; mkplugin "$C/3.1.0"; mkplugin "$C/3.5.0"
-printf '%s\n' "$C/3.1.0/skills/_jutsu" > "${TMPDIR:-/tmp}/genjutsu-skill-base"
+printf '%s\n' "$C/3.1.0/skills/_jutsu" > "$WORK/genjutsu-skill-base"
 check "a stale cache file must not be consulted" \
   "$C/3.5.0/skills/_jutsu" "$(resolve "$H" "$WORK/t3c/cwd" "")"
-rm -f "${TMPDIR:-/tmp}/genjutsu-skill-base"
+rm -f "$WORK/genjutsu-skill-base"
 
 # 3d. A newest version directory that is not a genjutsu install (half-deleted
 # during an update) must not shadow the complete one below it.
@@ -239,10 +239,10 @@ check "a \$CLAUDE_PLUGIN_ROOT pointing nowhere is discarded" \
 # none appears, rather than comparing counts, which passes if one already exists.
 H="$WORK/t8/home"
 mkdir -p "$WORK/t8/cwd"; mkbundle "$H/.claude/skills/genjutsu"
-rm -f "${TMPDIR:-/tmp}/genjutsu-skill-base"
+rm -f "$WORK/genjutsu-skill-base"
 resolve "$H" "$WORK/t8/cwd" "" >/dev/null
 check "writes no cache file" "absent" \
-  "$([ -e "${TMPDIR:-/tmp}/genjutsu-skill-base" ] && echo present || echo absent)"
+  "$([ -e "$WORK/genjutsu-skill-base" ] && echo present || echo absent)"
 
 # --- 9. Path 1: GENJUTSU_SKILL_DIR set before the block ---------------------
 # Two installs of different versions: a 3.x plugin in the cache and a 4.x
