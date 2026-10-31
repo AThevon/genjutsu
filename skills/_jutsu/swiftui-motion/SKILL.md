@@ -258,8 +258,8 @@ For multi-property shapes use `AnimatablePair<A, B>` (or nested pairs) as `anima
 | `TapGesture` | discrete | tap, double-tap (`count: 2`) |
 | `LongPressGesture` | discrete + continuous (`onEnded`/`onChanged`) | context menus, hold-to-record |
 | `DragGesture` | continuous | drag, swipe-to-dismiss |
-| `MagnifyGesture` | continuous | pinch-zoom (iOS 17+, replaces `MagnificationGesture`) |
-| `RotateGesture` | continuous | rotate (iOS 17+, replaces `RotationGesture`) |
+| `MagnifyGesture` | continuous | pinch-zoom (iOS 17+, replaces `MagnificationGesture`, deprecated in iOS 27.2) |
+| `RotateGesture` | continuous | rotate (iOS 17+, replaces `RotationGesture`, deprecated in iOS 27.2) |
 | `SpatialTapGesture` (iOS 16+, macOS 13+) | discrete | tap with location info |
 
 ```swift

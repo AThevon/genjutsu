@@ -374,7 +374,7 @@ import { PerformanceMonitor } from '@react-three/drei'
 </Canvas>
 ```
 
-- `shadows` on Canvas enables the shadow system
+- `shadows` on Canvas enables the shadow system. A bare `shadows` asks for `PCFSoftShadowMap`, which three removed in r186: the renderer logs a warning and uses `PCFShadowMap`, which is soft now. Write `shadows="percentage"` to ask for `PCFShadowMap` directly and keep the console clean
 - `castShadow` on lights and meshes that cast
 - `receiveShadow` on meshes that receive
 - `<shadowMaterial>` for transparent ground shadows (product shots)

@@ -284,7 +284,7 @@ The animation primer lives in `../compose-motion/SKILL.md`. Cross-platform delta
 
 ## CMP version notes
 
-- Current stable is **Compose Multiplatform 1.12.0** (released 25 Aug 2026); 1.10.3 was the previous long-lived line. Treat 1.7 as the historical floor for `SharedTransitionLayout` cross-platform, iOS keyboard handling and `LocalLifecycleOwner` on iOS, not as the version to target.
+- Current stable is **Compose Multiplatform 1.12.2** (released 15 Oct 2026; 1.12.0 shipped 25 Aug 2026); the previous line was 1.11 (1.11.1, 2 Jun 2026) and 1.13 is in beta. Treat 1.7 as the historical floor for `SharedTransitionLayout` cross-platform, iOS keyboard handling and `LocalLifecycleOwner` on iOS, not as the version to target.
 - Since 1.7, iOS interop lives in `androidx.compose.ui.viewinterop` (`UIKitView`, `UIKitViewController`, `UIKitInteropProperties`); the old `androidx.compose.ui.interop.UIKitView` overloads with `interactive:` / `accessibilityEnabled:` parameters are `@Deprecated`.
 - 1.10 added `UIKitInteropProperties(placedAsOverlay = true)` so an interop view can be composited *above* Compose content, plus intrinsic-size (`sizeThatFits`) support for wrapping SwiftUI views in a `UIHostingController`.
 - Kotlin 2.x with the K2 compiler; pair the latest CMP with the latest Kotlin (2.2.20+ for iOS/web targets).

@@ -1,6 +1,6 @@
 # Framer Motion - API Reference
 
-> `motion` v13 (formerly `framer-motion`) - `npm install motion`, then `import { motion, AnimatePresence, ... } from "motion/react"`
+> `motion` v14 (formerly `framer-motion`) - `npm install motion`, then `import { motion, AnimatePresence, ... } from "motion/react"`
 
 ## motion component - Props
 

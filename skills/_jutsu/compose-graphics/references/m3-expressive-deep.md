@@ -160,7 +160,7 @@ What ships in this 30-line composable: spatial spring on size and elevation, twe
 
 ## Shape Morphing Patterns
 
-`androidx.graphics.shapes:graphics-shapes` (stable 1.1.0) is the geometry engine: `RoundedPolygon`, `CornerRounding`, `Morph`. The named Material shapes below are a *separate* thing - `androidx.compose.material3.MaterialShapes`, still `@ExperimentalMaterial3ExpressiveApi`, shipping only in `androidx.compose.material3:material3:1.5.0-alpha*` (absent from stable 1.4.0). Import them from material3, not from graphics-shapes.
+`androidx.graphics.shapes:graphics-shapes` (stable 1.1.0) is the geometry engine: `RoundedPolygon`, `CornerRounding`, `Morph`. The named Material shapes below are a *separate* thing - `androidx.compose.material3.MaterialShapes`, still `@ExperimentalMaterial3ExpressiveApi`, shipping only in the `androidx.compose.material3:material3:1.5.0` pre-releases, alpha or beta (absent from stable 1.4.0). Import them from material3, not from graphics-shapes.
 
 ### Predefined Shapes
 

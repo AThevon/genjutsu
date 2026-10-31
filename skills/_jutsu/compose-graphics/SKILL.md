@@ -64,7 +64,7 @@ Tokens exposed:
 
 > **Spatial vs Effects:** spatial = anything physical (height, offset, scale). Effects = visual properties without inertia (alpha, color, elevation). *Both* families are springs - the effects ones are just critically damped (`dampingRatio = 1.0`) and much stiffer, so they never overshoot. Only the spatial springs differ between `standard()` and `expressive()`.
 
-> **Availability:** `MotionScheme`, `MaterialTheme(motionScheme = ...)` and `MaterialExpressiveTheme` are **stable in material3 1.4.0** (no opt-in needed). `MaterialShapes` and the shape-morphing helpers are not - they need 1.5.0-alpha and `@OptIn(ExperimentalMaterial3ExpressiveApi::class)`.
+> **Availability:** `MotionScheme`, `MaterialTheme(motionScheme = ...)` and `MaterialExpressiveTheme` are **stable in material3 1.4.0** (no opt-in needed). `MaterialShapes` and the shape-morphing helpers are not - they need a material3 1.5.0 pre-release (beta since 7 Oct 2026, not yet stable) and `@OptIn(ExperimentalMaterial3ExpressiveApi::class)`.
 
 ### Hero Card Expand (Expressive Springs)
 
@@ -111,7 +111,7 @@ fun ExpressiveHero() {
 Two different libraries, and the split matters:
 
 - `androidx.graphics.shapes:graphics-shapes` (stable **1.1.0**) ships `RoundedPolygon`, `CornerRounding` and `Morph(start, end)`. Its `Morph.toPath(progress)` returns an **`android.graphics.Path`**.
-- The predefined Material shapes (`MaterialShapes.Circle`, `Pentagon`, `Cookie4Sided`, `Sunny`, `Heart`, ...) live in **material3**, not in graphics-shapes. They are still `@ExperimentalMaterial3ExpressiveApi` and ship only in `androidx.compose.material3:material3:1.5.0-alpha*` - they are **not** in stable material3 1.4.0. material3 also adds `Morph.toPath(progress)` returning a **Compose `Path`**, plus `RoundedPolygon.toShape()`.
+- The predefined Material shapes (`MaterialShapes.Circle`, `Pentagon`, `Cookie4Sided`, `Sunny`, `Heart`, ...) live in **material3**, not in graphics-shapes. They are still `@ExperimentalMaterial3ExpressiveApi` and ship only in the `androidx.compose.material3:material3:1.5.0` pre-releases (alphas, then betas from 1.5.0-beta01) - they are **not** in stable material3 1.4.0. material3 also adds `Morph.toPath(progress)` returning a **Compose `Path`**, plus `RoundedPolygon.toShape()`.
 
 Never write `.asAndroidPath().asComposePath()`: with the graphics-shapes import it does not compile (`android.graphics.Path` has no `asAndroidPath()`), and with the material3 import it is a pointless round trip. And because `MaterialShapes` are **normalized to a 0..1 box**, the path must be scaled to the draw size - dropping the raw path into `GenericShape` yields a ~1px shape in the top-left corner.
 

@@ -12,8 +12,8 @@ metadata:
 # Framer Motion - Sub-skill
 
 > **Two package names, one library.** Framer Motion was renamed to Motion. `motion` and
-> `framer-motion` both publish the same version (13.2.0 as of 2026-09-08): `motion` declares
-> `"framer-motion": "^13.2.0"` as a dependency and `motion/react` re-exports it. Neither is
+> `framer-motion` both publish the same version (14.9.0 as of 2026-10-31): `motion` declares
+> `"framer-motion": "14.9.0"` (an exact pin since v14) as a dependency and `motion/react` re-exports it. Neither is
 > broken, and `framer-motion` is still the one most installed projects have.
 >
 > **Read `package.json` and follow what is there.** Do not migrate a project from one to the
@@ -25,7 +25,7 @@ metadata:
 > | `framer-motion` | `"framer-motion"` | `npm install framer-motion` |
 > | both | whichever the file you are editing already imports; say the project is mid-migration | - |
 >
-> Every API in this skill is identical across the two names at v13. Where a symbol is newer
+> Every API in this skill is identical across the two names at v14. Where a symbol is newer
 > than v11, it is flagged inline. Peers: `react` / `react-dom` `^18 || ^19`.
 
 ## When to use Framer Motion vs alternatives

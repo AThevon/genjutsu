@@ -14,8 +14,8 @@ metadata:
 > 3D on the web. Three.js is the engine, R3F is the React renderer.
 > Concise rules here. Deep-dive in `references/`.
 >
-> **Versions:** `three` r185 (`0.185.x`) · `@react-three/fiber` 9.x · `@react-three/drei` 10.x · `@react-three/postprocessing` 3.x.
-> **R3F 9 is React 19 only** - its declared peer range is `react` / `react-dom` `>=19 <19.3` (drei 10 asks `^19`). React 18 projects must stay on R3F 8 + drei 9. Check the installed React major before scaffolding.
+> **Versions:** `three` r187 (`0.187.x`) · `@react-three/fiber` 9.x · `@react-three/drei` 10.x · `@react-three/postprocessing` 3.x.
+> **R3F 9 is React 19 only** - its declared peer range is `react` / `react-dom` `>=19 <19.4` (drei 10 asks `^19`). React 18 projects must stay on R3F 8 + drei 9. Check the installed React major before scaffolding.
 > **Renderers:** `WebGLRenderer` is still R3F's default. `WebGPURenderer` + TSL is shipped (not flagged) and self-falls-back to WebGL 2, but three's docs call it "the new alternative of `WebGLRenderer`", not the default. Opt in with an async `gl` callback:
 > ```tsx
 > import * as THREE from 'three/webgpu'
@@ -78,6 +78,8 @@ useFrame((state, delta) => {
   material.uniforms.uTime.value = state.clock.elapsedTime
 })
 ```
+
+`state.clock` is a `THREE.Clock`, which three deprecated in r183 in favour of `Timer`. R3F 9.8 still creates it, so the console shows that deprecation warning in every R3F app; `state.clock.elapsedTime` keeps working, and the warning is not yours to fix.
 
 ---
 

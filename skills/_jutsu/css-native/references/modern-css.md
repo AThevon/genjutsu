@@ -1,8 +1,8 @@
 # Modern CSS - Browser Support, Fallbacks & Progressive Enhancement
 
-> Last verified: 8 September 2026 - against MDN browser-compat-data, caniuse (data of 2026-08-24) and webstatus.dev.
+> Last verified: 31 October 2026 - against MDN browser-compat-data 8.1.7, web-features 3.44.0, caniuse (data of 2026-10-29) and the Firefox 159 release notes.
 >
-> Reference stable versions at time of writing: Chrome/Edge 153, Firefox 155, Safari 26.6 (Safari 27 in beta).
+> Reference stable versions at time of writing: Chrome 156, Edge 156, Firefox 159, Safari 27.2.
 
 ---
 
@@ -14,12 +14,12 @@
 |---|---|---|
 | Chrome | 115+ | Supported (July 2023) |
 | Edge | 115+ | Supported (July 2023) |
-| Firefox | **Not shipped** | Nightly only, behind `layout.css.scroll-driven-animations.enabled` (on by default in Nightly since 136, off in Beta and Release). `animation-range-start` / `animation-range-end` and `timeline-scope` are still unimplemented even in Nightly ([bug 1676779](https://bugzil.la/1676779)) |
+| Firefox | 159+ | Supported (27 Oct 2026), including `animation-range-start` / `animation-range-end` and `timeline-scope` - **not** in Firefox 158 or earlier |
 | Safari | 26+ | Supported (Sept 2025) - **not** in Safari 18.x |
 
-**Global coverage**: ~84% (derived from caniuse usage data, Aug 2026). Baseline: **Limited availability** - roughly one visitor in six is on Firefox and gets nothing.
+**Global coverage**: ~88% (derived from caniuse usage data, Oct 2026, before Firefox 159 shows up in it). Baseline: all three engines ship it since 27 Oct 2026, so it becomes **Newly available** - web-features had not recomputed it yet at the time of writing. Visitors on Firefox 158 or earlier and Safari 18.x or earlier get nothing.
 
-**The `@supports (animation-timeline: scroll())` guard is mandatory.** Never let a scroll-driven animation be the only thing that makes content visible. Scroll-driven animations are an Interop 2026 focus area, so Firefox intends to ship - but it has not.
+**The `@supports (animation-timeline: scroll())` guard is mandatory.** Never let a scroll-driven animation be the only thing that makes content visible. Firefox only shipped in 159 and Safari in 26, so a real share of visitors still lacks it.
 
 ### View Transitions API
 
@@ -30,7 +30,7 @@
 | `view-transition-class` | 125+ | 125+ | 144+ | 18.2+ |
 | `view-transition-name: match-element` | 137+ | 137+ | 144+ | 18.4+ |
 
-**Global coverage**: same-document ~90%, cross-document ~85%.
+**Global coverage**: same-document ~93%, cross-document ~88%.
 
 **Baseline**: same-document view transitions became **Newly available on 14 Oct 2025** (Firefox 144). Cross-document is still **Limited** - Firefox 144+ implements View Transitions Level 1 only, so `@view-transition { navigation: auto }` is still a no-op there.
 
@@ -45,7 +45,7 @@
 | Firefox | 129+ | Supported |
 | Safari | 17.5+ | Supported |
 
-**Global coverage**: ~90% - Baseline **Newly available since 6 Aug 2024** (Firefox 129 completed it).
+**Global coverage**: ~93% - Baseline **Newly available since 6 Aug 2024** (Firefox 129 completed it).
 
 **The gotcha is not `@starting-style`, it is what you transition with it.** `transition-behavior: allow-discrete` itself is Chrome 117+ / Firefox 129+ / Safari 17.4+, but actually *transitioning* `display` or `content-visibility` with it is **Chrome 117+ and Safari 18+ only - Firefox does not implement it**. In Firefox the enter animation plays and the exit animation is skipped (the element just disappears). That is a graceful degradation, not a bug - but never rely on the exit transition firing.
 
@@ -58,9 +58,9 @@
 | Firefox | 147+ | Supported - enabled by default 13 Jan 2026 |
 | Safari | 26+ | Supported (Sept 2025) |
 
-**Global coverage**: ~84%. All three engines now ship `anchor-name`, `position-anchor`, `position-area`, `@position-try`, `position-try-fallbacks` and `position-visibility`.
+**Global coverage**: ~87%. All three engines now ship `anchor-name`, `position-anchor`, `position-area`, `@position-try`, `position-try-fallbacks` and `position-visibility`.
 
-**Still guard it.** web-features rates anchor positioning **Limited** because sub-features diverge across engines - e.g. `position-anchor: normal` only lands in Chrome 151 / Firefox 151 / Safari 27, and `position-visibility: anchor-visible` is Safari 27 only. Keep `@supports (anchor-name: --a)` plus a `position: absolute` fallback.
+**Still guard it.** web-features rates anchor positioning **Limited** because sub-features diverge across engines - e.g. `position-anchor: normal` only lands in Chrome 151 / Firefox 151 / Safari 27, and `position-visibility: anchor-visible` is Safari 27 and Chrome/Edge 157 only (Chrome 157 reaches stable on 3 Nov 2026; Firefox has not shipped it). Keep `@supports (anchor-name: --a)` plus a `position: absolute` fallback.
 
 **Renames to watch** (old names will silently do nothing): `inset-area` → `position-area`, and `position-try-options` → `position-try-fallbacks` (renamed in Chrome 128). Anchor positioning is an Interop 2026 focus area, carried over from 2025.
 
@@ -73,7 +73,7 @@
 | Style queries on custom properties (`@container style(--x: y)`) | 111+ | 111+ | 151+ | 18+ |
 | Scroll-state queries (`@container scroll-state()`) | 133+ | 133+ | Not yet | Not yet |
 
-**Global coverage**: size queries ~94%; custom-property style queries ~90% - **Baseline Newly available since 19 May 2026** (Firefox 151). Scroll-state queries ~69%.
+**Global coverage**: size queries ~96%; custom-property style queries ~93% - **Baseline Newly available since 19 May 2026** (Firefox 151). Scroll-state queries ~71%.
 
 **Note**: `style()` only accepts **custom properties** in Chrome, Edge and Safari - querying a standard property is not shipped, so `@container style(display: flex)` does nothing. Container style queries are an Interop 2026 focus area.
 
@@ -88,7 +88,7 @@
 | Firefox | 154+ | Supported (18 Aug 2026) |
 | Safari | 26.2+ | Supported (12 Dec 2025) |
 
-**Global coverage**: ~80% - **Baseline Newly available since 18 Aug 2026.**
+**Global coverage**: ~84% - **Baseline Newly available since 18 Aug 2026.**
 
 This kills one of the last real reasons to pull in a JS animation library: the child's index is now a CSS value, so a stagger needs no `nth-child` ladder and no known element count.
 
@@ -112,7 +112,7 @@ Without support every item animates simultaneously - acceptable degradation, so 
 | Firefox | **Not shipped** | - |
 | Safari | **Not shipped** | - |
 
-**Global coverage**: ~70% - Baseline **Limited**, still marked experimental. Chromium-only.
+**Global coverage**: ~72% - Baseline **Limited**, still marked experimental. Chromium-only.
 
 Use it as a bonus layer on top of a `grid-template-rows: 0fr → 1fr` or `max-height` accordion, never as the mechanism. `interpolate-size: allow-keywords` on `:root` opts the whole document in, so scope it deliberately.
 
