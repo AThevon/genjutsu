@@ -32,7 +32,7 @@ For multi-touch (pinch, rotate) and momentum, prefer a maintained library: `@use
 
 ### SwiftUI - Gesture composition
 
-SwiftUI exposes `DragGesture`, `LongPressGesture`, `MagnifyGesture` (iOS 17+, was `MagnificationGesture`), `RotateGesture` (iOS 17+, was `RotationGesture`), and `TapGesture`. Combine via `.simultaneousGesture()`, `.highPriorityGesture()`, or operators (`SequenceGesture`, `SimultaneousGesture`, `ExclusiveGesture`).
+SwiftUI exposes `DragGesture`, `LongPressGesture`, `MagnifyGesture` (iOS 17+, was `MagnificationGesture`, deprecated since iOS 27.2), `RotateGesture` (iOS 17+, was `RotationGesture`, deprecated since iOS 27.2), and `TapGesture`. Combine via `.simultaneousGesture()`, `.highPriorityGesture()`, or operators (`SequenceGesture`, `SimultaneousGesture`, `ExclusiveGesture`).
 
 ```swift
 struct DragToReveal: View {

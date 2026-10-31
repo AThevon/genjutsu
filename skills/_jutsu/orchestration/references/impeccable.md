@@ -7,7 +7,7 @@ its quality floor, its anti-pattern detector, image provenance, and two of its s
 subagents, the finish reviewer and the documenter.
 
 genjutsu never bundles it and never installs it without a yes. The verbs below were checked
-against the Impeccable skill 4.3.1 on 2026-09-30 (`_jutsu/VERSIONS.md`, "Orchestration"). When
+against the Impeccable skill 4.8.0 on 2026-10-31 (`_jutsu/VERSIONS.md`, "Orchestration"). When
 the installed version differs, its own entry file and references win over this page: read them.
 
 ## Finding it
@@ -76,7 +76,8 @@ root.
    critique reference, never as an approved comp.
 6. Serve the page, open its URL for the user, and wait with `--wait --key <key>`, repeating
    while it exits 3. A re-roll answer keeps the page open: re-seed with `--from <seed-key>
-   --reroll <n>` and `--update` the same key. Exit 2 when starting means the page cannot run here:
+   --reroll <n>`, adding `--register <value>` when the answer carries one (plain, safer, bolder),
+   and `--update` the same key. Exit 2 when starting means the page cannot run here:
    ask through the structured question tool. Exit 4, the page closed unanswered: ask once through
    the structured question tool, same options. Never put the same question in a second channel
    while the page is open. If the answer is the canon card, do not ask for comparable products:
@@ -87,8 +88,9 @@ root.
    as the QUALITY BAR card.
 7. Write the contract: `surface-brief write <home route file> <body-file> <every other route
    file>`, the home page as the primary target and every other page related to it. Its body
-   holds THESIS, OWN-WORLD, STORY, FIRST VIEWPORT, FORM (with the seed key the draw printed),
-   FINISH, then the interaction thesis and the allowed patterns. `surface-brief path <home route
+   holds THESIS, OWN-WORLD, STORY, FIRST VIEWPORT, FORM (with the seed reference the draw printed, `seed:` and 16 hex, never the raw seed key; `seed: none (unavailable)` when the draw printed none),
+   FINISH, then the interaction thesis and the allowed patterns. Read the brief back once and check
+   that the six blocks and the seed reference are there before building. `surface-brief path <home route
    file>` gives the file every clone brief and every packet names by absolute path.
 
 ## The finish reviewer

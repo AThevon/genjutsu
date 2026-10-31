@@ -13,7 +13,7 @@ metadata:
 
 > Jetpack Compose animation core. Loaded for Android Compose and Compose Multiplatform projects.
 > Concise rules here. Deep-dive in `references/`.
-> Baseline: Jetpack Compose 1.12.0 (current stable, Aug 2026) - i.e. Compose BOM 2026.08.x. Modern stable APIs only - no `swipeable`, no `animateContentSize` hacks where `AnimatedContent` is correct. Anything below flagged 'Compose 1.x+' is a *since* marker, not the target.
+> Baseline: Jetpack Compose 1.12 (1.12.1 current stable, Sep 2026) - i.e. Compose BOM 2026.09.00. Modern stable APIs only - no `swipeable`, no `animateContentSize` hacks where `AnimatedContent` is correct. Anything below flagged 'Compose 1.x+' is a *since* marker, not the target.
 
 ---
 

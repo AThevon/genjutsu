@@ -2,6 +2,47 @@
 
 All notable changes to this plugin are documented here. Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## v4.1.2 - 2026-10-31
+
+A re-verification pass: every dated row of `skills/_jutsu/VERSIONS.md` was checked again against
+its primary source, and the module text that had gone stale follows. The biggest move is on the
+web: Firefox 159 shipped scroll-driven animations on 27 October, so all three engines now have
+them. The `@supports` guard stays.
+
+### Fixed
+
+- **Scroll-driven animations are no longer "Firefox: not shipped".** Firefox 159 enables them by
+  default, `animation-range-start`, `animation-range-end` and `timeline-scope` included.
+  `css-native` and its `modern-css.md` say so, and the share of visitors who get nothing drops
+  from one in six to about one in eight. Coverage figures across `modern-css.md` follow caniuse
+  data of 2026-10-29, and the reference stable versions are now Chrome 156, Edge 156,
+  Firefox 159 and Safari 27.2.
+- **`<Canvas shadows>` now logs a warning.** three r186 removed `PCFSoftShadowMap`, which a bare
+  `shadows` asks for: the renderer falls back to `PCFShadowMap`, soft now. `scene-setup.md` says
+  to write `shadows="percentage"`. `threejs-r3f` targets r187, gives the widened R3F peer range
+  (`>=19 <19.4`), and says why `state.clock` warns in every R3F app (three deprecated `Clock` in
+  r183, R3F 9.8 still creates one).
+- **motion is at v14.** `framer-motion` publishes 14.9.0, and `motion` now pins it exactly. No
+  public API the skill teaches changed.
+- **Android 16 makes predictive back opt-out.** Apps targeting API 36 get it by default on
+  Android 16 devices, and `onBackPressed` is no longer called. `mobile-principles` says so.
+- **material3 1.5.0 is in beta, still not stable**, and `MaterialShapes` is still
+  `@ExperimentalMaterial3ExpressiveApi`. `compose-graphics` and `m3-expressive-deep.md` no longer
+  say "alpha only". The Compose baseline is 1.12.1 (BOM 2026.09.00), navigation 2.10.2,
+  navigation3 1.2.0, Compose Multiplatform 1.12.2. Two dates in `VERSIONS.md` were wrong:
+  material3 1.4.0 shipped on 2025-09-24, and Compose Multiplatform had a 1.11 line after 1.10.3.
+- **iOS 27 shipped on 14 September, and the SwiftUI rows are re-read against it.** No SwiftUI
+  symbol the modules cite carries a beta flag any more. `MagnificationGesture` and
+  `RotationGesture` are deprecated as of 27.2, and the gesture references say so.
+- **bunshin follows Impeccable 4.8.0.** The direction contract's FORM block now carries the seed
+  reference (`seed:` and 16 hex), never the raw seed key: Impeccable's finish reviewer flags a
+  raw key as a material fix. A re-roll passes `--register` when the answer carries one, and the
+  brief is read back before building.
+- `VERSIONS.md`: every row that could be checked without a human is dated 2026-10-31, whether or
+  not its value moved. The rows still marked `VERIFY-NEEDED` need a session or a browser this
+  pass did not have: the subagent tool on claude.ai and Cowork, a logged-out social profile
+  harvest, four build traps, and the tells catalogue, which waits on an eval ablation.
+
 ## v4.1.1 - 2026-10-04
 
 Typing a request after the slash command broke module loading. `/genjutsu:cast make the pricing

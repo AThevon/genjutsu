@@ -191,7 +191,7 @@ val spec = if (reduceMotion) snap() else tween<Float>(durationMillis = 300)
 
 The five gestures users already know. Reusing them is free UX; reinventing them is friction.
 
-- **Swipe-back:** iOS edge-swipe from the leading edge to pop the navigation stack. Never override; mirror it on Android via predictive back, available since **Android 13 (API 33)** and opted into with `android:enableOnBackInvokedCallback="true"` plus `OnBackPressedCallback` / `PredictiveBackHandler`. On Android 13-14 the animations were behind a developer option; from **Android 15** the system back-to-home / cross-activity / cross-task animations show automatically for opted-in apps.
+- **Swipe-back:** iOS edge-swipe from the leading edge to pop the navigation stack. Never override; mirror it on Android via predictive back, available since **Android 13 (API 33)** and handled with `OnBackPressedCallback` / `PredictiveBackHandler`. On Android 13-14 the animations were behind a developer option; from **Android 15** the system back-to-home / cross-activity / cross-task animations show automatically for opted-in apps (`android:enableOnBackInvokedCallback="true"`). Apps targeting **Android 16 (API 36)** get predictive back by default on Android 16+ devices: `onBackPressed` is no longer called and `KEYCODE_BACK` is not dispatched, so migrate to the callbacks or opt out temporarily with `android:enableOnBackInvokedCallback="false"`.
 - **Pull-to-refresh:** downward drag at the top of a scroll surface to refetch. Standard on feeds, mail, lists.
 - **Drag-to-dismiss:** modal sheets and image viewers close when dragged downward past a threshold (typically 100-150pt).
 - **Pinch-to-zoom:** two-finger spread/pinch on images, maps, and zoomable canvases. Respect minimum/maximum scale.

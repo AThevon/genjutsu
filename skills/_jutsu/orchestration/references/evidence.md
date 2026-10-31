@@ -138,7 +138,7 @@ rows and their sources.
   the build: keep position on a wrapper and the animation on its child.
 - **`<hr>` inherits the browser's grey `color`**: set `color` before painting it with
   `background: currentColor`.
-- **pnpm before 10.26 reads only `onlyBuiltDependencies`, pnpm 11 only `allowBuilds`**, in
+- **pnpm before 10.26 reads only `onlyBuiltDependencies`, pnpm 11 and 12 only `allowBuilds`**, in
   `pnpm-workspace.yaml`. A host that builds with an older pnpm 10 skips the native builds allowed
   only under the new key. Write both. To reproduce the host's install, ask first, then run
   `npx pnpm@10 install --frozen-lockfile` in a scratch copy of the project, never in its own

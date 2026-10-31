@@ -16,7 +16,7 @@ metadata:
 | Situation | Decision |
 |---|---|
 | < 3 animations on the page | CSS native |
-| Scroll-driven reveal/parallax | CSS native (`animation-timeline`), always inside `@supports (animation-timeline: scroll())` with the content visible by default - no Firefox release support |
+| Scroll-driven reveal/parallax | CSS native (`animation-timeline`), always inside `@supports (animation-timeline: scroll())` with the content visible by default - Firefox only since 159 (Oct 2026), Safari only since 26 |
 | Enter/exit from `display: none` | CSS native (`@starting-style` + `transition-behavior: allow-discrete`) |
 | Tooltip/popover positioning | CSS native (anchor positioning) |
 | Page transitions (MPA or SPA) | CSS native (View Transitions API) |
@@ -311,7 +311,7 @@ Shape morphing: transition between `circle()`, `ellipse()`, `polygon()`, `inset(
 |---|---|---|
 | `transition: all 300ms` | `transition: opacity 300ms, transform 300ms` | `all` triggers transitions on every property change, causes unexpected animations, and prevents browser optimization |
 | Animate `width`, `height`, `top`, `left` | Animate `transform`, `opacity`, `clip-path`, `filter` | Layout-triggering properties force reflow on every frame - composite-only properties run on GPU |
-| Scroll-driven animations without fallback | `@supports (animation-timeline: scroll()) { ... }` | Firefox has **no** release-channel support at all (Nightly only, behind `layout.css.scroll-driven-animations.enabled`) and Safari only shipped it in 26 - about one visitor in six sees nothing |
+| Scroll-driven animations without fallback | `@supports (animation-timeline: scroll()) { ... }` | Firefox only shipped it in 159 (27 Oct 2026) and Safari in 26 - about one visitor in eight still sees nothing |
 | `@starting-style` without `transition-behavior` | Always pair with `allow-discrete` for display/overlay | Without it, `display: none` transitions are skipped entirely |
 | Anchor positioning without `position-try-fallbacks` | Always define fallback positions | Element clips out of viewport if primary position has no space |
 | `animation-fill-mode: forwards` on scroll-driven | Use `both` for scroll-driven animations | `forwards` can lock the element in its final state even when scrolling back |

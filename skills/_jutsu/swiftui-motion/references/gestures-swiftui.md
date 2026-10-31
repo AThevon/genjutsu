@@ -67,7 +67,7 @@ Image("photo")
     )
 ```
 
-`value.magnification` is the cumulative pinch ratio since gesture start. Multiply by the previous `lastScale` to compose successive pinches.
+`value.magnification` is the cumulative pinch ratio since gesture start. Multiply by the previous `lastScale` to compose successive pinches. `MagnificationGesture` and `RotationGesture` are deprecated as of iOS / iPadOS / macOS / visionOS 27.2 (renamed to `MagnifyGesture` and `RotateGesture`), so new code should not use them.
 
 ### RotateGesture (iOS 17+, replaces RotationGesture)
 

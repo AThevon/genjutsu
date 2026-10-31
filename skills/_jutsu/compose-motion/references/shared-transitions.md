@@ -1,6 +1,6 @@
 # Shared Element Transitions in Compose
 
-`SharedTransitionLayout` morphs an element's bounds, position, and (with `sharedBounds`) shape between two destinations. The receiver lays out both states in the same coordinate space and interpolates between them. Introduced in Compose 1.7 (then behind `@ExperimentalSharedTransitionApi`) and reshaped since - parameter names below target Compose 1.12.0. This is the canonical hero / detail / picture-in-picture pattern.
+`SharedTransitionLayout` morphs an element's bounds, position, and (with `sharedBounds`) shape between two destinations. The receiver lays out both states in the same coordinate space and interpolates between them. Introduced in Compose 1.7 (then behind `@ExperimentalSharedTransitionApi`) and reshaped since - parameter names below target Compose 1.12. This is the canonical hero / detail / picture-in-picture pattern.
 
 ---
 
@@ -236,7 +236,7 @@ Modifier.sharedBounds(
 
 ## Compose Navigation Integration
 
-With androidx.navigation 2.8+ for Compose (current stable 2.10.0), wrap the `NavHost` in a `SharedTransitionLayout` and use the `composable<Route>` content lambda's own receiver: it is an `AnimatedContentScope`, hence an `AnimatedVisibilityScope`. There is no `LocalNavAnimatedVisibilityScope` in androidx - if you want a CompositionLocal instead of threading the scope through parameters, you declare it yourself. (Navigation 3 *does* ship one, under a different name: `androidx.navigation3.ui.LocalNavAnimatedContentScope`.)
+With androidx.navigation 2.8+ for Compose (current stable 2.10.2), wrap the `NavHost` in a `SharedTransitionLayout` and use the `composable<Route>` content lambda's own receiver: it is an `AnimatedContentScope`, hence an `AnimatedVisibilityScope`. There is no `LocalNavAnimatedVisibilityScope` in androidx - if you want a CompositionLocal instead of threading the scope through parameters, you declare it yourself. (Navigation 3 *does* ship one, under a different name: `androidx.navigation3.ui.LocalNavAnimatedContentScope`.)
 
 ```kotlin
 SharedTransitionLayout {
@@ -260,7 +260,7 @@ SharedTransitionLayout {
 }
 ```
 
-Pass `sts` and `avs` exactly as you would inside a manual `AnimatedContent`. The `composable` lambda IS an `AnimatedVisibilityScope`. Navigation 3 shipped 1.0.0 stable on 19 Nov 2025 (current stable 1.1.7) and the surface is **not** the same: you wrap `NavDisplay` in a `SharedTransitionLayout`, pass the `SharedTransitionScope` down (or straight to `NavDisplay`'s `sharedTransitionScope` parameter), and get the `AnimatedVisibilityScope` from `LocalNavAnimatedContentScope.current` instead of a lambda receiver.
+Pass `sts` and `avs` exactly as you would inside a manual `AnimatedContent`. The `composable` lambda IS an `AnimatedVisibilityScope`. Navigation 3 shipped 1.0.0 stable on 19 Nov 2025 (current stable 1.2.0) and the surface is **not** the same: you wrap `NavDisplay` in a `SharedTransitionLayout`, pass the `SharedTransitionScope` down (or straight to `NavDisplay`'s `sharedTransitionScope` parameter), and get the `AnimatedVisibilityScope` from `LocalNavAnimatedContentScope.current` instead of a lambda receiver.
 
 ---
 

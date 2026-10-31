@@ -6,7 +6,7 @@ metadata:
 ---
 
 > **Version-sensitive.** The workflow tool contract (`scriptPath`, `args`, `agent`, `parallel`,
-> `phase`) and the Impeccable verbs named here were checked on **2026-09-30**. What against is
+> `phase`) and the Impeccable verbs named here were checked on **2026-10-31**. What against is
 > in `_jutsu/VERSIONS.md`, section "Orchestration". If that date is old, re-check before relying
 > on a verb.
 
