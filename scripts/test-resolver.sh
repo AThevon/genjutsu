@@ -33,6 +33,10 @@ WORK="$(mktemp -d "${TMPDIR:-/tmp}/genjutsu-resolver.XXXXXX")"
 # comparison fails on a difference that is not real.
 WORK="$(cd "$WORK" && pwd -P)"
 trap 'rm -rf "$WORK"' EXIT
+# The block runs with its own TMPDIR, so a fixture that plants or looks for a
+# file in TMPDIR (3c, 8) stays inside this run: parallel runs cannot collide, and
+# the file is the one a resolver would really reach, not a path beside it.
+RUN_TMP="$WORK/tmp"; mkdir -p "$RUN_TMP"
 # --bundle <zip>: run every fixture against the files as they ship in the
 # packaged bundle. Packaging renames every inner entry file to GUIDE and
 # rewrites that name in every markdown file, so a block that is right in the
@@ -155,6 +159,7 @@ run_block() {
     CLAUDE_PLUGIN_ROOT="${3:-}"; export CLAUDE_PLUGIN_ROOT
     CLAUDE_SKILL_DIR="${4:-}"; export CLAUDE_SKILL_DIR
     GENJUTSU_SKILL_DIR="${5:-}"; export GENJUTSU_SKILL_DIR
+    TMPDIR="$RUN_TMP"; export TMPDIR
     cd "$2" 2>/dev/null || exit 97
     # shellcheck disable=SC1090
     . "$BLOCK" >/dev/null 2>"$WORK/err"
@@ -193,10 +198,10 @@ check "version ordering is numeric, not lexical" \
 # file, a stale one pointing at the previous release will win here and this fails.
 H="$WORK/t3c/home"; C="$H/.claude/plugins/cache/genjutsu/genjutsu"
 mkdir -p "$WORK/t3c/cwd"; mkplugin "$C/3.1.0"; mkplugin "$C/3.5.0"
-printf '%s\n' "$C/3.1.0/skills/_jutsu" > "${TMPDIR:-/tmp}/genjutsu-skill-base"
+printf '%s\n' "$C/3.1.0/skills/_jutsu" > "$RUN_TMP/genjutsu-skill-base"
 check "a stale cache file must not be consulted" \
   "$C/3.5.0/skills/_jutsu" "$(resolve "$H" "$WORK/t3c/cwd" "")"
-rm -f "${TMPDIR:-/tmp}/genjutsu-skill-base"
+rm -f "$RUN_TMP/genjutsu-skill-base"
 
 # 3d. A newest version directory that is not a genjutsu install (half-deleted
 # during an update) must not shadow the complete one below it.
@@ -239,10 +244,10 @@ check "a \$CLAUDE_PLUGIN_ROOT pointing nowhere is discarded" \
 # none appears, rather than comparing counts, which passes if one already exists.
 H="$WORK/t8/home"
 mkdir -p "$WORK/t8/cwd"; mkbundle "$H/.claude/skills/genjutsu"
-rm -f "${TMPDIR:-/tmp}/genjutsu-skill-base"
+rm -f "$RUN_TMP/genjutsu-skill-base"
 resolve "$H" "$WORK/t8/cwd" "" >/dev/null
 check "writes no cache file" "absent" \
-  "$([ -e "${TMPDIR:-/tmp}/genjutsu-skill-base" ] && echo present || echo absent)"
+  "$([ -e "$RUN_TMP/genjutsu-skill-base" ] && echo present || echo absent)"
 
 # --- 9. Path 1: GENJUTSU_SKILL_DIR set before the block ---------------------
 # Two installs of different versions: a 3.x plugin in the cache and a 4.x
