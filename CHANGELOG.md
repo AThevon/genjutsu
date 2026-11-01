@@ -2,6 +2,26 @@
 
 All notable changes to this plugin are documented here. Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## v4.1.3 - 2026-11-01
+
+A maintenance release: the resolver tests no longer share a file in the system temp directory,
+and CI moves off the deprecated Node 20 runtime. Nothing a skill loads or says changed.
+
+### Fixed
+
+- **The resolver tests isolate their cache fixture per run.** Tests 3c and 8 planted and watched
+  a fixed `genjutsu-skill-base` file in the shared `TMPDIR`, so two runs side by side could
+  collide, and a run could leave the file behind. `run_block` now gives the resolver its own
+  `TMPDIR` inside the run's work directory, removed on exit, and both fixtures use it: the file
+  stays the one a resolver would really read, so a cache read creeping back into the block still
+  fails 3c. Thanks to @dajiaohuang (#34).
+
+### Changed
+
+- **CI runs every action on Node 24.** `actions/checkout` v7.0.1, `actions/setup-python` v7.1.0,
+  `actions/setup-node` v7.1.0 and `softprops/action-gh-release` v3.0.3, still pinned by commit.
+  GitHub was forcing the Node 20 releases onto Node 24 and warning on every run (#36).
+
 ## v4.1.2 - 2026-10-31
 
 A re-verification pass: every dated row of `skills/_jutsu/VERSIONS.md` was checked again against
