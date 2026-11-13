@@ -193,7 +193,9 @@ skipped.
 In such a session every gate still produces its output. What changes is that nobody validates it:
 
 - **Discovery and brainstorm questions:** do not ask them. Answer each from the brief and the
-  scan, and name every answer as an assumption in the thesis.
+  scan, and name every answer as an assumption in the thesis. Read a prohibition in the brief at
+  the scope it states, never wider, and when an assumption takes something out (a picture, a
+  motion, a chosen typeface), say in the thesis what stands in its place.
 - **Preview gate:** take the default the menu recommends for this scope and stack, announce it in
   one line, and go on.
 - **Thesis gate:** take the thesis you would have proposed, say in one line that it is not
@@ -404,7 +406,7 @@ grep -rE 'androidx\.compose|implementation\("androidx\.compose' build.gradle* se
 grep -rE 'org\.jetbrains\.compose|kotlin\("multiplatform"\)|id\("org\.jetbrains\.kotlin\.multiplatform"\)' build.gradle* settings.gradle* 2>/dev/null
 
 # 4. Apple / SwiftUI
-ls *.xcodeproj *.xcworkspace Package.swift 2>/dev/null
+find . -maxdepth 1 \( -name '*.xcodeproj' -o -name '*.xcworkspace' -o -name Package.swift \) 2>/dev/null
 grep -lE 'import SwiftUI|@main.*App' --include="*.swift" -r . 2>/dev/null | head -1
 
 # 5. Apple platform sub-detection (iOS vs macOS)
@@ -416,7 +418,7 @@ grep -rE 'viewport.*width=device-width|@media.*pointer:\s*coarse|@media.*max-wid
 ls public/manifest.json public/sw.js 2>/dev/null
 
 # 7. Legacy bridge indicators (mention in DISCOVER, do not auto-load)
-ls -- *.xib *.storyboard 2>/dev/null
+find . -maxdepth 1 \( -name '*.xib' -o -name '*.storyboard' \) 2>/dev/null
 find . -path '*/res/layout/*.xml' 2>/dev/null | head -1
 grep -rE 'setContentView\(R\.layout' --include='*.kt' --include='*.java' . 2>/dev/null | head -1
 ```
@@ -585,31 +587,31 @@ This gives them an informed choice. If they choose assumptions, name each assump
 
 From the brainstorm, produce two theses:
 
+**First, clear the ground**, with no extra question (light scope and preserve mode skip this; in partial mode it covers only the areas the user named). Name in one line each the page or screen this category publishes by routine, and its predictable opposite: the routine with everything taken out is one too. Then list five concrete worlds the design could draw from, taken from the product's one mechanism and its user's real scene (objects, places, documents, graphic traditions, never another brand's look), in the order they come, before choosing. The first two are the ones any run would reach: set them aside with the routine and its opposite, and write both theses from one of the other three. A world, a reference or an idea the user brought or confirmed in the brainstorm is never a candidate: it is kept as given, the list covers only what they left open, and at the gate they can call back by name anything set aside. Print the outcome under the theses, after the `Allowed patterns:` line, and with them in the final report, as one line: `Set aside: <routine>; <opposite>; <world 1>; <world 2>. Kept: <world>.`
+
 #### Visual Thesis
 
-A single sentence that captures the entire visual identity. **Must explicitly address all four:**
+One sentence for the visual identity, then a labelled `First screen:` line under it, as long as its answers need. Where a gate or a preview asks for the thesis in one sentence, that is the identity sentence, with the labelled line under it. **Must explicitly address all five:**
 
-- **Color direction** - dark/light, palette family, accent color
-- **Typography spirit** - the display face by name and why this one, or `display face: undecided, chosen at the design-system gate`; serif/sans/mono, weight usage, size contrast
-- **Spacing philosophy** - dense/airy, base unit feel
+- **Color direction** - dark/light, palette family, accent color, and the job of each colour: what marks the action, and, when the product has one, what marks the state or signal it exists to show. One mark for both carries its reason
+- **Typography spirit** - the display face by name and why this one, or `display face: undecided, chosen at the design-system gate`; serif/sans/mono, weight usage, size contrast. The system face is a choice like any other and carries its reason too; when no chosen face can be loaded, say what gives the type its voice without one
+- **Spacing philosophy** - dense/airy, base unit feel, and the starting edges and columns every section answers to: one set, or which sections leave it and why. Reading measure is for running text: a table, a figure or a group of cards says what sets its width
 - **Component style** - rounded/sharp, bordered/filled, elevated/flat
+- **First screen** - of what this run composes (a page, a screen, a window): the one thing it shows, beyond a title and an action, that only this product could show, when the product works on values, in those values rather than marks standing for them, and treated as the page says the product treats it; what it is made of (the project's own material, or an example labelled as an example and named in `Allowed patterns:`; an invented customer, metric or quote is a tell, kept only when `Allowed patterns:` names it); on a wide frame (on native, the expanded size class or landscape when the app supports them, otherwise `compact only`), what takes the width, what stays at reading measure, and what stands whole before any scroll; on the narrowest frame it will meet, the form it takes so that the part carrying the idea stays whole and in view, each value beside what names it; and at rest, before any input or motion, it already shows the idea. `Words alone` is an answer only with what then carries the screen. An example takes its values from the brief or the project. When the brief says to invent no figure, it carries no figure the brief does not give, and shows the mechanism with the brief's own material and words (the names of the things compared, the kinds of mismatch, the states), unless the thesis says otherwise with its reason. In preserve or partial mode, it describes the first screen as it stands and what this run adds to it, without recomposing it
 
-> Example: "Dark neo-brutalist interface with bold monospace type, fluorescent chartreuse accents, generous whitespace, raw-edged components with offset shadows."
+**Self-check:** read your thesis back. If any of the five areas is missing or vague ("nice typography", "a clean hero"), rewrite it before presenting.
 
-**Self-check:** read your thesis back. If any of the four areas is missing or vague ("nice typography"), rewrite it before presenting.
-
-**Guessability test:** could someone write this thesis from the product category alone (a fintech gets navy and a clean sans, a design studio gets an editorial serif on paper)? Then it is the category's default, not a decision: rewrite it from what is true of this product.
+**Guessability test:** could someone write this thesis from the product category alone (a fintech gets navy and a clean sans, a design studio gets an editorial serif on paper)? Then it is the category's default, not a decision: rewrite it from what is true of this product. That default with everything taken out is guessable too.
 
 #### Interaction Thesis
 
-A single sentence that captures the motion and interaction language. **Must explicitly address all four:**
+A single sentence that captures the motion and interaction language, then a labelled `The one motion:` line under it. **Must explicitly address all five (four on light scope):**
 
 - **Timing range** - fast (100-200ms), medium (200-400ms), or slow (400ms+)
 - **Hover behavior** - what happens on hover
 - **Scroll behavior** - reveals, parallax, or nothing
 - **Forbidden patterns** - what this project will NOT do
-
-> Example: "Fast and dry transitions (100-200ms), hover with subtle scale (1.02), scroll-triggered reveals with stagger, no bounce or elastic - all sharp ease-out."
+- **The one motion** - the moment where the interface does what the product does, with its trigger, what is on screen before it runs and if it never runs, and its reduced-motion form; or `none`, with what states the idea in its place. Not asked on light scope
 
 **Cross-platform thesis examples:**
 
@@ -627,7 +629,7 @@ clock. Write `Allowed patterns: none` when there are none. The audit reads this 
 counts as allowed only when it is listed here, so a mood word never lets one through, and the
 user sees the list before saying yes.
 
-**This is the first visual gate.** Offer the preview menu (see "Showing Your Work" above), then present both theses in the chosen mode. The visual thesis in particular is worth far more shown than described - "fluorescent chartreuse accents" is a guess until it sits next to the neutrals.
+**This is the first visual gate.** Offer the preview menu (see "Showing Your Work" above), then present both theses in the chosen mode. The visual thesis in particular is worth far more shown than described - an accent colour is a guess until it sits next to the neutrals.
 
 **Wait for explicit user validation of BOTH theses before moving on.** If the user pushes back, don't start over - ask what feels wrong and adjust.
 
@@ -655,18 +657,15 @@ Light scope has no Phase 3, so it sets no dial.
 
 ### Phase 3 - DESIGN SYSTEM
 
-**On a web stack, load `tells` first** (light scope never reaches this phase), in a shell
-call of its own, before the design-system query. Phase 2 ended in a user gate, so re-emit the
-resolution block in that call:
+**On a web stack, load `tells` now, never before the theses are written** (a thesis written with
+the catalogue open is made of what it left), in a shell call of its own, before the design-system
+query. Light scope never reaches this phase. Re-emit the resolution block in that call:
 
 ```bash
 # (skill-base block re-emitted above this line)
 load_skill tells
 load_ref tells references/web.md
 ```
-
-The query below answers from a static dataset that has never seen the project. `tells` is what
-lets you recognise which of its proposals are reflexes the validated thesis never asked for.
 
 Load the `ui-ux-pro-max` sub-skill and **run it**. **Phase 2 ended in a user gate, so this is a
 new shell call and `$SKILL_BASE` no longer exists.** Re-emit the resolution block from "Sub-skills
@@ -724,7 +723,7 @@ describes:
   for it by name.
 - Anything else in the output that `tells` lists as a reflex is held to the same test: named in
   the thesis, or dropped. The one line that says what you took and dropped also says what this
-  filter removed.
+  filter removed, and what the thesis puts where it stood.
 
 **A face this session cannot render is still the face.** A blocked font request or a sandbox
 with no network is a fact about this session, not about the site. When the user has approved a
@@ -747,11 +746,6 @@ request the user has not agreed to, either: ask once, as for any new request. Th
   session.` The audit hands the check over: the page online, the face loaded, the features
   the thesis relies on in place.
 
-paint never passes `--persist`, so the component values hardcoded in the MASTER.md template of
-`design_system.py` never reach the project: MASTER.md is written here, from the validated theses
-and the tokens kept above. If paint ever persists, rewrite those component values from the
-tokens before keeping the file.
-
 If `python3` is unavailable or the script fails, say so in one line and derive the system from
 the thesis by hand. The pipeline does not stop for this.
 
@@ -764,8 +758,6 @@ The MASTER.md design system file is canonical, but the generated **code** files 
 - **SwiftUI stack detected (iOS / macOS / multi-target)**: generate Swift extensions. Output `Color+App.swift`, `Font+App.swift`, `Animation+App.swift`, `Shape+App.swift`. Color tokens via `Color("AssetName")` referencing the asset catalog (or `Color(red:green:blue:)` if no catalog), typography via `Font.system(...)` or `.custom(...)`, animations via `.spring(...)` / `.snappy` / `.bouncy` named presets. Spacing in `CGFloat` constants.
 - **Compose Multiplatform stack detected**: generate Kotlin tokens in `commonMain` with `expect/actual` for fonts and platform-specific colors. Same structure as Android Compose, plus a section in MASTER.md describing per-platform deviations.
 - **Multi-stack project** (e.g., web admin + native mobile app): generate MASTER.md with clearly delimited sections for each stack, and produce code files for each.
-
-The MASTER.md document itself remains a single canonical source-of-truth file. The generated code files (Theme.kt / Color+App.swift / etc.) are children of MASTER.md and reference it.
 
 Generate the complete design system based on both theses:
 
@@ -781,14 +773,8 @@ Generate the complete design system based on both theses:
 
 Create a `MASTER.md` at project root with the full design system. This file is the single source of truth. Every implementation decision references it.
 
-#### MCP Tools (if available)
-
-Check if these MCPs are connected and use them when available:
-- **Stitch** - Generate mockups/wireframes
-- **Nano Banana** - Generate visual assets (illustrations, icons, backgrounds)
-- **21st.dev Magic** - Generate UI components from descriptions
-
-If MCPs are not available, skip gracefully - the design system + code implementation is the core path.
+**MCP tools, when connected:** Stitch (mockups), Nano Banana (visual assets), 21st.dev Magic
+(components). Without them, carry on: the design system and the code are the core path.
 
 #### Show it before Phase 4
 
@@ -827,7 +813,7 @@ module not loaded.
 | Audit explicitly requested OR scope=full | `load_skill design-audit` |
 | Advanced UI/UX questions | `load_skill ui-ux-pro-max` |
 
-**`tells` gets a shell call of its own.** With its web reference it weighs about 20,000
+**`tells` gets a shell call of its own.** With its web reference it weighs close to 25,000
 characters, too close to the point where a shell call's output stops arriving inline to share a
 call with any other module. Re-emit the skill-base block in that call, then:
 
@@ -837,10 +823,11 @@ load_skill tells
 load_ref tells references/web.md
 ```
 
-It loads after the thesis gate and before any visual choice is frozen: the validated thesis says
-which patterns are wanted, and `tells` names the reflexes nobody asked for. Never on a Compose or
-SwiftUI stack, never on light scope. In paint this row is already met: Phase 3 loads `tells`
-before the design-system query.
+It loads once the thesis is written and, when someone is there to answer, validated; never
+before that, and before any visual choice is frozen: the thesis says which patterns are wanted,
+and `tells` names the reflexes nobody asked for. Never on a Compose or SwiftUI stack, never on
+light scope. In paint this row is already met: Phase 3 loads `tells` before the design-system
+query.
 
 **Stack-specific** (load by SCAN):
 
@@ -868,11 +855,62 @@ The thesis is "advanced" (and triggers loading the graphics sub-skill) if it con
 Otherwise stick to the base motion sub-skill.
 <!-- genjutsu:shared:load:end -->
 
+<!-- genjutsu:shared:thesis-modules:start -->
+**Read the thesis against the modules, before any code.** The thesis (in paint, both) was
+written before these modules loaded, so nothing they teach has borne on it yet. After the last
+load of this step, and before the variants or the first line of code, walk the rules of each
+loaded module that bear on what the thesis promises. A gap is one of two things: the thesis
+builds by hand what a module says the platform or the detected library provides (an overlay
+drawn by hand where the module starts from the system transition), or the thesis gives up
+something a module rule protects (a system gesture, reduced motion, a frame budget). A value or
+a device the thesis chose where a module gives a range or a starting point is a decision, not a
+gap: the audit check reads it later, on the code. A departure the approved thesis already
+names, with what it gives up, is not a gap: the person accepted it. Print one line per gap,
+`<module>, <rule> - <what the thesis does instead>`, or `Thesis against modules: no gap`, and
+go on.
+
+This step runs once. When the revised thesis calls for a module that is not loaded, load it and
+read the revised thesis against that module alone; a thesis revised here is not revised a second
+time, and what is left goes to the audit check.
+
+- **Someone is there.** A thesis a person approved is never changed silently. Give each gap in
+  one line, numbered, with what the module's way keeps and what it cannot do, and ask once:
+  revise or keep, per number. A revise changes only what the gap touches. A keep adds one
+  sentence to the thesis: the departure, what it gives up and what replaces each thing given
+  up. Show the thesis once, with every revision and every keep sentence in it, and wait for a
+  yes.
+- **Nobody is answering.** A thesis the request itself gave or approved stands as approved:
+  build it, and list each gap in the final report. Otherwise nobody accepted the cost,
+  so the module's way stands: rewrite the thesis on it, changing only what the gap touches,
+  print the revised thesis whole, marked UNVALIDATED, with one line under it,
+  `Revised after LOAD: <what changed> - <module, rule>`, and build that one. The final report
+  prints the revised thesis and that line. Keep a departure only when the request asks, in its
+  own words, for a result the module's way cannot give: quote those words in the thesis, with
+  what is given up and what replaces it. A request asks for a result: what the person sees and
+  can do. Words that rule a technique out ("not a push") are read the same way: they ask for
+  what is seen, so a module's way that gives that look and keeps what the person can do answers
+  them, whatever the API underneath is called. The technique the thesis chose is not the
+  request, and a reason that comes from the thesis alone keeps nothing.
+- **The preview made before LOAD shows the earlier thesis**, and nothing is built from it. With
+  someone there, show the revised thesis again in the session's mode when the revision changes
+  what the preview showed (the movement, the curve, a number), in one line otherwise. With
+  nobody answering, do not rebuild it: a preview file still in the project gets a first visible
+  line, `Shows the thesis before its revision after LOAD`, and the final report says so.
+
+The audit check "Loaded modules against code" still runs afterwards, on the code.
+<!-- genjutsu:shared:thesis-modules:end -->
+
+In paint, a revision made here that changes a value MASTER.md or a token file holds is
+written into them in the same step, before any page. With someone there, the yes that accepts
+the revision covers that change.
+
 Implementation rules:
 - Work **page by page** or **component by component** - never try to do everything at once.
-- Every color, font, spacing, shadow, radius MUST come from MASTER.md tokens. No magic numbers.
+- Every color, font, spacing, shadow, radius MUST come from MASTER.md tokens. No magic numbers. A colour keeps the job the thesis gave it.
 - Every animation MUST respect the interaction thesis (timing, easing, forbidden patterns).
 - Apply the 5-state rule for interactive elements: **default, hover, focus, active, disabled**.
+- Every block wider than a line of text (a table, a figure, a row of columns, a long unbroken string) gets its narrowest-frame form in the same edit that writes it, on native at the compact width and the largest text size: what it becomes there is a decision, never what is left over, and each value stays beside what names it (its header, its unit).
+- A stretch whose content arrives by scroll, script or input holds its resting content without them. A stretch or an area left empty is a decision the thesis states, or it is closed. A section or screen adds something no earlier one showed; one that only restates is merged into the one it repeats. These rules govern what this run writes: a section that was already in the project is never merged or closed by them.
 - Ask the user for validation after each major page/section before moving to the next.
 
 ---
@@ -887,6 +925,17 @@ load_skill design-audit
 ```
 
 Run the full audit checklist matching the detected stack. `design-audit` supplies the greps; the split below decides what you may claim from them.
+
+**Before the checklist, outside light scope, read what this run composed from the code**, in render order (the markup, the root composable, the root view), and write six labelled entries, each with its `file:line`:
+
+- `First screen:` what it shows that the visual thesis names there, in the product's own values when it works on values, and treated as the page says the product treats it; that it shows it at rest, from the values the code starts with, before any input, scroll or script; and, from the sizes the code sets, what of it stands whole before any scroll on a short wide frame.
+- `Sections:` on a wide frame, for the first screen and then each section in order, one line per section: what it adds that no earlier one showed, which starting edge it aligns to, and for each block that is not running text the width it takes and what sets it; two sections that differ carry the thesis's reason, and one that only restates is merged into the one it repeats.
+- `Narrowest frame:` what the first screen's one thing and every block wider than a line of text become on the narrowest frame the project meets (on native, the compact width at the largest text size), with the rule that does it; a part that carries the idea and leaves the frame, is cut there or loses what names its values is a problem.
+- `Empty stretches:` every stretch that holds nothing at rest (content that only scroll, script or input brings counts as nothing) and every area left unused beside a block, each with the thesis's reason, or `none`.
+- `Colour roles:` each accent and status colour with every job it does; one mark serving both the action and the signal the product exists to show carries the thesis's reason, or the signal gets its own.
+- `The one motion:` where it lives, or `none` with the thesis's reason.
+
+A promise that comes back `not found` is built from the thesis; a missing rule is written; an edge, a width, an empty area or a colour job nobody decided gets its decision, stated in that line. One round, on the lines this run wrote, before the checks below. With someone answering, merging a section they validated, or taking a decision the validated thesis does not hold, is proposed in one line before it is applied; only a headless run decides alone. On native, the wide frame is the expanded size class or landscape when the app supports them, otherwise write `compact only`; a section is a screen of the flow or a block of the root screen; a script is an effect or an async task. In preserve or partial mode, the entries describe what stands and what this run added to it. The six entries open the checked group of the final report and are not counted in its checks; a report asked short keeps them, one line each.
 
 <!-- genjutsu:shared:audit:start -->
 The closing step of this pipeline used to be twenty-five checkboxes, several of which name a
@@ -954,6 +1003,18 @@ finding, and an item you could not check is reported as **not checked** rather t
       never changed here: it is listed for the user. Nothing on the protected list of an existing
       project (public token names, URLs, navigation labels, form field names, logo, legal mentions)
       is changed by this step.
+- [ ] **Loaded modules against code.** For each module loaded, walk its rules that bear on the
+      lines this run wrote (read `git diff` when the project has one) and report every rule the
+      code departs from, with its `file:line`, unless a check above already reported it. A module
+      rule is a default with its reason, so a departure has two outcomes, never a third:
+      **licensed by the thesis**, quoting the sentence of the validated thesis that names the
+      departure and everything it gives up; or **a problem**. A sentence that exists only in the
+      code or in the final report licenses nothing, and neither does a thesis marked UNVALIDATED:
+      what it states is a problem, reported with the sentence quoted so the user can accept it.
+      Fix a problem that one local edit removes, then run this check again, once; report the
+      rest. Evidence: one line per departure, e.g.
+      `mobile-principles, swipe-back - Detail.swift:94 - problem`, or the modules walked and
+      "no departure".
 
 ### You must run these - not verified here
 
@@ -1041,9 +1102,6 @@ equivalent) on web, `./gradlew assembleDebug` on Android, `xcodebuild -scheme <s
 Apple. When the build cannot run here, hand it over marked **UNVERIFIED** with the exact command,
 like the handed-over group of the audit.
 
-The mode answers "rebuild or enhance?" inside paint: preserve mode enhances a brand without
-replacing it. `/genjutsu:cast` stays the entry point for one effect or one component.
-
 ---
 
 ## Red Flags - You're About to Violate This Skill
@@ -1053,15 +1111,9 @@ replacing it. `/genjutsu:cast` stays the entry point for one effect or one compo
 | "The user already said 'minimal dark' - I have enough for a thesis" | Two words aren't five domains. Keep asking. |
 | "I'll ask all five brainstorm questions at once" | One at a time. The answer to 'audience' changes how you ask about 'mood'. |
 | "The user seems impatient, let's skip to coding" | Use the pressure protocol. A bad thesis costs days, not minutes. |
-| "I'll pick colors that feel right" | Every token comes from MASTER.md. No freelancing. |
-| "I'll do the whole site in one pass" | Page by page. Validate page by page. |
 | "This animation would be cool even though the thesis says no bounce" | The thesis is law. Change it? Re-validate with the user first. |
 | "The audit can wait, the user seems happy" | The audit is not optional. Phase 5 always runs - shortened on light scope, never skipped. |
-| "The audit items all look fine, I'll tick them" | A tick is not a finding. Report the grep, the ratio, the file:line - or report it as not checked. |
-| "I can't profile, so I'll leave that part out" | The handoff block is the deliverable for those. Omitting it reads as a pass. |
-| "I'll interpret 'yeah something like that' as a yes" | That's not confirmation. Ask which part resonates. |
-| "I'll list the palette as hex codes, that's precise" | Precise and unreviewable. Show it in the session's preview mode. |
-| "I'll ask again how they want to see the design system" | Asked once, sticks for the session. Announce the mode and go. |
-| "The preview page looks good, I'll build the app from it" | The preview is throwaway. Build from MASTER.md. |
+| "Nobody is answering, so the safest thesis is the one that promises least" | A thesis that shows nothing passes every check and loses the page. Name the first screen and the one motion, or what stands in their place. |
+| "The modules say otherwise, but the thesis is written, the audit will list it" | The audit comes after the code. Read the thesis against the modules right after LOAD: ask, or with nobody there revise it, unless the request approved it. |
 | "I can't render the approved font here, the system face is safer" | The sandbox is not the site. Load the approved face behind a matched fallback and say it was not rendered here. |
 | "This is a whole site, I'll switch to bunshin, it is clearly better" | Propose it once, with its cost, and switch only on a yes. It spends millions of tokens. |

@@ -270,7 +270,9 @@ skipped.
 In such a session every gate still produces its output. What changes is that nobody validates it:
 
 - **Discovery and brainstorm questions:** do not ask them. Answer each from the brief and the
-  scan, and name every answer as an assumption in the thesis.
+  scan, and name every answer as an assumption in the thesis. Read a prohibition in the brief at
+  the scope it states, never wider, and when an assumption takes something out (a picture, a
+  motion, a chosen typeface), say in the thesis what stands in its place.
 - **Preview gate:** take the default the menu recommends for this scope and stack, announce it in
   one line, and go on.
 - **Thesis gate:** take the thesis you would have proposed, say in one line that it is not
@@ -512,7 +514,7 @@ grep -rE 'androidx\.compose|implementation\("androidx\.compose' build.gradle* se
 grep -rE 'org\.jetbrains\.compose|kotlin\("multiplatform"\)|id\("org\.jetbrains\.kotlin\.multiplatform"\)' build.gradle* settings.gradle* 2>/dev/null
 
 # 4. Apple / SwiftUI
-ls *.xcodeproj *.xcworkspace Package.swift 2>/dev/null
+find . -maxdepth 1 \( -name '*.xcodeproj' -o -name '*.xcworkspace' -o -name Package.swift \) 2>/dev/null
 grep -lE 'import SwiftUI|@main.*App' --include="*.swift" -r . 2>/dev/null | head -1
 
 # 5. Apple platform sub-detection (iOS vs macOS)
@@ -524,7 +526,7 @@ grep -rE 'viewport.*width=device-width|@media.*pointer:\s*coarse|@media.*max-wid
 ls public/manifest.json public/sw.js 2>/dev/null
 
 # 7. Legacy bridge indicators (mention in DISCOVER, do not auto-load)
-ls -- *.xib *.storyboard 2>/dev/null
+find . -maxdepth 1 \( -name '*.xib' -o -name '*.storyboard' \) 2>/dev/null
 find . -path '*/res/layout/*.xml' 2>/dev/null | head -1
 grep -rE 'setContentView\(R\.layout' --include='*.kt' --include='*.java' . 2>/dev/null | head -1
 ```
@@ -664,7 +666,7 @@ module not loaded.
 | Audit explicitly requested OR scope=full | `load_skill design-audit` |
 | Advanced UI/UX questions | `load_skill ui-ux-pro-max` |
 
-**`tells` gets a shell call of its own.** With its web reference it weighs about 20,000
+**`tells` gets a shell call of its own.** With its web reference it weighs close to 25,000
 characters, too close to the point where a shell call's output stops arriving inline to share a
 call with any other module. Re-emit the skill-base block in that call, then:
 
@@ -674,10 +676,11 @@ load_skill tells
 load_ref tells references/web.md
 ```
 
-It loads after the thesis gate and before any visual choice is frozen: the validated thesis says
-which patterns are wanted, and `tells` names the reflexes nobody asked for. Never on a Compose or
-SwiftUI stack, never on light scope. In paint this row is already met: Phase 3 loads `tells`
-before the design-system query.
+It loads once the thesis is written and, when someone is there to answer, validated; never
+before that, and before any visual choice is frozen: the thesis says which patterns are wanted,
+and `tells` names the reflexes nobody asked for. Never on a Compose or SwiftUI stack, never on
+light scope. In paint this row is already met: Phase 3 loads `tells` before the design-system
+query.
 
 **Stack-specific** (load by SCAN):
 
@@ -915,6 +918,18 @@ finding, and an item you could not check is reported as **not checked** rather t
       never changed here: it is listed for the user. Nothing on the protected list of an existing
       project (public token names, URLs, navigation labels, form field names, logo, legal mentions)
       is changed by this step.
+- [ ] **Loaded modules against code.** For each module loaded, walk its rules that bear on the
+      lines this run wrote (read `git diff` when the project has one) and report every rule the
+      code departs from, with its `file:line`, unless a check above already reported it. A module
+      rule is a default with its reason, so a departure has two outcomes, never a third:
+      **licensed by the thesis**, quoting the sentence of the validated thesis that names the
+      departure and everything it gives up; or **a problem**. A sentence that exists only in the
+      code or in the final report licenses nothing, and neither does a thesis marked UNVALIDATED:
+      what it states is a problem, reported with the sentence quoted so the user can accept it.
+      Fix a problem that one local edit removes, then run this check again, once; report the
+      rest. Evidence: one line per departure, e.g.
+      `mobile-principles, swipe-back - Detail.swift:94 - problem`, or the modules walked and
+      "no departure".
 
 ### You must run these - not verified here
 

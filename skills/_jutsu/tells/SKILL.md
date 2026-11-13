@@ -11,7 +11,8 @@ A tell is a default the thesis never asked for.
 
 That sentence is the module. The rest explains how to recognise one, how to write one down, and
 what to do with it once found. Nothing here names a replacement: a replacement would only be
-the next default, and genjutsu does not ship a look.
+the next default, and genjutsu does not ship a look. But a tell taken out leaves a place, and an
+empty place is a default too: the thesis says what stands there, or that nothing does and why.
 
 ## The rule: the thesis is the only authority
 
@@ -64,10 +65,10 @@ On a Compose or SwiftUI stack this module is not loaded at all.
 
 ## Protocol
 
-**When it loads.** After the thesis gate, before any visual choice is frozen. In cast that is the
-LOAD step. In paint it is Phase 3, before the design-system query, so that the dataset's proposal
-passes through it. It gets a shell call of its own: with `references/web.md` it is too long to
-share a call with another module without the output being cut.
+**When it loads.** Once the thesis is written and, when someone is there to answer, validated;
+never before that, and before any visual choice is frozen. In cast that is the LOAD step. In
+paint it is Phase 3, before the design-system query, so that the dataset's proposal passes
+through it.
 
 **Right after it loads,** read the thesis's `Allowed patterns:` line against this catalogue. When
 it allows entries catalogued here, say so to the user in one line at the next gate (paint: with
@@ -77,15 +78,15 @@ A validated thesis may keep a reflex. It never keeps one unnoticed.
 
 **While writing.** Read a family's test before writing what it governs: the copy against Hollow
 copy, every number and name against Invented information, the layout pass against Reflex
-convergence, each ornament against Decorative filler. The cheapest tell is the one never written.
+convergence, each ornament against Decorative filler. The cheapest tell is the one never written;
+what stands in its place is the thesis's to say.
 
 **At audit.** `audit.py --group tells` reports what it can see, and each finding is confronted with
 the thesis before it counts:
 
 1. Look for the pattern in the validated thesis's `Allowed patterns:` line.
 2. Found: list the finding as **allowed by the thesis**, with that entry quoted.
-3. The detection contradicts the entry's own marker (a loop that reports a real loading state, a
-   modal backdrop, a matched line that is not displayed text): list it as **not this tell**, with the
+3. The detection contradicts the entry's own marker: list it as **not this tell**, with the
    `file:line` that proves it. Never on a matter of taste.
 4. Otherwise it is a problem. Fix it only on the lines this run wrote, run the check again (two
    passes at most), and count what remains with the other problems. A tell that was already in the
@@ -127,7 +128,8 @@ content file, is invisible to it. A clean text check means the markup is clean, 
 
 What stays a manual read, because no pattern can judge it:
 
-- a fake product drawn in divs: a dashboard, a terminal or a task list built from styled boxes;
+- a fake product drawn in divs: a dashboard, a terminal or a task list built from styled boxes
+  and passed off as the product;
 - one layout family repeated from section to section;
 - a headline on one side with a small paragraph floating in the opposite corner;
 - the copy register drifting between sections;

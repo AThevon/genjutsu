@@ -137,7 +137,9 @@ skipped.
 In such a session every gate still produces its output. What changes is that nobody validates it:
 
 - **Discovery and brainstorm questions:** do not ask them. Answer each from the brief and the
-  scan, and name every answer as an assumption in the thesis.
+  scan, and name every answer as an assumption in the thesis. Read a prohibition in the brief at
+  the scope it states, never wider, and when an assumption takes something out (a picture, a
+  motion, a chosen typeface), say in the thesis what stands in its place.
 - **Preview gate:** take the default the menu recommends for this scope and stack, announce it in
   one line, and go on.
 - **Thesis gate:** take the thesis you would have proposed, say in one line that it is not
@@ -172,7 +174,7 @@ grep -rE 'androidx\.compose|implementation\("androidx\.compose' build.gradle* se
 grep -rE 'org\.jetbrains\.compose|kotlin\("multiplatform"\)|id\("org\.jetbrains\.kotlin\.multiplatform"\)' build.gradle* settings.gradle* 2>/dev/null
 
 # 4. Apple / SwiftUI
-ls *.xcodeproj *.xcworkspace Package.swift 2>/dev/null
+find . -maxdepth 1 \( -name '*.xcodeproj' -o -name '*.xcworkspace' -o -name Package.swift \) 2>/dev/null
 grep -lE 'import SwiftUI|@main.*App' --include="*.swift" -r . 2>/dev/null | head -1
 
 # 5. Apple platform sub-detection (iOS vs macOS)
@@ -184,7 +186,7 @@ grep -rE 'viewport.*width=device-width|@media.*pointer:\s*coarse|@media.*max-wid
 ls public/manifest.json public/sw.js 2>/dev/null
 
 # 7. Legacy bridge indicators (mention in DISCOVER, do not auto-load)
-ls -- *.xib *.storyboard 2>/dev/null
+find . -maxdepth 1 \( -name '*.xib' -o -name '*.storyboard' \) 2>/dev/null
 find . -path '*/res/layout/*.xml' 2>/dev/null | head -1
 grep -rE 'setContentView\(R\.layout' --include='*.kt' --include='*.java' . 2>/dev/null | head -1
 ```
@@ -540,7 +542,7 @@ module not loaded.
 | Audit explicitly requested OR scope=full | `load_skill design-audit` |
 | Advanced UI/UX questions | `load_skill ui-ux-pro-max` |
 
-**`tells` gets a shell call of its own.** With its web reference it weighs about 20,000
+**`tells` gets a shell call of its own.** With its web reference it weighs close to 25,000
 characters, too close to the point where a shell call's output stops arriving inline to share a
 call with any other module. Re-emit the skill-base block in that call, then:
 
@@ -550,10 +552,11 @@ load_skill tells
 load_ref tells references/web.md
 ```
 
-It loads after the thesis gate and before any visual choice is frozen: the validated thesis says
-which patterns are wanted, and `tells` names the reflexes nobody asked for. Never on a Compose or
-SwiftUI stack, never on light scope. In paint this row is already met: Phase 3 loads `tells`
-before the design-system query.
+It loads once the thesis is written and, when someone is there to answer, validated; never
+before that, and before any visual choice is frozen: the thesis says which patterns are wanted,
+and `tells` names the reflexes nobody asked for. Never on a Compose or SwiftUI stack, never on
+light scope. In paint this row is already met: Phase 3 loads `tells` before the design-system
+query.
 
 **Stack-specific** (load by SCAN):
 
@@ -580,6 +583,51 @@ The thesis is "advanced" (and triggers loading the graphics sub-skill) if it con
 
 Otherwise stick to the base motion sub-skill.
 <!-- genjutsu:shared:load:end -->
+
+<!-- genjutsu:shared:thesis-modules:start -->
+**Read the thesis against the modules, before any code.** The thesis (in paint, both) was
+written before these modules loaded, so nothing they teach has borne on it yet. After the last
+load of this step, and before the variants or the first line of code, walk the rules of each
+loaded module that bear on what the thesis promises. A gap is one of two things: the thesis
+builds by hand what a module says the platform or the detected library provides (an overlay
+drawn by hand where the module starts from the system transition), or the thesis gives up
+something a module rule protects (a system gesture, reduced motion, a frame budget). A value or
+a device the thesis chose where a module gives a range or a starting point is a decision, not a
+gap: the audit check reads it later, on the code. A departure the approved thesis already
+names, with what it gives up, is not a gap: the person accepted it. Print one line per gap,
+`<module>, <rule> - <what the thesis does instead>`, or `Thesis against modules: no gap`, and
+go on.
+
+This step runs once. When the revised thesis calls for a module that is not loaded, load it and
+read the revised thesis against that module alone; a thesis revised here is not revised a second
+time, and what is left goes to the audit check.
+
+- **Someone is there.** A thesis a person approved is never changed silently. Give each gap in
+  one line, numbered, with what the module's way keeps and what it cannot do, and ask once:
+  revise or keep, per number. A revise changes only what the gap touches. A keep adds one
+  sentence to the thesis: the departure, what it gives up and what replaces each thing given
+  up. Show the thesis once, with every revision and every keep sentence in it, and wait for a
+  yes.
+- **Nobody is answering.** A thesis the request itself gave or approved stands as approved:
+  build it, and list each gap in the final report. Otherwise nobody accepted the cost,
+  so the module's way stands: rewrite the thesis on it, changing only what the gap touches,
+  print the revised thesis whole, marked UNVALIDATED, with one line under it,
+  `Revised after LOAD: <what changed> - <module, rule>`, and build that one. The final report
+  prints the revised thesis and that line. Keep a departure only when the request asks, in its
+  own words, for a result the module's way cannot give: quote those words in the thesis, with
+  what is given up and what replaces it. A request asks for a result: what the person sees and
+  can do. Words that rule a technique out ("not a push") are read the same way: they ask for
+  what is seen, so a module's way that gives that look and keeps what the person can do answers
+  them, whatever the API underneath is called. The technique the thesis chose is not the
+  request, and a reason that comes from the thesis alone keeps nothing.
+- **The preview made before LOAD shows the earlier thesis**, and nothing is built from it. With
+  someone there, show the revised thesis again in the session's mode when the revision changes
+  what the preview showed (the movement, the curve, a number), in one line otherwise. With
+  nobody answering, do not rebuild it: a preview file still in the project gets a first visible
+  line, `Shows the thesis before its revision after LOAD`, and the final report says so.
+
+The audit check "Loaded modules against code" still runs afterwards, on the code.
+<!-- genjutsu:shared:thesis-modules:end -->
 
 ### 6. IMPLEMENT - Code while respecting the loaded principles
 
@@ -671,6 +719,18 @@ finding, and an item you could not check is reported as **not checked** rather t
       never changed here: it is listed for the user. Nothing on the protected list of an existing
       project (public token names, URLs, navigation labels, form field names, logo, legal mentions)
       is changed by this step.
+- [ ] **Loaded modules against code.** For each module loaded, walk its rules that bear on the
+      lines this run wrote (read `git diff` when the project has one) and report every rule the
+      code departs from, with its `file:line`, unless a check above already reported it. A module
+      rule is a default with its reason, so a departure has two outcomes, never a third:
+      **licensed by the thesis**, quoting the sentence of the validated thesis that names the
+      departure and everything it gives up; or **a problem**. A sentence that exists only in the
+      code or in the final report licenses nothing, and neither does a thesis marked UNVALIDATED:
+      what it states is a problem, reported with the sentence quoted so the user can accept it.
+      Fix a problem that one local edit removes, then run this check again, once; report the
+      rest. Evidence: one line per departure, e.g.
+      `mobile-principles, swipe-back - Detail.swift:94 - problem`, or the modules walked and
+      "no departure".
 
 ### You must run these - not verified here
 
@@ -750,6 +810,7 @@ the form.
 | "I can't profile, so I'll leave that part out" | The handoff block is the deliverable for those. Omitting it reads as a pass. |
 | "The thesis sentence is clear, I'll just write it out" | A sentence can't carry an easing curve. Offer the preview menu first. |
 | "I'll ask again how they want to see the variants" | Asked once, sticks for the session. Announce the mode and go. |
+| "The modules say otherwise, but the thesis is written, the audit will list it" | The audit comes after the code. Read the thesis against the modules right after LOAD: ask, or with nobody there revise it, unless the request approved it. |
 | "The preview looks great, I'll port it into the app" | The preview is throwaway. Build from the thesis and the loaded sub-skills. |
 | "This is a whole site, I'll switch to bunshin, it is clearly better" | Propose it once, with its cost, and switch only on a yes. It spends millions of tokens. |
 
@@ -776,6 +837,9 @@ Creative request received
   |     +- Rejected? → ask what feels wrong, adjust
   |
   +- LOAD: motion-principles + stack skills
+  |
+  +- THESIS AGAINST MODULES: a gap? → someone there: ask, revise or keep
+  |                                   nobody: revise the thesis, print it, build that
   |
   +- IMPLEMENT: code (variants if medium/full, shown in the chosen mode, present before coding)
   |

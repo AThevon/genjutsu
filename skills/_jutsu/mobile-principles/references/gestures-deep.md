@@ -40,7 +40,7 @@ struct DragToReveal: View {
 
   var body: some View {
     let press = LongPressGesture(minimumDuration: 0.2)
-    let drag = DragGesture()
+    let drag = DragGesture(coordinateSpace: .global)
       .onChanged { offset = $0.translation }
       .onEnded { _ in withAnimation(.spring) { offset = .zero } }
 

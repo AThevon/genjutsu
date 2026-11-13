@@ -44,7 +44,7 @@ body:
     attributes:
       label: genjutsu version
       description: The version field in .claude-plugin/plugin.json, or the release you installed. Leave it empty if you do not know.
-      placeholder: "4.1.4"
+      placeholder: "4.2.0"
 
   - type: input
     id: host

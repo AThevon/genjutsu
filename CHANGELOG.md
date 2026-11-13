@@ -2,6 +2,242 @@
 
 All notable changes to this plugin are documented here. Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## v4.2.0 - 2026-11-13
+
+A `paint` run with nobody to answer used to come out empty: a title, a button, and nothing only
+this product could show. The thesis now has to name a first screen, the job of each colour and
+the one motion, and to say what stands in place of anything an assumption takes out. When the
+brief says to invent no figure, the example on that first screen carries none. On our one minimal
+landing brief the pages are no longer empty. On SwiftUI, the modules now teach the system zoom
+transition for a row that opens a screen, which keeps the navigation stack and the swipe back,
+and cast reads its thesis against the loaded modules before any code. Of five runs of one case on
+those modules, four used the system transition and one built it by hand, and nothing shows yet
+that the new text caused the four. A run costs more than before, not less.
+
+### Changed
+
+- **paint clears the ground before the theses.** It names the page this category publishes by
+  routine and its predictable opposite, lists five worlds the design could draw from, sets the
+  first two aside and writes both theses from one of the other three. What the user brought or
+  confirmed is kept as given. The outcome is one line, `Set aside: ... Kept: ...`, under the
+  theses and in the final report. Light scope and preserve mode skip it.
+- **The visual thesis has a fifth point, `First screen:`**, a labelled line under the identity
+  sentence: the one thing the screen shows that only this product could show, what it is made of
+  (the project's own material, or an example labelled as an example), what takes the width on a
+  wide frame, the form it takes on the narrowest frame, and that it already shows the idea at
+  rest. The colour point gives each colour its job, the typography point asks for the reason
+  behind a system face, the spacing point names the edges and columns every section answers to.
+- **An example on the first screen takes its values from the brief or the project**, and is
+  named in `Allowed patterns:`. When the brief says to invent no figure, the example carries no
+  figure the brief does not give: it shows the mechanism with the brief's own material and words
+  (the names of the things compared, the kinds of mismatch, the states), unless the thesis says
+  otherwise with its reason.
+- **The interaction thesis has a fifth point, `The one motion:`**: the moment where the interface
+  does what the product does, with its trigger, what is on screen if it never runs and its
+  reduced-motion form, or `none` with what states the idea in its place. Not asked on light scope.
+- **Phase 4 has two more rules, for what the run writes.** A block wider than a line of text gets
+  its narrowest-frame form in the same edit that writes it. A stretch left empty is a decision
+  the thesis states, or it is closed, and a section that only restates an earlier one is merged
+  into it. A section that was already in the project is never merged or closed by these rules.
+- **Phase 5 reads the page from the code before the checklist**, outside light scope: six
+  labelled entries, each with its `file:line` (`First screen:`, `Sections:`, `Narrowest frame:`,
+  `Empty stretches:`, `Colour roles:`, `The one motion:`). What comes back `not found` is built
+  from the thesis, in one round, on the lines the run wrote. With someone answering, merging a
+  validated section or taking a decision the validated thesis does not hold is proposed first.
+  The entries open the checked group of the report and are not counted in its checks.
+- **The audit of cast, paint and bunshin has one more check, "Loaded modules against code".**
+  For each module the run loaded, it walks the rules that bear on the lines the run wrote and
+  reports each departure with its `file:line`. A departure is licensed by a sentence of the
+  validated thesis, quoted, or it is a problem. A thesis marked UNVALIDATED licenses nothing.
+- **cast and paint read the thesis against the modules right after loading them, before any
+  code.** The thesis is written before the modules load, so the audit check above could only
+  list a departure once the code existed. Where the thesis builds by hand what a module says the
+  platform or the library provides, or gives up something a module rule protects (a system
+  gesture, reduced motion, a frame budget), the run now says so first. A value the thesis chose
+  inside a module's range is a decision, left to the audit. With someone there it asks once,
+  revise or keep per gap, shows the thesis with every change in it and waits for a yes: an
+  approved thesis is never changed silently. With nobody answering, a thesis the request gave
+  or approved is built as approved and its gaps are listed; otherwise the run rewrites the
+  thesis on the module's way, prints it with a `Revised after LOAD:` line and builds that. A
+  departure stays only when the request asks, in its own words, for a result the module's way
+  cannot give, and words that rule a technique out ("not a push") are read as what the person
+  sees and can do, not as an API name. The step runs once. In paint, a revision that changes a
+  value `MASTER.md` or a token file holds is written into them in the same step. bunshin is
+  unchanged.
+- **Two lines of the scan no longer fail under zsh.** The legacy-bridge line and the Apple
+  project line were an `ls` on several globs, which zsh refuses as soon as one matches nothing:
+  a project with an `.xcodeproj` and no `.xcworkspace` lost its Apple line. Both are a `find`
+  now. The Gradle lines and the `pbxproj` line still pass globs to `grep`.
+- **The headless region, shared by cast, paint and bunshin, has one more sentence.** A
+  prohibition in the brief is read at the scope it states, never wider, and when an assumption
+  takes something out (a picture, a motion, a chosen typeface), the thesis says what stands in
+  its place.
+- **`tells` loads once the thesis is written and, when someone is there to answer, validated;
+  never before.** The load region of the three orchestrators and the module's protocol say so.
+  The region also said the module weighs "about 20,000 characters" with its web reference: it
+  is close to 25,000.
+- **tells: a tell taken out leaves a place.** An empty place is a default too, so the thesis says
+  what stands there, or that nothing does and why. The module still names no replacement. "Fake
+  product drawn in divs" now means boxes passed off as the product, and its question asks first
+  whether the project's own material shows what the product does.
+- **paint lost text other rules already state**: eight lines of the red-flag table (one new line
+  replaces them: "the safest thesis is the one that promises least"), the two one-line thesis
+  examples, the `--persist` paragraph and the long form of the MCP tools section. `SKILL.md`
+  still grew, from 68,075 to 78,596 characters.
+
+### Changed, on SwiftUI
+
+- **swiftui-motion teaches the system zoom transition first.** When a row or card opens a pushed
+  or presented screen, it starts from `navigationTransition(.zoom(sourceID:in:))` with
+  `matchedTransitionSource(id:in:)` (iOS 18+), which keeps the stack, the bar and the back
+  gesture. `matchedGeometryEffect` stays the tool inside one hierarchy. The module lists what a
+  hand-built overlay gives up, and how to gate the modifiers below iOS 18.
+- **A drag that moves its own view reads in a stable coordinate space.** A `DragGesture` inside
+  the `.offset` its translation drives takes `coordinateSpace: .global` or a named ancestor. In
+  the default `.local` space the view flickers between two positions. The examples of
+  swiftui-motion and mobile-principles now do so.
+- **mobile-principles: giving up the swipe back is a stated cost.** "Never override" became
+  "keep it by default". A thesis that replaces the navigation stack says what is lost (the edge
+  swipe, the bar, its back button) and what replaces each.
+- **`VERSIONS.md` has two new rows**, read in Apple's documentation on 2026-11-13: the zoom
+  navigation transition and the `DragGesture` coordinate space, with their availability.
+
+### Measured, on the web
+
+One brief, `minimal-saas`: a landing page for an invoice-matching product, with an explicit
+request for a minimal, restrained style, run headless with `claude plugin eval` on
+`claude-opus-5-5`. Two runs per arm. The 4.1.3, frontend-design and no-plugin pages are the
+baseline runs of the same week. The pages were scored blind on stills, out of 10, by one model
+in three reviewer roles. No human panel.
+
+**Rounds 1 to 3, the last one reported.** The new arm ran on this branch at `5e3f9c4`, before
+the review edits and before the rule on example values.
+
+| Set | This branch | 4.1.3 | Anthropic's frontend-design | No plugin |
+|---|---|---|---|---|
+| M1 (new run 1, 4.1.3 run 2, the others run 1) | 7.50 | 5.17 | 7.33 | 5.83 |
+| M2 (new run 2, 4.1.3 run 1, the others run 2) | 7.67 | 4.33 | 7.17 | 5.67 |
+
+- **Above the 4.1.3 pages by 2.3 and 3.3 points, above the no-plugin pages by 1.7 and 2.0.** All
+  six votes agree on both.
+- **Level with frontend-design.** The new pages lead by 0.2 and 0.5 points, and the same
+  unchanged pages moved by up to 0.8 between judging rounds. That lead is inside the noise.
+- **Both new pages showed an example invoice with invented quantities and prices**, labelled as
+  illustrative, on a brief that asked to invent no other figure. The rule on example values
+  above was written for that.
+- **The run behind the M2 score failed the `paint-loaded` grader** (score 0.67): its trace does
+  not show that the modules `paint` asks for were loaded.
+- **Two other briefs, one run each, were held to watch for a regression** (`etale-landing` 7.50
+  against 7.17 for the earlier page, `nocturne-planetarium` 6.83 against 5.33). The judges saw
+  none. That is too few runs to say more: the earlier nocturne page, unchanged, moved by 1.5
+  points between judging rounds.
+
+**Round 4, the rule on example values.** Two arms, two runs each, on the same brief: the paint
+text of this release without the rule, and with it. This time the three reviewer roles were told
+to weigh the brief's "invent no figure" as its author would, and saw two stills per page where
+the earlier rounds saw three. Rounds 1 to 3 did not give that instruction, so these scores do
+not compare with the table above, and the instruction counts against any page that invents
+figures. Each set holds one page of each arm and two baseline pages. Means recomputed from the
+raw votes, three per page.
+
+| Set | With the rule | Without the rule | 4.1.3 | Anthropic's frontend-design | No plugin |
+|---|---|---|---|---|---|
+| M1 (run 1 of each arm, the others run 1) | 8.00 | 6.50 | not in this set | 6.67 | 7.33 |
+| M2 (run 2 of each arm, 4.1.3 run 1, frontend-design run 2) | 7.83 | 6.83 | 7.00 | 6.33 | not in this set |
+
+- **No invented figure on the two pages run with the rule.** Each shows an example table made
+  of words (the kinds of mismatch, the states), and every figure on the page is in the brief.
+  The two pages run without it, and the two frontend-design pages, invent quantities and prices.
+- **The pages with the rule come first in both sets, on all three votes**, 1.5 and 1.0 points
+  above the pages without it, and 0.67 and 0.83 above the next page.
+- **Judged that way, the text without the rule is below the no-plugin page in M1 (6.50 against
+  7.33) and no higher than the 4.1.3 page in M2 (6.83 against 7.00, one vote of three apart).**
+  The lead over 4.1.3 and no plugin in rounds 1 to 3 does not hold for a reader who
+  counts the invented figures.
+- **All four runs built on the first try, with no human edit, and passed the three graders.**
+
+Runs, receipts, stills and the comparison:
+[genjutsu-examples, baseline-2026-11](https://github.com/AThevon/genjutsu-examples/tree/main/baseline-2026-11).
+
+### Measured, on SwiftUI
+
+One case, `etale-ios`: `cast` asked, headless, to make a list row open into its detail "as one
+surface, not a push". Six runs, same prompt, same model, same starting app, on four commits. Each
+was written without a compiler, then built with `xcodebuild`, unchanged, on the first try, and
+filmed in the simulator. Every run made is in the table; none was run again.
+
+| Run | genjutsu | Cost | Swift lines | Transition | Stack and swipe back |
+|---|---|---|---|---|---|
+| 1 | 4.1.3, `5e00595` | 3.42 USD | +487 -78 | built by hand | given up |
+| 2 | 4.1.4 plus the module fixes, `3e0d6d3` | 1.53 USD | +78 -0 | system zoom | kept |
+| 3 | this release before the step, `5105f53` | 2.46 USD | +434 -59 | built by hand | given up |
+| 4 | this release with the step, `844f375` | 1.36 USD | +15 -0 | system zoom | kept |
+| 5 | the same | 1.30 USD | +13 -0 | system zoom | kept |
+| 6 | the same | 1.31 USD | +22 -1 | system zoom | kept |
+
+"The step" is the one that reads the thesis against the loaded modules before any code.
+
+- **Used the system transition: 0 of 1 on 4.1.3, 1 of 2 on the fixed modules without the step, 3
+  of 3 with the step.**
+- **The step was not seen doing what it was written for.** Runs 4, 5 and 6 each named the zoom
+  transition in the thesis they wrote before loading any module, as run 2 had. None wrote a
+  hand-built thesis, so the step never had one to bring back to the system transition. That path
+  is untested.
+- **Three of three does not prove the step.** At the 1 of 2 seen without it, three in a row
+  happens one time in eight by chance. The step's text sits in cast's `SKILL.md`, which a run
+  reads before it writes its thesis, and may have steered the three theses. Nothing here shows
+  it.
+- **What the step printed.** Run 4: `Thesis against modules: no gap`. Run 5: one revision, the
+  Reduce Motion fallback, which left the code with no Reduce Motion guard at all. Run 6: one
+  revision, a duration, which the step's own text calls a decision and not a gap; it did not
+  raise the Reduce Motion question, which its audit then listed as a problem and left unfixed. In
+  all three the output is in the final report only, not between the load and the first line of
+  code.
+- **Run 3 is why the step exists.** On the fixed modules it read them before it wrote code, kept
+  its hand-built surface on the brief's "not a push" and wrote what that costs into its thesis.
+  Its audit printed "Loaded modules against code" with three problems, all true, the first being
+  the hand-built surface, and changed nothing. On screen the time lands on the wrong row, the
+  large time sits under the Dynamic Island and the list shows under the detail.
+- **The module fixes alone are not proven either.** On the fixed modules four runs of five used
+  the system transition, and each of the four named it before it read a module. The modules did
+  not stop run 3.
+- **No drag flickers in the four zoom runs**, where run 1's drag to close flickers on every
+  frame. They have defects of their own: a white box around the row on return in runs 2, 4 and 5,
+  larger in 4 and 5, and in run 6 a line draw the thesis promises that cannot be seen. Reduce
+  Motion was filmed for run 2 only.
+- **The graders do not tell these runs apart.** All six score 5 of 5: the graders check that the
+  skill fired, loaded its module and touched the list, not what the transition is.
+
+The six runs, their code, films and receipt:
+[genjutsu-examples, etale-ios](https://github.com/AThevon/genjutsu-examples/tree/main/etale-ios).
+
+### What did not move, and what is not measured
+
+- **Cost.** A paint run on this brief costs about 2 USD (1.95 and 1.93 with the rule, 1.93 to
+  3.07 over the ten candidate runs), against 1.64 to 1.73 on 4.1.3, 0.64 to 0.68 with
+  frontend-design and 0.46 with no plugin: about 4.2 times the no-plugin run, where 4.1.3 was at
+  about 3.7.
+- **The six reading entries do not open the final report.** The brief asks for a short report,
+  and a line now says a short report keeps them. In round 4, with that line, none of the four
+  reports opens on them, and the report of the web smoke run below does not hold them at all.
+- **Tuned on this brief.** The rules were adjusted over four rounds on `minimal-saas`, against
+  the same baseline pages. Every run of every round is kept. No other brief was run in round 4.
+- **Small samples, one judge model.** Two runs per arm on the web, six runs of one case on
+  SwiftUI (one before the module fixes, two on them without the step, three with it), one model
+  in three roles, no human panel. Claude Code was 2.1.325 in round 4 and in SwiftUI runs 3 to 6,
+  against 2.1.323 before.
+- **The release was run once on each side, before its last step.** Round 4 ran paint without the
+  new audit check, so a smoke run was made at `5105f53`, which holds everything in this release
+  but the step that reads the thesis against the modules. On the web (`minimal-saas`, paint, one
+  run, not scored by the judges): 2.37 USD, no figure outside the brief, built on the first try,
+  3 of 3 graders. Its report does not print the "Loaded modules against code" check under its
+  name, and the six reading entries are absent from it. On SwiftUI it is run 3 above. The step
+  itself then ran three times in cast (runs 4 to 6) and never in paint.
+- **Not measured at all**: a conversation with someone answering, where the thesis to approve is
+  now longer; bunshin, and cast on the web, with the new headless sentence; Compose, which has
+  no recorded run; motion on the web, which stills do not show; any web brief that is not a
+  minimal landing page.
+
 ## v4.1.4 - 2026-11-13
 
 A door for feedback. A finished run of `cast`, `paint` or `bunshin` now ends its report with a

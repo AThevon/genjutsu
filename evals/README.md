@@ -19,7 +19,8 @@ workspace the run starts from) and `graders/*.md`. Every prompt invokes one genj
 name (`/genjutsu:paint`, except `bunshin-steps-down`, which invokes `/genjutsu:bunshin`) and
 answers its gates up front (inline preview, theses and design system validated as proposed, the
 files the work may touch named one by one), so the suite measures the implementation and the
-audit, not the brainstorm.
+audit, not the brainstorm. A thesis the request approved is never rewritten, so the step that
+reads the thesis against the loaded modules is not measured here either.
 
 bunshin itself is never run end to end by this suite: a full run costs millions of tokens (about
 10.5M subagent tokens on one measured run: a seven-page site in two languages). The two `bunshin-`
