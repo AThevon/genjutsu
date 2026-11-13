@@ -587,17 +587,17 @@ This gives them an informed choice. If they choose assumptions, name each assump
 
 From the brainstorm, produce two theses:
 
-**First, clear the ground**, with no extra question (light scope and preserve mode skip this). Name in one line each the page or screen this category publishes by routine, and its predictable opposite: the routine with everything taken out is one too. Then list five concrete worlds the design could draw from, taken from the product's one mechanism and its user's real scene (objects, places, documents, graphic traditions, never another brand's look), in the order they come, before choosing. The first two are the ones any run would reach: set them aside with the routine and its opposite, and write both theses from one of the other three. A world, a reference or an idea the user brought is never a candidate: it is kept as given, and at the gate they can call back by name anything set aside. Print the outcome under the theses, and with them in the final report, as one line: `Set aside: <routine>; <opposite>; <world 1>; <world 2>. Kept: <world>.`
+**First, clear the ground**, with no extra question (light scope and preserve mode skip this; in partial mode it covers only the areas the user named). Name in one line each the page or screen this category publishes by routine, and its predictable opposite: the routine with everything taken out is one too. Then list five concrete worlds the design could draw from, taken from the product's one mechanism and its user's real scene (objects, places, documents, graphic traditions, never another brand's look), in the order they come, before choosing. The first two are the ones any run would reach: set them aside with the routine and its opposite, and write both theses from one of the other three. A world, a reference or an idea the user brought or confirmed in the brainstorm is never a candidate: it is kept as given, the list covers only what they left open, and at the gate they can call back by name anything set aside. Print the outcome under the theses, after the `Allowed patterns:` line, and with them in the final report, as one line: `Set aside: <routine>; <opposite>; <world 1>; <world 2>. Kept: <world>.`
 
 #### Visual Thesis
 
-One sentence for the visual identity, one for the first screen. **Must explicitly address all five:**
+One sentence for the visual identity, then a labelled `First screen:` line under it, as long as its answers need. Where a gate or a preview asks for the thesis in one sentence, that is the identity sentence, with the labelled line under it. **Must explicitly address all five:**
 
-- **Color direction** - dark/light, palette family, accent color, and the job of each colour: what marks the action, and what marks the state or signal the product exists to show. One mark for both carries its reason
-- **Typography spirit** - the display face by name and why this one, or `display face: undecided, chosen at the design-system gate`; serif/sans/mono, weight usage, size contrast. The system face is a choice like any other and carries its reason too; when no web face can be requested, say what gives the type its voice without one
+- **Color direction** - dark/light, palette family, accent color, and the job of each colour: what marks the action, and, when the product has one, what marks the state or signal it exists to show. One mark for both carries its reason
+- **Typography spirit** - the display face by name and why this one, or `display face: undecided, chosen at the design-system gate`; serif/sans/mono, weight usage, size contrast. The system face is a choice like any other and carries its reason too; when no chosen face can be loaded, say what gives the type its voice without one
 - **Spacing philosophy** - dense/airy, base unit feel, and the starting edges and columns every section answers to: one set, or which sections leave it and why. Reading measure is for running text: a table, a figure or a group of cards says what sets its width
 - **Component style** - rounded/sharp, bordered/filled, elevated/flat
-- **First screen** - of what this run composes (a page, a screen, a window): the one thing it shows, beyond a title and an action, that only this product could show, in the values the product works on rather than marks standing for them, and treated as the page says the product treats it; what it is made of (the project's own material, or an example labelled as an example, never an invented customer, metric or quote); on a wide frame, what takes the width, what stays at reading measure, and what stands whole before any scroll; on the narrowest frame it will meet, the form it takes so that the part carrying the idea stays whole and in view, each value beside what names it; and at rest, before any input or motion, it already shows the idea. `Words alone` is an answer only with what then carries the screen
+- **First screen** - of what this run composes (a page, a screen, a window): the one thing it shows, beyond a title and an action, that only this product could show, when the product works on values, in those values rather than marks standing for them, and treated as the page says the product treats it; what it is made of (the project's own material, or an example labelled as an example; an invented customer, metric or quote is a tell, kept only when `Allowed patterns:` names it); on a wide frame (on native, the expanded size class or landscape when the app supports them, otherwise `compact only`), what takes the width, what stays at reading measure, and what stands whole before any scroll; on the narrowest frame it will meet, the form it takes so that the part carrying the idea stays whole and in view, each value beside what names it; and at rest, before any input or motion, it already shows the idea. `Words alone` is an answer only with what then carries the screen. In preserve or partial mode, it describes the first screen as it stands and what this run adds to it, without recomposing it
 
 **Self-check:** read your thesis back. If any of the five areas is missing or vague ("nice typography", "a clean hero"), rewrite it before presenting.
 
@@ -605,7 +605,7 @@ One sentence for the visual identity, one for the first screen. **Must explicitl
 
 #### Interaction Thesis
 
-A single sentence that captures the motion and interaction language. **Must explicitly address all five:**
+A single sentence that captures the motion and interaction language, then a labelled `The one motion:` line under it. **Must explicitly address all five (four on light scope):**
 
 - **Timing range** - fast (100-200ms), medium (200-400ms), or slow (400ms+)
 - **Hover behavior** - what happens on hover
@@ -629,7 +629,7 @@ clock. Write `Allowed patterns: none` when there are none. The audit reads this 
 counts as allowed only when it is listed here, so a mood word never lets one through, and the
 user sees the list before saying yes.
 
-**This is the first visual gate.** Offer the preview menu (see "Showing Your Work" above), then present both theses in the chosen mode. The visual thesis in particular is worth far more shown than described - "fluorescent chartreuse accents" is a guess until it sits next to the neutrals.
+**This is the first visual gate.** Offer the preview menu (see "Showing Your Work" above), then present both theses in the chosen mode. The visual thesis in particular is worth far more shown than described - an accent colour is a guess until it sits next to the neutrals.
 
 **Wait for explicit user validation of BOTH theses before moving on.** If the user pushes back, don't start over - ask what feels wrong and adjust.
 
@@ -813,7 +813,7 @@ module not loaded.
 | Audit explicitly requested OR scope=full | `load_skill design-audit` |
 | Advanced UI/UX questions | `load_skill ui-ux-pro-max` |
 
-**`tells` gets a shell call of its own.** With its web reference it weighs about 20,000
+**`tells` gets a shell call of its own.** With its web reference it weighs close to 25,000
 characters, too close to the point where a shell call's output stops arriving inline to share a
 call with any other module. Re-emit the skill-base block in that call, then:
 
@@ -823,10 +823,11 @@ load_skill tells
 load_ref tells references/web.md
 ```
 
-It loads once the thesis is written, never before, and before any visual choice is frozen: the
-thesis says which patterns are wanted, and `tells` names the reflexes nobody asked for. Never on a
-Compose or SwiftUI stack, never on light scope. In paint this row is already met: Phase 3 loads
-`tells` before the design-system query.
+It loads once the thesis is written and, when someone is there to answer, validated; never
+before that, and before any visual choice is frozen: the thesis says which patterns are wanted,
+and `tells` names the reflexes nobody asked for. Never on a Compose or SwiftUI stack, never on
+light scope. In paint this row is already met: Phase 3 loads `tells` before the design-system
+query.
 
 **Stack-specific** (load by SCAN):
 
@@ -860,7 +861,7 @@ Implementation rules:
 - Every animation MUST respect the interaction thesis (timing, easing, forbidden patterns).
 - Apply the 5-state rule for interactive elements: **default, hover, focus, active, disabled**.
 - Every block wider than a line of text (a table, a figure, a row of columns, a long unbroken string) gets its narrowest-frame form in the same edit that writes it, on native at the compact width and the largest text size: what it becomes there is a decision, never what is left over, and each value stays beside what names it (its header, its unit).
-- A stretch whose content arrives by scroll, script or input holds its resting content without them. A stretch or an area left empty is a decision the thesis states, or it is closed. A section or screen adds something no earlier one showed; one that only restates is merged into the one it repeats.
+- A stretch whose content arrives by scroll, script or input holds its resting content without them. A stretch or an area left empty is a decision the thesis states, or it is closed. A section or screen adds something no earlier one showed; one that only restates is merged into the one it repeats. These rules govern what this run writes: a section that was already in the project is never merged or closed by them.
 - Ask the user for validation after each major page/section before moving to the next.
 
 ---
@@ -876,7 +877,16 @@ load_skill design-audit
 
 Run the full audit checklist matching the detected stack. `design-audit` supplies the greps; the split below decides what you may claim from them.
 
-**Before the checklist, outside light scope, read what this run composed from the code**, in render order (the markup, the root composable, the root view), and write six lines, each with its `file:line`. `First screen:` what it shows that the visual thesis names there, in the product's own values and treated as the page says the product treats it; that it shows it at rest, from the values the code starts with, before any input, scroll or script; and, from the sizes the code sets, what of it stands whole before any scroll on a short wide frame. `Sections:` on a wide frame, for the first screen and then each section in order, what it adds that no earlier one showed, which starting edge it aligns to, and for each block that is not running text the width it takes and what sets it; two sections that differ carry the thesis's reason, and one that only restates is merged into the one it repeats. `Narrowest frame:` what the first screen's one thing and every block wider than a line of text become on the narrowest frame the project meets (on native, the compact width at the largest text size), with the rule that does it; a part that carries the idea and leaves the frame, is cut there or loses what names its values is a problem. `Empty stretches:` every stretch that holds nothing at rest (content that only scroll, script or input brings counts as nothing) and every area left unused beside a block, each with the thesis's reason, or `none`. `Colour roles:` each accent and status colour with every job it does; one mark serving both the action and the signal the product exists to show carries the thesis's reason, or the signal gets its own. `The one motion:` where it lives, or `none` with the thesis's reason. A promise that comes back `not found` is built from the thesis; a missing rule is written; an edge, a width, an empty area or a colour job nobody decided gets its decision, stated in that line. One round, on the lines this run wrote, before the checks below. The six lines open the checked group of the final report.
+**Before the checklist, outside light scope, read what this run composed from the code**, in render order (the markup, the root composable, the root view), and write six labelled entries, each with its `file:line`:
+
+- `First screen:` what it shows that the visual thesis names there, in the product's own values when it works on values, and treated as the page says the product treats it; that it shows it at rest, from the values the code starts with, before any input, scroll or script; and, from the sizes the code sets, what of it stands whole before any scroll on a short wide frame.
+- `Sections:` on a wide frame, for the first screen and then each section in order, one line per section: what it adds that no earlier one showed, which starting edge it aligns to, and for each block that is not running text the width it takes and what sets it; two sections that differ carry the thesis's reason, and one that only restates is merged into the one it repeats.
+- `Narrowest frame:` what the first screen's one thing and every block wider than a line of text become on the narrowest frame the project meets (on native, the compact width at the largest text size), with the rule that does it; a part that carries the idea and leaves the frame, is cut there or loses what names its values is a problem.
+- `Empty stretches:` every stretch that holds nothing at rest (content that only scroll, script or input brings counts as nothing) and every area left unused beside a block, each with the thesis's reason, or `none`.
+- `Colour roles:` each accent and status colour with every job it does; one mark serving both the action and the signal the product exists to show carries the thesis's reason, or the signal gets its own.
+- `The one motion:` where it lives, or `none` with the thesis's reason.
+
+A promise that comes back `not found` is built from the thesis; a missing rule is written; an edge, a width, an empty area or a colour job nobody decided gets its decision, stated in that line. One round, on the lines this run wrote, before the checks below. With someone answering, merging a section they validated, or taking a decision the validated thesis does not hold, is proposed in one line before it is applied; only a headless run decides alone. On native, the wide frame is the expanded size class or landscape when the app supports them, otherwise write `compact only`; a section is a screen of the flow or a block of the root screen; a script is an effect or an async task. In preserve or partial mode, the entries describe what stands and what this run added to it. The six entries open the checked group of the final report and are not counted in its checks; a report asked short keeps them, one line each.
 
 <!-- genjutsu:shared:audit:start -->
 The closing step of this pipeline used to be twenty-five checkboxes, several of which name a

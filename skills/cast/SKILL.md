@@ -542,7 +542,7 @@ module not loaded.
 | Audit explicitly requested OR scope=full | `load_skill design-audit` |
 | Advanced UI/UX questions | `load_skill ui-ux-pro-max` |
 
-**`tells` gets a shell call of its own.** With its web reference it weighs about 20,000
+**`tells` gets a shell call of its own.** With its web reference it weighs close to 25,000
 characters, too close to the point where a shell call's output stops arriving inline to share a
 call with any other module. Re-emit the skill-base block in that call, then:
 
@@ -552,10 +552,11 @@ load_skill tells
 load_ref tells references/web.md
 ```
 
-It loads once the thesis is written, never before, and before any visual choice is frozen: the
-thesis says which patterns are wanted, and `tells` names the reflexes nobody asked for. Never on a
-Compose or SwiftUI stack, never on light scope. In paint this row is already met: Phase 3 loads
-`tells` before the design-system query.
+It loads once the thesis is written and, when someone is there to answer, validated; never
+before that, and before any visual choice is frozen: the thesis says which patterns are wanted,
+and `tells` names the reflexes nobody asked for. Never on a Compose or SwiftUI stack, never on
+light scope. In paint this row is already met: Phase 3 loads `tells` before the design-system
+query.
 
 **Stack-specific** (load by SCAN):
 

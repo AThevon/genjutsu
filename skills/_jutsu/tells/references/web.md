@@ -72,7 +72,7 @@ the tells catalogue of taste-skill (Leonxlnx, MIT), rewritten here as evidence a
 - **Why it is a tell:** models cannot see the product, so they draw what a product usually looks
   like. The result shows the category, not the thing being sold.
 - **The question:** does a real screenshot, recording or component of the product exist? If not,
-  what in the project's own material can show what it does, labelled for what it is?
+  does the project's own material show what it does, or does the page need a picture of it at all?
 
 ## Decorative filler
 

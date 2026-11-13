@@ -65,9 +65,10 @@ On a Compose or SwiftUI stack this module is not loaded at all.
 
 ## Protocol
 
-**When it loads.** Once the thesis is written, never before, and before any visual choice is
-frozen. In cast that is the LOAD step. In paint it is Phase 3, before the design-system query, so
-that the dataset's proposal passes through it.
+**When it loads.** Once the thesis is written and, when someone is there to answer, validated;
+never before that, and before any visual choice is frozen. In cast that is the LOAD step. In
+paint it is Phase 3, before the design-system query, so that the dataset's proposal passes
+through it.
 
 **Right after it loads,** read the thesis's `Allowed patterns:` line against this catalogue. When
 it allows entries catalogued here, say so to the user in one line at the next gate (paint: with
