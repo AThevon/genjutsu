@@ -514,7 +514,7 @@ grep -rE 'androidx\.compose|implementation\("androidx\.compose' build.gradle* se
 grep -rE 'org\.jetbrains\.compose|kotlin\("multiplatform"\)|id\("org\.jetbrains\.kotlin\.multiplatform"\)' build.gradle* settings.gradle* 2>/dev/null
 
 # 4. Apple / SwiftUI
-ls *.xcodeproj *.xcworkspace Package.swift 2>/dev/null
+find . -maxdepth 1 \( -name '*.xcodeproj' -o -name '*.xcworkspace' -o -name Package.swift \) 2>/dev/null
 grep -lE 'import SwiftUI|@main.*App' --include="*.swift" -r . 2>/dev/null | head -1
 
 # 5. Apple platform sub-detection (iOS vs macOS)

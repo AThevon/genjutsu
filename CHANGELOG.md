@@ -50,13 +50,22 @@ more than before, not less.
 - **cast and paint read the thesis against the modules right after loading them, before any
   code.** The thesis is written before the modules load, so the audit check above could only
   list a departure once the code existed. Where the thesis builds by hand what a module says the
-  platform or the library provides, or departs from a module default, the run now says so
-  first. With someone there it asks, revise or keep, and an approved thesis is never changed
-  silently. With nobody answering it rewrites the thesis on the module's way, prints it with a
-  `Revised after LOAD:` line and builds that; a departure stays only when the request asks, in
-  its own words, for a result the module's way cannot give. bunshin is unchanged.
-- **The scan no longer fails under zsh when the project has no `.xib` or `.storyboard`.** The
-  line was an `ls` on two globs, which zsh refuses when nothing matches; it is a `find` now.
+  platform or the library provides, or gives up something a module rule protects (a system
+  gesture, reduced motion, a frame budget), the run now says so first. A value the thesis chose
+  inside a module's range is a decision, left to the audit. With someone there it asks once,
+  revise or keep per gap, shows the thesis with every change in it and waits for a yes: an
+  approved thesis is never changed silently. With nobody answering, a thesis the request gave
+  or approved is built as approved and its gaps are listed; otherwise the run rewrites the
+  thesis on the module's way, prints it with a `Revised after LOAD:` line and builds that. A
+  departure stays only when the request asks, in its own words, for a result the module's way
+  cannot give, and words that rule a technique out ("not a push") are read as what the person
+  sees and can do, not as an API name. The step runs once. In paint, a revision that changes a
+  value `MASTER.md` or a token file holds is written into them in the same step. bunshin is
+  unchanged.
+- **Two lines of the scan no longer fail under zsh.** The legacy-bridge line and the Apple
+  project line were an `ls` on several globs, which zsh refuses as soon as one matches nothing:
+  a project with an `.xcodeproj` and no `.xcworkspace` lost its Apple line. Both are a `find`
+  now. The Gradle lines and the `pbxproj` line still pass globs to `grep`.
 - **The headless region, shared by cast, paint and bunshin, has one more sentence.** A
   prohibition in the brief is read at the scope it states, never wider, and when an assumption
   takes something out (a picture, a motion, a chosen typeface), the thesis says what stands in
@@ -72,7 +81,7 @@ more than before, not less.
 - **paint lost text other rules already state**: eight lines of the red-flag table (one new line
   replaces them: "the safest thesis is the one that promises least"), the two one-line thesis
   examples, the `--persist` paragraph and the long form of the MCP tools section. `SKILL.md`
-  still grew, from 68,075 to 77,181 characters.
+  still grew, from 68,075 to 78,596 characters.
 
 ### Changed, on SwiftUI
 
@@ -166,11 +175,12 @@ on the first try, and filmed in the simulator.
   thesis before it loaded any module, as the pipeline orders it. One run on each side cannot
   tell the fix from chance.
 - **A third run, on this release before the step that reads the thesis against the modules,
-  built the transition by hand again**: 434 lines added, 59 removed, with visible defects. Its
-  audit named the hand-built surface as a problem and changed nothing: the thesis was written
-  before the modules loaded. That step was added for this, and has not been run.
+  built the transition by hand again**: 434 lines added, 59 removed, with visible defects. It
+  read the modules before it wrote code and kept its surface, on the brief's "not a push"; its
+  audit then named the hand-built surface as a problem and changed nothing. That step was added
+  for this, and has not been run. This run is not published with the two others.
 
-Both runs, their code, films and receipt:
+The first two runs, their code, films and receipt:
 [genjutsu-examples, etale-ios](https://github.com/AThevon/genjutsu-examples/tree/main/etale-ios).
 
 ### What did not move, and what is not measured
@@ -184,11 +194,12 @@ Both runs, their code, films and receipt:
   reports opens on them.
 - **Tuned on this brief.** The rules were adjusted over four rounds on `minimal-saas`, against
   the same baseline pages. Every run of every round is kept. No other brief was run in round 4.
-- **Small samples, one judge model.** Two runs per arm on the web, one run per side on SwiftUI,
-  one model in three roles, no human panel. Claude Code was 2.1.325 in round 4 against 2.1.323
-  before.
-- **The release as merged was not run.** Round 4 ran paint without the new audit check, and the
-  SwiftUI runs ran cast without the headless and tells changes of this release.
+- **Small samples, one judge model.** Two runs per arm on the web, two published runs and one
+  smoke run on SwiftUI, one model in three roles, no human panel. Claude Code was 2.1.325 in
+  round 4 against 2.1.323 before.
+- **The release as shipped was not run.** Round 4 ran paint without the new audit check, the two
+  published SwiftUI runs ran cast without the headless and tells changes of this release, and
+  the third ran before the step that reads the thesis against the modules.
 - **Not measured at all**: a conversation with someone answering, where the thesis to approve is
   now longer; bunshin, and cast on the web, with the new headless sentence; Compose, which has
   no recorded run; motion on the web, which stills do not show; any web brief that is not a

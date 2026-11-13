@@ -406,7 +406,7 @@ grep -rE 'androidx\.compose|implementation\("androidx\.compose' build.gradle* se
 grep -rE 'org\.jetbrains\.compose|kotlin\("multiplatform"\)|id\("org\.jetbrains\.kotlin\.multiplatform"\)' build.gradle* settings.gradle* 2>/dev/null
 
 # 4. Apple / SwiftUI
-ls *.xcodeproj *.xcworkspace Package.swift 2>/dev/null
+find . -maxdepth 1 \( -name '*.xcodeproj' -o -name '*.xcworkspace' -o -name Package.swift \) 2>/dev/null
 grep -lE 'import SwiftUI|@main.*App' --include="*.swift" -r . 2>/dev/null | head -1
 
 # 5. Apple platform sub-detection (iOS vs macOS)
@@ -858,27 +858,39 @@ Otherwise stick to the base motion sub-skill.
 <!-- genjutsu:shared:thesis-modules:start -->
 **Read the thesis against the modules, before any code.** The thesis (in paint, both) was
 written before these modules loaded, so nothing they teach has borne on it yet. After the last
-load, and before the variants or the first line of code, walk the rules of each loaded module
-that bear on what the thesis promises. A gap is one of two things: the thesis builds by hand
-what a module says the platform or the detected library provides (an overlay drawn by hand where
-the module starts from the system transition), or the thesis departs from a module default.
-Print one line per gap, `<module>, <rule> - <what the thesis does instead>`, or
-`Thesis against modules: no gap`, and go on.
+load of this step, and before the variants or the first line of code, walk the rules of each
+loaded module that bear on what the thesis promises. A gap is one of two things: the thesis
+builds by hand what a module says the platform or the detected library provides (an overlay
+drawn by hand where the module starts from the system transition), or the thesis gives up
+something a module rule protects (a system gesture, reduced motion, a frame budget). A value or
+a device the thesis chose where a module gives a range or a starting point is a decision, not a
+gap: the audit check reads it later, on the code. A departure the approved thesis already
+names, with what it gives up, is not a gap: the person accepted it. Print one line per gap,
+`<module>, <rule> - <what the thesis does instead>`, or `Thesis against modules: no gap`, and
+go on.
 
-- **Someone is there.** A thesis a person approved is never changed silently. Give the gap in
-  one line, with what the module's way keeps and what it cannot do, and ask: revise, or keep?
-  One gap per question. A revise changes only what the gap touches, is shown as the revised
-  thesis and waits for a yes. A keep adds to the thesis the sentence that names the departure,
-  what it gives up and what replaces each thing given up.
-- **Nobody is answering.** Nobody accepted the cost, so the module's way stands: rewrite the
-  thesis on it, changing only what the gap touches, print the revised thesis whole, marked
-  UNVALIDATED, with one line under it, `Revised after LOAD: <what changed> - <module, rule>`,
-  and build that one. The final report prints both. Keep a departure only when the request
-  asks, in its own words, for a result the module's way cannot give: quote those words in the
-  thesis, with what is given up and what replaces it. A request asks for a result; the technique
-  the thesis chose to reach it is not the request, and a reason that comes from the thesis alone
-  keeps nothing. A thesis the request itself gave or approved is not rewritten: build it, and
-  list each gap in the final report.
+This step runs once. When the revised thesis calls for a module that is not loaded, load it and
+read the revised thesis against that module alone; a thesis revised here is not revised a second
+time, and what is left goes to the audit check.
+
+- **Someone is there.** A thesis a person approved is never changed silently. Give each gap in
+  one line, numbered, with what the module's way keeps and what it cannot do, and ask once:
+  revise or keep, per number. A revise changes only what the gap touches. A keep adds one
+  sentence to the thesis: the departure, what it gives up and what replaces each thing given
+  up. Show the thesis once, with every revision and every keep sentence in it, and wait for a
+  yes.
+- **Nobody is answering.** A thesis the request itself gave or approved stands as approved:
+  build it, and list each gap in the final report. Otherwise nobody accepted the cost,
+  so the module's way stands: rewrite the thesis on it, changing only what the gap touches,
+  print the revised thesis whole, marked UNVALIDATED, with one line under it,
+  `Revised after LOAD: <what changed> - <module, rule>`, and build that one. The final report
+  prints the revised thesis and that line. Keep a departure only when the request asks, in its
+  own words, for a result the module's way cannot give: quote those words in the thesis, with
+  what is given up and what replaces it. A request asks for a result: what the person sees and
+  can do. Words that rule a technique out ("not a push") are read the same way: they ask for
+  what is seen, so a module's way that gives that look and keeps what the person can do answers
+  them, whatever the API underneath is called. The technique the thesis chose is not the
+  request, and a reason that comes from the thesis alone keeps nothing.
 - **The preview made before LOAD shows the earlier thesis**, and nothing is built from it. With
   someone there, show the revised thesis again in the session's mode when the revision changes
   what the preview showed (the movement, the curve, a number), in one line otherwise. With
@@ -887,6 +899,10 @@ Print one line per gap, `<module>, <rule> - <what the thesis does instead>`, or
 
 The audit check "Loaded modules against code" still runs afterwards, on the code.
 <!-- genjutsu:shared:thesis-modules:end -->
+
+In paint, a revision made here that changes a value MASTER.md or a token file holds is
+written into them in the same step, before any page. With someone there, the yes that accepts
+the revision covers that change.
 
 Implementation rules:
 - Work **page by page** or **component by component** - never try to do everything at once.
@@ -1098,5 +1114,6 @@ like the handed-over group of the audit.
 | "This animation would be cool even though the thesis says no bounce" | The thesis is law. Change it? Re-validate with the user first. |
 | "The audit can wait, the user seems happy" | The audit is not optional. Phase 5 always runs - shortened on light scope, never skipped. |
 | "Nobody is answering, so the safest thesis is the one that promises least" | A thesis that shows nothing passes every check and loses the page. Name the first screen and the one motion, or what stands in their place. |
+| "The modules say otherwise, but the thesis is written, the audit will list it" | The audit comes after the code. Read the thesis against the modules right after LOAD: ask, or with nobody there revise it, unless the request approved it. |
 | "I can't render the approved font here, the system face is safer" | The sandbox is not the site. Load the approved face behind a matched fallback and say it was not rendered here. |
 | "This is a whole site, I'll switch to bunshin, it is clearly better" | Propose it once, with its cost, and switch only on a yes. It spends millions of tokens. |
