@@ -50,9 +50,9 @@ Discrete (fires once on completion). `count:` recognizes N taps within the syste
 | `10` (default) | Distinguishes drag from tap. Use for swipe-to-dismiss patterns. |
 | `> 30` | Only "intentional" drags. Use for gesture overlays that must coexist with scrolling content. |
 
-`coordinateSpace:` is the space `location` and `translation` are read in: `.local` (default), `.global`, or `.named(_:)`, a space an ancestor declares with `.coordinateSpace(.named("board"))`. The parameter is `some CoordinateSpaceProtocol` since iOS 17; the same three spellings compile against the older `CoordinateSpace` enum.
+`coordinateSpace:` is the space `location` and `translation` are read in: `.local` (default), `.global`, or `.named(_:)`, a space an ancestor declares with `.coordinateSpace(.named("board"))`. The parameter is `some CoordinateSpaceProtocol` since iOS 17; the same three spellings compile against the older `CoordinateSpace` enum, but below iOS 17 the ancestor declares the space with `.coordinateSpace(name: "board")`.
 
-**Read in `.global`, or in a named ancestor that does not move, whenever the gesture sits inside the `.offset` or `.scaleEffect` that its translation drives.** In `.local` the space travels with the view, so each frame measures the finger from the moved view: the translation feeds back and the view flickers between two positions. A header that drags its whole sheet is the usual case. `.local` only holds when the gesture is attached outside the modifier that moves the view (`.offset(...)` first, `.gesture(...)` after) and nothing above it moves; `.global` is right in both orders, which is why the example uses it. Named spaces are also what cross-view drags read in.
+**Read in `.global`, or in a named ancestor that does not move, whenever the gesture sits inside the `.offset` or `.scaleEffect` that its translation drives** (why: see "A drag that moves its own view" in the module). A header that drags its whole sheet is the usual case. `.local` only holds when the gesture is attached outside the modifier that moves the view (`.offset(...)` first, `.gesture(...)` after) and nothing above it moves; `.global` is right in both orders, which is why the example uses it. Named spaces are also what cross-view drags read in.
 
 ### MagnifyGesture (iOS 17+, replaces MagnificationGesture)
 
@@ -108,7 +108,7 @@ Same as `TapGesture` but reports the local location. Useful for ripple effects, 
 ### `.simultaneously(with:)` - parallel recognition
 
 ```swift
-let drag = DragGesture().onChanged { offset = $0.translation }
+let drag = DragGesture(coordinateSpace: .global).onChanged { offset = $0.translation }
 let magnify = MagnifyGesture().onChanged { scale = $0.magnification }
 
 .gesture(drag.simultaneously(with: magnify))
@@ -267,7 +267,7 @@ Direct velocity (iOS 17+):
 VStack { /* sheet content */ }
     .offset(y: dragOffset)
     .gesture(
-        DragGesture(minimumDistance: 10)
+        DragGesture(minimumDistance: 10, coordinateSpace: .global)
             .onChanged { value in
                 dragOffset = max(0, value.translation.height)  // only downward
             }

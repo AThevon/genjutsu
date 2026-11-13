@@ -1,6 +1,6 @@
 ---
 name: swiftui-motion
-description: "SwiftUI animation foundations - withAnimation, transitions, matchedGeometryEffect, PhaseAnimator, KeyframeAnimator, springs, gestures."
+description: "SwiftUI animation foundations - withAnimation, transitions, the zoom navigation transition, matchedGeometryEffect, PhaseAnimator, KeyframeAnimator, springs, gestures."
 metadata:
   internal: true
 ---
@@ -138,7 +138,7 @@ struct Today: View {
 ```
 
 - Same `id` and same `Namespace` on both sides. Put `navigationTransition` on the destination's root view, outside any container such as `VStack`.
-- Availability: iOS / iPadOS 18.0, visionOS 2.0, watchOS 11.0. `.zoom` does not exist on macOS, and tvOS falls back to the automatic transition. With a deployment target below iOS 18, gate it with `if #available(iOS 18.0, *)` and keep the system push on older versions.
+- Availability: the API is iOS / iPadOS / Mac Catalyst 18.0, tvOS 18.0, visionOS 2.0, watchOS 11.0; `.zoom` does not exist on macOS. The zoom itself runs on iPhone and iPad: tvOS falls back to the automatic transition, and Apple's UIKit article on the same transition says other platforms use their default transition. With a deployment target below iOS 18, both modifiers need a gate: `if #available(iOS 18.0, *)` does not fit inside a modifier chain, so branch in a `@ViewBuilder` (or a small `ViewModifier`) that applies the modifier on iOS 18 and returns the view unchanged below, which keeps the system push.
 - The system owns the curve and the duration. A thesis that needs its own spring, or lines that travel separately, is asking for something else: it says so.
 
 **What a hand-built overlay costs.** Mounting the detail in a `ZStack` above the stack to get the same picture gives up what the navigation stack did for free: the edge-swipe back, the bar with its title and back button, the VoiceOver escape gesture (to wire by hand with `.accessibilityAction(.escape)`), and state restoration and deep links (the navigation path no longer says which screen is open). A thesis can still choose it; it then names each loss and what replaces it.
@@ -307,7 +307,7 @@ ZStack { ... }
     .gesture(tap.simultaneously(with: drag))
 ```
 
-**A drag that moves its own view reads in a stable space.** When the gesture sits inside the `.offset` or `.scaleEffect` that its translation drives (on that view, or on a descendant such as a header that drags its whole sheet), pass `coordinateSpace: .global` or a named space on an ancestor that does not move. The default `.local` space moves with the view: each frame the translation is measured again from the moved view, feeds back, and the view flickers between two positions.
+**A drag that moves its own view reads in a stable space.** When the gesture sits inside the `.offset` or `.scaleEffect` that its translation drives (on that view, or on a descendant such as a header that drags its whole sheet), pass `coordinateSpace: .global` or a named space on an ancestor that does not move. The default `.local` space moves with the view. Under `.offset` the translation is measured again from the moved view each frame, feeds back, and the view flickers between two positions; the value read at release is wrong too, so thresholds misfire. Under `.scaleEffect` the translation is read in scaled points: no flicker, but the distance is off by the scale factor.
 
 Three composition operators: `.simultaneously(with:)` (parallel recognition), `.sequenced(before:)` (one must complete first), `.exclusively(before:)` (one or the other, not both). For fine-grained control over when child views can claim the gesture, use `.simultaneousGesture(_, including: GestureMask)` with `.gesture`, `.subviews`, `.all`, or `.none`. Deep-dive: `references/gestures-swiftui.md`.
 

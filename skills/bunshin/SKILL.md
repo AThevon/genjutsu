@@ -917,13 +917,16 @@ finding, and an item you could not check is reported as **not checked** rather t
       is changed by this step.
 - [ ] **Loaded modules against code.** For each module loaded, walk its rules that bear on the
       lines this run wrote (read `git diff` when the project has one) and report every rule the
-      code departs from, with its `file:line`. A module rule is a default with its reason, so a
-      departure has two outcomes, never a third: **licensed by the thesis**, quoting the thesis
-      sentence that names the departure and what is lost; or **a problem**. A sentence that
-      exists only in the code or in the final report licenses nothing, and a licence from a
-      thesis marked UNVALIDATED is listed for the user to confirm. Evidence: one line per
-      departure, e.g. `mobile-principles, swipe-back - Detail.swift:94 - problem`, or the modules
-      walked and "no departure".
+      code departs from, with its `file:line`, unless a check above already reported it. A module
+      rule is a default with its reason, so a departure has two outcomes, never a third:
+      **licensed by the thesis**, quoting the sentence of the validated thesis that names the
+      departure and everything it gives up; or **a problem**. A sentence that exists only in the
+      code or in the final report licenses nothing, and neither does a thesis marked UNVALIDATED:
+      what it states is a problem, reported with the sentence quoted so the user can accept it.
+      Fix a problem that one local edit removes, then run this check again, once; report the
+      rest. Evidence: one line per departure, e.g.
+      `mobile-principles, swipe-back - Detail.swift:94 - problem`, or the modules walked and
+      "no departure".
 
 ### You must run these - not verified here
 
