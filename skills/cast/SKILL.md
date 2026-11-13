@@ -711,18 +711,27 @@ load to the last: nothing in the shell remembers it for you.
 <!-- genjutsu:shared:audit:end -->
 
 <!-- genjutsu:shared:feedback:start -->
-**The last lines of the final report are the feedback door.** Once per run, after the module
-lines, in a headless run too, and never when the run stopped before producing anything: at most
-two short lines saying that a minute on how it came out helps, plain or wrong as much as good,
-with this link, its values filled in:
+**The final report ends with the feedback door.** Once per conversation, on the first final
+report of a run that wrote code into the project, and never on a run that did not (stopped at a
+gate, stepped down, handed over to bunshin, modules not found). A headless run prints it too.
+After the two module lines, print these two lines and nothing more, the link with its values
+filled in:
 
-`https://github.com/AThevon/genjutsu/issues/new?template=1-output.yml&title=%5Boutput%5D+<skill>&version=<version>&host=<host>&model=<model>`
+```
+How did it come out? One minute, and plain or wrong counts as much as good:
+https://github.com/AThevon/genjutsu/issues/new?template=1-output.yml&title=%5Boutput%5D+<skill>&version=<version>&host=<host>&model=<model>
+```
 
 `<skill>` is cast, paint or bunshin. `<version>` is the number in the `modules from` path when it
 holds one (`genjutsu/<version>/skills/_jutsu`), `<host>` where this ran (`Claude+Code+plugin`,
-`npx+skills`, `claude.ai`, `Cowork`, or the agent's name), `<model>` your model id. Drop a
-parameter you do not know, never guess it. Nothing else goes in the URL: no request, project
-name, path or content. Nothing is sent unless the user opens the link and submits the form.
+`npx+skills`, `claude.ai`, `Cowork`, or the agent's name), `<model>` your model id. In a value,
+write a space as `+` and percent-encode every other character that is not a letter, a digit,
+`.`, `-` or `_`. Drop a parameter you do not know, never guess it. Nothing else goes in the URL:
+no request, project name, path or content.
+
+Print the link and stop there: never open it, never file the issue and never fill the form
+yourself, in a headless run either. Nothing is sent unless the user opens the link and submits
+the form.
 <!-- genjutsu:shared:feedback:end -->
 
 ---
