@@ -137,7 +137,9 @@ skipped.
 In such a session every gate still produces its output. What changes is that nobody validates it:
 
 - **Discovery and brainstorm questions:** do not ask them. Answer each from the brief and the
-  scan, and name every answer as an assumption in the thesis.
+  scan, and name every answer as an assumption in the thesis. Read a prohibition in the brief at
+  the scope it states, never wider, and when an assumption takes something out (a picture, a
+  motion, a chosen typeface), say in the thesis what stands in its place.
 - **Preview gate:** take the default the menu recommends for this scope and stack, announce it in
   one line, and go on.
 - **Thesis gate:** take the thesis you would have proposed, say in one line that it is not
@@ -550,10 +552,10 @@ load_skill tells
 load_ref tells references/web.md
 ```
 
-It loads after the thesis gate and before any visual choice is frozen: the validated thesis says
-which patterns are wanted, and `tells` names the reflexes nobody asked for. Never on a Compose or
-SwiftUI stack, never on light scope. In paint this row is already met: Phase 3 loads `tells`
-before the design-system query.
+It loads once the thesis is written, never before, and before any visual choice is frozen: the
+thesis says which patterns are wanted, and `tells` names the reflexes nobody asked for. Never on a
+Compose or SwiftUI stack, never on light scope. In paint this row is already met: Phase 3 loads
+`tells` before the design-system query.
 
 **Stack-specific** (load by SCAN):
 
