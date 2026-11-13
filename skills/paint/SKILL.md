@@ -587,31 +587,31 @@ This gives them an informed choice. If they choose assumptions, name each assump
 
 From the brainstorm, produce two theses:
 
+**First, clear the ground**, with no extra question (light scope and preserve mode skip this). Name in one line each the page or screen this category publishes by routine, and its predictable opposite: the routine with everything taken out is one too. Then list five concrete worlds the design could draw from, taken from the product's one mechanism and its user's real scene (objects, places, documents, graphic traditions, never another brand's look), in the order they come, before choosing. The first two are the ones any run would reach: set them aside with the routine and its opposite, and write both theses from one of the other three. A world, a reference or an idea the user brought is never a candidate: it is kept as given, and at the gate they can call back by name anything set aside. Print the outcome under the theses, and with them in the final report, as one line: `Set aside: <routine>; <opposite>; <world 1>; <world 2>. Kept: <world>.`
+
 #### Visual Thesis
 
-A single sentence that captures the entire visual identity. **Must explicitly address all four:**
+One sentence for the visual identity, one for the first screen. **Must explicitly address all five:**
 
 - **Color direction** - dark/light, palette family, accent color
-- **Typography spirit** - the display face by name and why this one, or `display face: undecided, chosen at the design-system gate`; serif/sans/mono, weight usage, size contrast
+- **Typography spirit** - the display face by name and why this one, or `display face: undecided, chosen at the design-system gate`; serif/sans/mono, weight usage, size contrast. The system face is a choice like any other and carries its reason too; when no web face can be requested, say what gives the type its voice without one
 - **Spacing philosophy** - dense/airy, base unit feel
 - **Component style** - rounded/sharp, bordered/filled, elevated/flat
+- **First screen** - of what this run composes (a page, a screen, a window): the one thing it shows, beyond a title and an action, that only this product could show; what it is made of (the project's own material, or an example labelled as an example, never an invented customer, metric or quote); on a wide frame, what takes the width and what stays at reading measure. `Words alone` is an answer only with what then carries the screen
 
-> Example: "Dark neo-brutalist interface with bold monospace type, fluorescent chartreuse accents, generous whitespace, raw-edged components with offset shadows."
+**Self-check:** read your thesis back. If any of the five areas is missing or vague ("nice typography", "a clean hero"), rewrite it before presenting.
 
-**Self-check:** read your thesis back. If any of the four areas is missing or vague ("nice typography"), rewrite it before presenting.
-
-**Guessability test:** could someone write this thesis from the product category alone (a fintech gets navy and a clean sans, a design studio gets an editorial serif on paper)? Then it is the category's default, not a decision: rewrite it from what is true of this product.
+**Guessability test:** could someone write this thesis from the product category alone (a fintech gets navy and a clean sans, a design studio gets an editorial serif on paper)? Then it is the category's default, not a decision: rewrite it from what is true of this product. That default with everything taken out is guessable too.
 
 #### Interaction Thesis
 
-A single sentence that captures the motion and interaction language. **Must explicitly address all four:**
+A single sentence that captures the motion and interaction language. **Must explicitly address all five:**
 
 - **Timing range** - fast (100-200ms), medium (200-400ms), or slow (400ms+)
 - **Hover behavior** - what happens on hover
 - **Scroll behavior** - reveals, parallax, or nothing
 - **Forbidden patterns** - what this project will NOT do
-
-> Example: "Fast and dry transitions (100-200ms), hover with subtle scale (1.02), scroll-triggered reveals with stagger, no bounce or elastic - all sharp ease-out."
+- **The one motion** - the moment where the interface does what the product does, with its trigger and its reduced-motion form; or `none`, with what states the idea in its place. Not asked on light scope
 
 **Cross-platform thesis examples:**
 
@@ -657,18 +657,15 @@ Light scope has no Phase 3, so it sets no dial.
 
 ### Phase 3 - DESIGN SYSTEM
 
-**On a web stack, load `tells` first** (light scope never reaches this phase), in a shell
-call of its own, before the design-system query. Phase 2 ended in a user gate, so re-emit the
-resolution block in that call:
+**On a web stack, load `tells` now, never before the theses are written** (a thesis written with
+the catalogue open is made of what it left), in a shell call of its own, before the design-system
+query. Light scope never reaches this phase. Re-emit the resolution block in that call:
 
 ```bash
 # (skill-base block re-emitted above this line)
 load_skill tells
 load_ref tells references/web.md
 ```
-
-The query below answers from a static dataset that has never seen the project. `tells` is what
-lets you recognise which of its proposals are reflexes the validated thesis never asked for.
 
 Load the `ui-ux-pro-max` sub-skill and **run it**. **Phase 2 ended in a user gate, so this is a
 new shell call and `$SKILL_BASE` no longer exists.** Re-emit the resolution block from "Sub-skills
@@ -726,7 +723,7 @@ describes:
   for it by name.
 - Anything else in the output that `tells` lists as a reflex is held to the same test: named in
   the thesis, or dropped. The one line that says what you took and dropped also says what this
-  filter removed.
+  filter removed, and what the thesis puts where it stood.
 
 **A face this session cannot render is still the face.** A blocked font request or a sandbox
 with no network is a fact about this session, not about the site. When the user has approved a
@@ -749,11 +746,6 @@ request the user has not agreed to, either: ask once, as for any new request. Th
   session.` The audit hands the check over: the page online, the face loaded, the features
   the thesis relies on in place.
 
-paint never passes `--persist`, so the component values hardcoded in the MASTER.md template of
-`design_system.py` never reach the project: MASTER.md is written here, from the validated theses
-and the tokens kept above. If paint ever persists, rewrite those component values from the
-tokens before keeping the file.
-
 If `python3` is unavailable or the script fails, say so in one line and derive the system from
 the thesis by hand. The pipeline does not stop for this.
 
@@ -766,8 +758,6 @@ The MASTER.md design system file is canonical, but the generated **code** files 
 - **SwiftUI stack detected (iOS / macOS / multi-target)**: generate Swift extensions. Output `Color+App.swift`, `Font+App.swift`, `Animation+App.swift`, `Shape+App.swift`. Color tokens via `Color("AssetName")` referencing the asset catalog (or `Color(red:green:blue:)` if no catalog), typography via `Font.system(...)` or `.custom(...)`, animations via `.spring(...)` / `.snappy` / `.bouncy` named presets. Spacing in `CGFloat` constants.
 - **Compose Multiplatform stack detected**: generate Kotlin tokens in `commonMain` with `expect/actual` for fonts and platform-specific colors. Same structure as Android Compose, plus a section in MASTER.md describing per-platform deviations.
 - **Multi-stack project** (e.g., web admin + native mobile app): generate MASTER.md with clearly delimited sections for each stack, and produce code files for each.
-
-The MASTER.md document itself remains a single canonical source-of-truth file. The generated code files (Theme.kt / Color+App.swift / etc.) are children of MASTER.md and reference it.
 
 Generate the complete design system based on both theses:
 
@@ -783,14 +773,8 @@ Generate the complete design system based on both theses:
 
 Create a `MASTER.md` at project root with the full design system. This file is the single source of truth. Every implementation decision references it.
 
-#### MCP Tools (if available)
-
-Check if these MCPs are connected and use them when available:
-- **Stitch** - Generate mockups/wireframes
-- **Nano Banana** - Generate visual assets (illustrations, icons, backgrounds)
-- **21st.dev Magic** - Generate UI components from descriptions
-
-If MCPs are not available, skip gracefully - the design system + code implementation is the core path.
+**MCP tools, when connected:** Stitch (mockups), Nano Banana (visual assets), 21st.dev Magic
+(components). Without them, carry on: the design system and the code are the core path.
 
 #### Show it before Phase 4
 
@@ -889,6 +873,8 @@ load_skill design-audit
 ```
 
 Run the full audit checklist matching the detected stack. `design-audit` supplies the greps; the split below decides what you may claim from them.
+
+**Before the checklist, outside light scope, read the first screen from the code**, in render order (the markup, the root composable, the root view), and write three lines, each with its `file:line`. `First screen:` what it shows that the visual thesis names there. `Width and edges:` on a wide frame, what takes the width, what stays at reading measure, and what each starting edge aligns to. `The one motion:` where it lives, or `none` with the thesis's reason. A promise that comes back `not found` is built from the thesis; an edge or an empty area nobody decided gets its decision, stated in that line. One round, on the lines this run wrote, before the checks below. The three lines open the checked group of the final report.
 
 <!-- genjutsu:shared:audit:start -->
 The closing step of this pipeline used to be twenty-five checkboxes, several of which name a
@@ -1043,9 +1029,6 @@ equivalent) on web, `./gradlew assembleDebug` on Android, `xcodebuild -scheme <s
 Apple. When the build cannot run here, hand it over marked **UNVERIFIED** with the exact command,
 like the handed-over group of the audit.
 
-The mode answers "rebuild or enhance?" inside paint: preserve mode enhances a brand without
-replacing it. `/genjutsu:cast` stays the entry point for one effect or one component.
-
 ---
 
 ## Red Flags - You're About to Violate This Skill
@@ -1055,15 +1038,13 @@ replacing it. `/genjutsu:cast` stays the entry point for one effect or one compo
 | "The user already said 'minimal dark' - I have enough for a thesis" | Two words aren't five domains. Keep asking. |
 | "I'll ask all five brainstorm questions at once" | One at a time. The answer to 'audience' changes how you ask about 'mood'. |
 | "The user seems impatient, let's skip to coding" | Use the pressure protocol. A bad thesis costs days, not minutes. |
-| "I'll pick colors that feel right" | Every token comes from MASTER.md. No freelancing. |
-| "I'll do the whole site in one pass" | Page by page. Validate page by page. |
 | "This animation would be cool even though the thesis says no bounce" | The thesis is law. Change it? Re-validate with the user first. |
 | "The audit can wait, the user seems happy" | The audit is not optional. Phase 5 always runs - shortened on light scope, never skipped. |
 | "The audit items all look fine, I'll tick them" | A tick is not a finding. Report the grep, the ratio, the file:line - or report it as not checked. |
 | "I can't profile, so I'll leave that part out" | The handoff block is the deliverable for those. Omitting it reads as a pass. |
 | "I'll interpret 'yeah something like that' as a yes" | That's not confirmation. Ask which part resonates. |
 | "I'll list the palette as hex codes, that's precise" | Precise and unreviewable. Show it in the session's preview mode. |
-| "I'll ask again how they want to see the design system" | Asked once, sticks for the session. Announce the mode and go. |
 | "The preview page looks good, I'll build the app from it" | The preview is throwaway. Build from MASTER.md. |
+| "Nobody is answering, so the safest thesis is the one that promises least" | A thesis that shows nothing passes every check and loses the page. Name the first screen and the one motion, or what stands in their place. |
 | "I can't render the approved font here, the system face is safer" | The sandbox is not the site. Load the approved face behind a matched fallback and say it was not rendered here. |
 | "This is a whole site, I'll switch to bunshin, it is clearly better" | Propose it once, with its cost, and switch only on a yes. It spends millions of tokens. |
