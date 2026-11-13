@@ -31,7 +31,7 @@ body:
         - Android (compose-motion, compose-graphics, compose-multiplatform)
         - Apple (swiftui-motion, swiftui-graphics)
         - Foundations (motion, mobile, desktop, design-audit)
-        - The orchestrators (cast, paint)
+        - The orchestrators (cast, paint, bunshin)
         - Not sure
     validations:
       required: true

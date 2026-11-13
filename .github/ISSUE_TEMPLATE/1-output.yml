@@ -1,0 +1,74 @@
+name: How did it come out?
+description: One minute, two answers. Output that came out wrong or plain is as useful as output that came out well.
+title: "[output] "
+labels: ["output"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Two answers are enough. Everything below them is optional. Output that came out wrong is
+        as useful as output that came out well: it is how the skills get corrected.
+
+  - type: dropdown
+    id: skill
+    attributes:
+      label: Which skill
+      options:
+        - cast
+        - paint
+        - bunshin
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: How it came out
+      options:
+        - Better than expected
+        - Fine
+        - Plain or generic
+        - Wrong or broken
+    validations:
+      required: true
+
+  - type: textarea
+    id: request
+    attributes:
+      label: What you asked for
+      description: The request as you typed it, or a summary. Leave out anything private.
+
+  - type: input
+    id: version
+    attributes:
+      label: genjutsu version
+      description: The version field in .claude-plugin/plugin.json, or the release you installed. Leave it empty if you do not know.
+      placeholder: "4.1.4"
+
+  - type: input
+    id: host
+    attributes:
+      label: Where it ran
+      description: Claude Code plugin, npx skills on Claude Code, npx skills on another agent (name it), claude.ai, Cowork, or something else.
+      placeholder: Claude Code plugin
+
+  - type: input
+    id: model
+    attributes:
+      label: Model
+      description: The model that ran it, if you know it.
+      placeholder: claude-opus-5-5
+
+  - type: textarea
+    id: capture
+    attributes:
+      label: A capture or a link
+      description: Drop a screenshot or a short recording here, or paste a link to the page or the repository.
+
+  - type: checkboxes
+    id: feature
+    attributes:
+      label: Featuring
+      options:
+        - label: You may feature this, with credit to me.

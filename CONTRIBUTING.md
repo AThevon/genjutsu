@@ -43,10 +43,20 @@ with an honest "I could not verify this" is useful. A confident wrong correction
 
 ## What to send
 
-**A wrong or stale claim.** Use the [issue form](https://github.com/AThevon/genjutsu/issues/new/choose).
-It asks for the file and line, the text as it reads today, what the truth is, and the source.
-A correction with a source attached is usually a same-day merge. Without one it becomes a
+**How a run came out.** The lowest bar there is: the
+[output form](https://github.com/AThevon/genjutsu/issues/new?template=1-output.yml) asks which
+skill and how it came out, and everything else is optional. A finished run ends its report with
+a link to it. Output that came out plain or wrong is as useful as output that came out well.
+
+**A wrong or stale claim.** Use the issue form:
+[a claim is wrong](https://github.com/AThevon/genjutsu/issues/new?template=3-wrong-claim.yml) or
+[a `VERSIONS.md` row is out of date](https://github.com/AThevon/genjutsu/issues/new?template=4-stale-version.yml).
+The first asks for the file and line, the text as it reads today, what the truth is, and the
+source. A correction with a source attached is usually a same-day merge. Without one it becomes a
 conversation.
+
+**The pipeline misbehaved.** A skipped gate, modules that did not load, a run that stopped
+halfway: the [bug form](https://github.com/AThevon/genjutsu/issues/new?template=2-pipeline-bug.yml).
 
 **A `VERIFY-NEEDED` row.** [`skills/_jutsu/VERSIONS.md`](./skills/_jutsu/VERSIONS.md) records what
 every version-sensitive claim was checked against and when. Rows whose note starts with
@@ -150,11 +160,17 @@ See [`UPSTREAM.md`](./skills/_jutsu/ui-ux-pro-max/UPSTREAM.md).
 
 **The three orchestrators share regions that must stay byte-identical**, marked
 `<!-- genjutsu:shared:<name>:start -->`. `skills/cast/SKILL.md` and `skills/paint/SKILL.md` carry
-seven: `scan`, `skill-base`, `load`, `preview`, `audit`, `headless` and `escalate`.
-`skills/bunshin/SKILL.md` carries the first six, byte-identical to cast's, and never `escalate`:
+eight: `scan`, `skill-base`, `load`, `preview`, `audit`, `headless`, `feedback` and `escalate`.
+`skills/bunshin/SKILL.md` carries the first seven, byte-identical to cast's, and never `escalate`:
 that region is the proposal cast and paint make to switch to bunshin, and in bunshin it would
-propose bunshin to itself. Editing a region in one file without the others fails CI, and so does
-a region marker in a file that is not expected to carry it. They are duplicated rather than
+propose bunshin to itself. `feedback` closes the report of a finished run with the link to the output
+form: its URL names the form's file (`1-output.yml`) and its field ids (`version`, `host`,
+`model`), so renaming either means editing the region in all three, and
+`scripts/check-shared-blocks.sh` fails when the link names a form or a text field that does not
+exist. GitHub fills a form's text
+fields from the URL and leaves its dropdowns alone (checked on 2026-11-13), which is why the
+skill travels in the title. Editing a region in one file without the others fails CI, and so
+does a region marker in a file that is not expected to carry it. They are duplicated rather than
 shared because each orchestrator ships as a self-contained skill and these blocks bootstrap
 sub-skill loading before anything can be read. The bundle's router,
 `packaging/genjutsu-router.md`, carries its search three times, once per pipeline, between

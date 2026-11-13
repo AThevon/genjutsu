@@ -32,7 +32,9 @@ Claude Code skills that make an interface move, give a product its look, and bui
   <sub>genjutsu.athevon.dev, built with genjutsu: the lens on the 幻, then one cut each for cast (a demo drawn for the page), paint and bunshin.</sub>
 </p>
 
-Creative coding skills for [Claude Code](https://claude.ai/code), [claude.ai](https://claude.ai) and [Cowork](https://claude.com/product/cowork). Web (React, Vue, Svelte, Astro, vanilla CSS, Three.js, Canvas), Android (Jetpack Compose, Compose Multiplatform) and Apple (SwiftUI, iOS and macOS). `bunshin` is web only for now.
+Creative coding skills for [Claude Code](https://claude.ai/code), [claude.ai](https://claude.ai) and [Cowork](https://claude.com/product/cowork). Web (React, Vue, Svelte, Astro, vanilla CSS, Three.js, Canvas), Android (Jetpack Compose, Compose Multiplatform) and Apple (SwiftUI, iOS and macOS). `bunshin` is web only for now. The Compose and SwiftUI modules ship, but every recorded example below is web: no native run has been compiled and recorded yet.
+
+genjutsu is developed and run on Claude Code with Claude models. The claude.ai bundle was last checked by hand on 2026-09-28, `cast` only ([log](./docs/claude-ai-testing.md#7-log)); no Cowork run is logged; `bunshin` has only been run on Claude Code. Other agents can install it through `npx skills`, and nothing in the skills is tied to one agent or one model, but neither another agent nor another model has been tested.
 
 ## Install
 
@@ -40,7 +42,9 @@ Creative coding skills for [Claude Code](https://claude.ai/code), [claude.ai](ht
 npx skills add https://genjutsu.athevon.dev -g
 ```
 
-Then describe the task in Claude Code, or type `/genjutsu`. To follow releases: `npx skills update -g`. Keep the `-g` on both, and use the URL, not the repository: `npx skills add AThevon/genjutsu` installs the skills without their modules.
+Then describe the task in Claude Code, or type `/genjutsu`. To follow releases: `npx skills update -g`. Keep the `-g` on both.
+
+If an agent is installing this for you, give it that exact command, `npx skills add https://genjutsu.athevon.dev -g`. Use the URL, not the repository: `npx skills add AThevon/genjutsu` installs the skills without their modules.
 
 Or as a Claude Code plugin, inside a session, which gives you `/genjutsu:cast`, `/genjutsu:paint` and `/genjutsu:bunshin`:
 
@@ -170,19 +174,19 @@ The eval suite runs the same briefs with and without genjutsu:
 Tells are the findings of `audit.py --group tells` on the page of the first run of each arm. Scores come from `claude plugin eval --ablation with-without --runs 2` on genjutsu `ef31234`, over the suite in [`evals/`](./evals). The graders are ours: read this as genjutsu measured against what it set out to do, not as an independent benchmark.
 <!-- genjutsu:showcase:end -->
 
-These numbers count tells and grader checks. They do not say which page looks better: the page built without genjutsu can look as designed as the one built with it. Today's models rarely write some of the classic tells (an invented build status, an `ESTD. 2018`) on their own, so the gains are modest. The control case held: when a brief genuinely asks for two city clocks and the thesis names them, they stay on every run. Details in [`evals/README.md`](./evals/README.md).
+The table was measured on 2026-09-28, on commit `ef31234` of the branch that became v4.0.0, and has not been rerun since. These numbers count tells and grader checks. They do not say which page looks better: the page built without genjutsu can look as designed as the one built with it. Today's models rarely write some of the classic tells (an invented build status, an `ESTD. 2018`) on their own, so the gains are modest. The control case held: when a brief genuinely asks for two city clocks and the thesis names them, they stay on every run. Details in [`evals/README.md`](./evals/README.md).
 
 ## Docs
 
 [Overview](https://genjutsu.athevon.dev/docs) · [Install](https://genjutsu.athevon.dev/docs/install) · [`cast`](https://genjutsu.athevon.dev/docs/cast) · [`paint`](https://genjutsu.athevon.dev/docs/paint) · [`bunshin`](https://genjutsu.athevon.dev/docs/bunshin) · [Modules](https://genjutsu.athevon.dev/docs/jutsu) · [Tells](https://genjutsu.athevon.dev/docs/tells) · [Principles](https://genjutsu.athevon.dev/docs/principles) · [FAQ](https://genjutsu.athevon.dev/docs/faq) · [Changelog](./CHANGELOG.md)
 
-Formerly `creative-excellence` (v2.x): the migration steps are in [CHANGELOG.md, v3.0.0](./CHANGELOG.md#v300---2026-04-26).
+Formerly `creative-excellence` (v2.x): the migration steps are in [CHANGELOG.md, v3.0.0](./CHANGELOG.md#v300---2026-04-26). Not Higgsfield Genjutsu, the video tool: genjutsu here is a set of skills for interface motion and design in coding agents.
 
-## Show what you cast
+## Tell us how it came out
 
-Post a run in [Show and tell](https://github.com/AThevon/genjutsu/discussions/categories/show-and-tell): the request you typed, the genjutsu version, a capture or a link, and whether we may feature it, with your credit. Output that came out wrong is as useful as output that came out well.
+One minute, two answers: [how did it come out?](https://github.com/AThevon/genjutsu/issues/new?template=1-output.yml) Output that came out wrong is as useful as output that came out well. A finished run ends its report with the same link, filled in with the skill, the version, the host and the model when the run knows them, and with nothing from your project.
 
-Questions go to [Q&A](https://github.com/AThevon/genjutsu/discussions/categories/q-a), ideas to [Ideas](https://github.com/AThevon/genjutsu/discussions/categories/ideas), bugs with a repro to [issues](https://github.com/AThevon/genjutsu/issues).
+With more to show, post the run in [Show and tell](https://github.com/AThevon/genjutsu/discussions/categories/show-and-tell): the request you typed, the genjutsu version, a capture or a link, and whether we may feature it, with your credit. Questions go to [Q&A](https://github.com/AThevon/genjutsu/discussions/categories/q-a), ideas to [Ideas](https://github.com/AThevon/genjutsu/discussions/categories/ideas), bugs with a repro to [issues](https://github.com/AThevon/genjutsu/issues/new/choose).
 
 ## Contributing
 

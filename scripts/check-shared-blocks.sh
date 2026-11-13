@@ -11,14 +11,17 @@
 # cast and paint carry every region in REGIONS. bunshin carries every region in
 # BUNSHIN_REGIONS, byte-identical to cast's, and never escalate: escalate is the
 # proposal cast and paint make to switch to bunshin.
+#
+# The link in the feedback region is also checked against the issue form it
+# names: the file exists, and every field the link fills is a text field in it.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CAST="$ROOT/skills/cast/SKILL.md"
 PAINT="$ROOT/skills/paint/SKILL.md"
 BUNSHIN="$ROOT/skills/bunshin/SKILL.md"
-REGIONS=(scan skill-base load preview audit headless escalate)
-BUNSHIN_REGIONS=(scan skill-base load preview audit headless)
+REGIONS=(scan skill-base load preview audit headless escalate feedback)
+BUNSHIN_REGIONS=(scan skill-base load preview audit headless feedback)
 
 extract() { # <file> <region>
   awk -v s="<!-- genjutsu:shared:$2:start -->" -v e="<!-- genjutsu:shared:$2:end -->" '
@@ -130,6 +133,53 @@ if [ "$router_status" -eq 0 ]; then
   echo "OK   [router]: the cast, paint and bunshin router blocks match, p= line aside"
 else
   status=1
+fi
+
+# The feedback region prints a link that names an issue form by file and fills
+# its fields by id. Three identical copies of a link to a renamed form, or to a
+# renamed field, pass every comparison above and send every report to a blank
+# page. GitHub fills inputs and textareas from the URL and no other field type,
+# so a parameter that names a dropdown is a failure too.
+FORMS="$ROOT/.github/ISSUE_TEMPLATE"
+link="$(extract "$CAST" feedback | grep -o 'https://github\.com/[^ `]*/issues/new?[^ `]*' | head -n 1 || true)"
+if [ -z "$link" ]; then
+  echo "FAIL [feedback-link]: no issues/new link in the feedback region of cast"
+  status=1
+else
+  link_status=0
+  form=""
+  params=""
+  IFS='&' read -r -a pairs <<< "${link#*\?}"
+  for pair in "${pairs[@]}"; do
+    case "${pair%%=*}" in
+      template) form="${pair#*=}" ;;
+      title) ;;
+      *) params="$params ${pair%%=*}" ;;
+    esac
+  done
+  if [ -z "$form" ]; then
+    echo "FAIL [feedback-link]: the link carries no template= parameter"
+    link_status=1
+  elif [ ! -f "$FORMS/$form" ]; then
+    echo "FAIL [feedback-link]: the link names template=$form, and .github/ISSUE_TEMPLATE/$form does not exist"
+    link_status=1
+  else
+    ids="$(awk '
+      /^  - type:/ { type = $3 }
+      /^    id:/ { if (type == "input" || type == "textarea") print $2 }
+    ' "$FORMS/$form")"
+    for name in $params; do
+      if ! printf '%s\n' "$ids" | grep -qx -- "$name"; then
+        echo "FAIL [feedback-link]: the link fills \"$name\", which is not the id of an input or a textarea in $form"
+        link_status=1
+      fi
+    done
+  fi
+  if [ "$link_status" -eq 0 ]; then
+    echo "OK   [feedback-link]: $form exists and carries a text field for each of:$params"
+  else
+    status=1
+  fi
 fi
 
 if [ "$status" -ne 0 ]; then
