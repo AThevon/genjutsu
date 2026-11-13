@@ -17,8 +17,8 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CAST="$ROOT/skills/cast/SKILL.md"
 PAINT="$ROOT/skills/paint/SKILL.md"
 BUNSHIN="$ROOT/skills/bunshin/SKILL.md"
-REGIONS=(scan skill-base load preview audit headless escalate)
-BUNSHIN_REGIONS=(scan skill-base load preview audit headless)
+REGIONS=(scan skill-base load preview audit headless escalate feedback)
+BUNSHIN_REGIONS=(scan skill-base load preview audit headless feedback)
 
 extract() { # <file> <region>
   awk -v s="<!-- genjutsu:shared:$2:start -->" -v e="<!-- genjutsu:shared:$2:end -->" '

@@ -995,6 +995,21 @@ load to the last: nothing in the shell remembers it for you.
 
 Within the checked group, order the findings by severity: **Critical > Important > Nice-to-have**. The handed-over group is not ordered and not filtered - it goes over whole, because the user is the one who has to run it.
 
+<!-- genjutsu:shared:feedback:start -->
+**The last lines of the final report are the feedback door.** Once per run, after the module
+lines, in a headless run too, and never when the run stopped before producing anything: at most
+two short lines saying that a minute on how it came out helps, plain or wrong as much as good,
+with this link, its values filled in:
+
+`https://github.com/AThevon/genjutsu/issues/new?template=1-output.yml&title=%5Boutput%5D+<skill>&version=<version>&host=<host>&model=<model>`
+
+`<skill>` is cast, paint or bunshin. `<version>` is the number in the `modules from` path when it
+holds one (`genjutsu/<version>/skills/_jutsu`), `<host>` where this ran (`Claude+Code+plugin`,
+`npx+skills`, `claude.ai`, `Cowork`, or the agent's name), `<model>` your model id. Drop a
+parameter you do not know, never guess it. Nothing else goes in the URL: no request, project
+name, path or content. Nothing is sent unless the user opens the link and submits the form.
+<!-- genjutsu:shared:feedback:end -->
+
 ---
 
 ## Existing Project Protocol

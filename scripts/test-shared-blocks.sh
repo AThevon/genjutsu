@@ -101,7 +101,27 @@ mutate "$WORK/escalate-drift/skills/paint/SKILL.md" \
 expect "the escalate region edited in paint only fails" 1 escalate-drift \
   "FAIL [escalate]: shared block drifted between cast and paint"
 
-# bunshin carries six of the regions, compared with cast's, and never escalate.
+# feedback closes the final report of all three. Its link names the form's file
+# and field ids, so one copy left on an old link sends reports nowhere.
+copy feedback-drift
+mutate "$WORK/feedback-drift/skills/paint/SKILL.md" \
+  't.replace("template=1-output.yml", "template=output.yml", 1)'
+expect "the feedback region edited in paint only fails" 1 feedback-drift \
+  "FAIL [feedback]: shared block drifted between cast and paint"
+
+copy feedback-bunshin-drift
+mutate "$WORK/feedback-bunshin-drift/skills/bunshin/SKILL.md" \
+  't.replace("Nothing is sent unless the user opens the link", "Nothing is sent unless the user clicks", 1)'
+expect "the feedback region edited in bunshin only fails" 1 feedback-bunshin-drift \
+  "FAIL [feedback]: shared block drifted between cast and bunshin"
+
+copy feedback-missing
+mutate "$WORK/feedback-missing/skills/bunshin/SKILL.md" \
+  't[:t.index("<!-- genjutsu:shared:feedback:start -->")] + t[t.index("<!-- genjutsu:shared:feedback:end -->") + len("<!-- genjutsu:shared:feedback:end -->"):]'
+expect "the feedback region removed from bunshin fails" 1 feedback-missing \
+  "FAIL [feedback]: markers missing in bunshin"
+
+# bunshin carries seven of the regions, compared with cast's, and never escalate.
 copy bunshin-drift
 mutate "$WORK/bunshin-drift/skills/bunshin/SKILL.md" \
   't.replace("# 2. Android / Compose", "# 2. Android and Compose", 1)'
