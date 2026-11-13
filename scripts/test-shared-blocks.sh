@@ -11,7 +11,7 @@ trap 'rm -rf "$WORK"' EXIT
 pass=0
 fail=0
 
-# copy <name>: a minimal tree holding the check and the four files it reads.
+# copy <name>: a minimal tree holding the check and the files it reads.
 copy() {
   d="$WORK/$1"
   mkdir -p "$d/scripts" "$d/skills/cast" "$d/skills/paint" "$d/skills/bunshin" "$d/packaging"
@@ -20,6 +20,8 @@ copy() {
   cp "$ROOT/skills/paint/SKILL.md" "$d/skills/paint/SKILL.md"
   cp "$ROOT/skills/bunshin/SKILL.md" "$d/skills/bunshin/SKILL.md"
   cp "$ROOT/packaging/genjutsu-router.md" "$d/packaging/genjutsu-router.md"
+  mkdir -p "$d/.github/ISSUE_TEMPLATE"
+  cp "$ROOT"/.github/ISSUE_TEMPLATE/*.yml "$d/.github/ISSUE_TEMPLATE/"
 }
 
 # mutate <file> <python expression over t> [<file read as s>]: rewrite a file in
@@ -111,7 +113,7 @@ expect "the feedback region edited in paint only fails" 1 feedback-drift \
 
 copy feedback-bunshin-drift
 mutate "$WORK/feedback-bunshin-drift/skills/bunshin/SKILL.md" \
-  't.replace("Nothing is sent unless the user opens the link", "Nothing is sent unless the user clicks", 1)'
+  't.replace("never open it, never file the issue", "open it when the user is away", 1)'
 expect "the feedback region edited in bunshin only fails" 1 feedback-bunshin-drift \
   "FAIL [feedback]: shared block drifted between cast and bunshin"
 
@@ -120,6 +122,37 @@ mutate "$WORK/feedback-missing/skills/bunshin/SKILL.md" \
   't[:t.index("<!-- genjutsu:shared:feedback:start -->")] + t[t.index("<!-- genjutsu:shared:feedback:end -->") + len("<!-- genjutsu:shared:feedback:end -->"):]'
 expect "the feedback region removed from bunshin fails" 1 feedback-missing \
   "FAIL [feedback]: markers missing in bunshin"
+
+# The three copies can also be stale together: identical, and pointing at a form
+# or a field that no longer exists. The link is checked against the form itself.
+copy feedback-form-renamed
+mv "$WORK/feedback-form-renamed/.github/ISSUE_TEMPLATE/1-output.yml" \
+  "$WORK/feedback-form-renamed/.github/ISSUE_TEMPLATE/1-feedback.yml"
+expect "the output form renamed under the link fails" 1 feedback-form-renamed \
+  "FAIL [feedback-link]: the link names template=1-output.yml"
+
+copy feedback-id-renamed
+mutate "$WORK/feedback-id-renamed/.github/ISSUE_TEMPLATE/1-output.yml" \
+  't.replace("    id: host\n", "    id: where\n", 1)'
+expect "a field id renamed under the link fails" 1 feedback-id-renamed \
+  'FAIL [feedback-link]: the link fills "host"'
+
+# A dropdown has an id too, and GitHub does not fill it from the URL.
+copy feedback-dropdown
+for f in cast paint bunshin; do
+  mutate "$WORK/feedback-dropdown/skills/$f/SKILL.md" \
+    't.replace("&model=<model>", "&model=<model>&skill=<skill>", 1)'
+done
+expect "a link that fills a dropdown fails" 1 feedback-dropdown \
+  'FAIL [feedback-link]: the link fills "skill"'
+
+copy feedback-no-link
+for f in cast paint bunshin; do
+  mutate "$WORK/feedback-no-link/skills/$f/SKILL.md" \
+    't.replace("https://github.com/AThevon/genjutsu/issues/new?template=1-output.yml", "https://github.com/AThevon/genjutsu/issues", 1)'
+done
+expect "a feedback region without the form link fails" 1 feedback-no-link \
+  "FAIL [feedback-link]: no issues/new link"
 
 # bunshin carries seven of the regions, compared with cast's, and never escalate.
 copy bunshin-drift
