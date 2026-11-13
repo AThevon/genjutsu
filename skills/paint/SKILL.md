@@ -859,6 +859,8 @@ Implementation rules:
 - Every color, font, spacing, shadow, radius MUST come from MASTER.md tokens. No magic numbers.
 - Every animation MUST respect the interaction thesis (timing, easing, forbidden patterns).
 - Apply the 5-state rule for interactive elements: **default, hover, focus, active, disabled**.
+- Every block wider than a line of text (a table, a figure, a row of columns, a long unbroken string) gets its narrowest-frame form in the same edit that writes it, on native at the compact width and the largest text size: what it becomes there is a decision, never what is left over.
+- A stretch whose content arrives by scroll, script or input holds its resting content without them. A stretch or an area left empty is a decision the thesis states, or it is closed.
 - Ask the user for validation after each major page/section before moving to the next.
 
 ---
@@ -1040,8 +1042,6 @@ like the handed-over group of the audit.
 | "The user seems impatient, let's skip to coding" | Use the pressure protocol. A bad thesis costs days, not minutes. |
 | "This animation would be cool even though the thesis says no bounce" | The thesis is law. Change it? Re-validate with the user first. |
 | "The audit can wait, the user seems happy" | The audit is not optional. Phase 5 always runs - shortened on light scope, never skipped. |
-| "The audit items all look fine, I'll tick them" | A tick is not a finding. Report the grep, the ratio, the file:line - or report it as not checked. |
-| "I can't profile, so I'll leave that part out" | The handoff block is the deliverable for those. Omitting it reads as a pass. |
 | "I'll interpret 'yeah something like that' as a yes" | That's not confirmation. Ask which part resonates. |
 | "I'll list the palette as hex codes, that's precise" | Precise and unreviewable. Show it in the session's preview mode. |
 | "The preview page looks good, I'll build the app from it" | The preview is throwaway. Build from MASTER.md. |
