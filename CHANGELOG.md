@@ -7,10 +7,12 @@ All notable changes to this plugin are documented here. Format inspired by [Keep
 A `paint` run with nobody to answer used to come out empty: a title, a button, and nothing only
 this product could show. The thesis now has to name a first screen, the job of each colour and
 the one motion, and to say what stands in place of anything an assumption takes out. When the
-brief says to invent no figure, the example on that first screen carries none. On SwiftUI, a row
-that opens a screen now starts from the system zoom transition, which keeps the navigation stack
-and the swipe back. On our one minimal landing brief the pages are no longer empty. A run costs
-more than before, not less.
+brief says to invent no figure, the example on that first screen carries none. On our one minimal
+landing brief the pages are no longer empty. On SwiftUI, the modules now teach the system zoom
+transition for a row that opens a screen, which keeps the navigation stack and the swipe back,
+and cast reads its thesis against the loaded modules before any code. Of five runs of one case on
+those modules, four used the system transition and one built it by hand, and nothing shows yet
+that the new text caused the four. A run costs more than before, not less.
 
 ### Changed
 
@@ -160,27 +162,53 @@ Runs, receipts, stills and the comparison:
 ### Measured, on SwiftUI
 
 One case, `etale-ios`: `cast` asked, headless, to make a list row open into its detail "as one
-surface, not a push". Run once on 4.1.3 and once on the fixed modules, same prompt, same model,
-same starting app. Both were written without a compiler, then built with `xcodebuild`, unchanged,
-on the first try, and filmed in the simulator.
+surface, not a push". Six runs, same prompt, same model, same starting app, on four commits. Each
+was written without a compiler, then built with `xcodebuild`, unchanged, on the first try, and
+filmed in the simulator. Every run made is in the table; none was run again.
 
-- **On 4.1.3 the run built the transition by hand**: 487 lines added and 78 removed, the
-  navigation stack, the bar and the swipe back given up, and a drag to close that flickers on
-  every frame.
-- **On the fixed modules the run used the system zoom transition**: 78 lines added, none
-  removed. The stack, the bar, the back button and the swipe back are kept, and no drag
-  flickers. Its audit printed the new check and reported two problems, both true. It has smaller
-  defects of its own, listed in the receipt.
-- **This does not prove the fix caused it.** The second run named the zoom transition in its
-  thesis before it loaded any module, as the pipeline orders it. One run on each side cannot
-  tell the fix from chance.
-- **A third run, on this release before the step that reads the thesis against the modules,
-  built the transition by hand again**: 434 lines added, 59 removed, with visible defects. It
-  read the modules before it wrote code and kept its surface, on the brief's "not a push"; its
-  audit then named the hand-built surface as a problem and changed nothing. That step was added
-  for this, and has not been run. This run is not published with the two others.
+| Run | genjutsu | Cost | Swift lines | Transition | Stack and swipe back |
+|---|---|---|---|---|---|
+| 1 | 4.1.3, `5e00595` | 3.42 USD | +487 -78 | built by hand | given up |
+| 2 | 4.1.4 plus the module fixes, `3e0d6d3` | 1.53 USD | +78 -0 | system zoom | kept |
+| 3 | this release before the step, `5105f53` | 2.46 USD | +434 -59 | built by hand | given up |
+| 4 | this release with the step, `844f375` | 1.36 USD | +15 -0 | system zoom | kept |
+| 5 | the same | 1.30 USD | +13 -0 | system zoom | kept |
+| 6 | the same | 1.31 USD | +22 -1 | system zoom | kept |
 
-The first two runs, their code, films and receipt:
+"The step" is the one that reads the thesis against the loaded modules before any code.
+
+- **Used the system transition: 0 of 1 on 4.1.3, 1 of 2 on the fixed modules without the step, 3
+  of 3 with the step.**
+- **The step was not seen doing what it was written for.** Runs 4, 5 and 6 each named the zoom
+  transition in the thesis they wrote before loading any module, as run 2 had. None wrote a
+  hand-built thesis, so the step never had one to bring back to the system transition. That path
+  is untested.
+- **Three of three does not prove the step.** At the 1 of 2 seen without it, three in a row
+  happens one time in eight by chance. The step's text sits in cast's `SKILL.md`, which a run
+  reads before it writes its thesis, and may have steered the three theses. Nothing here shows
+  it.
+- **What the step printed.** Run 4: `Thesis against modules: no gap`. Run 5: one revision, the
+  Reduce Motion fallback, which left the code with no Reduce Motion guard at all. Run 6: one
+  revision, a duration, which the step's own text calls a decision and not a gap; it did not
+  raise the Reduce Motion question, which its audit then listed as a problem and left unfixed. In
+  all three the output is in the final report only, not between the load and the first line of
+  code.
+- **Run 3 is why the step exists.** On the fixed modules it read them before it wrote code, kept
+  its hand-built surface on the brief's "not a push" and wrote what that costs into its thesis.
+  Its audit printed "Loaded modules against code" with three problems, all true, the first being
+  the hand-built surface, and changed nothing. On screen the time lands on the wrong row, the
+  large time sits under the Dynamic Island and the list shows under the detail.
+- **The module fixes alone are not proven either.** On the fixed modules four runs of five used
+  the system transition, and each of the four named it before it read a module. The modules did
+  not stop run 3.
+- **No drag flickers in the four zoom runs**, where run 1's drag to close flickers on every
+  frame. They have defects of their own: a white box around the row on return in runs 2, 4 and 5,
+  larger in 4 and 5, and in run 6 a line draw the thesis promises that cannot be seen. Reduce
+  Motion was filmed for run 2 only.
+- **The graders do not tell these runs apart.** All six score 5 of 5: the graders check that the
+  skill fired, loaded its module and touched the list, not what the transition is.
+
+The six runs, their code, films and receipt:
 [genjutsu-examples, etale-ios](https://github.com/AThevon/genjutsu-examples/tree/main/etale-ios).
 
 ### What did not move, and what is not measured
@@ -191,15 +219,20 @@ The first two runs, their code, films and receipt:
   about 3.7.
 - **The six reading entries do not open the final report.** The brief asks for a short report,
   and a line now says a short report keeps them. In round 4, with that line, none of the four
-  reports opens on them.
+  reports opens on them, and the report of the web smoke run below does not hold them at all.
 - **Tuned on this brief.** The rules were adjusted over four rounds on `minimal-saas`, against
   the same baseline pages. Every run of every round is kept. No other brief was run in round 4.
-- **Small samples, one judge model.** Two runs per arm on the web, two published runs and one
-  smoke run on SwiftUI, one model in three roles, no human panel. Claude Code was 2.1.325 in
-  round 4 against 2.1.323 before.
-- **The release as shipped was not run.** Round 4 ran paint without the new audit check, the two
-  published SwiftUI runs ran cast without the headless and tells changes of this release, and
-  the third ran before the step that reads the thesis against the modules.
+- **Small samples, one judge model.** Two runs per arm on the web, six runs of one case on
+  SwiftUI (one before the module fixes, two on them without the step, three with it), one model
+  in three roles, no human panel. Claude Code was 2.1.325 in round 4 and in SwiftUI runs 3 to 6,
+  against 2.1.323 before.
+- **The release was run once on each side, before its last step.** Round 4 ran paint without the
+  new audit check, so a smoke run was made at `5105f53`, which holds everything in this release
+  but the step that reads the thesis against the modules. On the web (`minimal-saas`, paint, one
+  run, not scored by the judges): 2.37 USD, no figure outside the brief, built on the first try,
+  3 of 3 graders. Its report does not print the "Loaded modules against code" check under its
+  name, and the six reading entries are absent from it. On SwiftUI it is run 3 above. The step
+  itself then ran three times in cast (runs 4 to 6) and never in paint.
 - **Not measured at all**: a conversation with someone answering, where the thesis to approve is
   now longer; bunshin, and cast on the web, with the new headless sentence; Compose, which has
   no recorded run; motion on the web, which stills do not show; any web brief that is not a
