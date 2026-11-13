@@ -67,12 +67,12 @@ the tells catalogue of taste-skill (Leonxlnx, MIT), rewritten here as evidence a
 - **The question:** where was this figure measured, and could the page cite that source?
 
 ### Fake product drawn in divs
-- **Marker:** a hero "screenshot" built from styled boxes: a dashboard, a terminal, a task list
-  or a code editor that renders no real product.
+- **Marker:** a hero "screenshot" built from styled boxes and passed off as the product: a
+  dashboard, a terminal, a task list or a code editor that renders no real product.
 - **Why it is a tell:** models cannot see the product, so they draw what a product usually looks
   like. The result shows the category, not the thing being sold.
-- **The question:** does a real screenshot, recording or component of the product exist, and if
-  not, does the page need a picture of it at all?
+- **The question:** does a real screenshot, recording or component of the product exist? If not,
+  what in the project's own material can show what it does, labelled for what it is?
 
 ## Decorative filler
 
