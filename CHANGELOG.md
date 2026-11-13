@@ -2,6 +2,50 @@
 
 All notable changes to this plugin are documented here. Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## v4.1.4 - 2026-11-13
+
+A door for feedback. Every final report of `cast`, `paint` and `bunshin` now ends with a link to
+a one-minute form: which skill, how it came out. The README says what is tested and what is not.
+Nothing else a skill loads or does changed.
+
+### Added
+
+- **A one-minute form, "How did it come out?"**, first in the issue chooser. Two answers are
+  required: which skill, and whether the result came out better than expected, fine, plain or
+  generic, or wrong or broken. The request, the version, where it ran, the model, a capture and
+  the permission to feature it are optional. Until now the only forms asked for a bug with its
+  resolution error or a correction with its primary source, and nobody could simply say "it came
+  out plain". Output that came out wrong is as useful as output that came out well.
+- **Every final report ends with the link to that form**, in two short lines at most, once per
+  run, in a headless run too, and not when the run stopped before producing anything. The link
+  fills in the skill, and the genjutsu version, the host and the model when the run knows them:
+  the version is only known on a Claude Code plugin install, where the install path carries it.
+  Nothing from your project goes in the URL (no request, name, path or content), and nothing is
+  sent unless you open the link and submit the form. The block is a new shared region,
+  `feedback`, byte-identical in the three orchestrators and guarded by
+  `scripts/check-shared-blocks.sh`.
+
+### Changed
+
+- **The README says what has been tested.** The Compose and SwiftUI modules ship, but every
+  recorded example is web: no native run has been compiled and recorded yet. genjutsu is
+  developed on Claude Code with Claude models; other agents and other models are not tested. The
+  eval table carries its date: measured on 2026-09-28, on commit `ef31234` of the branch that
+  became v4.0.0, and not rerun since.
+- The README gives the install command to hand to an agent, says once that this is not Higgsfield
+  Genjutsu, the video tool, and moves the feedback section up, under "Three scales".
+- The issue forms are numbered so the chooser lists them in order: `1-output.yml`,
+  `2-pipeline-bug.yml`, `3-wrong-claim.yml`, `4-stale-version.yml`. A link carrying an old
+  `template=` name no longer finds its form: update it.
+- `plugin.json` names Cowork next to Claude Code and claude.ai, mentions bunshin, and carries the
+  listing fields Claude Code documents for Anthropic's directory: `documentationUrl`,
+  `supportUrl` and `icon`.
+
+### Fixed
+
+- The bug form listed `/genjutsu:cast` and `/genjutsu:paint` only. `/genjutsu:bunshin` is in the
+  list, and in the family list of the wrong-claim form.
+
 ## v4.1.3 - 2026-11-01
 
 A maintenance release: the resolver tests no longer share a file in the system temp directory,
