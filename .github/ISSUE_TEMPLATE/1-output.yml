@@ -57,6 +57,7 @@ body:
     id: model
     attributes:
       label: Model
+      description: The model that ran it, if you know it.
       placeholder: claude-opus-5-5
 
   - type: textarea
