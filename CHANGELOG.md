@@ -6,8 +6,11 @@ All notable changes to this plugin are documented here. Format inspired by [Keep
 
 A `paint` run with nobody to answer used to come out empty: a title, a button, and nothing only
 this product could show. The thesis now has to name a first screen, the job of each colour and
-the one motion, and to say what stands in place of anything an assumption takes out. On our one
-minimal landing brief the pages are no longer empty. A run costs more than before, not less.
+the one motion, and to say what stands in place of anything an assumption takes out. When the
+brief says to invent no figure, the example on that first screen carries none. On SwiftUI, a row
+that opens a screen now starts from the system zoom transition, which keeps the navigation stack
+and the swipe back. On our one minimal landing brief the pages are no longer empty. A run costs
+more than before, not less.
 
 ### Changed
 
@@ -22,6 +25,11 @@ minimal landing brief the pages are no longer empty. A run costs more than befor
   wide frame, the form it takes on the narrowest frame, and that it already shows the idea at
   rest. The colour point gives each colour its job, the typography point asks for the reason
   behind a system face, the spacing point names the edges and columns every section answers to.
+- **An example on the first screen takes its values from the brief or the project**, and is
+  named in `Allowed patterns:`. When the brief says to invent no figure, the example carries no
+  figure the brief does not give: it shows the mechanism with the brief's own material and words
+  (the names of the things compared, the kinds of mismatch, the states), unless the thesis says
+  otherwise with its reason.
 - **The interaction thesis has a fifth point, `The one motion:`**: the moment where the interface
   does what the product does, with its trigger, what is on screen if it never runs and its
   reduced-motion form, or `none` with what states the idea in its place. Not asked on light scope.
@@ -35,6 +43,10 @@ minimal landing brief the pages are no longer empty. A run costs more than befor
   from the thesis, in one round, on the lines the run wrote. With someone answering, merging a
   validated section or taking a decision the validated thesis does not hold is proposed first.
   The entries open the checked group of the report and are not counted in its checks.
+- **The audit of cast, paint and bunshin has one more check, "Loaded modules against code".**
+  For each module the run loaded, it walks the rules that bear on the lines the run wrote and
+  reports each departure with its `file:line`. A departure is licensed by a sentence of the
+  validated thesis, quoted, or it is a problem. A thesis marked UNVALIDATED licenses nothing.
 - **The headless region, shared by cast, paint and bunshin, has one more sentence.** A
   prohibition in the brief is read at the scope it states, never wider, and when an assumption
   takes something out (a picture, a motion, a chosen typeface), the thesis says what stands in
@@ -50,18 +62,37 @@ minimal landing brief the pages are no longer empty. A run costs more than befor
 - **paint lost text other rules already state**: eight lines of the red-flag table (one new line
   replaces them: "the safest thesis is the one that promises least"), the two one-line thesis
   examples, the `--persist` paragraph and the long form of the MCP tools section. `SKILL.md`
-  still grew, from 68,075 to 73,208 characters.
+  still grew, from 68,075 to 74,594 characters.
 
-### Measured
+### Changed, on SwiftUI
+
+- **swiftui-motion teaches the system zoom transition first.** When a row or card opens a pushed
+  or presented screen, it starts from `navigationTransition(.zoom(sourceID:in:))` with
+  `matchedTransitionSource(id:in:)` (iOS 18+), which keeps the stack, the bar and the back
+  gesture. `matchedGeometryEffect` stays the tool inside one hierarchy. The module lists what a
+  hand-built overlay gives up, and how to gate the modifiers below iOS 18.
+- **A drag that moves its own view reads in a stable coordinate space.** A `DragGesture` inside
+  the `.offset` its translation drives takes `coordinateSpace: .global` or a named ancestor. In
+  the default `.local` space the view flickers between two positions. The examples of
+  swiftui-motion and mobile-principles now do so.
+- **mobile-principles: giving up the swipe back is a stated cost.** "Never override" became
+  "keep it by default". A thesis that replaces the navigation stack says what is lost (the edge
+  swipe, the bar, its back button) and what replaces each.
+- **`VERSIONS.md` has two new rows**, read in Apple's documentation on 2026-11-13: the zoom
+  navigation transition and the `DragGesture` coordinate space, with their availability.
+
+### Measured, on the web
 
 One brief, `minimal-saas`: a landing page for an invoice-matching product, with an explicit
 request for a minimal, restrained style, run headless with `claude plugin eval` on
 `claude-opus-5-5`. Two runs per arm. The 4.1.3, frontend-design and no-plugin pages are the
-baseline runs of the same week; the new arm ran on this branch at `5e3f9c4`, before the last
-edits listed below. The pages were scored blind on stills, out of 10, by one model in three
-reviewer roles. No human panel.
+baseline runs of the same week. The pages were scored blind on stills, out of 10, by one model
+in three reviewer roles. No human panel.
 
-| Set | This release | 4.1.3 | Anthropic's frontend-design | No plugin |
+**Rounds 1 to 3, the last one reported.** The new arm ran on this branch at `5e3f9c4`, before
+the review edits and before the rule on example values.
+
+| Set | This branch | 4.1.3 | Anthropic's frontend-design | No plugin |
 |---|---|---|---|---|
 | M1 (new run 1, 4.1.3 run 2, the others run 1) | 7.50 | 5.17 | 7.33 | 5.83 |
 | M2 (new run 2, 4.1.3 run 1, the others run 2) | 7.67 | 4.33 | 7.17 | 5.67 |
@@ -70,42 +101,80 @@ reviewer roles. No human panel.
   six votes agree on both.
 - **Level with frontend-design.** The new pages lead by 0.2 and 0.5 points, and the same
   unchanged pages moved by up to 0.8 between judging rounds. That lead is inside the noise.
-- **Tuned on this brief.** The rules were adjusted over three rounds against the same two
-  frontend-design pages, and the last round is reported. Every run of every round is kept.
+- **Both new pages showed an example invoice with invented quantities and prices**, labelled as
+  illustrative, on a brief that asked to invent no other figure. The rule on example values
+  above was written for that.
 - **Two other briefs, one run each, were held to watch for a regression** (`etale-landing` 7.50
   against 7.17 for the earlier page, `nocturne-planetarium` 6.83 against 5.33). The judges saw
   none. That is too few runs to say more: the earlier nocturne page, unchanged, moved by 1.5
   points between judging rounds.
 
+**Round 4, the rule on example values.** Two arms, two runs each, on the same brief: the paint
+text of this release without the rule, and with it. This time the three reviewer roles were told
+to weigh the brief's "invent no figure" as its author would. Rounds 1 to 3 did not say that, so
+these scores do not compare with the table above, and the instruction counts against any page
+that invents figures. Each set holds one page of each arm and two baseline pages. Means
+recomputed from the raw votes, three per page.
+
+| Set | With the rule | Without the rule | 4.1.3 | Anthropic's frontend-design | No plugin |
+|---|---|---|---|---|---|
+| M1 (run 1 of each arm, the others run 1) | 8.00 | 6.50 | not in this set | 6.67 | 7.33 |
+| M2 (run 2 of each arm, 4.1.3 run 1, frontend-design run 2) | 7.83 | 6.83 | 7.00 | 6.33 | not in this set |
+
+- **No invented figure on the two pages run with the rule.** Each shows an example table made
+  of words (the kinds of mismatch, the states), and every figure on the page is in the brief.
+  The two pages run without it, and the two frontend-design pages, invent quantities and prices.
+- **The pages with the rule come first in both sets, on all three votes**, 1.5 and 1.0 points
+  above the pages without it, and 0.67 and 0.83 above the next page.
+- **Judged that way, the text without the rule is below the no-plugin page (M1) and the 4.1.3
+  page (M2).** The lead over 4.1.3 and no plugin in rounds 1 to 3 does not hold for a reader who
+  counts the invented figures.
+- **All four runs built on the first try, with no human edit, and passed the three graders.**
+
 Runs, receipts, stills and the comparison:
 [genjutsu-examples, baseline-2026-11](https://github.com/AThevon/genjutsu-examples/tree/main/baseline-2026-11).
 
+### Measured, on SwiftUI
+
+One case, `etale-ios`: `cast` asked, headless, to make a list row open into its detail "as one
+surface, not a push". Run once on 4.1.3 and once on the fixed modules, same prompt, same model,
+same starting app. Both were written without a compiler, then built with `xcodebuild`, unchanged,
+on the first try, and filmed in the simulator.
+
+- **On 4.1.3 the run built the transition by hand**: 487 lines added and 78 removed, the
+  navigation stack, the bar and the swipe back given up, and a drag to close that flickers on
+  every frame.
+- **On the fixed modules the run used the system zoom transition**: 78 lines added, none
+  removed. The stack, the bar, the back button and the swipe back are kept, and no drag
+  flickers. Its audit printed the new check and reported two problems, both true. It has smaller
+  defects of its own, listed in the receipt.
+- **This does not prove the fix caused it.** The second run named the zoom transition in its
+  thesis before it loaded any module, as the pipeline orders it. One run on each side cannot
+  tell the fix from chance.
+
+Both runs, their code, films and receipt:
+[genjutsu-examples, etale-ios](https://github.com/AThevon/genjutsu-examples/tree/main/etale-ios).
+
 ### What did not move, and what is not measured
 
-- **Cost.** A paint run on this brief costs about 2 USD (1.94 and 1.99 in the last round, 1.94 to
-  3.07 over the six candidate runs), against 1.64 to 1.73 on 4.1.3, 0.64 to 0.68 with
-  frontend-design and 0.46 with no plugin: about 4.3 times the no-plugin run, where 4.1.3 was at
+- **Cost.** A paint run on this brief costs about 2 USD (1.95 and 1.93 with the rule, 1.93 to
+  3.07 over the ten candidate runs), against 1.64 to 1.73 on 4.1.3, 0.64 to 0.68 with
+  frontend-design and 0.46 with no plugin: about 4.2 times the no-plugin run, where 4.1.3 was at
   about 3.7.
-- **The example invoice uses made-up values.** Like the frontend-design pages, both new pages
-  show an example invoice with invented quantities and prices, labelled as illustrative, on a
-  brief that asked to invent no other figure. paint allows "an example labelled as an example",
-  and the headless sentence about the scope of a prohibition did not stop it. In a headless run
-  this also sits badly with the tells rule that an unvalidated thesis allows nothing. Not
-  settled in this release.
-- **The six reading entries were not printed** in the final report of the two `minimal-saas`
-  runs, whose brief asks for a short report. The line that says a short report keeps them was
-  added after the runs.
-- **One of the two new runs failed the `paint-loaded` grader**, and its final message carried
-  one U+2014. Its page is the higher scored of the two.
-- **Text changed after the runs, from review, and not rerun**: the `First screen:` and
-  `The one motion:` lines as labelled lines under a one-sentence thesis; "when the product works
-  on values" and "when the product has one" in front of the value and signal clauses; the native
-  reading of a wide frame, a section and a script; the limits in preserve and partial mode; the
-  proposal before a merge when someone is answering; "validated" back in the load rule; the
-  tells question about a faked product.
+- **The six reading entries do not open the final report.** The brief asks for a short report,
+  and a line now says a short report keeps them. In round 4, with that line, none of the four
+  reports opens on them.
+- **Tuned on this brief.** The rules were adjusted over four rounds on `minimal-saas`, against
+  the same baseline pages. Every run of every round is kept. No other brief was run in round 4.
+- **Small samples, one judge model.** Two runs per arm on the web, one run per side on SwiftUI,
+  one model in three roles, no human panel. Claude Code was 2.1.325 in round 4 against 2.1.323
+  before.
+- **The release as merged was not run.** Round 4 ran paint without the new audit check, and the
+  SwiftUI runs ran cast without the headless and tells changes of this release.
 - **Not measured at all**: a conversation with someone answering, where the thesis to approve is
-  now longer; cast and bunshin with the new headless sentence; Compose and SwiftUI; motion,
-  which stills do not show; any brief that is not a minimal landing page.
+  now longer; bunshin, and cast on the web, with the new headless sentence; Compose, which has
+  no recorded run; motion on the web, which stills do not show; any web brief that is not a
+  minimal landing page.
 
 ## v4.1.4 - 2026-11-13
 
