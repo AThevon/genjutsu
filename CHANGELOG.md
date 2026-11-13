@@ -104,6 +104,8 @@ the review edits and before the rule on example values.
 - **Both new pages showed an example invoice with invented quantities and prices**, labelled as
   illustrative, on a brief that asked to invent no other figure. The rule on example values
   above was written for that.
+- **The run behind the M2 score failed the `paint-loaded` grader** (score 0.67): its trace does
+  not show that the modules `paint` asks for were loaded.
 - **Two other briefs, one run each, were held to watch for a regression** (`etale-landing` 7.50
   against 7.17 for the earlier page, `nocturne-planetarium` 6.83 against 5.33). The judges saw
   none. That is too few runs to say more: the earlier nocturne page, unchanged, moved by 1.5
@@ -111,9 +113,9 @@ the review edits and before the rule on example values.
 
 **Round 4, the rule on example values.** Two arms, two runs each, on the same brief: the paint
 text of this release without the rule, and with it. This time the three reviewer roles were told
-to weigh the brief's "invent no figure" as its author would. Rounds 1 to 3 did not say that, so
-these scores do not compare with the table above, and the instruction counts against any page
-that invents figures. Each set holds one page of each arm and two baseline pages. Means
+to weigh the brief's "invent no figure" as its author would, and saw two stills per page, not
+three. Rounds 1 to 3 did not say that, so these scores do not compare with the table above, and
+the instruction counts against any page that invents figures. Each set holds one page of each arm and two baseline pages. Means
 recomputed from the raw votes, three per page.
 
 | Set | With the rule | Without the rule | 4.1.3 | Anthropic's frontend-design | No plugin |
@@ -126,8 +128,9 @@ recomputed from the raw votes, three per page.
   The two pages run without it, and the two frontend-design pages, invent quantities and prices.
 - **The pages with the rule come first in both sets, on all three votes**, 1.5 and 1.0 points
   above the pages without it, and 0.67 and 0.83 above the next page.
-- **Judged that way, the text without the rule is below the no-plugin page (M1) and the 4.1.3
-  page (M2).** The lead over 4.1.3 and no plugin in rounds 1 to 3 does not hold for a reader who
+- **Judged that way, the text without the rule is below the no-plugin page in M1 (6.50 against
+  7.33) and no higher than the 4.1.3 page in M2 (6.83 against 7.00, one vote of three apart).**
+  The lead over 4.1.3 and no plugin in rounds 1 to 3 does not hold for a reader who
   counts the invented figures.
 - **All four runs built on the first try, with no human edit, and passed the three graders.**
 
