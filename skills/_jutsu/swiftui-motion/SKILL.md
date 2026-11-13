@@ -25,7 +25,8 @@ metadata:
 | Multiple coordinated states | `PhaseAnimator(phases)` (iOS 17+) |
 | Time-based keyframes | `KeyframeAnimator(initialValue:repeating:content:)` (iOS 17+) |
 | Custom property animations | `@Animatable` macro (needs Xcode 26 / SwiftUI 2025 SDK to compile; **runtime availability iOS 13.0+ / macOS 10.15+ / watchOS 6.0+**) or the `Animatable` protocol by hand (iOS 13+) |
-| Shared element transitions | `matchedGeometryEffect(id:in:)` |
+| Row or card opens a pushed or presented screen | `navigationTransition(.zoom(sourceID:in:))` + `matchedTransitionSource(id:in:)` (iOS 18+) |
+| Shared element inside one hierarchy, no navigation | `matchedGeometryEffect(id:in:)` |
 | Gesture-driven | `DragGesture` / `MagnifyGesture` + `.offset` / `.scaleEffect` |
 | Loop forever | `.animation(.linear.repeatForever(autoreverses: true), value: ...)` or `.phaseAnimator` |
 
@@ -108,7 +109,43 @@ iOS 17+ also has the `.transition(_:)` modifier with custom transitions via the 
 
 ---
 
-## matchedGeometryEffect (hero animations)
+## Shared element transitions
+
+### A row or card opens a screen: the system zoom transition (iOS 18+)
+
+When the destination is pushed in a `NavigationStack` or presented as a sheet, start here. Tag the source with `matchedTransitionSource(id:in:)` and the destination with `navigationTransition(.zoom(sourceID:in:))`: the destination grows out of the source and shrinks back into it. It stays a navigation destination, so the stack, the bar and its back button stay, and the transition is interactive: people can grab it and drag it back at any point.
+
+```swift
+struct Today: View {
+    @Namespace private var ns
+    let slacks: [Slack]  // Identifiable, Hashable
+
+    var body: some View {
+        NavigationStack {
+            List(slacks) { slack in
+                NavigationLink(value: slack) {
+                    SlackRow(slack: slack)
+                        .matchedTransitionSource(id: slack.id, in: ns)
+                }
+            }
+            .navigationDestination(for: Slack.self) { slack in
+                SlackDetail(slack: slack)
+                    .navigationTransition(.zoom(sourceID: slack.id, in: ns))
+            }
+        }
+    }
+}
+```
+
+- Same `id` and same `Namespace` on both sides. Put `navigationTransition` on the destination's root view, outside any container such as `VStack`.
+- Availability: iOS / iPadOS 18.0, visionOS 2.0, watchOS 11.0. `.zoom` does not exist on macOS, and tvOS falls back to the automatic transition. With a deployment target below iOS 18, gate it with `if #available(iOS 18.0, *)` and keep the system push on older versions.
+- The system owns the curve and the duration. A thesis that needs its own spring, or lines that travel separately, is asking for something else: it says so.
+
+**What a hand-built overlay costs.** Mounting the detail in a `ZStack` above the stack to get the same picture gives up what the navigation stack did for free: the edge-swipe back, the bar with its title and back button, the VoiceOver escape gesture (to wire by hand with `.accessibilityAction(.escape)`), and state restoration and deep links (the navigation path no longer says which screen is open). A thesis can still choose it; it then names each loss and what replaces it.
+
+### matchedGeometryEffect (same hierarchy, no navigation)
+
+Still the right tool when both views live in one view hierarchy and nothing is pushed or presented: a tab indicator that slides, a card that expands in place, a thumbnail that swaps for a larger one on the same screen.
 
 Tag two views with the same `id` in the same `Namespace`. SwiftUI interpolates frame and position when the source view is replaced.
 
@@ -264,10 +301,13 @@ For multi-property shapes use `AnimatablePair<A, B>` (or nested pairs) as `anima
 
 ```swift
 let tap = TapGesture().onEnded { print("tap") }
-let drag = DragGesture().onChanged { value in offset = value.translation }
+let drag = DragGesture(coordinateSpace: .global).onChanged { value in offset = value.translation }
 ZStack { ... }
+    .offset(offset)
     .gesture(tap.simultaneously(with: drag))
 ```
+
+**A drag that moves its own view reads in a stable space.** When the gesture sits inside the `.offset` or `.scaleEffect` that its translation drives (on that view, or on a descendant such as a header that drags its whole sheet), pass `coordinateSpace: .global` or a named space on an ancestor that does not move. The default `.local` space moves with the view: each frame the translation is measured again from the moved view, feeds back, and the view flickers between two positions.
 
 Three composition operators: `.simultaneously(with:)` (parallel recognition), `.sequenced(before:)` (one must complete first), `.exclusively(before:)` (one or the other, not both). For fine-grained control over when child views can claim the gesture, use `.simultaneousGesture(_, including: GestureMask)` with `.gesture`, `.subviews`, `.all`, or `.none`. Deep-dive: `references/gestures-swiftui.md`.
 

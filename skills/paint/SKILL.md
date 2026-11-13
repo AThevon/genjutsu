@@ -954,6 +954,15 @@ finding, and an item you could not check is reported as **not checked** rather t
       never changed here: it is listed for the user. Nothing on the protected list of an existing
       project (public token names, URLs, navigation labels, form field names, logo, legal mentions)
       is changed by this step.
+- [ ] **Loaded modules against code.** For each module loaded, walk its rules that bear on the
+      lines this run wrote (read `git diff` when the project has one) and report every rule the
+      code departs from, with its `file:line`. A module rule is a default with its reason, so a
+      departure has two outcomes, never a third: **licensed by the thesis**, quoting the thesis
+      sentence that names the departure and what is lost; or **a problem**. A sentence that
+      exists only in the code or in the final report licenses nothing, and a licence from a
+      thesis marked UNVALIDATED is listed for the user to confirm. Evidence: one line per
+      departure, e.g. `mobile-principles, swipe-back - Detail.swift:94 - problem`, or the modules
+      walked and "no departure".
 
 ### You must run these - not verified here
 
