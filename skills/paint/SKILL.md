@@ -856,11 +856,11 @@ Otherwise stick to the base motion sub-skill.
 
 Implementation rules:
 - Work **page by page** or **component by component** - never try to do everything at once.
-- Every color, font, spacing, shadow, radius MUST come from MASTER.md tokens. No magic numbers.
+- Every color, font, spacing, shadow, radius MUST come from MASTER.md tokens. No magic numbers. A colour keeps the job the thesis gave it.
 - Every animation MUST respect the interaction thesis (timing, easing, forbidden patterns).
 - Apply the 5-state rule for interactive elements: **default, hover, focus, active, disabled**.
-- Every block wider than a line of text (a table, a figure, a row of columns, a long unbroken string) gets its narrowest-frame form in the same edit that writes it, on native at the compact width and the largest text size: what it becomes there is a decision, never what is left over.
-- A stretch whose content arrives by scroll, script or input holds its resting content without them. A stretch or an area left empty is a decision the thesis states, or it is closed.
+- Every block wider than a line of text (a table, a figure, a row of columns, a long unbroken string) gets its narrowest-frame form in the same edit that writes it, on native at the compact width and the largest text size: what it becomes there is a decision, never what is left over, and each value stays beside what names it (its header, its unit).
+- A stretch whose content arrives by scroll, script or input holds its resting content without them. A stretch or an area left empty is a decision the thesis states, or it is closed. A section or screen adds something no earlier one showed; one that only restates is merged into the one it repeats.
 - Ask the user for validation after each major page/section before moving to the next.
 
 ---
@@ -1042,9 +1042,6 @@ like the handed-over group of the audit.
 | "The user seems impatient, let's skip to coding" | Use the pressure protocol. A bad thesis costs days, not minutes. |
 | "This animation would be cool even though the thesis says no bounce" | The thesis is law. Change it? Re-validate with the user first. |
 | "The audit can wait, the user seems happy" | The audit is not optional. Phase 5 always runs - shortened on light scope, never skipped. |
-| "I'll interpret 'yeah something like that' as a yes" | That's not confirmation. Ask which part resonates. |
-| "I'll list the palette as hex codes, that's precise" | Precise and unreviewable. Show it in the session's preview mode. |
-| "The preview page looks good, I'll build the app from it" | The preview is throwaway. Build from MASTER.md. |
 | "Nobody is answering, so the safest thesis is the one that promises least" | A thesis that shows nothing passes every check and loses the page. Name the first screen and the one motion, or what stands in their place. |
 | "I can't render the approved font here, the system face is safer" | The sandbox is not the site. Load the approved face behind a matched fallback and say it was not rendered here. |
 | "This is a whole site, I'll switch to bunshin, it is clearly better" | Propose it once, with its cost, and switch only on a yes. It spends millions of tokens. |
