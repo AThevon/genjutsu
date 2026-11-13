@@ -103,6 +103,12 @@ mutate "$WORK/escalate-drift/skills/paint/SKILL.md" \
 expect "the escalate region edited in paint only fails" 1 escalate-drift \
   "FAIL [escalate]: shared block drifted between cast and paint"
 
+copy thesis-modules-drift
+mutate "$WORK/thesis-modules-drift/skills/paint/SKILL.md" \
+  't.replace("so the module\x27s way stands: rewrite", "so the thesis stands: keep", 1)'
+expect "the thesis-modules region edited in paint only fails" 1 thesis-modules-drift \
+  "FAIL [thesis-modules]: shared block drifted between cast and paint"
+
 # feedback closes the final report of all three. Its link names the form's file
 # and field ids, so one copy left on an old link sends reports nowhere.
 copy feedback-drift
@@ -154,7 +160,8 @@ done
 expect "a feedback region without the form link fails" 1 feedback-no-link \
   "FAIL [feedback-link]: no issues/new link"
 
-# bunshin carries seven of the regions, compared with cast's, and never escalate.
+# bunshin carries seven of the regions, compared with cast's, and never escalate
+# or thesis-modules.
 copy bunshin-drift
 mutate "$WORK/bunshin-drift/skills/bunshin/SKILL.md" \
   't.replace("# 2. Android / Compose", "# 2. Android and Compose", 1)'

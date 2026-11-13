@@ -526,7 +526,7 @@ grep -rE 'viewport.*width=device-width|@media.*pointer:\s*coarse|@media.*max-wid
 ls public/manifest.json public/sw.js 2>/dev/null
 
 # 7. Legacy bridge indicators (mention in DISCOVER, do not auto-load)
-ls -- *.xib *.storyboard 2>/dev/null
+find . -maxdepth 1 \( -name '*.xib' -o -name '*.storyboard' \) 2>/dev/null
 find . -path '*/res/layout/*.xml' 2>/dev/null | head -1
 grep -rE 'setContentView\(R\.layout' --include='*.kt' --include='*.java' . 2>/dev/null | head -1
 ```

@@ -418,7 +418,7 @@ grep -rE 'viewport.*width=device-width|@media.*pointer:\s*coarse|@media.*max-wid
 ls public/manifest.json public/sw.js 2>/dev/null
 
 # 7. Legacy bridge indicators (mention in DISCOVER, do not auto-load)
-ls -- *.xib *.storyboard 2>/dev/null
+find . -maxdepth 1 \( -name '*.xib' -o -name '*.storyboard' \) 2>/dev/null
 find . -path '*/res/layout/*.xml' 2>/dev/null | head -1
 grep -rE 'setContentView\(R\.layout' --include='*.kt' --include='*.java' . 2>/dev/null | head -1
 ```
@@ -854,6 +854,39 @@ The thesis is "advanced" (and triggers loading the graphics sub-skill) if it con
 
 Otherwise stick to the base motion sub-skill.
 <!-- genjutsu:shared:load:end -->
+
+<!-- genjutsu:shared:thesis-modules:start -->
+**Read the thesis against the modules, before any code.** The thesis (in paint, both) was
+written before these modules loaded, so nothing they teach has borne on it yet. After the last
+load, and before the variants or the first line of code, walk the rules of each loaded module
+that bear on what the thesis promises. A gap is one of two things: the thesis builds by hand
+what a module says the platform or the detected library provides (an overlay drawn by hand where
+the module starts from the system transition), or the thesis departs from a module default.
+Print one line per gap, `<module>, <rule> - <what the thesis does instead>`, or
+`Thesis against modules: no gap`, and go on.
+
+- **Someone is there.** A thesis a person approved is never changed silently. Give the gap in
+  one line, with what the module's way keeps and what it cannot do, and ask: revise, or keep?
+  One gap per question. A revise changes only what the gap touches, is shown as the revised
+  thesis and waits for a yes. A keep adds to the thesis the sentence that names the departure,
+  what it gives up and what replaces each thing given up.
+- **Nobody is answering.** Nobody accepted the cost, so the module's way stands: rewrite the
+  thesis on it, changing only what the gap touches, print the revised thesis whole, marked
+  UNVALIDATED, with one line under it, `Revised after LOAD: <what changed> - <module, rule>`,
+  and build that one. The final report prints both. Keep a departure only when the request
+  asks, in its own words, for a result the module's way cannot give: quote those words in the
+  thesis, with what is given up and what replaces it. A request asks for a result; the technique
+  the thesis chose to reach it is not the request, and a reason that comes from the thesis alone
+  keeps nothing. A thesis the request itself gave or approved is not rewritten: build it, and
+  list each gap in the final report.
+- **The preview made before LOAD shows the earlier thesis**, and nothing is built from it. With
+  someone there, show the revised thesis again in the session's mode when the revision changes
+  what the preview showed (the movement, the curve, a number), in one line otherwise. With
+  nobody answering, do not rebuild it: a preview file still in the project gets a first visible
+  line, `Shows the thesis before its revision after LOAD`, and the final report says so.
+
+The audit check "Loaded modules against code" still runs afterwards, on the code.
+<!-- genjutsu:shared:thesis-modules:end -->
 
 Implementation rules:
 - Work **page by page** or **component by component** - never try to do everything at once.

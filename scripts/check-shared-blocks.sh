@@ -10,7 +10,9 @@
 #
 # cast and paint carry every region in REGIONS. bunshin carries every region in
 # BUNSHIN_REGIONS, byte-identical to cast's, and never escalate: escalate is the
-# proposal cast and paint make to switch to bunshin.
+# proposal cast and paint make to switch to bunshin. Nor thesis-modules: bunshin's
+# thesis is a contract file its clones and reviewers hold, and that text does not
+# fit it.
 #
 # The link in the feedback region is also checked against the issue form it
 # names: the file exists, and every field the link fills is a text field in it.
@@ -20,7 +22,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CAST="$ROOT/skills/cast/SKILL.md"
 PAINT="$ROOT/skills/paint/SKILL.md"
 BUNSHIN="$ROOT/skills/bunshin/SKILL.md"
-REGIONS=(scan skill-base load preview audit headless escalate feedback)
+REGIONS=(scan skill-base load preview audit headless escalate feedback thesis-modules)
 BUNSHIN_REGIONS=(scan skill-base load preview audit headless feedback)
 
 extract() { # <file> <region>

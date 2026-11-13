@@ -47,6 +47,16 @@ more than before, not less.
   For each module the run loaded, it walks the rules that bear on the lines the run wrote and
   reports each departure with its `file:line`. A departure is licensed by a sentence of the
   validated thesis, quoted, or it is a problem. A thesis marked UNVALIDATED licenses nothing.
+- **cast and paint read the thesis against the modules right after loading them, before any
+  code.** The thesis is written before the modules load, so the audit check above could only
+  list a departure once the code existed. Where the thesis builds by hand what a module says the
+  platform or the library provides, or departs from a module default, the run now says so
+  first. With someone there it asks, revise or keep, and an approved thesis is never changed
+  silently. With nobody answering it rewrites the thesis on the module's way, prints it with a
+  `Revised after LOAD:` line and builds that; a departure stays only when the request asks, in
+  its own words, for a result the module's way cannot give. bunshin is unchanged.
+- **The scan no longer fails under zsh when the project has no `.xib` or `.storyboard`.** The
+  line was an `ls` on two globs, which zsh refuses when nothing matches; it is a `find` now.
 - **The headless region, shared by cast, paint and bunshin, has one more sentence.** A
   prohibition in the brief is read at the scope it states, never wider, and when an assumption
   takes something out (a picture, a motion, a chosen typeface), the thesis says what stands in
@@ -62,7 +72,7 @@ more than before, not less.
 - **paint lost text other rules already state**: eight lines of the red-flag table (one new line
   replaces them: "the safest thesis is the one that promises least"), the two one-line thesis
   examples, the `--persist` paragraph and the long form of the MCP tools section. `SKILL.md`
-  still grew, from 68,075 to 74,594 characters.
+  still grew, from 68,075 to 77,181 characters.
 
 ### Changed, on SwiftUI
 
@@ -155,6 +165,10 @@ on the first try, and filmed in the simulator.
 - **This does not prove the fix caused it.** The second run named the zoom transition in its
   thesis before it loaded any module, as the pipeline orders it. One run on each side cannot
   tell the fix from chance.
+- **A third run, on this release before the step that reads the thesis against the modules,
+  built the transition by hand again**: 434 lines added, 59 removed, with visible defects. Its
+  audit named the hand-built surface as a problem and changed nothing: the thesis was written
+  before the modules loaded. That step was added for this, and has not been run.
 
 Both runs, their code, films and receipt:
 [genjutsu-examples, etale-ios](https://github.com/AThevon/genjutsu-examples/tree/main/etale-ios).
