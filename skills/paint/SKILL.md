@@ -593,11 +593,11 @@ From the brainstorm, produce two theses:
 
 One sentence for the visual identity, one for the first screen. **Must explicitly address all five:**
 
-- **Color direction** - dark/light, palette family, accent color
+- **Color direction** - dark/light, palette family, accent color, and the job of each colour: what marks the action, and what marks the state or signal the product exists to show. One mark for both carries its reason
 - **Typography spirit** - the display face by name and why this one, or `display face: undecided, chosen at the design-system gate`; serif/sans/mono, weight usage, size contrast. The system face is a choice like any other and carries its reason too; when no web face can be requested, say what gives the type its voice without one
-- **Spacing philosophy** - dense/airy, base unit feel, and the starting edges and columns every section answers to: one set, or which sections leave it and why
+- **Spacing philosophy** - dense/airy, base unit feel, and the starting edges and columns every section answers to: one set, or which sections leave it and why. Reading measure is for running text: a table, a figure or a group of cards says what sets its width
 - **Component style** - rounded/sharp, bordered/filled, elevated/flat
-- **First screen** - of what this run composes (a page, a screen, a window): the one thing it shows, beyond a title and an action, that only this product could show; what it is made of (the project's own material, or an example labelled as an example, never an invented customer, metric or quote); on a wide frame, what takes the width and what stays at reading measure; on the narrowest frame it will meet, the form it takes so that the part carrying the idea stays whole and in view; and at rest, before any input or motion, it already shows the idea. `Words alone` is an answer only with what then carries the screen
+- **First screen** - of what this run composes (a page, a screen, a window): the one thing it shows, beyond a title and an action, that only this product could show, in the values the product works on rather than marks standing for them, and treated as the page says the product treats it; what it is made of (the project's own material, or an example labelled as an example, never an invented customer, metric or quote); on a wide frame, what takes the width, what stays at reading measure, and what stands whole before any scroll; on the narrowest frame it will meet, the form it takes so that the part carrying the idea stays whole and in view, each value beside what names it; and at rest, before any input or motion, it already shows the idea. `Words alone` is an answer only with what then carries the screen
 
 **Self-check:** read your thesis back. If any of the five areas is missing or vague ("nice typography", "a clean hero"), rewrite it before presenting.
 
