@@ -2,6 +2,111 @@
 
 All notable changes to this plugin are documented here. Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## v4.2.0 - 2026-11-13
+
+A `paint` run with nobody to answer used to come out empty: a title, a button, and nothing only
+this product could show. The thesis now has to name a first screen, the job of each colour and
+the one motion, and to say what stands in place of anything an assumption takes out. On our one
+minimal landing brief the pages are no longer empty. A run costs more than before, not less.
+
+### Changed
+
+- **paint clears the ground before the theses.** It names the page this category publishes by
+  routine and its predictable opposite, lists five worlds the design could draw from, sets the
+  first two aside and writes both theses from one of the other three. What the user brought or
+  confirmed is kept as given. The outcome is one line, `Set aside: ... Kept: ...`, under the
+  theses and in the final report. Light scope and preserve mode skip it.
+- **The visual thesis has a fifth point, `First screen:`**, a labelled line under the identity
+  sentence: the one thing the screen shows that only this product could show, what it is made of
+  (the project's own material, or an example labelled as an example), what takes the width on a
+  wide frame, the form it takes on the narrowest frame, and that it already shows the idea at
+  rest. The colour point gives each colour its job, the typography point asks for the reason
+  behind a system face, the spacing point names the edges and columns every section answers to.
+- **The interaction thesis has a fifth point, `The one motion:`**: the moment where the interface
+  does what the product does, with its trigger, what is on screen if it never runs and its
+  reduced-motion form, or `none` with what states the idea in its place. Not asked on light scope.
+- **Phase 4 has two more rules, for what the run writes.** A block wider than a line of text gets
+  its narrowest-frame form in the same edit that writes it. A stretch left empty is a decision
+  the thesis states, or it is closed, and a section that only restates an earlier one is merged
+  into it. A section that was already in the project is never merged or closed by these rules.
+- **Phase 5 reads the page from the code before the checklist**, outside light scope: six
+  labelled entries, each with its `file:line` (`First screen:`, `Sections:`, `Narrowest frame:`,
+  `Empty stretches:`, `Colour roles:`, `The one motion:`). What comes back `not found` is built
+  from the thesis, in one round, on the lines the run wrote. With someone answering, merging a
+  validated section or taking a decision the validated thesis does not hold is proposed first.
+  The entries open the checked group of the report and are not counted in its checks.
+- **The headless region, shared by cast, paint and bunshin, has one more sentence.** A
+  prohibition in the brief is read at the scope it states, never wider, and when an assumption
+  takes something out (a picture, a motion, a chosen typeface), the thesis says what stands in
+  its place.
+- **`tells` loads once the thesis is written and, when someone is there to answer, validated;
+  never before.** The load region of the three orchestrators and the module's protocol say so.
+  The region also said the module weighs "about 20,000 characters" with its web reference: it
+  is close to 25,000.
+- **tells: a tell taken out leaves a place.** An empty place is a default too, so the thesis says
+  what stands there, or that nothing does and why. The module still names no replacement. "Fake
+  product drawn in divs" now means boxes passed off as the product, and its question asks first
+  whether the project's own material shows what the product does.
+- **paint lost text other rules already state**: eight lines of the red-flag table (one new line
+  replaces them: "the safest thesis is the one that promises least"), the two one-line thesis
+  examples, the `--persist` paragraph and the long form of the MCP tools section. `SKILL.md`
+  still grew, from 68,075 to 73,208 characters.
+
+### Measured
+
+One brief, `minimal-saas`: a landing page for an invoice-matching product, with an explicit
+request for a minimal, restrained style, run headless with `claude plugin eval` on
+`claude-opus-5-5`. Two runs per arm. The 4.1.3, frontend-design and no-plugin pages are the
+baseline runs of the same week; the new arm ran on this branch at `5e3f9c4`, before the last
+edits listed below. The pages were scored blind on stills, out of 10, by one model in three
+reviewer roles. No human panel.
+
+| Set | This release | 4.1.3 | Anthropic's frontend-design | No plugin |
+|---|---|---|---|---|
+| M1 (new run 1, 4.1.3 run 2, the others run 1) | 7.50 | 5.17 | 7.33 | 5.83 |
+| M2 (new run 2, 4.1.3 run 1, the others run 2) | 7.67 | 4.33 | 7.17 | 5.67 |
+
+- **Above the 4.1.3 pages by 2.3 and 3.3 points, above the no-plugin pages by 1.7 and 2.0.** All
+  six votes agree on both.
+- **Level with frontend-design.** The new pages lead by 0.2 and 0.5 points, and the same
+  unchanged pages moved by up to 0.8 between judging rounds. That lead is inside the noise.
+- **Tuned on this brief.** The rules were adjusted over three rounds against the same two
+  frontend-design pages, and the last round is reported. Every run of every round is kept.
+- **Two other briefs, one run each, were held to watch for a regression** (`etale-landing` 7.50
+  against 7.17 for the earlier page, `nocturne-planetarium` 6.83 against 5.33). The judges saw
+  none. That is too few runs to say more: the earlier nocturne page, unchanged, moved by 1.5
+  points between judging rounds.
+
+Runs, receipts, stills and the comparison:
+[genjutsu-examples, baseline-2026-11](https://github.com/AThevon/genjutsu-examples/tree/main/baseline-2026-11).
+
+### What did not move, and what is not measured
+
+- **Cost.** A paint run on this brief costs about 2 USD (1.94 and 1.99 in the last round, 1.94 to
+  3.07 over the six candidate runs), against 1.64 to 1.73 on 4.1.3, 0.64 to 0.68 with
+  frontend-design and 0.46 with no plugin: about 4.3 times the no-plugin run, where 4.1.3 was at
+  about 3.7.
+- **The example invoice uses made-up values.** Like the frontend-design pages, both new pages
+  show an example invoice with invented quantities and prices, labelled as illustrative, on a
+  brief that asked to invent no other figure. paint allows "an example labelled as an example",
+  and the headless sentence about the scope of a prohibition did not stop it. In a headless run
+  this also sits badly with the tells rule that an unvalidated thesis allows nothing. Not
+  settled in this release.
+- **The six reading entries were not printed** in the final report of the two `minimal-saas`
+  runs, whose brief asks for a short report. The line that says a short report keeps them was
+  added after the runs.
+- **One of the two new runs failed the `paint-loaded` grader**, and its final message carried
+  one U+2014. Its page is the higher scored of the two.
+- **Text changed after the runs, from review, and not rerun**: the `First screen:` and
+  `The one motion:` lines as labelled lines under a one-sentence thesis; "when the product works
+  on values" and "when the product has one" in front of the value and signal clauses; the native
+  reading of a wide frame, a section and a script; the limits in preserve and partial mode; the
+  proposal before a merge when someone is answering; "validated" back in the load rule; the
+  tells question about a faked product.
+- **Not measured at all**: a conversation with someone answering, where the thesis to approve is
+  now longer; cast and bunshin with the new headless sentence; Compose and SwiftUI; motion,
+  which stills do not show; any brief that is not a minimal landing page.
+
 ## v4.1.4 - 2026-11-13
 
 A door for feedback. A finished run of `cast`, `paint` or `bunshin` now ends its report with a
