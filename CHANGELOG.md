@@ -4,9 +4,9 @@ All notable changes to this plugin are documented here. Format inspired by [Keep
 
 ## v4.1.4 - 2026-11-13
 
-A door for feedback. Every final report of `cast`, `paint` and `bunshin` now ends with a link to
-a one-minute form: which skill, how it came out. The README says what is tested and what is not.
-Nothing else a skill loads or does changed.
+A door for feedback. A finished run of `cast`, `paint` or `bunshin` now ends its report with a
+link to a one-minute form: which skill, how it came out. The README says what is tested and what
+is not. Nothing else a skill loads or does changed.
 
 ### Added
 
@@ -16,24 +16,31 @@ Nothing else a skill loads or does changed.
   the permission to feature it are optional. Until now the only forms asked for a bug with its
   resolution error or a correction with its primary source, and nobody could simply say "it came
   out plain". Output that came out wrong is as useful as output that came out well.
-- **Every final report ends with the link to that form**, in two short lines at most, once per
-  run, in a headless run too, and not when the run stopped before producing anything. The link
-  fills in the skill, and the genjutsu version, the host and the model when the run knows them:
-  the version is only known on a Claude Code plugin install, where the install path carries it.
-  Nothing from your project goes in the URL (no request, name, path or content), and nothing is
-  sent unless you open the link and submit the form. The block is a new shared region,
-  `feedback`, byte-identical in the three orchestrators and guarded by
-  `scripts/check-shared-blocks.sh`.
+- **A finished run ends its report with the link to that form**: two fixed lines, once per
+  conversation, on the first report of a run that wrote code into the project, in a headless run
+  too, and never on a run that wrote none. The link fills in the skill, and the genjutsu version,
+  the host and the model when the run knows them: the version is only known on a Claude Code
+  plugin install, where the install path carries it. Nothing from your project goes in the URL
+  (no request, name, path or content). The skill is told to print the link and stop there: never
+  to open it, file the issue or fill the form itself. Nothing is sent unless you open the link
+  and submit the form. The block is a new shared region, `feedback`, byte-identical in the three
+  orchestrators and guarded by `scripts/check-shared-blocks.sh`, which also fails when the link
+  names a form or a text field that does not exist.
 
 ### Changed
 
-- **The README says what has been tested.** The Compose and SwiftUI modules ship, but every
-  recorded example is web: no native run has been compiled and recorded yet. genjutsu is
-  developed on Claude Code with Claude models; other agents and other models are not tested. The
-  eval table carries its date: measured on 2026-09-28, on commit `ef31234` of the branch that
-  became v4.0.0, and not rerun since.
+- **The README says what has been tested, and no more.** The Compose and SwiftUI modules ship,
+  but every recorded example is web: no native run has been compiled and recorded yet. genjutsu
+  is developed and run on Claude Code with Claude models. The claude.ai bundle was last checked
+  by hand on 2026-09-28, `cast` only; no Cowork run is logged; bunshin has only been run on
+  Claude Code; other agents and other models are not tested. `PLATFORM-CONTRACT.md` said that
+  Claude Code, claude.ai and Cowork "are tested by the maintainer before a release", which
+  `docs/claude-ai-testing.md` does not back: it now says what that log holds. The eval table
+  carries its date: measured on 2026-09-28, on commit `ef31234` of the branch that became
+  v4.0.0, and not rerun since.
 - The README gives the install command to hand to an agent, says once that this is not Higgsfield
-  Genjutsu, the video tool, and moves the feedback section up, under "Three scales".
+  Genjutsu, the video tool, and replaces "Show what you cast" with "Tell us how it came out",
+  which leads with the form.
 - The issue forms are numbered so the chooser lists them in order: `1-output.yml`,
   `2-pipeline-bug.yml`, `3-wrong-claim.yml`, `4-stale-version.yml`. A link carrying an old
   `template=` name no longer finds its form: update it.

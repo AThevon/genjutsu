@@ -45,8 +45,8 @@ with an honest "I could not verify this" is useful. A confident wrong correction
 
 **How a run came out.** The lowest bar there is: the
 [output form](https://github.com/AThevon/genjutsu/issues/new?template=1-output.yml) asks which
-skill and how it came out, and everything else is optional. Every final report ends with a link
-to it. Output that came out plain or wrong is as useful as output that came out well.
+skill and how it came out, and everything else is optional. A finished run ends its report with
+a link to it. Output that came out plain or wrong is as useful as output that came out well.
 
 **A wrong or stale claim.** Use the issue form:
 [a claim is wrong](https://github.com/AThevon/genjutsu/issues/new?template=3-wrong-claim.yml) or
@@ -163,9 +163,11 @@ See [`UPSTREAM.md`](./skills/_jutsu/ui-ux-pro-max/UPSTREAM.md).
 eight: `scan`, `skill-base`, `load`, `preview`, `audit`, `headless`, `feedback` and `escalate`.
 `skills/bunshin/SKILL.md` carries the first seven, byte-identical to cast's, and never `escalate`:
 that region is the proposal cast and paint make to switch to bunshin, and in bunshin it would
-propose bunshin to itself. `feedback` closes every final report with the link to the output
+propose bunshin to itself. `feedback` closes the report of a finished run with the link to the output
 form: its URL names the form's file (`1-output.yml`) and its field ids (`version`, `host`,
-`model`), so renaming either means editing the region in all three. GitHub fills a form's text
+`model`), so renaming either means editing the region in all three, and
+`scripts/check-shared-blocks.sh` fails when the link names a form or a text field that does not
+exist. GitHub fills a form's text
 fields from the URL and leaves its dropdowns alone (checked on 2026-11-13), which is why the
 skill travels in the title. Editing a region in one file without the others fails CI, and so
 does a region marker in a file that is not expected to carry it. They are duplicated rather than

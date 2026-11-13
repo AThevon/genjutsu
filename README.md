@@ -34,9 +34,7 @@ Claude Code skills that make an interface move, give a product its look, and bui
 
 Creative coding skills for [Claude Code](https://claude.ai/code), [claude.ai](https://claude.ai) and [Cowork](https://claude.com/product/cowork). Web (React, Vue, Svelte, Astro, vanilla CSS, Three.js, Canvas), Android (Jetpack Compose, Compose Multiplatform) and Apple (SwiftUI, iOS and macOS). `bunshin` is web only for now. The Compose and SwiftUI modules ship, but every recorded example below is web: no native run has been compiled and recorded yet.
 
-genjutsu is developed on Claude Code with Claude models. Claude Code, claude.ai and Cowork are tested before a release, bunshin on Claude Code only so far. Other agents install and run it through `npx skills`, and other models can drive it: neither is tested.
-
-Not Higgsfield Genjutsu, the video tool: genjutsu here is a set of skills for interface motion and design in coding agents.
+genjutsu is developed and run on Claude Code with Claude models. The claude.ai bundle was last checked by hand on 2026-09-28, `cast` only ([log](./docs/claude-ai-testing.md#7-log)); no Cowork run is logged; `bunshin` has only been run on Claude Code. Other agents can install it through `npx skills`, and nothing in the skills is tied to one agent or one model, but neither another agent nor another model has been tested.
 
 ## Install
 
@@ -68,12 +66,6 @@ The requests in the middle column are examples of what you might type, not recor
 | **`bunshin`**<br />a whole site, by a team of agents | `/genjutsu:bunshin redesign our architecture practice's whole site from the current one and our project PDFs` | It states its cost, then asks you twice: the tier, then the direction. An art director runs research, one builder per page, reviewers and fix rounds until a stop rule ends the loop. You get the site, `DESIGN.md`, `AGENTS.md` and a report of what was verified and what was not. |
 
 Not sure which one? Ask for the result you want and the right skill is picked; `cast` and `paint` propose `bunshin` once, with its cost, when the brief is a whole site. [The FAQ](https://genjutsu.athevon.dev/docs/faq) has the long answer.
-
-## Tell us how it came out
-
-One minute, two answers: [how did it come out?](https://github.com/AThevon/genjutsu/issues/new?template=1-output.yml) Output that came out wrong is as useful as output that came out well. Every final report ends with the same link, filled in with the skill, the version, the host and the model when the run knows them, and with nothing from your project.
-
-With more to show, post the run in [Show and tell](https://github.com/AThevon/genjutsu/discussions/categories/show-and-tell): the request you typed, the genjutsu version, a capture or a link, and whether we may feature it, with your credit. Questions go to [Q&A](https://github.com/AThevon/genjutsu/discussions/categories/q-a), ideas to [Ideas](https://github.com/AThevon/genjutsu/discussions/categories/ideas), bugs with a repro to [issues](https://github.com/AThevon/genjutsu/issues/new/choose).
 
 ## Examples
 
@@ -188,7 +180,13 @@ The table was measured on 2026-09-28, on commit `ef31234` of the branch that bec
 
 [Overview](https://genjutsu.athevon.dev/docs) · [Install](https://genjutsu.athevon.dev/docs/install) · [`cast`](https://genjutsu.athevon.dev/docs/cast) · [`paint`](https://genjutsu.athevon.dev/docs/paint) · [`bunshin`](https://genjutsu.athevon.dev/docs/bunshin) · [Modules](https://genjutsu.athevon.dev/docs/jutsu) · [Tells](https://genjutsu.athevon.dev/docs/tells) · [Principles](https://genjutsu.athevon.dev/docs/principles) · [FAQ](https://genjutsu.athevon.dev/docs/faq) · [Changelog](./CHANGELOG.md)
 
-Formerly `creative-excellence` (v2.x): the migration steps are in [CHANGELOG.md, v3.0.0](./CHANGELOG.md#v300---2026-04-26).
+Formerly `creative-excellence` (v2.x): the migration steps are in [CHANGELOG.md, v3.0.0](./CHANGELOG.md#v300---2026-04-26). Not Higgsfield Genjutsu, the video tool: genjutsu here is a set of skills for interface motion and design in coding agents.
+
+## Tell us how it came out
+
+One minute, two answers: [how did it come out?](https://github.com/AThevon/genjutsu/issues/new?template=1-output.yml) Output that came out wrong is as useful as output that came out well. A finished run ends its report with the same link, filled in with the skill, the version, the host and the model when the run knows them, and with nothing from your project.
+
+With more to show, post the run in [Show and tell](https://github.com/AThevon/genjutsu/discussions/categories/show-and-tell): the request you typed, the genjutsu version, a capture or a link, and whether we may feature it, with your credit. Questions go to [Q&A](https://github.com/AThevon/genjutsu/discussions/categories/q-a), ideas to [Ideas](https://github.com/AThevon/genjutsu/discussions/categories/ideas), bugs with a repro to [issues](https://github.com/AThevon/genjutsu/issues/new/choose).
 
 ## Contributing
 

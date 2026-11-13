@@ -136,9 +136,11 @@ written by the session that built the page is not an independent review. For its
 also wants Node 22 or later and a Chrome or Chromium binary; without them it runs, and says that
 its reviewers read code instead of renders.
 
-**What is supported.** Claude Code (plugin or `npx skills`), claude.ai and Cowork are tested by the
-maintainer before a release. bunshin is the exception: its step down on claude.ai and its
-behaviour on Cowork are not tested yet, and `docs/claude-ai-testing.md` step 5 has no logged
+**What is supported.** Claude Code (plugin or `npx skills`), claude.ai and Cowork. Claude Code is
+where genjutsu is developed and run. What has been checked on the other two is what
+`docs/claude-ai-testing.md` logs: the claude.ai bundle by hand on 2026-09-28, `cast` only, with
+`paint` not run, and no Cowork run. bunshin has only been run on Claude Code: its step down on
+claude.ai and its behaviour on Cowork are not tested yet, and step 5 of that file has no logged
 run. genjutsu also installs and runs in other agents through
 `npx skills add https://genjutsu.athevon.dev -g` (Codex, Cursor and others): not tested by the
 maintainer, not supported. Nothing in the skills behaves differently per agent, and nothing will.
