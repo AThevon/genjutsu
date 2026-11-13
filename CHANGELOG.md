@@ -113,10 +113,11 @@ the review edits and before the rule on example values.
 
 **Round 4, the rule on example values.** Two arms, two runs each, on the same brief: the paint
 text of this release without the rule, and with it. This time the three reviewer roles were told
-to weigh the brief's "invent no figure" as its author would, and saw two stills per page, not
-three. Rounds 1 to 3 did not say that, so these scores do not compare with the table above, and
-the instruction counts against any page that invents figures. Each set holds one page of each arm and two baseline pages. Means
-recomputed from the raw votes, three per page.
+to weigh the brief's "invent no figure" as its author would, and saw two stills per page where
+the earlier rounds saw three. Rounds 1 to 3 did not give that instruction, so these scores do
+not compare with the table above, and the instruction counts against any page that invents
+figures. Each set holds one page of each arm and two baseline pages. Means recomputed from the
+raw votes, three per page.
 
 | Set | With the rule | Without the rule | 4.1.3 | Anthropic's frontend-design | No plugin |
 |---|---|---|---|---|---|
