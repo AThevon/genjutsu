@@ -595,9 +595,9 @@ One sentence for the visual identity, one for the first screen. **Must explicitl
 
 - **Color direction** - dark/light, palette family, accent color
 - **Typography spirit** - the display face by name and why this one, or `display face: undecided, chosen at the design-system gate`; serif/sans/mono, weight usage, size contrast. The system face is a choice like any other and carries its reason too; when no web face can be requested, say what gives the type its voice without one
-- **Spacing philosophy** - dense/airy, base unit feel
+- **Spacing philosophy** - dense/airy, base unit feel, and the starting edges and columns every section answers to: one set, or which sections leave it and why
 - **Component style** - rounded/sharp, bordered/filled, elevated/flat
-- **First screen** - of what this run composes (a page, a screen, a window): the one thing it shows, beyond a title and an action, that only this product could show; what it is made of (the project's own material, or an example labelled as an example, never an invented customer, metric or quote); on a wide frame, what takes the width and what stays at reading measure. `Words alone` is an answer only with what then carries the screen
+- **First screen** - of what this run composes (a page, a screen, a window): the one thing it shows, beyond a title and an action, that only this product could show; what it is made of (the project's own material, or an example labelled as an example, never an invented customer, metric or quote); on a wide frame, what takes the width and what stays at reading measure; on the narrowest frame it will meet, the form it takes so that the part carrying the idea stays whole and in view; and at rest, before any input or motion, it already shows the idea. `Words alone` is an answer only with what then carries the screen
 
 **Self-check:** read your thesis back. If any of the five areas is missing or vague ("nice typography", "a clean hero"), rewrite it before presenting.
 
@@ -611,7 +611,7 @@ A single sentence that captures the motion and interaction language. **Must expl
 - **Hover behavior** - what happens on hover
 - **Scroll behavior** - reveals, parallax, or nothing
 - **Forbidden patterns** - what this project will NOT do
-- **The one motion** - the moment where the interface does what the product does, with its trigger and its reduced-motion form; or `none`, with what states the idea in its place. Not asked on light scope
+- **The one motion** - the moment where the interface does what the product does, with its trigger, what is on screen before it runs and if it never runs, and its reduced-motion form; or `none`, with what states the idea in its place. Not asked on light scope
 
 **Cross-platform thesis examples:**
 
