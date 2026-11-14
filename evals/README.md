@@ -260,8 +260,8 @@ full of tells, U+2014 (em dash) included, and must never be committed.
 
 ## The last published result
 
-The table in the root README and in the v4.0.0 CHANGELOG entry comes from `--runs 2` per arm on
-genjutsu `ef31234`: on both landings, 2 tells without genjutsu and 0 with it, and a grader delta of
+The table in the v4.0.0 CHANGELOG entry comes from `--runs 2` per arm on genjutsu `ef31234`,
+measured on 2026-09-28 and not rerun since: on both landings, 2 tells without genjutsu and 0 with it, and a grader delta of
 +0.20 (studio) and +0.10 (SaaS).
 
 What moved, over the runs kept in each arm: on both landings, the judge that fails a product
@@ -278,9 +278,9 @@ or read, because it only covers the web so far.
 
 Read these numbers for what they count: tells and the checks our graders make. They are not a
 judgement of which page looks better, and the page of the arm without genjutsu can look as designed
-as the one with it. For that reason the README shows the table without the before / after captures
-(`showcase-section.py --captures none`); the v4.0.0 captures are kept at the `v4.0.0` tag, in
-`assets/v4/`, where the CHANGELOG entry still points.
+as the one with it. For that reason the root README no longer carries the table, only a link to
+this section; the v4.0.0 captures are kept at the `v4.0.0` tag, in `assets/v4/`, where the
+CHANGELOG entry still points.
 
 ## Results
 
