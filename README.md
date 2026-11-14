@@ -1,40 +1,25 @@
-<p align="center">
-  <img src="./assets/logo.png" alt="genjutsu logo" width="160" />
-</p>
+<p align="center"><img src="./assets/logo.png" alt="genjutsu logo" width="160" /></p>
 
 <h1 align="center">genjutsu</h1>
 
 <p align="center"><em>The art of illusion.</em><br />
 Claude Code skills that make an interface move, give a product its look, and build a whole website.</p>
 
-<p align="center">
-  <a href="https://genjutsu.athevon.dev"><strong>Website</strong></a>
-  &nbsp;·&nbsp;
-  <a href="#examples"><strong>Examples</strong></a>
-  &nbsp;·&nbsp;
-  <a href="https://genjutsu.athevon.dev/docs"><strong>Documentation</strong></a>
-  &nbsp;·&nbsp;
-  <a href="https://genjutsu.athevon.dev/docs/install"><strong>Install</strong></a>
-  &nbsp;·&nbsp;
-  <a href="https://github.com/AThevon/genjutsu/discussions"><strong>Discussions</strong></a>
-</p>
+<p align="center"><a href="https://genjutsu.athevon.dev"><strong>Website</strong></a> · <a href="#examples"><strong>Examples</strong></a> · <a href="https://genjutsu.athevon.dev/docs"><strong>Documentation</strong></a> · <a href="https://genjutsu.athevon.dev/docs/install"><strong>Install</strong></a> · <a href="https://github.com/AThevon/genjutsu/discussions"><strong>Discussions</strong></a></p>
 
 <p align="center">
   <a href="https://github.com/AThevon/genjutsu/releases/latest"><img src="https://img.shields.io/github/v/release/AThevon/genjutsu?style=flat-square&color=b11523&label=release" alt="Latest release" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-b11523?style=flat-square" alt="MIT license" /></a>
-  <img src="https://img.shields.io/badge/works%20with-Claude%20Code%20%2B%20claude.ai%20%2B%20Cowork%20%2B%20npx-b11523?style=flat-square" alt="Works with Claude Code, claude.ai, Cowork and npx" />
+  <img src="https://img.shields.io/badge/tested%20on-Claude%20Code-b11523?style=flat-square" alt="Tested on Claude Code" />
   <a href="https://github.com/sponsors/AThevon"><img src="https://img.shields.io/badge/sponsor-b11523?style=flat-square&logo=githubsponsors&logoColor=white" alt="Sponsor on GitHub" /></a>
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-11-06/readme-media/hero-site.webp" alt="A tour of the genjutsu.athevon.dev homepage, laid out as an animation production sheet. A pointer carries a lens over the brushed character 幻, and under it the ink gives way to the curves and brush footprints it is drawn from. Cut to cast: a blue ring clicks an album in a demo gallery and its cover grows into the album page. Cut to paint: a dark screen annotated in blue pencil with its type, colour and timing values. Cut to bunshin: the page scrolls and a line inks down the phases, forking into clones. Last cut: the install command." width="800" />
-  <br />
+  <img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-11-06/readme-media/hero-site.webp" alt="A tour of the genjutsu.athevon.dev homepage, laid out as an animation production sheet. A pointer carries a lens over the brushed character 幻, and under it the ink gives way to the curves and brush footprints it is drawn from. Cut to cast: a blue ring clicks an album in a demo gallery and its cover grows into the album page. Cut to paint: a dark screen annotated in blue pencil with its type, colour and timing values. Cut to bunshin: the page scrolls and a line inks down the phases, forking into clones. Last cut: the install command." width="800" /><br />
   <sub>genjutsu.athevon.dev, built with genjutsu: the lens on the 幻, then one cut each for cast (a demo drawn for the page), paint and bunshin.</sub>
 </p>
 
-Creative coding skills for [Claude Code](https://claude.ai/code), [claude.ai](https://claude.ai) and [Cowork](https://claude.com/product/cowork). Web (React, Vue, Svelte, Astro, vanilla CSS, Three.js, Canvas), Android (Jetpack Compose, Compose Multiplatform) and Apple (SwiftUI, iOS and macOS). `bunshin` is web only for now. The Compose and SwiftUI modules ship. One SwiftUI case has been compiled and filmed, [etale-ios](https://github.com/AThevon/genjutsu-examples/tree/main/etale-ios): `cast` run six times on the same prompt, each built unchanged on the first try. On 4.1.3 the one run built the transition by hand and gave up the navigation stack and the swipe back. On the modules as fixed in 4.2.0, four runs of five used the system zoom transition and kept both, in 13 to 78 added lines, and one built it by hand again. Each of the four chose the system transition before it loaded any module, and the step that now reads the thesis against the modules was never seen correcting a hand-built thesis, so these runs do not prove that the fixes or the step caused it. No Android run has been recorded yet, and every other recorded example below is web.
-
-genjutsu is developed and run on Claude Code with Claude models. The claude.ai bundle was last checked by hand on 2026-09-28, `cast` only ([log](./docs/claude-ai-testing.md#7-log)); no Cowork run is logged; `bunshin` has only been run on Claude Code. Other agents can install it through `npx skills`, and nothing in the skills is tied to one agent or one model, but neither another agent nor another model has been tested.
+Three skills for [Claude Code](https://claude.ai/code): `cast` animates one interface, `paint` designs a product's look, `bunshin` builds a whole website with a team of agents. The modules cover Web (React, Vue, Svelte, Astro, plain CSS, Three.js, Canvas), Android (Jetpack Compose, Compose Multiplatform) and Apple (SwiftUI); `bunshin` is web only for now. Developed and run on Claude Code only, with one SwiftUI case and no Android run recorded: [what is tested and what is not](#what-is-tested-and-what-is-not).
 
 ## Install
 
@@ -42,241 +27,84 @@ genjutsu is developed and run on Claude Code with Claude models. The claude.ai b
 npx skills add https://genjutsu.athevon.dev -g
 ```
 
-Then describe the task in Claude Code, or type `/genjutsu`. To follow releases: `npx skills update -g`. Keep the `-g` on both.
+Then describe the task in Claude Code, or type `/genjutsu`. Update with `npx skills update -g`; the `-g` installs for your user instead of into the repository your terminal is in. Use the URL, not the repository: `npx skills add AThevon/genjutsu` installs the skills without their modules.
 
-If an agent is installing this for you, give it that exact command, `npx skills add https://genjutsu.athevon.dev -g`. Use the URL, not the repository: `npx skills add AThevon/genjutsu` installs the skills without their modules.
-
-Or as a Claude Code plugin, inside a session, which gives you `/genjutsu:cast`, `/genjutsu:paint` and `/genjutsu:bunshin`:
-
-```text
-/plugin marketplace add AThevon/genjutsu
-/plugin install genjutsu
-```
-
-Project scope, claude.ai, Cowork, other agents and what bunshin needs beside it: [genjutsu.athevon.dev/docs/install](https://genjutsu.athevon.dev/docs/install).
+Or install it as a Claude Code plugin, from inside a session, which adds `/genjutsu:cast`, `/genjutsu:paint` and `/genjutsu:bunshin`: run `/plugin marketplace add AThevon/genjutsu`, then `/plugin install genjutsu`. Project scope, claude.ai, Cowork, other agents (untested) and what `bunshin` needs installed with it are in the [install guide](https://genjutsu.athevon.dev/docs/install).
 
 ## Three scales
 
-The requests in the middle column are examples of what you might type, not recorded runs.
-
-| | You type, for example | You get |
+| | You ask, for example (not a recorded run) | You get |
 |---|---|---|
-| **`cast`**<br />one interface moves | `/genjutsu:cast make the pricing cards feel physical on hover` | An interaction thesis you approve, shown the way you pick (a rendered page with a replay button, a route in your project, or one sentence), then the code in the stack you already use, with a short audit of what it wrote. |
-| **`paint`**<br />a product's whole look | `/genjutsu:paint build me a portfolio from scratch` | A brainstorm, a visual and an interaction thesis, a `MASTER.md` design system for your stack, the page, and a full audit. On a project that already has a design, it asks first whether to keep the brand, change part of it, or redesign. |
-| **`bunshin`**<br />a whole site, by a team of agents | `/genjutsu:bunshin redesign our architecture practice's whole site from the current one and our project PDFs` | It states its cost, then asks you twice: the tier, then the direction. An art director runs research, one builder per page, reviewers and fix rounds until a stop rule ends the loop. You get the site, `DESIGN.md`, `AGENTS.md` and a report of what was verified and what was not. |
+| [**`cast`**](https://genjutsu.athevon.dev/docs/cast)<br />one interface moves | "make the pricing cards feel physical on hover" | An interaction thesis you approve, then the code in the stack you already use, with a short audit of what it wrote. |
+| [**`paint`**](https://genjutsu.athevon.dev/docs/paint)<br />a product's whole look | "build me a portfolio from scratch" | A brainstorm, a visual and an interaction thesis, a `MASTER.md` design system, the page and a full audit. On a project that already has a design, it asks first what to keep. |
+| [**`bunshin`**](https://genjutsu.athevon.dev/docs/bunshin)<br />a whole site, by a team of agents | "redesign our architecture practice's whole site from the current one and our project PDFs" | It states its cost and asks you for the tier and the direction. An art director agent then runs research, one builder per page, reviewers and fix rounds. You get the site and a report of what was verified and what was not. |
 
-Not sure which one? Ask for the result you want and the right skill is picked; `cast` and `paint` propose `bunshin` once, with its cost, when the brief is a whole site. [The FAQ](https://genjutsu.athevon.dev/docs/faq) has the long answer.
+Not sure which one? Describe the result you want and genjutsu picks the skill. The [FAQ](https://genjutsu.athevon.dev/docs/faq) has the long answer, and the docs list [the modules](https://genjutsu.athevon.dev/docs/jutsu) the skills load.
 
 ## Examples
 
+Three recorded runs, one for each skill; the `bunshin` one predates the skill, which was extracted from it. Each links its receipt: how it ran, the cost that was measured, and what it got wrong or left unverified. The clips are filmed from the code each run left; Chef Ovatio is filmed from the live site, after one human edit. They ran on genjutsu 4.0.0 and 4.1.x, before the current release.
+
 <!-- genjutsu:examples:start -->
-Recorded runs on fictional clients and one real one, captured from the code each run left or, for the real client, from the live site. Each one gives the first line of the request, how it ran, what it cost, and a receipt with the full prompt, what the run checked, and what it left unverified or got wrong. Everything they link lives in [genjutsu-examples](https://github.com/AThevon/genjutsu-examples) at the tag `readme-2026-11-13b`: the code each run wrote, its receipt, its conversation and its media. Those with a Live demo link also run as a [live demo](https://genjutsu-examples.vercel.app/), built from that code as it stands. A one-shot headless run is a single `claude plugin eval` session: the prompt answers the gates up front and nobody replies after that, so there is no conversation to publish. A conversation is a session in which an agent plays the client and answers the gates; its full transcript, the brief that agent was given and the first message it sent are linked. The `bunshin` example is the run `bunshin` was extracted from, made before v4.1.0 shipped: its cost is in subagent tokens, as genjutsu publishes it, and its request and its client's material stay private. A run on a build that is not a release names the branch and commit it ran on instead of a version.
+### `cast` · Folio: the "Mark as paid" action (Motion)
 
-### Nocturne: a planetarium's late program, from dusk to the real 22:00 sky (plain CSS)
+<a href="https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-14/invoice-mark-paid/receipt.md"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-11-14/readme-media/invoice-mark-paid/clip.webp" alt="Two Mark as paid clicks on the Folio invoice list: each time the button slides out, the status pill stamps to Paid, and the Outstanding and Paid totals count by the invoice amount." width="720" /></a>
 
-<a href="https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/nocturne/receipt.md"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-11-13b/readme-media/nocturne/clip.webp" alt="Scrolling the Nocturne page from dusk to night: the ground deepens from dusk blue to near black, the amber glow at the dome&#x27;s rim fades, and the stars come up on the dome brightest first; near the end, the star list passes over the dome." width="720" /></a>
+On a fixture invoice page, asked to make a dead "Mark as paid" action feel like the money landed, the run made the amount leave Outstanding and land in Paid as both totals count, in one headless pass.
 
-`/genjutsu:paint build the landing page for Nocturne, the late program of a planetarium in Lisbon.`
+<sub>one-shot headless run · `claude-opus-5-5` · first pass · $1.88 · 0 human edits · 2026-10-04. Its thesis was approved by nobody. Defect its own audit missed: on a shorter window than the clip's, the page scrolls while the totals count. The pointer is drawn in by the recorder, not by the build.</sub><br />
+[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-14/invoice-mark-paid/receipt.md) · [Live demo](https://genjutsu-examples.vercel.app/invoice-mark-paid/)
 
-A new page from an empty React template and a star catalogue. After questions on the mood and the hero, and its two theses shown as a rendered page, the run drew the dome from data/stars.json: 403 stars and Saturn where they stand over Lisbon at 22:00 on 9 October 2026. Scrolling from dusk to night deepens the ground, fades the amber glow at the rim and brings the stars up brightest first. 1440x900 viewport, scaled to 1100x688.
+### `paint` · Nocturne: a planetarium's landing page (plain CSS)
 
-The client accepted both theses at the first showing and asked once for the four problems of the first report to be fixed. The run never saw its page and handed every visual check over. Three defects it introduced are in the receipt: from 1100 px wide the star list runs over the dome (near the end of the clip), a picked star's magnitude line covers its name, and on a phone the hero panel hides the bottom of the dome.
+<a href="https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-14/nocturne/receipt.md"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-11-14/readme-media/nocturne/clip.webp" alt="Scrolling the Nocturne page from dusk to night: the ground deepens from dusk blue to near black, the amber glow at the dome&#x27;s rim fades, and the stars come up on the dome brightest first; near the end, the star list passes over the dome." width="720" /></a>
 
-<sub>`paint` · conversation with an agent playing the client (Claude Code 2.1.289, one session resumed for each reply) · genjutsu fix/skill-arguments on 09c177b (4.1.1 candidate) · `claude-opus-5-5` · first pass · $5.93 (plus $0.86 for the agent playing the client) · 8 exchanges · 73 turns · 0 human edits · 2026-10-04</sub>
+Asked for a planetarium's landing page from an empty template and a star catalogue, the run drew 403 stars and Saturn as they stand over Lisbon at 22:00 on 9 October 2026, lit brightest first as it scrolls to night.
 
-[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/nocturne/receipt.md) · [Transcript](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/nocturne/transcript.md) · [Client brief](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/nocturne/client.md) · [First message](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/nocturne/opening.txt) · [Source](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-11-13b/nocturne/source) · [Live demo](https://genjutsu-examples.vercel.app/nocturne/)
+<sub>conversation with an agent playing the client · `claude-opus-5-5` · first pass · $5.93 (plus $0.86 for the client agent) · 0 human edits · 2026-10-04. Defect: from 1100 px wide the star list runs over the dome (end of the clip); two more in the receipt. The run could not open its page in a browser. A headless run of this brief came out plain first.</sub><br />
+[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-14/nocturne/receipt.md) · [Transcript](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-14/nocturne/transcript.md) · [Live demo](https://genjutsu-examples.vercel.app/nocturne/)
 
-### Chef Ovatio: a private chef's seven-page site in French and English (Astro)
+### `bunshin` · Chef Ovatio: a private chef's seven-page site (Astro)
 
-<a href="https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/chef-ovatio/receipt.md"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-11-13b/readme-media/chef-ovatio/clip.webp" alt="Scrolling the Chef Ovatio home: the yellow sky turns orange as the plate sinks into the cobalt sea, the header shrinks to a bar, then &#x27;La même cuisine, deux façons de la partager&#x27;, the Recevoir and Conseiller doors, and the &#x27;Ce qui arrive à table&#x27; section with its first plates." width="720" /></a>
+<a href="https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-14/chef-ovatio/receipt.md"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-11-14/readme-media/chef-ovatio/clip.webp" alt="Scrolling the Chef Ovatio home: the yellow sky turns orange as the plate sinks into the cobalt sea, the header shrinks to a bar, then &#x27;La même cuisine, deux façons de la partager&#x27;, the Recevoir and Conseiller doors, and the &#x27;Ce qui arrive à table&#x27; section with its first plates." width="720" /></a>
 
-<em>Made with bunshin: a short request, in French, for a polished first draft of a private chef&#x27;s site, built from his public Instagram profile.</em>
+A real private chef's site, seven pages in French and English, made from his public Instagram profile and two answers; scrolling the home, the plate sets like a sun behind a cobalt horizon.
 
-A real client's site, from his public Instagram profile and two answers: the stack, the lead offer, the languages and the contact in one round of questions, then the direction, L'Affiche de la Riviera. Seven pages in French and English. Scrolling the home, the noon-yellow sky turns to sunset orange as the plate-sun sets behind the cobalt horizon, before the two doors, Recevoir and Conseiller, and the first plates. Filmed from the live site, 1440x900 viewport, scaled to 1200x750.
+<sub>the run `bunshin` was extracted from, made with genjutsu 4.0.0's `paint`, with Impeccable, before `bunshin` shipped · `claude-opus-5-5` · about 10.5M subagent tokens (main session not measured) · 1 human edit · 2026-09-29. The edit, made since: door titles that could not be read across their photos now stand on them. The last fix round was not reviewed. Filmed from the live site, whose contact details are still blank.</sub><br />
+[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-14/chef-ovatio/receipt.md) · [Live demo](https://chef-ovatio.vercel.app)
 
-This is the run bunshin was extracted from, made with genjutsu 4.0.0's paint and Impeccable hours before bunshin shipped in 4.1.0; its cost is the figure genjutsu publishes for it. The second verdict still asked for fixes (five major points from the art director); the last round worked on them and no verdict read the site after it. The client's contact details and legal notice are still blanks marked for him to fill. One human edit since, on its live site: the door titles crossed their photos in an ink that could not be read there, and now stand on them.
-
-<sub>`bunshin` · bunshin run, before v4.1.0 (Claude Code 2.1.284, one main session driving subagents through eight workflows) · genjutsu 4.0.0 at `a0f6e09` (`paint`, with Impeccable) · `claude-opus-5-5` · about 10.5M subagent tokens over six to eight hours (main session not measured) · one review, three refine rounds, two verdicts · 2 human answers · 1 human edit · 2026-09-29</sub>
-
-[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/chef-ovatio/receipt.md) · [Live demo](https://chef-ovatio.vercel.app) · Source: the client's private repository
-
-### Atelier Grès: four firing stages pinned and scrubbed (GSAP ScrollTrigger)
-
-<a href="https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/pottery-firing/receipt.md"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-11-13b/readme-media/pottery-firing/clip.webp" alt="Scrolling through the pinned firing stages section of the Atelier Grès page: the firing curve draws from left to right while the Drying, Bisque firing, Glaze firing and Cooling texts take over from each other." width="720" /></a>
-
-`/genjutsu:cast pin our pottery studio's four firing stages and scrub them with the scroll`
-
-The Atelier Grès page, its copy and its four stage blocks are the starting fixture. The run's work is the pinned section, the firing curve it draws, and the stage texts handing over to each other as the scroll scrubs through. 1440x900 viewport, scaled to 1200x750.
-
-Headless, so the run marked its own thesis UNVALIDATED. It could not build in its sandbox; the build here passed on the first try with no edit.
-
-<sub>`cast` · one-shot headless run (claude plugin eval, Claude Code 2.1.289) · genjutsu 4.1.0 at `09c177b` · `claude-opus-5-5` · first pass · $1.53 · 23 turns · 0 human edits · 2026-10-04</sub>
-
-[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/pottery-firing/receipt.md) · No transcript: a one-shot run has no conversation, the full prompt is in the receipt · [Source](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-11-13b/pottery-firing/runs/20261004T162515Z/workspace-1) · [Case](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-11-13b/cases/pottery-firing) · [Live demo](https://genjutsu-examples.vercel.app/pottery-firing/)
-
-### Étale: a slack-water app's beta page, from one real day of NOAA predictions (plain CSS)
-
-<a href="https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/etale/receipt.md"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-11-13b/readme-media/etale/clip.webp" alt="The Étale page loading: the headline, the slack card and the alert fade in, the first screen holds, then the page scrolls to the section that sets the slack times against high and low tide in two charts." width="720" /></a>
-
-`/genjutsu:paint build the landing page for Étale.`
-
-A new page from an empty React template and one day of NOAA tide and current predictions. The founder pushed back twice, on an evening alert the read-back underplayed and on a flood the slack card skipped, and the run changed both. Every figure on the page comes from data/tide.json, labelled with its date and station. 1440x900 viewport, scaled to 1200x750: the page loads, holds its first screen, then scrolls to the two charts.
-
-A first conversation on the same brief ran just before this one and is not shown. Two defects the run introduced are in the receipt: the dashed slack markers cross the chart labels, and the current line draws once on load, below the fold, so a visitor who scrolls down finds it already drawn.
-
-<sub>`paint` · conversation with an agent playing the client (Claude Code 2.1.289, one session resumed for each reply) · genjutsu fix/skill-arguments on 09c177b (4.1.1 candidate) · `claude-opus-5-5` · selected from 2 runs · $3.55 (plus $1.08 for the agent playing the client) · 10 exchanges · 54 turns · 0 human edits · 2026-10-04</sub>
-
-[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/etale/receipt.md) · [Transcript](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/etale/transcript.md) · [Client brief](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/etale/client.md) · [First message](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/etale/opening.txt) · [Source](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-11-13b/etale/source) · [Live demo](https://genjutsu-examples.vercel.app/etale/)
-
-### Folio: the "Mark as paid" action (Motion)
-
-<a href="https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/invoice-mark-paid/receipt.md"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-11-13b/readme-media/invoice-mark-paid/clip.webp" alt="Two Mark as paid clicks on the Folio invoice list: each time the button slides out, the status pill stamps to Paid, and the Outstanding and Paid totals count by the invoice amount." width="720" /></a>
-
-`/genjutsu:cast the "Mark as paid" action in our invoice list is dead, make it feel like the money landed`
-
-The Folio page is the starting fixture; the motion is the run's work. Two "Mark as paid" clicks: the amount leaves Outstanding and lands in Paid as both totals count, with a signed amount on each card. 1440x900 viewport, cropped; the pointer is drawn in by the recorder, it is not part of the build.
-
-Headless, so the run marked its own thesis UNVALIDATED. It introduced one defect its own audit missed: on a shorter window, handing focus to the next unpaid invoice scrolls the page while the totals count (it does not show at 1440x900; the receipt describes when it does).
-
-<sub>`cast` · one-shot headless run (claude plugin eval, Claude Code 2.1.289) · genjutsu 4.1.0 at `09c177b` · `claude-opus-5-5` · first pass · $1.88 · 45 turns · 0 human edits · 2026-10-04</sub>
-
-[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/invoice-mark-paid/receipt.md) · No transcript: a one-shot run has no conversation, the full prompt is in the receipt · [Source](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-11-13b/invoice-mark-paid/runs/20261004T162510Z/workspace-1) · [Case](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-11-13b/cases/invoice-mark-paid) · [Live demo](https://genjutsu-examples.vercel.app/invoice-mark-paid/)
-
-### Étale for iOS: a slack row opens into its tide detail (SwiftUI)
-
-<a href="https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/etale-ios/receipt.md"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-11-13b/readme-media/etale-ios/clip.webp" alt="Étale on an iPhone: a tap on the 10:31 row of the Today list zooms the tide detail out of that row, a dashed marker and its dot settle on the tide curve, and the back button shrinks the detail into its row; then the same on the 16:17 row. A white box shows on the row for a moment after each return." width="402" /></a>
-
-`/genjutsu:cast Étale's iOS day list should open into the tide detail as one surface, not a push`
-
-The first native example, and one of six runs of this prompt; the clip is run 2. Four of the six used the system zoom transition, as here; two hand-built an overlay instead. The starting app, its screens and its NOAA data were written by hand and held no animation: a row pushed the detail like any navigation stack. This run added 78 lines and removed none: the tapped row opens into its tide detail and shrinks back, the navigation bar, the back button and the swipe back stay, and the slack marker settles on the curve. Filmed on the iPhone 17 simulator, iOS 26.5, 402x874; XCUITest performs the taps and draws no pointer.
-
-Headless, so each run marked its own thesis UNVALIDATED, and none could build in its session; each built here unchanged on the first try. All six runs are in the receipt. Run 1, on genjutsu 4.1.3 ($3.42), hand-built an overlay: it rewrote both screens, gave up the navigation bar and the swipe back, and its drag-to-close flickers. Three gaps in genjutsu's modules were fixed after it; run 2, shown here, is the same prompt on those fixes. Run 3, on the 4.2.0 release branch with the same fixes ($2.46), hand-built a surface again, with the time landing on the wrong row. A step was then added (read the thesis against the loaded modules before any code); runs 4 to 6, with it, all used the system zoom ($1.30 to $1.36), but each had named the zoom before reading any module, so the step was never seen correcting a hand-built thesis. Used the system transition: 1 of 2 on the fixed modules without the step, 3 of 3 with it; too few runs to tell the step from chance. Run 2 is shown because no later run is clearly better and it is the one filmed under Reduce Motion, dark appearance and large type. Its own defect: a white box shows around the row for about 0.4 s after each return. Simulator only: no real device, no VoiceOver check.
-
-<sub>`cast` · one-shot headless run (claude plugin eval, Claude Code 2.1.323) · genjutsu fix/native-shared-element on 3e0d6d3 (4.1.4 plus the two module-fix commits that shipped in 4.2.0) · `claude-opus-5-5` · selected from 6 runs · $1.53 · 22 turns · 0 human edits · 2026-11-13</sub>
-
-[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/etale-ios/receipt.md) · No transcript: a one-shot run has no conversation, the full prompt is in the receipt · [Source](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-11-13b/etale-ios/runs/20261113T201315Z/workspace-1) · [Case](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-11-13b/cases/etale-ios)
-
-### Recorded, not featured
-
-These runs were recorded the same way and keep their receipts, but are not shown above, for the reason given on each line.
-
-- **Atelier Grès: the whole site redesigned**: `paint`, conversation with an agent playing the client, genjutsu fix/skill-arguments on 09c177b (4.1.1 candidate), 2026-10-04. Thin execution: the platform system font, kept after a web font could not be fetched in the sandbox, and a blurred glow standing in for the kiln. [Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/gres-redesign/receipt.md) · [Transcript](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/gres-redesign/transcript.md) · [Client brief](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/gres-redesign/client.md) · [First message](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/gres-redesign/opening.txt) · [Source](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-11-13b/gres-redesign/source) · [Live demo](https://genjutsu-examples.vercel.app/gres-redesign/)
-- **Étale, first headless run**: `paint`, one-shot headless run, genjutsu 4.1.0 at `09c177b`, 2026-10-04. Plain: correct and sourced, but nothing on the page goes past a tidy default; the conversation above replaced it. [Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/etale-landing/receipt.md) · [Source](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-11-13b/etale-landing/runs/20261004T162451Z) · [Case](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-11-13b/cases/etale-landing)
-- **Nocturne, first headless run**: `paint`, one-shot headless run, genjutsu 4.1.0 at `09c177b`, 2026-10-04. Plain: a correct sky chart on a flat blue page; the conversation above replaced it. [Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-13b/nocturne-planetarium/receipt.md) · [Source](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-11-13b/nocturne-planetarium/runs/20261004T162505Z) · [Case](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-11-13b/cases/nocturne-planetarium)
+Three of nine recorded examples. The other six, including the three that came out plain or thin and [the one SwiftUI case, six runs of one prompt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-14/etale-ios/receipt.md), are in [genjutsu-examples](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-11-14); the site has its own gallery at [genjutsu.athevon.dev/examples](https://genjutsu.athevon.dev/examples).
 <!-- genjutsu:examples:end -->
 
-## It shows you before it writes
+## How it works
 
-`cast` and `paint` stop at a few gates (the interaction thesis, the visual identity, the design system) and ask once how you want to see the proposal: a rendered page with the easing curve plotted and a replay button, a throwaway preview route in your own project, or one sentence in the conversation. Whatever the form, it is a proposal: a preview route is deleted once you approve, and none of it becomes the implementation. While it works it narrates in short lines ("Casting parallax on hero scroll."); its reports are plain: what changed, the files touched, the next step.
+`cast` and `paint` stop at a few gates (the interaction thesis, the visual identity, the design system) and ask once how you want to see the proposal: a rendered page with the easing curve plotted and a replay button, a throwaway preview route in your own project, or one sentence in the conversation. The preview route is deleted once you approve.
 
-## It names the slop, and measures itself
+genjutsu keeps a catalogue of the defaults a model reaches for when nobody asked (the numbered eyebrow, three equal cards, an invented `ESTD. 2018`). One command lists them in any project with their `file:line`: [the tells field guide](https://genjutsu.athevon.dev/docs/tells).
 
-genjutsu keeps a catalogue of the defaults a model reaches for when nobody asked (the numbered eyebrow, three equal cards, an invented `ESTD. 2018`): [the tells field guide](https://genjutsu.athevon.dev/docs/tells). On web work larger than one hover or transition, a tell the run wrote is fixed before the final report (two passes at most, what remains is reported), unless the validated thesis names it. One command lists them in any project, each with its `file:line` and the question to answer:
+## What is tested and what is not
 
-```bash
-python3 ~/.agents/skills/genjutsu/_jutsu/design-audit/scripts/audit.py . --group tells
-```
+genjutsu is developed and run on Claude Code with Claude models. The claude.ai bundle was last checked by hand on 2026-09-28, `cast` only ([log](./docs/claude-ai-testing.md#7-log)). No Cowork run is logged. `bunshin` has only been run on Claude Code, and its one recorded run predates the skill. One SwiftUI case is recorded (six runs of one prompt, four of which used the system transition, simulator only: [receipt](https://github.com/AThevon/genjutsu-examples/tree/main/etale-ios)) and no Android run. No other agent or model has been tested.
 
-The eval suite runs the same briefs with and without genjutsu:
+The measurements are small (one brief or one case, two to six runs each) and graded by us or by a model, so they are not an independent benchmark: [CHANGELOG, v4.2.0](./CHANGELOG.md#v420---2026-11-13), [baseline-2026-11](https://github.com/AThevon/genjutsu-examples/tree/main/baseline-2026-11). The rules were tuned on the baseline's one brief, where the pages came out level with Anthropic's frontend-design and a run cost about four times a run with no plugin. The with and without eval table dates from 2026-09-28 (on the branch that became v4.0.0) and has not been rerun: [last published result](./evals/README.md#the-last-published-result).
 
-<!-- genjutsu:showcase:start -->
-| Brief | Tells, without genjutsu | Tells, with genjutsu | Grader score, with minus without |
-|---|---|---|---|
-| Independent design studio landing | 2 | 0 | +0.20 |
-| Invoicing SaaS landing | 2 | 0 | +0.10 |
+## Feedback and contributing
 
-Tells are the findings of `audit.py --group tells` on the page of the first run of each arm. Scores come from `claude plugin eval --ablation with-without --runs 2` on genjutsu `ef31234`, over the suite in [`evals/`](./evals). The graders are ours: read this as genjutsu measured against what it set out to do, not as an independent benchmark.
-<!-- genjutsu:showcase:end -->
+One minute, two answers: [how did it come out?](https://github.com/AThevon/genjutsu/issues/new?template=1-output.yml) A run that came out wrong is as useful as one that came out well. Every finished run ends with the same link, filled in with the skill and, when the run knows them, the version, the host and the model, and with nothing from your project.
 
-The table was measured on 2026-09-28, on commit `ef31234` of the branch that became v4.0.0, and has not been rerun since. These numbers count tells and grader checks. They do not say which page looks better: the page built without genjutsu can look as designed as the one built with it. Today's models rarely write some of the classic tells (an invented build status, an `ESTD. 2018`) on their own, so the gains are modest. The control case held: when a brief genuinely asks for two city clocks and the thesis names them, they stay on every run. Details in [`evals/README.md`](./evals/README.md).
+Longer write-ups go to [Show and tell](https://github.com/AThevon/genjutsu/discussions/categories/show-and-tell), questions to [Q&A](https://github.com/AThevon/genjutsu/discussions/categories/q-a), ideas to [Ideas](https://github.com/AThevon/genjutsu/discussions/categories/ideas), bugs with a repro to [issues](https://github.com/AThevon/genjutsu/issues/new/choose).
 
-A `paint` run with nobody to answer used to come out empty. On our one minimal landing brief, scored blind on stills by a model in three reviewer roles, the pages of the release branch at an earlier commit came out 2.3 and 3.3 points out of 10 above the 4.1.3 pages and level with Anthropic's frontend-design, with an example invoice whose values they invented; in a last round, whose judges were also told to weigh the brief's "invent no figure" as its author would (so its scores do not compare with the earlier ones), the two pages run with the shipped rule on example values came first in both sets (8.0 and 7.83, against 6.5 and 6.83 without the rule), and neither shows a figure the brief does not give. The rules were tuned on that brief, with two runs per arm and no human judge; the labelled reading lines still do not open the final report, and a run costs about 1.9 USD against 0.66 with frontend-design and 0.46 with no plugin: [runs and receipts](https://github.com/AThevon/genjutsu-examples/tree/main/baseline-2026-11).
-
-## Docs
-
-[Overview](https://genjutsu.athevon.dev/docs) · [Install](https://genjutsu.athevon.dev/docs/install) · [`cast`](https://genjutsu.athevon.dev/docs/cast) · [`paint`](https://genjutsu.athevon.dev/docs/paint) · [`bunshin`](https://genjutsu.athevon.dev/docs/bunshin) · [Modules](https://genjutsu.athevon.dev/docs/jutsu) · [Tells](https://genjutsu.athevon.dev/docs/tells) · [Principles](https://genjutsu.athevon.dev/docs/principles) · [FAQ](https://genjutsu.athevon.dev/docs/faq) · [Changelog](./CHANGELOG.md)
-
-Formerly `creative-excellence` (v2.x): the migration steps are in [CHANGELOG.md, v3.0.0](./CHANGELOG.md#v300---2026-04-26). Not Higgsfield Genjutsu, the video tool: genjutsu here is a set of skills for interface motion and design in coding agents.
-
-## Tell us how it came out
-
-One minute, two answers: [how did it come out?](https://github.com/AThevon/genjutsu/issues/new?template=1-output.yml) Output that came out wrong is as useful as output that came out well. A finished run ends its report with the same link, filled in with the skill, the version, the host and the model when the run knows them, and with nothing from your project.
-
-With more to show, post the run in [Show and tell](https://github.com/AThevon/genjutsu/discussions/categories/show-and-tell): the request you typed, the genjutsu version, a capture or a link, and whether we may feature it, with your credit. Questions go to [Q&A](https://github.com/AThevon/genjutsu/discussions/categories/q-a), ideas to [Ideas](https://github.com/AThevon/genjutsu/discussions/categories/ideas), bugs with a repro to [issues](https://github.com/AThevon/genjutsu/issues/new/choose).
-
-## Contributing
-
-The most valuable contribution is "this claim is wrong, here is the primary source". Start with [CONTRIBUTING.md](./CONTRIBUTING.md) (the evidence standard, the repository layout, how to run the checks), then [PLATFORM-CONTRACT.md](./PLATFORM-CONTRACT.md) and [`skills/_jutsu/VERSIONS.md`](./skills/_jutsu/VERSIONS.md), where rows marked `VERIFY-NEEDED` are the open work. If you work in Compose, SwiftUI or motion-heavy web, owning one family's quarterly re-derivation is the most useful thing anyone could do here.
+The contribution that helps most is "this claim is wrong, here is the primary source". Start with [CONTRIBUTING.md](./CONTRIBUTING.md); the rows marked `VERIFY-NEEDED` in [`skills/_jutsu/VERSIONS.md`](./skills/_jutsu/VERSIONS.md) are the open work.
 
 ## Credits
 
-- [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) (MIT): the `ui-ux-pro-max` module vendors its design dataset and Python search engine. See [UPSTREAM.md](./skills/_jutsu/ui-ux-pro-max/UPSTREAM.md) for the vendoring notes and divergences.
-- [Impeccable](https://impeccable.style) ([pbakaus/impeccable](https://github.com/pbakaus/impeccable), Apache 2.0): when it is installed, bunshin hands it the product interview, the drawn direction, the quality floor, the detector, image provenance, the finish review and the documenter. Not vendored: genjutsu calls the installed copy and records the verbs it relies on in `skills/_jutsu/VERSIONS.md`.
-- [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill): tells catalogue inspired by taste-skill (MIT, Leonxlnx). The idea of writing down the defaults a model reaches for comes from there. The catalogue is rewritten as detection, with no prescribed replacement, and `scripts/check-no-verbatim.sh` checks that no passage was copied.
-
-<details>
-<summary>Everything else genjutsu learned from (29 sources)</summary>
-
-**Web foundation**
-
-- [mxyhi/ok-skills](https://github.com/mxyhi/ok-skills) - granular GSAP decomposition, "Do Not" patterns, interaction thesis concept
-- [freshtechbro/claudedesignskills](https://github.com/freshtechbro/claudedesignskills) - BAD/GOOD pitfall patterns, reference file separation
-- [kylezantos/design-motion-principles](https://github.com/kylezantos/design-motion-principles) - designer perspectives (Emil Kowalski, Jakub Krehel, Jhey Tompkins), Motion Gap Analysis
-- [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) - `frontend-design` plugin, anti-AI-slop philosophy
-
-**Android / Compose**
-
-- [aldefy/compose-skill](https://github.com/aldefy/compose-skill) - granular Compose docs with androidx source receipts
-- [Meet-Miyani/compose-skill](https://github.com/Meet-Miyani/compose-skill) - Compose / CMP / KMP comprehensive
-- [new-silvermoon/awesome-android-agent-skills](https://github.com/new-silvermoon/awesome-android-agent-skills) - Android architecture skills
-- [skydoves/Orbital](https://github.com/skydoves/Orbital) - shared element transitions, Compose Multiplatform
-- [fornewid/material-motion-compose](https://github.com/fornewid/material-motion-compose) - Material Motion patterns, Compose and CMP
-- [drinkthestars/shady](https://github.com/drinkthestars/shady) - AGSL shaders rendered in Compose
-- [Mortd3kay/liquid-glass-android](https://github.com/Mortd3kay/liquid-glass-android) - glassmorphism with AGSL in Compose
-- [JumpingKeyCaps/DynamicVisualEffectsAGSL](https://github.com/JumpingKeyCaps/DynamicVisualEffectsAGSL) - AGSL playground
-- [mutualmobile/compose-animation-examples](https://github.com/mutualmobile/compose-animation-examples) - Compose animation collection
-
-**Apple / SwiftUI**
-
-- [twostraws/SwiftUI-Agent-Skill](https://github.com/twostraws/SwiftUI-Agent-Skill) - SwiftUI best practices reference
-- [twostraws/swift-agent-skills](https://github.com/twostraws/swift-agent-skills) - curated directory of Swift agent skills
-- [twostraws/Inferno](https://github.com/twostraws/Inferno) - Metal shaders for SwiftUI (the reference)
-- [Treata11/iShader](https://github.com/Treata11/iShader) - Metal fragment shaders for SwiftUI
-- [jamesrochabrun/ShaderKit](https://github.com/jamesrochabrun/ShaderKit) - composable Metal shaders and holographic UI
-- [raphaelsalaja/metallurgy](https://github.com/raphaelsalaja/metallurgy) - SwiftUI Metal shaders library
-- [eleev/swiftui-new-metal-shaders](https://github.com/eleev/swiftui-new-metal-shaders) - SwiftUI 5 Metal shader collection
-- [AvdLee/SwiftUI-Agent-Skill](https://github.com/AvdLee/SwiftUI-Agent-Skill) - SwiftUI animations, transitions, PhaseAnimator
-- [dpearson2699/swift-ios-skills](https://github.com/dpearson2699/swift-ios-skills) - 83 Swift skills (swiftui-animation, gestures, liquid-glass among them)
-- [rshankras/claude-code-apple-skills](https://github.com/rshankras/claude-code-apple-skills) - Apple platform skills
-- [GetStream/swiftui-spring-animations](https://github.com/GetStream/swiftui-spring-animations) - complete guide to SwiftUI springs
-- [amosgyamfi/open-swiftui-animations](https://github.com/amosgyamfi/open-swiftui-animations) - SwiftUI animations collection
-- [Shubham0812/SwiftUI-Animations](https://github.com/Shubham0812/SwiftUI-Animations) - 20+ custom SwiftUI animations and Metal
-
-**UX and motion theory**
-
-- Steven Hoober, "Designing for Touch" (thumb zones research)
-- [Material Design 3 Motion](https://m3.material.io/styles/motion/overview/specs) and [M3 Expressive](https://m3.material.io/blog/m3-expressive-motion-theming)
-- [Apple HIG iOS](https://developer.apple.com/design/human-interface-guidelines/) and [macOS](https://developer.apple.com/design/human-interface-guidelines/macos)
-
-</details>
-
-## Support
-
-genjutsu is free and MIT. If it saved you a few rounds of generic output, you can [sponsor its development on GitHub](https://github.com/sponsors/AThevon).
+genjutsu vendors the design dataset and search engine of [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) (MIT), hands `bunshin`'s direction and finish review to [Impeccable](https://impeccable.style) (Apache 2.0, not vendored) when it is installed, and took the idea of writing down a model's defaults from [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) (MIT, nothing copied). The detail and the 29 other sources it learned from are in [CREDITS.md](./CREDITS.md).
 
 ## License
 
-[MIT](LICENSE)
-
----
+[MIT](LICENSE). genjutsu is free; if it saved you a few rounds of generic output, you can [sponsor its development](https://github.com/sponsors/AThevon).
 
 <p align="center">
-  Built by <a href="https://athevon.dev"><strong>Adrien Thevon</strong></a>, software engineer in Toulouse.
-  <br />
-  <sub>
-    Also mine:
-    <a href="https://github.com/AThevon/TokenEater">TokenEater</a>, a native macOS monitor for Claude usage limits
-    &nbsp;·&nbsp;
-    <a href="https://github.com/AThevon/worktigre">worktigre</a>, a git worktree manager
-  </sub>
+  Built by <a href="https://athevon.dev"><strong>Adrien Thevon</strong></a>, software engineer in Toulouse. Also mine: <a href="https://github.com/AThevon/TokenEater">TokenEater</a>, a native macOS monitor for Claude usage limits, and <a href="https://github.com/AThevon/worktigre">worktigre</a>, a git worktree manager.<br />
+  <sub>Formerly <code>creative-excellence</code> (v2.x): the migration steps are in <a href="./CHANGELOG.md#v300---2026-04-26">CHANGELOG.md, v3.0.0</a>. Not related to Higgsfield Genjutsu, the video tool.</sub>
 </p>
