@@ -62,7 +62,7 @@ For `paint` and `bunshin`, one recorded run each; the `bunshin` one predates the
 Asked for a planetarium's landing page from an empty template and a star catalogue, the run drew 403 stars and Saturn as they stand over Lisbon at 22:00 on 9 October 2026, lit brightest first as it scrolls to night.
 
 <sub>conversation with an agent playing the client · `claude-opus-5-5` · first pass · $5.93 (plus $0.86 for the client agent) · 0 human edits · 2026-10-04. Defect: from 1100 px wide the star list runs over the dome (end of the clip); two more in the receipt. The run could not open its page in a browser. A headless run of this brief came out plain first.</sub><br />
-[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-15b/nocturne/receipt.md) · [Transcript](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-15b/nocturne/transcript.md) · [Live demo](https://genjutsu-examples.vercel.app/nocturne/)
+[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-15b/nocturne/receipt.md) · [Transcript](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-15b/nocturne/transcript.md) · [Live demo](https://demos.genjutsu.athevon.dev/nocturne/)
 
 ### `bunshin` · Chef Ovatio: a private chef's seven-page site (Astro)
 
@@ -71,7 +71,7 @@ Asked for a planetarium's landing page from an empty template and a star catalog
 A real private chef's site, seven pages in French and English, made from his public Instagram profile and two answers; scrolling the home, the plate sets like a sun behind a cobalt horizon.
 
 <sub>the run `bunshin` was extracted from, made with genjutsu 4.0.0's `paint`, with Impeccable, before `bunshin` shipped · `claude-opus-5-5` · about 10.5M subagent tokens (main session not measured) · 1 human edit · 2026-09-29. The edit, made since: door titles that could not be read across their photos now stand on them. The last fix round was not reviewed. Filmed from the live site, whose contact details are still blank.</sub><br />
-[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-15b/chef-ovatio/receipt.md) · [Live demo](https://chef-ovatio.vercel.app)
+[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-15b/chef-ovatio/receipt.md) · [Live demo](https://chef-ovatio.demos.genjutsu.athevon.dev)
 
 Two of nine recorded examples. The other seven, including the three that came out plain or thin and [the one SwiftUI case, six runs of one prompt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-15b/etale-ios/receipt.md), are in [genjutsu-examples](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-11-15b); the site has its own gallery at [genjutsu.athevon.dev/examples](https://genjutsu.athevon.dev/examples).
 <!-- genjutsu:examples:end -->
