@@ -43,37 +43,37 @@ Not sure which one? Describe the result you want and genjutsu picks the skill. T
 
 ## Examples
 
-Three recorded runs, one for each skill; the `bunshin` one predates the skill, which was extracted from it. Each links its receipt: how it ran, the cost that was measured, and what it got wrong or left unverified. The clips are filmed from the code each run left; Chef Ovatio is filmed from the live site, after one human edit. They ran on genjutsu 4.0.0 and 4.1.x, before the current release.
+### `cast` · five demos on genjutsu.athevon.dev
+
+<a href="https://genjutsu.athevon.dev/#cast"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-11-15/readme-media/cast-stage/clip.webp" alt="The cast demos of genjutsu.athevon.dev. In Fermata, a music app, a click on the Night Ferry album makes its cover grow into the album page while the tracks come in one after the other; back to the grid, a click on Glasshouse does the same, and its cover flies back home. Then the navbar tab: in Holm, a furniture shop, the underline slides along the links and the Chairs menu unfolds." width="720" /></a>
+
+What `cast` is for: something you already have, made to move. The site shows five of them (a gallery, a whole page, a scroll section, a navbar, a button), live, each as it is and once moved, with the request you would type.
+
+<sub>Drawn for the site, not recorded runs: three are fictional apps drawn for the page, two are redrawn from recorded runs. The clip shows the gallery, then the navbar, filmed from the live site. The recorded `cast` runs, receipts included, are in genjutsu-examples (linked below).</sub><br />
+[Try them on the site](https://genjutsu.athevon.dev/#cast) · [How cast works](https://genjutsu.athevon.dev/docs/cast)
+
+For `paint` and `bunshin`, one recorded run each; the `bunshin` one predates the skill, which was extracted from it. Each links its receipt: how it ran, the cost that was measured, and what it got wrong or left unverified. Nocturne is filmed from the code its run left, Chef Ovatio from the live site after one human edit. They ran on genjutsu 4.0.0 and 4.1.0, before the current release.
 
 <!-- genjutsu:examples:start -->
-### `cast` · Folio: the "Mark as paid" action (Motion)
-
-<a href="https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-14/invoice-mark-paid/receipt.md"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-11-14/readme-media/invoice-mark-paid/clip.webp" alt="Two Mark as paid clicks on the Folio invoice list: each time the button slides out, the status pill stamps to Paid, and the Outstanding and Paid totals count by the invoice amount." width="720" /></a>
-
-On a fixture invoice page, asked to make a dead "Mark as paid" action feel like the money landed, the run made the amount leave Outstanding and land in Paid as both totals count, in one headless pass.
-
-<sub>one-shot headless run · `claude-opus-5-5` · first pass · $1.88 · 0 human edits · 2026-10-04. Its thesis was approved by nobody. Defect its own audit missed: on a shorter window than the clip's, the page scrolls while the totals count. The pointer is drawn in by the recorder, not by the build.</sub><br />
-[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-14/invoice-mark-paid/receipt.md) · [Live demo](https://genjutsu-examples.vercel.app/invoice-mark-paid/)
-
 ### `paint` · Nocturne: a planetarium's landing page (plain CSS)
 
-<a href="https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-14/nocturne/receipt.md"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-11-14/readme-media/nocturne/clip.webp" alt="Scrolling the Nocturne page from dusk to night: the ground deepens from dusk blue to near black, the amber glow at the dome&#x27;s rim fades, and the stars come up on the dome brightest first; near the end, the star list passes over the dome." width="720" /></a>
+<a href="https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-15/nocturne/receipt.md"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-11-15/readme-media/nocturne/clip.webp" alt="Scrolling the Nocturne page from dusk to night: the ground deepens from dusk blue to near black, the amber glow at the dome&#x27;s rim fades, and the stars come up on the dome brightest first; near the end, the star list passes over the dome." width="720" /></a>
 
 Asked for a planetarium's landing page from an empty template and a star catalogue, the run drew 403 stars and Saturn as they stand over Lisbon at 22:00 on 9 October 2026, lit brightest first as it scrolls to night.
 
 <sub>conversation with an agent playing the client · `claude-opus-5-5` · first pass · $5.93 (plus $0.86 for the client agent) · 0 human edits · 2026-10-04. Defect: from 1100 px wide the star list runs over the dome (end of the clip); two more in the receipt. The run could not open its page in a browser. A headless run of this brief came out plain first.</sub><br />
-[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-14/nocturne/receipt.md) · [Transcript](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-14/nocturne/transcript.md) · [Live demo](https://genjutsu-examples.vercel.app/nocturne/)
+[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-15/nocturne/receipt.md) · [Transcript](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-15/nocturne/transcript.md) · [Live demo](https://genjutsu-examples.vercel.app/nocturne/)
 
 ### `bunshin` · Chef Ovatio: a private chef's seven-page site (Astro)
 
-<a href="https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-14/chef-ovatio/receipt.md"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-11-14/readme-media/chef-ovatio/clip.webp" alt="Scrolling the Chef Ovatio home: the yellow sky turns orange as the plate sinks into the cobalt sea, the header shrinks to a bar, then &#x27;La même cuisine, deux façons de la partager&#x27;, the Recevoir and Conseiller doors, and the &#x27;Ce qui arrive à table&#x27; section with its first plates." width="720" /></a>
+<a href="https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-15/chef-ovatio/receipt.md"><img src="https://raw.githubusercontent.com/AThevon/genjutsu-examples/readme-2026-11-15/readme-media/chef-ovatio/clip.webp" alt="Scrolling the Chef Ovatio home: the yellow sky turns orange as the plate sinks into the cobalt sea, the header shrinks to a bar, then &#x27;La même cuisine, deux façons de la partager&#x27;, the Recevoir and Conseiller doors, and the &#x27;Ce qui arrive à table&#x27; section with its first plates." width="720" /></a>
 
 A real private chef's site, seven pages in French and English, made from his public Instagram profile and two answers; scrolling the home, the plate sets like a sun behind a cobalt horizon.
 
 <sub>the run `bunshin` was extracted from, made with genjutsu 4.0.0's `paint`, with Impeccable, before `bunshin` shipped · `claude-opus-5-5` · about 10.5M subagent tokens (main session not measured) · 1 human edit · 2026-09-29. The edit, made since: door titles that could not be read across their photos now stand on them. The last fix round was not reviewed. Filmed from the live site, whose contact details are still blank.</sub><br />
-[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-14/chef-ovatio/receipt.md) · [Live demo](https://chef-ovatio.vercel.app)
+[Receipt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-15/chef-ovatio/receipt.md) · [Live demo](https://chef-ovatio.vercel.app)
 
-Three of nine recorded examples. The other six, including the three that came out plain or thin and [the one SwiftUI case, six runs of one prompt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-14/etale-ios/receipt.md), are in [genjutsu-examples](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-11-14); the site has its own gallery at [genjutsu.athevon.dev/examples](https://genjutsu.athevon.dev/examples).
+Two of nine recorded examples. The other seven, including the three that came out plain or thin and [the one SwiftUI case, six runs of one prompt](https://github.com/AThevon/genjutsu-examples/blob/readme-2026-11-15/etale-ios/receipt.md), are in [genjutsu-examples](https://github.com/AThevon/genjutsu-examples/tree/readme-2026-11-15); the site has its own gallery at [genjutsu.athevon.dev/examples](https://genjutsu.athevon.dev/examples).
 <!-- genjutsu:examples:end -->
 
 ## How it works
