@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Writes the measured block of the README and of the release notes.
+"""Writes the measured block of the release notes (and, until the README was shortened, of the README).
 
 For each eval case: the tells that audit.py finds on the first run of each arm
 (its `tells` group only), the grader delta the ablation reported, and the
@@ -8,7 +8,9 @@ asserting, so a missing capture or page is an error, never a broken image.
 
 The block sits between `<!-- genjutsu:showcase:start -->` and
 `<!-- genjutsu:showcase:end -->`. Without --write it is printed; with --write
-it replaces that region of the file, which must hold exactly one.
+it replaces that region of the file, which must hold exactly one. The root README
+no longer holds one: it links to the last published result in evals/README.md,
+so --write README.md fails until the region is put back there.
 
 Usage:
     python3 scripts/showcase-section.py \\

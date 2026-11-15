@@ -121,7 +121,8 @@ media, the code it left and the headless case that replays it, lives in
 that writes the README gallery between `<!-- genjutsu:examples:start -->` and
 `<!-- genjutsu:examples:end -->`. Every image and link in that region points at one tag of that
 repository, so a hand edit here is lost at the next generation: add or correct an example there,
-then regenerate the region.
+then regenerate the region. The README carries the compact form (`--compact`): the examples
+marked for it there, three at most, and a closing line that links the rest.
 
 ## Installing from a checkout
 
