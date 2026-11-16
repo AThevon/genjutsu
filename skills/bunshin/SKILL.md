@@ -841,8 +841,10 @@ Passing the tier's cap needs the user's yes, with the table of what is left in f
 - **DESIGN.md**: spawn Impeccable's documenter by the agent type the host lists (Claude Code:
   `impeccable-documenter`) with the project root, the artifact paths (the source folders and the
   built output), the direction contract, PRODUCT.md, the absolute path of Impeccable's
-  `reference/document.md`, and the write boundary (the project root); it writes DESIGN.md and
-  `.impeccable/design.json` from the shipped code. Without
+  `reference/document.md`, the write boundary (the project root), and, when a DESIGN.md is
+  already there, the choice for it: `overwrite`, or `refresh` on a seeded world's first build
+  (`references/impeccable.md`, "The documenter"). That choice is never asked of the user. It
+  writes DESIGN.md and `.impeccable/design.json` from the shipped code. Without
   Impeccable, write DESIGN.md yourself from the shipped code, never from intentions.
 - **AGENTS.md** (with a `CLAUDE.md` pointing to it): for the AI that will maintain the site, in
   the client's language. Where each kind of change is made, the design rules, the writing rules,
