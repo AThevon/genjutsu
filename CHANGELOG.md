@@ -2,6 +2,37 @@
 
 All notable changes to this plugin are documented here. Format inspired by [Keep a Changelog](https://keepachangelog.com/).
 
+## v4.2.1 - 2026-11-16
+
+bunshin follows Impeccable 4.9.1. A redesign of a site that already had a DESIGN.md used to end
+without a new one: since Impeccable 4.9.0 its documenter writes nothing over an existing
+DESIGN.md until it is told what to do with the old file, and bunshin never told it. bunshin now
+decides that itself, and nobody running it is asked. Nothing changes for a project that has no
+DESIGN.md yet, nor for cast or paint.
+
+### Fixed
+
+- **bunshin's SEAL passes the documenter its choice for an existing DESIGN.md.** The choice is
+  `overwrite`: a direction round replaces the visual world, and git keeps the old file. The one
+  exception is a world seeded by `impeccable world` on its first build, where it is `refresh`.
+  A "No changes" that names a choice owed is a wrong packet, fixed and sent to a fresh
+  documenter, never patched by hand.
+
+### Changed
+
+- **A world seeded with `impeccable world <id>` is respected.** When DESIGN.md's frontmatter names
+  a catalogue `world:` that no code carries yet, the user has already chosen it, and the draw runs
+  without `--replace-world`. When a redesign replaces a world the site already carries, the draw
+  and every re-roll pass `--replace-world`, and the documenter is told the world was replaced.
+- **`references/impeccable.md` says what a signed-in Impeccable CLI uploads**: from 4.9.0, with
+  `impeccable login`, each DESIGN.md and saved critique report in full, and the counts of a full
+  `detect`. Signed out, none of it. The off switches are Impeccable's own.
+- **The finish reviewer is no longer described as having no browser.** Its 4.9 definition takes
+  away the writing tools instead of listing the ones it keeps, so it may reach a browser through
+  MCP; what holds is that it writes nothing.
+- `VERSIONS.md`: the Impeccable row is read against skill 4.9.1, launcher 0.1.24 and npm 4.9.1,
+  dated 2026-11-16, with what changed since 4.8.0. The verbs bunshin calls are unchanged.
+
 ## v4.2.0 - 2026-11-13
 
 A `paint` run with nobody to answer used to come out empty: a title, a button, and nothing only

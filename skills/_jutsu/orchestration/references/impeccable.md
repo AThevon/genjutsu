@@ -7,8 +7,14 @@ its quality floor, its anti-pattern detector, image provenance, and two of its s
 subagents, the finish reviewer and the documenter.
 
 genjutsu never bundles it and never installs it without a yes. The verbs below were checked
-against the Impeccable skill 4.8.0 on 2026-10-31 (`_jutsu/VERSIONS.md`, "Orchestration"). When
+against the Impeccable skill 4.9.1 on 2026-11-16 (`_jutsu/VERSIONS.md`, "Orchestration"). When
 the installed version differs, its own entry file and references win over this page: read them.
+
+**What a signed-in CLI uploads.** From Impeccable 4.9.0, a CLI signed in with `impeccable login`
+uploads each DESIGN.md and each saved critique report in full, and the counts of a full `detect`
+of a git repo; signed out, it uploads none of these. The documenter's DESIGN.md is the file of
+this run concerned. Its off switches are Impeccable's own: `impeccable health design off`,
+`impeccable critiques off`, `impeccable health off`.
 
 ## Finding it
 
@@ -46,6 +52,14 @@ root.
 
 ## The direction round, the way bunshin runs it
 
+0. **Read DESIGN.md's frontmatter first.** A `world: "<id>"` line there means `impeccable world`
+   seeded this project from a world of Impeccable's catalogue. When no code carries that world
+   yet (a first build), the user has already chosen it: draw without `--replace-world`, follow
+   what the draw prints (it names the seeded world and deals no others), and the documenter's
+   choice at SEAL is `refresh`. When the site already carries it and this run replaces it (a
+   redesign), add `--replace-world` to the draw and to every re-roll, and the documenter's choice
+   is `overwrite`, with a line telling it that this world replaced the seeded one. Neither case is
+   a question for the user.
 1. Load Impeccable's `reference/new-work.md` and follow it, except its questions: those were
    asked at the summoning gate, and are not asked again. Name the product's one mechanism, the
    target's real scene, their cultural world, the page the whole category publishes, and its
@@ -98,7 +112,7 @@ root.
 Spawn it by agent type, fresh, with the packet; never paste its definition into a prompt, and
 never let it inherit your conversation. It answers in its own contract, a disposition
 (`recapture`, `rebuild`, `fix`, `ship`) then persistence, fidelity, ceiling, material fixes and
-keep, which `review.js` collects as fields. It has no browser and a hard turn ceiling: it reads
+keep, which `review.js` collects as fields. It writes nothing and has a hard turn ceiling: it reads
 the captures you name, and it **requires** `.impeccable/review/desktop.png` and `mobile.png`
 (the home page's full page, shot there unsegmented at every PROVE: `references/evidence.md`)
 before it reviews anything else. When the host does not list its agent type (an install made
@@ -106,6 +120,17 @@ during the session is loaded only when the host reloads its agents), pass its ow
 `reference/degraded/finish-reviewer.md` as `finishRole` instead. `recapture` means
 the evidence failed and nothing in that review binds; `rebuild` means a full review again after
 the rebuild, never a verdict pass.
+
+## The documenter
+
+Spawn it by agent type, fresh, like the finish reviewer (Claude Code: `impeccable-documenter`).
+From Impeccable 4.9.0 it never writes over an existing DESIGN.md unless the packet carries the
+choice for it, `refresh`, `overwrite` or `merge`, and answers "No changes" with the choice owed
+when it is missing. bunshin never asks the user that question: a direction round replaces the
+visual world, so the choice is `overwrite` (git keeps the old file), except on a seeded world's
+first build, where it is `refresh` (step 0 above). With no DESIGN.md at the write boundary, pass
+no choice. A "No changes" that names a choice owed means the packet was wrong: fix it and spawn a
+fresh documenter, never write DESIGN.md yourself over it.
 
 ## Without Impeccable
 
